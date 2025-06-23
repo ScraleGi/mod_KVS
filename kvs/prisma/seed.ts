@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
 async function seedDatabase() {
-    await prisma.user.createMany({
+    await prisma.Area.createMany({
         data: [
             {name: 'KI Campus'},
             {name: 'It & Coding Campus'},
