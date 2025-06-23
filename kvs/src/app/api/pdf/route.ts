@@ -1,13 +1,12 @@
-import { NextResponse } from 'next/server';
 import { generatePDF } from '@/utils/puppeteer';
 
 export async function GET() {
   const pdfBuffer = await generatePDF({
-    user: 'Digital Campus',
+    user: 'Max Mustermann',
     date: new Date().toLocaleDateString(),
   });
 
-  return new NextResponse(pdfBuffer, {
+  return new Response(pdfBuffer, {
     headers: {
       'Content-Type': 'application/pdf',
       'Content-Disposition': 'inline; filename="test.pdf"',
