@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '../generated/prisma'
 
 const prisma = new PrismaClient()
 
@@ -14,6 +14,7 @@ async function seedDatabase() {
             {name: 'Digital Studies'},
     ]
     })
+
 }
 
 seedDatabase()
