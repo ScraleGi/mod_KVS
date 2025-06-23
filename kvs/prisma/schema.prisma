@@ -15,7 +15,8 @@ datasource db {
 }
 
 model Area {
-  id String @id @default(uuid())
-  name String
+  id          String @id @default(uuid())
+  name        String
+  createdAt   DateTime @default(now())
 }
 
