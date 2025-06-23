@@ -8,10 +8,11 @@ const prisma = new PrismaClient()
 // Fetch all courses with their related area (for display)
 async function getCoursesWithArea() {
   return prisma.course.findMany({
-    orderBy: { createdAt: 'desc' }, // Show newest courses first
+    where: { deletedAt: null }, // Only not-deleted courses
+    orderBy: { createdAt: 'desc' },
     include: {
       area: {
-        select: { name: true } // Only fetch the area name
+        select: { name: true }
       }
     }
   })
@@ -21,11 +22,14 @@ async function getCoursesWithArea() {
 async function deleteCourse(formData: FormData) {
   'use server'
   const id = formData.get('id') as string
-  // Delete the course from the database
-  await prisma.course.delete({ where: { id } })
-  // Redirect back to the courses list after deletion
+  // Soft delete: set deletedAt to now
+  await prisma.course.update({
+    where: { id },
+    data: { deletedAt: new Date() },
+  })
   redirect('/courses')
 }
+
 
 // Main page component for listing all courses
 export default async function CoursesPage({ searchParams }: { searchParams?: { open?: string } }) {
@@ -170,6 +174,15 @@ export default async function CoursesPage({ searchParams }: { searchParams?: { o
                 </svg>
                 Back to Home
               </Link>
+            <Link
+                href="http://localhost:3000/courses/deleted"
+                className="ml-4 inline-flex items-center px-6 py-3 border border-gray-300 text-sm font-semibold rounded-xl text-gray-700 bg-red-100 hover:bg-red-200 shadow-sm hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+                Deleted Courses
+            </Link>
             </div>
           </div>
         </div>

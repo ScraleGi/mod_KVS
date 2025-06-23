@@ -11,6 +11,7 @@ async function getAreasWithCourses() {
     orderBy: { createdAt: 'desc' }, // Order areas by creation date (newest first)
     include: {
       courses: {
+        where: { deletedAt: null }, // Only not-deleted courses
         orderBy: { createdAt: 'desc' }, // Order courses by creation date (newest first)
         select: { id: true, name: true } // Only select course id and name
       }
