@@ -20,11 +20,11 @@ export default async function AreasPage() {
 
     return (
         <div>
-            <h1>Areas</h1>
+            <h1 className="text-4xl text-blue-900 tracking-wider font-bold mb-6">Areas</h1>
             <ul>
                 {areas.map(area => (
                     <li key={area.id}>
-                        <Link href={`/areas/${area.id}`}>{area.name}</Link>
+                        <Link href={`/areas/${area.id}/edit`}>{area.name}</Link>
                     </li>
                 ))}
             </ul>
@@ -32,16 +32,3 @@ export default async function AreasPage() {
     )
 }
 
-
-/*
-async function addKICampus() {
-  const area = await prisma.area.create({
-    data: { name: 'KI Campus' }
-  })
-  console.log('Added area:', area)
-}
-
-addKICampus()
-  .catch(e => console.error(e))
-  .finally(async () => await prisma.$disconnect())
-  */
