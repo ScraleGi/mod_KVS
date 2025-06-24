@@ -34,7 +34,6 @@ export default async function EditCoursePage({ params }: EditCoursePageProps) {
     const name = formData.get('name') as string
     const description = formData.get('description') as string
     const teachingUnits = formData.get('teachingUnits')
-    const courseStart = formData.get('courseStart')
     const price = formData.get('price')
     const areaId = formData.get('areaId') as string
 
@@ -45,7 +44,6 @@ export default async function EditCoursePage({ params }: EditCoursePageProps) {
         name,
         description: description || null,
         teachingUnits: teachingUnits ? Number(teachingUnits) : null,
-        courseStart: courseStart ? new Date(courseStart as string) : null,
         price: price ? Number(price) : null,
         areaId,
       },
@@ -141,19 +139,7 @@ export default async function EditCoursePage({ params }: EditCoursePageProps) {
                   placeholder="Enter number of units"
                 />
               </div>
-              {/* Course start date input */}
-              <div className="space-y-2">
-                <label htmlFor="courseStart" className="block text-sm font-medium text-gray-600">
-                  Course Start
-                </label>
-                <input
-                  id="courseStart"
-                  name="courseStart"
-                  type="date"
-                  defaultValue={course.courseStart ? course.courseStart.toISOString().split('T')[0] : ''}
-                  className="w-full px-5 py-3 bg-gray-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition-all duration-200"
-                />
-              </div>
+
               {/* Price input */}
               <div className="space-y-2">
                 <label htmlFor="price" className="block text-sm font-medium text-gray-600">

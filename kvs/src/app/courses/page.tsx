@@ -50,110 +50,140 @@ export default async function CoursesPage({ searchParams }: { searchParams?: { o
         <div className="backdrop-blur-sm bg-white/90 rounded-2xl shadow-xl overflow-hidden border border-gray-100 transition-all duration-300 hover:shadow-2xl">
           <div className="px-6 py-8">
             {/* List of all courses */}
-            <ul className="space-y-3">
-              {courses.map(course => {
-                // Determine if this course card should be expanded
-                const isOpen = open === course.id
-                // Set the href for toggling the open state using query params
-                const href = isOpen ? '/courses' : `/courses?open=${course.id}`
-                return (
-                  <li key={course.id} className="bg-gray-50 rounded-xl overflow-hidden transition-all duration-200 hover:shadow-md hover:translate-x-1">
-                    <div className="flex items-center justify-between p-4">
-                      {/* Course name, chevron, and area name (clickable to expand/collapse details) */}
-                      <Link
-                        href={href}
-                        scroll={false}
-                        className="flex-1 cursor-pointer select-none"
-                        aria-expanded={isOpen}
-                      >
-                        <div>
-                          <div className="flex items-center">
-                            {/* Course Name */}
-                            <span className="font-medium text-gray-700 text-lg">{course.name}</span>
-                            {/* Chevron icon, rotates if open */}
-                            <span className="ml-2">
-                              <svg
-                                className={`h-5 w-5 text-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                              >
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                              </svg>
-                            </span>
-                          </div>
-                          {/* Area Name below course name */}
-                          <div className="text-blue-600 font-semibold text-sm mt-1">{course.area?.name ?? 'Unknown Area'}</div>
-                        </div>
-                      </Link>
-                      {/* Edit and Delete buttons, always visible and horizontal */}
-                      <div className="flex items-center space-x-2 ml-4">
-                        {/* Edit button */}
-                        <Link
-                          href={`/courses/${course.id}/edit`}
-                          className="p-2 rounded-full bg-blue-50 text-blue-400 hover:bg-blue-100 hover:text-blue-600 transition-colors duration-200"
-                          aria-label={`Edit ${course.name}`}
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                            />
-                          </svg>
-                        </Link>
-                        {/* Delete button */}
-                        <form action={deleteCourse}>
-                          <input type="hidden" name="id" value={course.id} />
-                          <button
-                            type="submit"
-                            className="cursor-pointer p-2 rounded-full bg-red-50 text-red-400 hover:bg-red-100 hover:text-red-600 transition-colors duration-200"
-                            aria-label={`Delete ${course.name}`}
-                          >
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-5 w-5"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                              />
-                            </svg>
-                          </button>
-                        </form>
-                      </div>
-                    </div>
-                    {/* Expanded course details, shown only if this card is open */}
-                    {isOpen && (
-                      <div className="px-4 pb-4">
-                        {/* Description */}
-                        {course.description && (
-                          <div className="text-gray-500 text-sm mt-1">{course.description}</div>
-                        )}
-                        {/* Other details */}
-                        <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-xs text-gray-500">
-                          {course.teachingUnits && <span>Units: {course.teachingUnits}</span>}
-                          {course.courseStart && <span>Start: {new Date(course.courseStart).toLocaleDateString()}</span>}
-                          {course.price && <span>Price: €{course.price.toFixed(2)}</span>}
-                        </div>
-                      </div>
-                    )}
-                  </li>
-                )
-              })}
-            </ul>
+           
+<ul className="space-y-3">
+  {courses.map(course => {
+    // Determine if this course card should be expanded
+    const isOpen = open === course.id
+    // Set the href for toggling the open state using query params
+    const href = isOpen ? '/courses' : `/courses?open=${course.id}`
+    return (
+      <li key={course.id} className="bg-gray-50 rounded-xl overflow-hidden transition-all duration-200 hover:shadow-md hover:translate-x-1">
+        <div className="flex items-center justify-between p-4">
+          {/* Course name, chevron, and area name (clickable to expand/collapse details) */}
+          <Link
+            href={href}
+            scroll={false}
+            className="flex-1 cursor-pointer select-none"
+            aria-expanded={isOpen}
+          >
+            <div>
+              <div className="flex items-center">
+                {/* Course Name */}
+                <span className="font-medium text-gray-700 text-lg">{course.name}</span>
+                {/* Chevron icon, rotates if open */}
+                <span className="ml-2">
+                  <svg
+                    className={`h-5 w-5 text-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </span>
+              </div>
+              {/* Area Name below course name */}
+              <div className="text-blue-600 font-semibold text-sm mt-1">{course.area?.name ?? 'Unknown Area'}</div>
+            </div>
+          </Link>
+          {/* Details, Edit and Delete buttons */}
+          <div className="flex items-center space-x-2 ml-4">
+            {/* Details button (new, leftmost) */}
+          <Link
+            href={`/courses/${course.id}`}
+            className="p-2 rounded-full bg-gray-100 text-blue-700 hover:bg-blue-100 hover:text-blue-900 transition-colors duration-200"
+            aria-label={`Details for ${course.name}`}
+          >
+            {/* Modern "eye" icon for details (Heroicons Eye 2024) */}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M2.25 12s3.75-7.5 9.75-7.5 9.75 7.5 9.75 7.5-3.75 7.5-9.75 7.5S2.25 12 2.25 12z"
+              />
+              <circle
+                cx="12"
+                cy="12"
+                r="3"
+                stroke="currentColor"
+                strokeWidth={2}
+                fill="none"
+              />
+            </svg>
+          </Link>
+            {/* Edit button */}
+            <Link
+              href={`/courses/${course.id}/edit`}
+              className="p-2 rounded-full bg-blue-50 text-blue-400 hover:bg-blue-100 hover:text-blue-600 transition-colors duration-200"
+              aria-label={`Edit ${course.name}`}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                />
+              </svg>
+            </Link>
+            {/* Delete button */}
+            <form action={deleteCourse}>
+              <input type="hidden" name="id" value={course.id} />
+              <button
+                type="submit"
+                className="cursor-pointer p-2 rounded-full bg-red-50 text-red-400 hover:bg-red-100 hover:text-red-600 transition-colors duration-200"
+                aria-label={`Delete ${course.name}`}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                  />
+                </svg>
+              </button>
+            </form>
+          </div>
+        </div>
+        {/* Expanded course details, shown only if this card is open */}
+        {isOpen && (
+          <div className="px-4 pb-4">
+            {/* Description */}
+            {course.description && (
+              <div className="text-gray-500 text-sm mt-1">{course.description}</div>
+            )}
+            {/* Other details */}
+            <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-xs text-gray-500">
+              {course.teachingUnits && <span>Units: {course.teachingUnits}</span>}
+              {course.price && <span>Price: €{course.price.toFixed(2)}</span>}
+            </div>
+          </div>
+        )}
+      </li>
+    )
+  })}
+</ul>
             {/* Add new course and back to home buttons */}
             <div className="mt-8 flex justify-center">
               <Link
