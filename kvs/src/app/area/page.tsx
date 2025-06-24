@@ -5,29 +5,29 @@ import { redirect } from 'next/navigation'
 // Initialize Prisma client for database operations
 const prisma = new PrismaClient()
 
-// Fetch all areas and their courses from the database
-async function getAreasWithCourses() {
+// Fetch all areas and their programs from the database
+async function getAreasWithPrograms() {
   return prisma.area.findMany({
     where: { deletedAt: null }, // Only fetch areas that are not soft-deleted
     orderBy: { createdAt: 'desc' }, // Order areas by creation date (newest first)
     include: {
-      courses: {
-        where: { deletedAt: null }, // Only not-deleted courses
-        orderBy: { createdAt: 'desc' }, // Order courses by creation date (newest first)
-        select: { id: true, name: true } // Only select course id and name
+      programs: {
+        where: { deletedAt: null }, // Only not-deleted programs
+        orderBy: { createdAt: 'desc' }, // Order programs by creation date (newest first)
+        select: { id: true, name: true } // Only select program id and name
       }
     }
   })
 }
 
-// Server action to soft delete an area and all its courses
+// Server action to soft delete an area and all its programs
 async function deleteArea(formData: FormData) {
   'use server'
   const id = formData.get('id') as string
   const now = new Date()
 
-  // Soft delete all courses in the area
-  await prisma.course.updateMany({
+  // Soft delete all programs in the area
+  await prisma.program.updateMany({
     where: { areaId: id },
     data: { deletedAt: now }
   })
@@ -38,14 +38,14 @@ async function deleteArea(formData: FormData) {
     data: { deletedAt: now }
   })
 
-  // Redirect back to the areas list after deletion
-  redirect('/areas')
+  // Redirect back to the area list after deletion
+  redirect('/area')
 }
 
 // Main page component for listing all areas
 export default async function AreasPage({ searchParams }: { searchParams?: { open?: string } }) {
-  // Fetch areas and their courses
-  const areas = await getAreasWithCourses()
+  // Fetch areas and their programs
+  const areas = await getAreasWithPrograms()
 
   // Await searchParams (Next.js 15+ requirement) and get the 'open' param if present
   // 'open' will be the id of the area to expand, or undefined if none is open
@@ -66,7 +66,7 @@ export default async function AreasPage({ searchParams }: { searchParams?: { ope
                 // Determine if this area card should be expanded
                 const isOpen = open === area.id
                 // Set the href for toggling the open state using query params
-                const href = isOpen ? '/areas' : `/areas?open=${area.id}`
+                const href = isOpen ? '/area' : `/area?open=${area.id}`
                 return (
                   <li key={area.id} className="bg-gray-50 rounded-xl overflow-hidden transition-all duration-200 hover:shadow-md hover:translate-x-1">
                     <div className="flex items-center justify-between p-4">
@@ -94,7 +94,7 @@ export default async function AreasPage({ searchParams }: { searchParams?: { ope
                       <div className="flex items-center space-x-2 ml-4">
                         {/* Edit button */}
                         <Link
-                          href={`/areas/${area.id}/edit`}
+                          href={`/area/${area.id}/edit`}
                           className="p-2 rounded-full bg-blue-50 text-blue-400 hover:bg-blue-100 hover:text-blue-600 transition-colors duration-200"
                           aria-label={`Edit ${area.name}`}
                         >
@@ -142,17 +142,17 @@ export default async function AreasPage({ searchParams }: { searchParams?: { ope
                     {/* Expanded area details, shown only if this card is open */}
                     {isOpen && (
                       <div className="px-4 pb-4">
-                        {/* List of courses for this area */}
-                        {area.courses.length > 0 ? (
+                        {/* List of programs for this area */}
+                        {area.programs.length > 0 ? (
                           <ul className="list-disc pl-5 space-y-1">
-                            {area.courses.map(course => (
-                              <li key={course.id}>
+                            {area.programs.map(program => (
+                              <li key={program.id}>
                                 {/* Each course name is a link to its detail page */}
                                 <Link
-                                  href={`/courses/${course.id}`}
+                                  href={`/program/${program.id}`}
                                   className="text-blue-700 hover:underline"
                                 >
-                                  {course.name}
+                                  {program.name}
                                 </Link>
                               </li>
                             ))}
@@ -166,10 +166,10 @@ export default async function AreasPage({ searchParams }: { searchParams?: { ope
                 )
               })}
             </ul>
-            {/* Add new area and back to home buttons */}
+            {/* Add new area, back to home and Deleted Programs buttons */}
             <div className="mt-8 flex justify-center">
               <Link
-                href="/areas/new"
+                href="/area/new"
                 className="inline-flex items-center px-6 py-3 border border-transparent text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-md hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
@@ -187,13 +187,13 @@ export default async function AreasPage({ searchParams }: { searchParams?: { ope
                 Back to Home
               </Link>
               <Link
-                  href="http://localhost:3000/areas/deleted"
+                  href="http://localhost:3000/area/deleted"
                   className="ml-4 inline-flex items-center px-6 py-3 border border-gray-300 text-sm font-semibold rounded-xl text-gray-700 bg-red-100 hover:bg-red-200 shadow-sm hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
                   </svg>
-                  Deleted Courses
+                  Deleted Areas
               </Link>
             </div>
           </div>

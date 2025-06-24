@@ -13,12 +13,12 @@ async function restoreArea(formData: FormData) {
         where: { id },
         data: { deletedAt: null }
     })
-    // Restore all courses in this area
-    await prisma.course.updateMany({
+    // Restore all programs in this area
+    await prisma.program.updateMany({
         where: { areaId: id },
         data: { deletedAt: null }
     })
-    redirect('/areas/deleted')
+    redirect('/area/deleted')
 }
 
 export default async function DeletedAreasPage() {
@@ -27,7 +27,7 @@ export default async function DeletedAreasPage() {
         where: { deletedAt: { not: null } },
         orderBy: { deletedAt: 'desc' },
         include: {
-            courses: {
+            programs: {
                 where: { deletedAt: { not: null } },
                 select: { id: true, name: true }
             }
@@ -45,9 +45,9 @@ export default async function DeletedAreasPage() {
                         <li key={area.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 bg-white rounded-lg shadow">
                             <div>
                                 <span className="font-medium text-gray-700">{area.name}</span>
-                                {area.courses.length > 0 && (
+                                {area.programs.length > 0 && (
                                     <div className="text-xs text-gray-500 mt-1">
-                                        Courses: {area.courses.map(c => c.name).join(', ')}
+                                        Courses: {area.programs.map(p => p.name).join(', ')}
                                     </div>
                                 )}
                             </div>
@@ -65,7 +65,7 @@ export default async function DeletedAreasPage() {
                 </ul>
             )}
             <Link 
-                href="/areas" 
+                href="/area" 
                 className="mt-6 inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
             >
                 <span className="mr-2">←</span> Back to Areas

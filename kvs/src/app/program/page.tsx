@@ -5,10 +5,10 @@ import { redirect } from 'next/navigation'
 // Initialize Prisma client for database operations
 const prisma = new PrismaClient()
 
-// Fetch all courses with their related area (for display)
-async function getCoursesWithArea() {
-  return prisma.course.findMany({
-    where: { deletedAt: null }, // Only not-deleted courses
+// Fetch all programs with their related area (for display)
+async function getProgramsWithArea() {
+  return prisma.program.findMany({
+    where: { deletedAt: null }, // Only not-deleted programs
     orderBy: { createdAt: 'desc' },
     include: {
       area: {
@@ -18,25 +18,25 @@ async function getCoursesWithArea() {
   })
 }
 
-// Server action to delete a course by its id
-async function deleteCourse(formData: FormData) {
+// Server action to delete a program by its id
+async function deleteProgram(formData: FormData) {
   'use server'
   const id = formData.get('id') as string
   // Soft delete: set deletedAt to now
-  await prisma.course.update({
+  await prisma.program.update({
     where: { id },
     data: { deletedAt: new Date() },
   })
-  redirect('/courses')
+  redirect('/program')
 }
 
 
-// Main page component for listing all courses
-export default async function CoursesPage({ searchParams }: { searchParams?: { open?: string } }) {
-  // Fetch all courses and their areas from the database
-  const courses = await getCoursesWithArea()
+// Main page component for listing all programs
+export default async function ProgramsPage({ searchParams }: { searchParams?: { open?: string } }) {
+  // Fetch all programs and their areas from the database
+  const programs = await getProgramsWithArea()
   // Await searchParams (Next.js 15+ requirement) and get the 'open' param if present
-  // 'open' will be the id of the course to expand, or undefined if none is open
+  // 'open' will be the id of the program to expand, or undefined if none is open
   const params = searchParams ? await searchParams : {}
   const open = params.open
 
@@ -45,22 +45,22 @@ export default async function CoursesPage({ searchParams }: { searchParams?: { o
       <div className="max-w-3xl mx-auto">
         {/* Page Title */}
         <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-700 mb-8 tracking-tight text-center">
-          Courses
+          Programs
         </h1>
         <div className="backdrop-blur-sm bg-white/90 rounded-2xl shadow-xl overflow-hidden border border-gray-100 transition-all duration-300 hover:shadow-2xl">
           <div className="px-6 py-8">
-            {/* List of all courses */}
+            {/* List of all programs */}
            
 <ul className="space-y-3">
-  {courses.map(course => {
-    // Determine if this course card should be expanded
-    const isOpen = open === course.id
+  {programs.map(program => {
+    // Determine if this program card should be expanded
+    const isOpen = open === program.id
     // Set the href for toggling the open state using query params
-    const href = isOpen ? '/courses' : `/courses?open=${course.id}`
+    const href = isOpen ? '/program' : `/program?open=${program.id}`
     return (
-      <li key={course.id} className="bg-gray-50 rounded-xl overflow-hidden transition-all duration-200 hover:shadow-md hover:translate-x-1">
+      <li key={program.id} className="bg-gray-50 rounded-xl overflow-hidden transition-all duration-200 hover:shadow-md hover:translate-x-1">
         <div className="flex items-center justify-between p-4">
-          {/* Course name, chevron, and area name (clickable to expand/collapse details) */}
+          {/* Program name, chevron, and area name (clickable to expand/collapse details) */}
           <Link
             href={href}
             scroll={false}
@@ -69,8 +69,8 @@ export default async function CoursesPage({ searchParams }: { searchParams?: { o
           >
             <div>
               <div className="flex items-center">
-                {/* Course Name */}
-                <span className="font-medium text-gray-700 text-lg">{course.name}</span>
+                {/* Program Name */}
+                <span className="font-medium text-gray-700 text-lg">{program.name}</span>
                 {/* Chevron icon, rotates if open */}
                 <span className="ml-2">
                   <svg
@@ -83,17 +83,17 @@ export default async function CoursesPage({ searchParams }: { searchParams?: { o
                   </svg>
                 </span>
               </div>
-              {/* Area Name below course name */}
-              <div className="text-blue-600 font-semibold text-sm mt-1">{course.area?.name ?? 'Unknown Area'}</div>
+              {/* Area Name below program name */}
+              <div className="text-blue-600 font-semibold text-sm mt-1">{program.area?.name ?? 'Unknown Area'}</div>
             </div>
           </Link>
           {/* Details, Edit and Delete buttons */}
           <div className="flex items-center space-x-2 ml-4">
             {/* Details button (new, leftmost) */}
           <Link
-            href={`/courses/${course.id}`}
+            href={`/program/${program.id}`}
             className="p-2 rounded-full bg-gray-100 text-blue-700 hover:bg-blue-100 hover:text-blue-900 transition-colors duration-200"
-            aria-label={`Details for ${course.name}`}
+            aria-label={`Details for ${program.name}`}
           >
             {/* Modern "eye" icon for details (Heroicons Eye 2024) */}
             <svg
@@ -121,9 +121,9 @@ export default async function CoursesPage({ searchParams }: { searchParams?: { o
           </Link>
             {/* Edit button */}
             <Link
-              href={`/courses/${course.id}/edit`}
+              href={`/program/${program.id}/edit`}
               className="p-2 rounded-full bg-blue-50 text-blue-400 hover:bg-blue-100 hover:text-blue-600 transition-colors duration-200"
-              aria-label={`Edit ${course.name}`}
+              aria-label={`Edit ${program.name}`}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -141,12 +141,12 @@ export default async function CoursesPage({ searchParams }: { searchParams?: { o
               </svg>
             </Link>
             {/* Delete button */}
-            <form action={deleteCourse}>
-              <input type="hidden" name="id" value={course.id} />
+            <form action={deleteProgram}>
+              <input type="hidden" name="id" value={program.id} />
               <button
                 type="submit"
                 className="cursor-pointer p-2 rounded-full bg-red-50 text-red-400 hover:bg-red-100 hover:text-red-600 transition-colors duration-200"
-                aria-label={`Delete ${course.name}`}
+                aria-label={`Delete ${program.name}`}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -166,17 +166,17 @@ export default async function CoursesPage({ searchParams }: { searchParams?: { o
             </form>
           </div>
         </div>
-        {/* Expanded course details, shown only if this card is open */}
+        {/* Expanded program details, shown only if this card is open */}
         {isOpen && (
           <div className="px-4 pb-4">
             {/* Description */}
-            {course.description && (
-              <div className="text-gray-500 text-sm mt-1">{course.description}</div>
+            {program.description && (
+              <div className="text-gray-500 text-sm mt-1">{program.description}</div>
             )}
             {/* Other details */}
             <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-xs text-gray-500">
-              {course.teachingUnits && <span>Units: {course.teachingUnits}</span>}
-              {course.price && <span>Price: €{course.price.toFixed(2)}</span>}
+              {program.teachingUnits && <span>Units: {program.teachingUnits}</span>}
+              {program.price && <span>Price: €{program.price.toFixed(2)}</span>}
             </div>
           </div>
         )}
@@ -184,16 +184,16 @@ export default async function CoursesPage({ searchParams }: { searchParams?: { o
     )
   })}
 </ul>
-            {/* Add new course and back to home buttons */}
+            {/* Add new program and back to home buttons */}
             <div className="mt-8 flex justify-center">
               <Link
-                href="/courses/new"
+                href="/program/new"
                 className="inline-flex items-center px-6 py-3 border border-transparent text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-md hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
                 </svg>
-                Add New Course
+                Add New Program
               </Link>
               <Link
                 href="/"
@@ -205,13 +205,13 @@ export default async function CoursesPage({ searchParams }: { searchParams?: { o
                 Back to Home
               </Link>
             <Link
-                href="http://localhost:3000/courses/deleted"
+                href="http://localhost:3000/program/deleted"
                 className="ml-4 inline-flex items-center px-6 py-3 border border-gray-300 text-sm font-semibold rounded-xl text-gray-700 bg-red-100 hover:bg-red-200 shadow-sm hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
                 </svg>
-                Deleted Courses
+                Deleted Programs
             </Link>
             </div>
           </div>

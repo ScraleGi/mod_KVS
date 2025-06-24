@@ -14,7 +14,7 @@ export default function Home() {
         <ul className="space-y-4">
           <li>
             <Link
-              href="/areas"
+              href="/area"
               className="block w-full text-center px-6 py-3 rounded-xl font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-md hover:shadow-lg transition-all duration-200"
             >
               View Areas
@@ -22,10 +22,26 @@ export default function Home() {
           </li>
           <li>
             <Link
-              href="/courses"
+              href="/program"
+              className="block w-full text-center px-6 py-3 rounded-xl font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-md hover:shadow-lg transition-all duration-200"
+            >
+              View Programs
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="/course"
               className="block w-full text-center px-6 py-3 rounded-xl font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-md hover:shadow-lg transition-all duration-200"
             >
               View Courses
+            </Link>
+          </li>
+                    <li>
+            <Link
+              href="/table"
+              className="block w-full text-center px-6 py-3 rounded-xl font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-md hover:shadow-lg transition-all duration-200"
+            >
+              View Courses Table
             </Link>
           </li>
         </ul>

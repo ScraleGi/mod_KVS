@@ -5,29 +5,29 @@ import Link from 'next/link'
 // Initialize Prisma client for database operations
 const prisma = new PrismaClient()
 
-// Props interface for the EditCoursePage component
-interface EditCoursePageProps {
+// Props interface for the EditProgramPage component
+interface EditProgramPageProps {
   params: {
     id: string
   }
 }
 
-// Edit Course Page component
-export default async function EditCoursePage({ params }: EditCoursePageProps) {
-  // Await params (Next.js 15+ requirement) and get the course id
+// Edit Program Page component
+export default async function EditProgramPage({ params }: EditProgramPageProps) {
+  // Await params (Next.js 15+ requirement) and get the program id
   const { id } = await params
 
-  // Fetch the course to edit and all areas for the dropdown in parallel
-  const [course, areas] = await Promise.all([
-    prisma.course.findUnique({
+  // Fetch the program to edit and all areas for the dropdown in parallel
+  const [program, areas] = await Promise.all([
+    prisma.program.findUnique({
       where: { id },
       include: { area: true },
     }),
     prisma.area.findMany({ orderBy: { name: 'asc' } }),
   ])
 
-  // Server action to update the course in the database
-  const changeCourse = async (formData: FormData) => {
+  // Server action to update the program in the database
+  const changeProgram = async (formData: FormData) => {
     'use server'
     // Get all form values
     const id = formData.get('id') as string
@@ -37,8 +37,8 @@ export default async function EditCoursePage({ params }: EditCoursePageProps) {
     const price = formData.get('price')
     const areaId = formData.get('areaId') as string
 
-    // Update the course in the database
-    await prisma.course.update({
+    // Update the program in the database
+    await prisma.program.update({
       where: { id },
       data: {
         name,
@@ -48,15 +48,15 @@ export default async function EditCoursePage({ params }: EditCoursePageProps) {
         areaId,
       },
     })
-    // Redirect back to the courses list after saving
-    redirect('/courses')
+    // Redirect back to the program list after saving
+    redirect('/program')
   }
 
-  // If the course does not exist, show an error message
-  if (!course) {
+  // If the program does not exist, show an error message
+  if (!program) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg text-red-500">Course not found.</div>
+        <div className="text-lg text-red-500">Program not found.</div>
       </div>
     )
   }
@@ -69,13 +69,13 @@ export default async function EditCoursePage({ params }: EditCoursePageProps) {
           <div className="px-8 py-10">
             {/* Page title */}
             <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-700 mb-8 tracking-tight">
-              Edit Course
+              Edit Program
             </h1>
-            {/* Edit course form */}
-            <form action={changeCourse} className="space-y-8">
-              {/* Hidden input for course id */}
+            {/* Edit program form */}
+            <form action={changeProgram} className="space-y-8">
+              {/* Hidden input for program id */}
               <input type="hidden" name="id" value={id} />
-              {/* Course name input */}
+              {/* Program name input */}
               <div className="space-y-2">
                 <label htmlFor="name" className="block text-sm font-medium text-gray-600">
                   Name
@@ -84,10 +84,10 @@ export default async function EditCoursePage({ params }: EditCoursePageProps) {
                   id="name"
                   name="name"
                   type="text"
-                  defaultValue={course.name}
+                  defaultValue={program.name}
                   required
                   className="w-full px-5 py-3 bg-gray-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition-all duration-200"
-                  placeholder="Enter course name"
+                  placeholder="Enter program name"
                 />
               </div>
               {/* Area select dropdown */}
@@ -98,7 +98,7 @@ export default async function EditCoursePage({ params }: EditCoursePageProps) {
                 <select
                   id="areaId"
                   name="areaId"
-                  defaultValue={course.areaId}
+                  defaultValue={program.areaId}
                   required
                   className="w-full px-5 py-3 bg-gray-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition-all duration-200"
                 >
@@ -118,9 +118,9 @@ export default async function EditCoursePage({ params }: EditCoursePageProps) {
                 <textarea
                   id="description"
                   name="description"
-                  defaultValue={course.description || ''}
+                  defaultValue={program.description || ''}
                   className="w-full px-5 py-3 bg-gray-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition-all duration-200"
-                  placeholder="Enter course description"
+                  placeholder="Enter program description"
                   rows={3}
                 />
               </div>
@@ -134,7 +134,7 @@ export default async function EditCoursePage({ params }: EditCoursePageProps) {
                   name="teachingUnits"
                   type="number"
                   min={0}
-                  defaultValue={course.teachingUnits ?? ''}
+                  defaultValue={program.teachingUnits ?? ''}
                   className="w-full px-5 py-3 bg-gray-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition-all duration-200"
                   placeholder="Enter number of units"
                 />
@@ -151,7 +151,7 @@ export default async function EditCoursePage({ params }: EditCoursePageProps) {
                   type="number"
                   min={0}
                   step="0.01"
-                  defaultValue={course.price ?? ''}
+                  defaultValue={program.price ?? ''}
                   className="w-full px-5 py-3 bg-gray-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition-all duration-200"
                   placeholder="Enter price"
                 />
@@ -165,15 +165,15 @@ export default async function EditCoursePage({ params }: EditCoursePageProps) {
                 >
                   Save Changes
                 </button>
-                {/* Back to Courses link */}
+                {/* Back to Program link */}
                 <Link
-                  href="/courses"
+                  href="/program"
                   className="text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors duration-200 flex items-center"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                   </svg>
-                  Back to Courses
+                  Back to Programs
                 </Link>
               </div>
             </form>

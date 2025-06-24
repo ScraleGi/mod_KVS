@@ -19,10 +19,10 @@ model Area {
   name        String
   createdAt   DateTime @default(now())
   deletedAt   DateTime? // Soft delete: null = not deleted, date = deleted
-  courses     Course[] // Relation: one Area has many Courses
+  programs    Program[] // Relation: one Area has many Programs
 }
 
-model Course { // Program
+model Program { 
   id            String   @id @default(uuid())
   name          String
   description   String?    // optional
@@ -32,34 +32,33 @@ model Course { // Program
   deletedAt     DateTime? // Soft delete: null = not deleted, date = deleted
   areaId        String
   area          Area     @relation(fields: [areaId], references: [id])
-  courseDates   CourseDate[]
+  course        Course[]
 }
 
-model CourseDate { // Course
-  id         String   @id @default(uuid())
-  courseId   String
-  course     Course   @relation(fields: [courseId], references: [id])
-  startDate  DateTime
-  trainerId  String?
-  trainer    Trainer? @relation(fields: [trainerId], references: [id])
+model Course { 
+  id            String   @id @default(uuid())
+  programId     String
+  program       Program   @relation(fields: [programId], references: [id])
+  startDate     DateTime
+  trainerId     String?
+  trainer       Trainer? @relation(fields: [trainerId], references: [id])
   registrations CourseRegistration[]
 }
 
 model Trainer {
   id          String        @id @default(uuid())
   name        String
-  courseDates CourseDate[]
+  course      Course[]
 }
 
 model CourseRegistration {
-  id           String      @id @default(uuid())
-  courseDateId String
-  courseDate   CourseDate  @relation(fields: [courseDateId], references: [id])
+  id            String      @id @default(uuid())
+  courseId      String
+  course        Course @relation(fields: [courseId], references: [id])
   participantId String
-  participant  Participant @relation(fields: [participantId], references: [id])
-  status       RegistrationStatus
-  invoiceId    String?
-  invoice      Invoice?    @relation(fields: [invoiceId], references: [id]) // change to array
+  participant   Participant @relation(fields: [participantId], references: [id])
+  status        RegistrationStatus
+  invoices      Invoice[]  
 }
 
 model Participant {
@@ -70,9 +69,10 @@ model Participant {
 }
 
 model Invoice {
-  id                String               @id @default(uuid())
-  amount            Float
-  registrations     CourseRegistration[] // change to courseregistrationID?
+  id                    String               @id @default(uuid())
+  amount                Float
+  courseRegistrationId  String
+  courseRegistration    CourseRegistration   @relation(fields: [courseRegistrationId], references: [id])
 }
 
 enum RegistrationStatus {
