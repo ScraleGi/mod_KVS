@@ -1,3 +1,4 @@
+// Deine Version
 'use client';
 
 export default function TestPDF() {
@@ -10,9 +11,19 @@ export default function TestPDF() {
     const blob = await res.blob();
     const url = URL.createObjectURL(blob);
 
+    // Parse filename from Content-Disposition header für Filenmae das es so heis
+    const disposition = res.headers.get('Content-Disposition');
+    let filename = 'download.pdf';
+    if (disposition) {
+      const match = disposition.match(/filename\*?=(?:UTF-8'')?["']?([^;"']+)/i);
+      if (match && match[1]) {
+        filename = decodeURIComponent(match[1]);
+      }
+    }
+
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'mein.pdf';
+    a.download = filename;
     a.click();
 
     URL.revokeObjectURL(url);
