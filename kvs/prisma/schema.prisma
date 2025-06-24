@@ -22,7 +22,7 @@ model Area {
   courses     Course[] // Relation: one Area has many Courses
 }
 
-model Course {
+model Course { // Program
   id            String   @id @default(uuid())
   name          String
   description   String?    // optional
@@ -32,5 +32,53 @@ model Course {
   deletedAt     DateTime? // Soft delete: null = not deleted, date = deleted
   areaId        String
   area          Area     @relation(fields: [areaId], references: [id])
+  courseDates   CourseDate[]
+}
+
+model CourseDate { // Course
+  id         String   @id @default(uuid())
+  courseId   String
+  course     Course   @relation(fields: [courseId], references: [id])
+  startDate  DateTime
+  trainerId  String?
+  trainer    Trainer? @relation(fields: [trainerId], references: [id])
+  registrations CourseRegistration[]
+}
+
+model Trainer {
+  id          String        @id @default(uuid())
+  name        String
+  courseDates CourseDate[]
+}
+
+model CourseRegistration {
+  id           String      @id @default(uuid())
+  courseDateId String
+  courseDate   CourseDate  @relation(fields: [courseDateId], references: [id])
+  participantId String
+  participant  Participant @relation(fields: [participantId], references: [id])
+  status       RegistrationStatus
+  invoiceId    String?
+  invoice      Invoice?    @relation(fields: [invoiceId], references: [id]) // change to array
+}
+
+model Participant {
+  id                String               @id @default(uuid())
+  name              String
+  email             String
+  registrations     CourseRegistration[]
+}
+
+model Invoice {
+  id                String               @id @default(uuid())
+  amount            Float
+  registrations     CourseRegistration[] // change to courseregistrationID?
+}
+
+enum RegistrationStatus {
+  Interested
+  Registered
+  Started
+  Finished
 }
 
