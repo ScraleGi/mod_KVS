@@ -1,5 +1,6 @@
 import { PrismaClient } from '../../../../generated/prisma/client'
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 
 const prisma = new PrismaClient()
 
@@ -45,6 +46,12 @@ export default async function DeletedCoursesPage() {
                     ))}
                 </ul>
             )}
+            <Link 
+                href="/areas" 
+                className="mt-6 inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
+            >
+                <span className="mr-2">←</span> Back to Areas
+            </Link>
         </div>
     )
 }

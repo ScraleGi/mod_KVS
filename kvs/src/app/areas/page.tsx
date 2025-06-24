@@ -8,6 +8,7 @@ const prisma = new PrismaClient()
 // Fetch all areas and their courses from the database
 async function getAreasWithCourses() {
   return prisma.area.findMany({
+    where: { deletedAt: null }, // Only fetch areas that are not soft-deleted
     orderBy: { createdAt: 'desc' }, // Order areas by creation date (newest first)
     include: {
       courses: {
@@ -19,14 +20,24 @@ async function getAreasWithCourses() {
   })
 }
 
-// Server action to delete an area and all its courses
+// Server action to soft delete an area and all its courses
 async function deleteArea(formData: FormData) {
   'use server'
   const id = formData.get('id') as string
-  // Delete all courses in the area first to avoid foreign key constraint errors
-  await prisma.course.deleteMany({ where: { areaId: id } })
-  // Delete the area itself
-  await prisma.area.delete({ where: { id } })
+  const now = new Date()
+
+  // Soft delete all courses in the area
+  await prisma.course.updateMany({
+    where: { areaId: id },
+    data: { deletedAt: now }
+  })
+
+  // Soft delete the area itself
+  await prisma.area.update({
+    where: { id },
+    data: { deletedAt: now }
+  })
+
   // Redirect back to the areas list after deletion
   redirect('/areas')
 }
@@ -174,6 +185,15 @@ export default async function AreasPage({ searchParams }: { searchParams?: { ope
                   <path fillRule="evenodd" d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z" clipRule="evenodd" />
                 </svg>
                 Back to Home
+              </Link>
+              <Link
+                  href="http://localhost:3000/areas/deleted"
+                  className="ml-4 inline-flex items-center px-6 py-3 border border-gray-300 text-sm font-semibold rounded-xl text-gray-700 bg-red-100 hover:bg-red-200 shadow-sm hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  Deleted Courses
               </Link>
             </div>
           </div>
