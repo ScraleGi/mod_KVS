@@ -1,4 +1,6 @@
-import React from 'react';
+'use client'
+
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { FaBars, FaSearch, FaBell, FaUserCircle } from 'react-icons/fa';
 
@@ -8,9 +10,20 @@ type NavbarProps = {
 }
 
 const Navbar = ({ isOpen, setOpen }: NavbarProps) => {
+    const [mounted, setMounted] = useState(false);
+    const [searchValue, setSearchValue] = useState('');
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchValue(e.target.value);
+    };
+
     return (
-        <div className='bg-gray-800 px-4 py-2 flex justify-between items-center '>
-            <div className='flex items-center text-lg gap-x-42 '>
+        <div className='bg-gray-800 px-4 py-2 flex justify-between items-center'>
+            <div className='flex items-center text-lg gap-x-42'>
                 <FaBars
                     onClick={() => setOpen(!isOpen)}
                     className='text-white w-6 h-6 my-2 cursor-pointer'
@@ -33,12 +46,16 @@ const Navbar = ({ isOpen, setOpen }: NavbarProps) => {
                     <span className='absolute inset-y-0 left-0 flex items-center pl-3'>
                         <FaSearch className='text-gray-400' />
                     </span>
-                    <input 
-                        type='search'
-                        className='w-full bg-white text-gray-900 rounded px-4 py-1 pl-10 shadow outline-none transition focus:ring-1 focus:ring-gray-300 focus:shadow-lg'
-                        placeholder='Suche...'
-                        aria-label='Suche Kurse'
-                    />
+                    {mounted && (
+                        <input 
+                            type='text'
+                            value={searchValue}
+                            onChange={handleSearch}
+                            className='w-full bg-white text-gray-900 rounded px-4 py-1 pl-10 shadow outline-none transition focus:ring-1 focus:ring-gray-300 focus:shadow-lg'
+                            placeholder='Suche...'
+                            aria-label='Suche Kurse'
+                        />
+                    )}
                 </div>
 
                 <div className='text-white'>
@@ -61,7 +78,7 @@ const Navbar = ({ isOpen, setOpen }: NavbarProps) => {
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};
 
 export default Navbar;
