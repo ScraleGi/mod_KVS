@@ -28,7 +28,8 @@ const Navbar = ({ isOpen, setOpen }: NavbarProps) => {
             <div className='flex items-center text-lg space-x-15'>
                 <FaBars
                     onClick={() => setOpen(!isOpen)}
-                    className='text-white w-6 h-6 my-2 cursor-pointer'
+                    className='text-white w-6 h-6 my-2 cursor-pointer transition-transform duration-150 hover:scale-110 focus:scale-110'
+                    tabIndex={0}
                 />
                 <div className="my-2 mb-4 mr-8 flex items-center gap-x-4">
                     <Image
@@ -62,13 +63,14 @@ const Navbar = ({ isOpen, setOpen }: NavbarProps) => {
 
                 <div className='text-white'>
                     <FaBell 
-                        className='w-6 h-6 cursor-pointer'
+                        className='w-6 h-6 cursor-pointer transition-transform duration-150 hover:scale-110 focus:scale-110'
+                        tabIndex={0}
                     />
                 </div>
 
                 <div className='relative'>
                     <button className='text-white group focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-white'>
-                        <FaUserCircle className='w-6 h-6 mt-1 cursor-pointer'/>
+                        <FaUserCircle className='w-6 h-6 mt-1 cursor-pointer transition-transform duration-150 group-hover:scale-110 group-focus:scale-110'/>
                         <div className='z-10 hidden absolute bg-white rounded-lg shadow w-32 group-focus-within:block top-full right-0'>
                             <ul className='py-2 text-sm text-gray-950'>
                                 <li>
