@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import { FaBars, FaSearch, FaBell, FaUserCircle } from 'react-icons/fa';
 
 type NavbarProps = {
@@ -9,12 +10,19 @@ type NavbarProps = {
 const Navbar = ({ isOpen, setOpen }: NavbarProps) => {
     return (
         <div className='bg-gray-800 px-4 py-2 flex justify-between items-center '>
-            <div className='flex items-center text-lg gap-x-52 '>
+            <div className='flex items-center text-lg gap-x-42 '>
                 <FaBars
                     onClick={() => setOpen(!isOpen)}
                     className='text-white w-6 h-6 my-2 cursor-pointer'
                 />
-                <div className="my-2 mb-4 mr-8">
+                <div className="my-2 mb-4 mr-8 flex items-center gap-x-4">
+                    <Image
+                        src='/img/DCV_Signet_neg_tuerkis_WEB.svg'
+                        alt='Logo'
+                        width={40}
+                        height={40}
+                        priority
+                    />
                     <h1 className="text-2xl text-white font-bold">Digital Campus Vorarlberg</h1>
                 </div>
                 <span className='text-white font-semibold'></span>
