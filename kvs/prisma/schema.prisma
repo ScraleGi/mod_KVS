@@ -27,7 +27,6 @@ model Course {
   name          String
   description   String?    // optional
   teachingUnits Int?       // optional
-  courseStart   DateTime?  // optional
   price         Float?     // optional
   createdAt     DateTime @default(now())
   deletedAt     DateTime? // Soft delete: null = not deleted, date = deleted
