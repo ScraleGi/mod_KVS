@@ -2,7 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { FaBars, FaSearch, FaBell, FaUserCircle } from 'react-icons/fa';
+
 
 type NavbarProps = {
     isOpen: boolean
@@ -23,7 +25,7 @@ const Navbar = ({ isOpen, setOpen }: NavbarProps) => {
 
     return (
         <div className='bg-gray-800 px-4 py-2 flex justify-between items-center'>
-            <div className='flex items-center text-lg gap-x-42'>
+            <div className='flex items-center text-lg space-x-15'>
                 <FaBars
                     onClick={() => setOpen(!isOpen)}
                     className='text-white w-6 h-6 my-2 cursor-pointer'
@@ -51,7 +53,7 @@ const Navbar = ({ isOpen, setOpen }: NavbarProps) => {
                             type='text'
                             value={searchValue}
                             onChange={handleSearch}
-                            className='w-full bg-white text-gray-900 rounded px-4 py-1 pl-10 shadow outline-none transition focus:ring-1 focus:ring-gray-300 focus:shadow-lg'
+                            className='w-full bg-white text-gray-900 rounded px-4 py-1 pl-10 shadow outline-none transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white focus:shadow-lg'
                             placeholder='Suche...'
                             aria-label='Suche Kurse'
                         />
@@ -65,13 +67,19 @@ const Navbar = ({ isOpen, setOpen }: NavbarProps) => {
                 </div>
 
                 <div className='relative'>
-                    <button className='text-white group'>
+                    <button className='text-white group focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-white'>
                         <FaUserCircle className='w-6 h-6 mt-1 cursor-pointer'/>
                         <div className='z-10 hidden absolute bg-white rounded-lg shadow w-32 group-focus-within:block top-full right-0'>
                             <ul className='py-2 text-sm text-gray-950'>
-                                <li><a href=''>Profile</a></li>
-                                <li><a href=''>Setting</a></li>
-                                <li><a href=''>Logout</a></li>
+                                <li>
+                                    <Link href="/profile" className="block px-4 py-2 hover:bg-gray-100">Profile</Link>
+                                </li>
+                                <li>
+                                    <Link href="/settings" className="block px-4 py-2 hover:bg-gray-100">Setting</Link>
+                                </li>
+                                <li>
+                                    <Link href="/logout" className="block px-4 py-2 hover:bg-gray-100">Logout</Link>
+                                </li>
                             </ul>
                         </div>
                     </button>
