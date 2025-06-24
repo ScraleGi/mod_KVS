@@ -1,22 +1,25 @@
+<!-- for now the data is taken from route.ts but it has to be taken from database -->
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8" />
-  <title>PDF Beispiel</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-      color: #333;
-    }
-    h1 {
-      color: #2c3e50;
-    }
-  </style>
+  <title>PDF Example</title>
+  <link rel="stylesheet" href="../styles/pdf.css">
 </head>
 <body>
-  <h1>PDF für <%= user %></h1>
-  <p>Erstellt am <%= date %></p>
-  <p>Die Kosten betragen <%= cost %></p>
+  <h1>PDF for <%= user %></h1>
+  <p>Created on <%= date %></p>
+  <p>The costs are <%= cost %></p>
+
+  <!-- dummy image -->
+
+  <img src="https://i.imgur.com/utRZT2L.png" alt="cats">
+  <!-- for prisma img fetching -->
+
+  
+  <!-- <div>
+    <img src="<%= courseImageUrl %>" alt="<%= courseImageDescription %>">
+  </div> -->
+
 </body>
 </html>
