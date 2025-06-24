@@ -8,6 +8,7 @@ export async function GET(req: NextRequest) {
     user: 'Max Mustermann',
     date: new Date().toLocaleDateString(),
     cost: 100, // Beispielwert – später aus DB holen
+    imageUrl: "https://i.imgur.com/utRZT2L.png"
   };
 
   // 🔁 Dynamischer Dateiname basierend auf Daten, sanitized für Sicherheit
