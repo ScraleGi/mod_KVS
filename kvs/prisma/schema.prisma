@@ -15,7 +15,23 @@ datasource db {
 }
 
 model Area {
-  id String @id @default(uuid())
-  name String
+  id          String @id @default(uuid())
+  name        String
+  createdAt   DateTime @default(now())
+  deletedAt   DateTime? // Soft delete: null = not deleted, date = deleted
+  courses     Course[] // Relation: one Area has many Courses
+}
+
+model Course {
+  id            String   @id @default(uuid())
+  name          String
+  description   String?    // optional
+  teachingUnits Int?       // optional
+  courseStart   DateTime?  // optional
+  price         Float?     // optional
+  createdAt     DateTime @default(now())
+  deletedAt     DateTime? // Soft delete: null = not deleted, date = deleted
+  areaId        String
+  area          Area     @relation(fields: [areaId], references: [id])
 }
 
