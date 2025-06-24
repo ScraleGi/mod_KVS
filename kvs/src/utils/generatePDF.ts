@@ -2,8 +2,8 @@ import puppeteer from 'puppeteer';
 import ejs from 'ejs';
 import path from 'path';
 
-export async function generatePDF(data: { user: string; date: string }) {
-  const templatePath = path.resolve(process.cwd(), 'src/templates/invoice.ejs');
+export async function generatePDF(templateName: string, data: object): Promise<Buffer> {
+  const templatePath = path.resolve(process.cwd(), 'src/templates', `${templateName}.ejs`);
   const html = await ejs.renderFile(templatePath, data);
 
   const browser = await puppeteer.launch({
@@ -17,5 +17,5 @@ export async function generatePDF(data: { user: string; date: string }) {
   const pdfBuffer = await page.pdf({ format: 'A4' });
   await browser.close();
 
-  return pdfBuffer;
+  return pdfBuffer as Buffer;
 }
