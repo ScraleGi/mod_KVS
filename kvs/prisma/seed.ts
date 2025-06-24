@@ -10,7 +10,7 @@ async function seedDatabase() {
         'Digital Markeing Academy',
         'Green Campus',
         'Business & Management Academy',
-        'E-Learning Courses',
+        'E-Learning Lehrgänge',
         'Digital Studies',
     ]
 
