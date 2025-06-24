@@ -1,6 +1,11 @@
-import type { Metadata } from "next";
+'use client';
+
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css"; // Correct import
+import { useState } from 'react';
+import Sidebar from '@/components/navigation/Sidebar';
+import Navbar from '@/components/navigation/Navbar';
+import "./globals.css";
+import '../styles/components.css';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -12,27 +17,27 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "KVS",
-  description: "Proof of Concept: Kursverwaltungsystem",
-};
-
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  
+// State für Sidebar-Öffnen/Schließen
+const [isOpen, setOpen] = useState(true);
+
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
+      <body className={`min-h-screen flex flex-col ${geistSans.variable} ${geistMono.variable}`}>
+        <Navbar isOpen={isOpen} setOpen={setOpen} />
+        <div className="flex grow">
+          <Sidebar isOpen={isOpen} />
+          <main className="flex-1">{children}</main>
+        </div>
       </body>
     </html>
   );
 }
-
 
 
 
