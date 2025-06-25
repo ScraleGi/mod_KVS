@@ -86,6 +86,56 @@ async function seedDatabase() {
             },
         ]
     })
+
+    // prepare Room data 
+    const rawRooms: [string, number, string][] = [
+        ['Hörsaal',         35, 'Feldkirch'],
+        ['Seminarraum-A',   25, 'Dornbirn'],
+        ['Seminarraum-B',   20, 'Dornbirn'],
+        ['Seminarraum-C',   17, 'Dornbirn'],
+        ['Raum 1',          20, 'Feldkirch'],
+        ['Raum 2',          20, 'Dornbirn'],
+        ['Raum 3',           5, 'Feldkirch'],
+    ]
+
+    // insert rooms in database
+    const createdRooms = await Promise.all(
+            rawRooms.map(([name, capacity, location]) =>
+                prisma.room.create({ data: { name, capacity, location } })
+            )
+    )
+
+    // prepare reservation 
+    const rawReservations: [string, string, string, number][] = [
+        ['JavaScript Kurs', 'Seminarraum-A', '2025-06-24T14:00:00', 90],
+        ['CSS Basics', 'Seminarraum-B', '2025-06-25T10:00:00', 60],
+        ['Vue Einführung', 'Seminarraum-C', '2025-06-26T13:30:00', 120],
+    ]
+
+    // save reservations 
+    await Promise.all(
+        rawReservations.map(async ([title, roomName, startTimeStr, duration]) => {
+        const room = createdRooms.find(r => r.name === roomName)
+            if (!room) {
+            console.warn(`Raum ${roomName} nicht gefunden`)
+            return
+        }
+        // if a room been found 
+        const startTime = new Date(startTimeStr as string)
+        const endTime = new Date(startTime.getTime() + Number(duration) * 60000)
+
+        await prisma.roomReservation.create({
+        data: {
+            name: title as string,
+            startTime,
+            duration: Number(duration),
+            endTime,
+            roomId: room.id,
+        },
+        })
+    })
+    )
+
 }
 
 seedDatabase()

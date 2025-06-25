@@ -34,3 +34,26 @@ model Course {
   area          Area     @relation(fields: [areaId], references: [id])
 }
 
+model Room {
+  id              String   @id @default(uuid())
+  name            String
+  capacity        Int?
+  location        String? 
+  createdAt       DateTime @default(now())
+  deletedAt       DateTime? // Soft delete: null = not deleted, date = deleted 
+  reservations    roomReservation[] 
+}
+
+model roomReservation {
+  id               String    @id @default(uuid())
+  name             String 
+  startTime        DateTime  //Kombination aus Datum + Uhrzeit
+  duration         Int       // Dauer in Minuten
+  endTime          DateTime 
+  roomId           String    // FK-Spalte für die Relation zu Room
+  room             Room      @relation(fields: [roomId], references: [id])
+  createdAt        DateTime  @default(now())
+  deletedAt        DateTime? // Soft delete: null = not deleted, date = deleted 
+}
+
+
