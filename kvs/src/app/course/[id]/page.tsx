@@ -11,7 +11,7 @@ interface CoursePageProps {
 const prisma = new PrismaClient()
 
 export default async function CoursePage({ params }: CoursePageProps) {
-  const { id } = params
+  const { id } = await params
 
   // Fetch course with related data
   const course = await prisma.course.findUnique({
