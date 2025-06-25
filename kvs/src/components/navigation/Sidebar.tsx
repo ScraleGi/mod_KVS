@@ -1,10 +1,12 @@
-import { FaHome, FaBook, FaCalendarAlt, FaCog, FaSignOutAlt, FaRegEnvelope, FaChartBar } from 'react-icons/fa';
+import { FaHome, FaBook, FaCalendarAlt, FaCog, FaSignOutAlt, FaRegEnvelope, FaChartBar, FaThLarge, FaLayerGroup } from 'react-icons/fa';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const navItems = [
   { href: '/', label: 'Home', icon: FaHome },
   { href: '/course', label: 'Kurse', icon: FaBook },
+  { href: '/area', label: 'Areas', icon: FaThLarge },
+  { href: '/program', label: 'Programme', icon: FaLayerGroup },
   { href: '/calendar', label: 'Termine', icon: FaCalendarAlt },
   { href: '/reports', label: 'Reports', icon: FaChartBar },
   { href: '/inbox', label: 'Inbox', icon: FaRegEnvelope },
