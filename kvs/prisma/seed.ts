@@ -195,7 +195,7 @@ async function seedDatabase() {
   const participantMap = await seedParticipants()
   const registrationMap = await seedRegistrations(programMap, courseMap, participantMap)
 
-  await seedDocuments(registrationMap, participantMap, programMap, courseMap)
+  await seedDocuments(programMap, courseMap, registrationMap, participantMap)
 
   await seedInvoices(programMap, courseMap, participantMap, registrationMap)
 }
