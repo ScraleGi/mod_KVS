@@ -37,6 +37,11 @@ async function seedPrograms(areaMap: Record<string, string>) {
       { name: 'Business Strategy', teachingUnits: 9, price: 299.99, areaId: areaMap['Business & Management Academy'] },
       { name: 'E-Learning Essentials', description: 'How to create effective e-learning courses.', areaId: areaMap['E-Learning Lehrgänge'] },
       { name: 'Digital Transformation', teachingUnits: 8, price: 199.99, areaId: areaMap['Digital Studies'] },
+      { name: 'Cloud Computing Basics', teachingUnits: 8, price: 249.99, areaId: areaMap['It & Coding Campus'] },
+      { name: 'Project Management', teachingUnits: 10, price: 299.99, areaId: areaMap['Business & Management Academy'] },
+      { name: 'Data Visualization', teachingUnits: 7, price: 199.99, areaId: areaMap['Digital Studies'] },
+      { name: 'Agile Methodologies', teachingUnits: 6, price: 179.99, areaId: areaMap['Business & Management Academy'] },
+      { name: 'UI/UX Design', teachingUnits: 8, price: 259.99, areaId: areaMap['It & Coding Campus'] },
     ],
     skipDuplicates: true,
   })
@@ -50,6 +55,9 @@ async function seedTrainers() {
     data: [
       { name: 'Alice Smith' },
       { name: 'Bob Johnson' },
+      { name: 'Carmen Diaz' },
+      { name: 'David Lee' },
+      { name: 'Emily Clark' },
     ],
     skipDuplicates: true,
   })
@@ -65,6 +73,11 @@ async function seedCourses(programMap: Record<string, string>, trainerMap: Recor
       { programId: programMap['Web Development Bootcamp'], startDate: new Date('2024-10-01'), trainerId: trainerMap['Bob Johnson'] },
       { programId: programMap['Python for Beginners'], startDate: new Date('2024-11-01'), trainerId: trainerMap['Alice Smith'] },
       { programId: programMap['Digital Marketing 101'], startDate: new Date('2024-12-01'), trainerId: trainerMap['Bob Johnson'] },
+      { programId: programMap['Cloud Computing Basics'], startDate: new Date('2025-01-15'), trainerId: trainerMap['Carmen Diaz'] },
+      { programId: programMap['Project Management'], startDate: new Date('2025-02-10'), trainerId: trainerMap['David Lee'] },
+      { programId: programMap['Data Visualization'], startDate: new Date('2025-03-05'), trainerId: trainerMap['Emily Clark'] },
+      { programId: programMap['Agile Methodologies'], startDate: new Date('2025-04-01'), trainerId: trainerMap['David Lee'] },
+      { programId: programMap['UI/UX Design'], startDate: new Date('2025-05-10'), trainerId: trainerMap['Carmen Diaz'] },
     ],
     skipDuplicates: true,
   })
@@ -103,7 +116,7 @@ async function seedRegistrations(
 ) {
   await prisma.courseRegistration.createMany({
     data: [
-     
+      // Existing registrations
       { courseId: courseMap[programMap['AI Fundamentals']], participantId: participantMap['Charlie Brown'], status: 'Registered' },
       { courseId: courseMap[programMap['Web Development Bootcamp']], participantId: participantMap['Dana White'], status: 'Interested' },
       { courseId: courseMap[programMap['Python for Beginners']], participantId: participantMap['Eve Adams'], status: 'Registered' },
@@ -116,6 +129,18 @@ async function seedRegistrations(
       { courseId: courseMap[programMap['Digital Marketing 101']], participantId: participantMap['Liam Young'], status: 'Started' },
       { courseId: courseMap[programMap['AI Fundamentals']], participantId: participantMap['Mona Patel'], status: 'Interested' },
       { courseId: courseMap[programMap['Web Development Bootcamp']], participantId: participantMap['Nina Rossi'], status: 'Registered' },
+      { courseId: courseMap[programMap['Cloud Computing Basics']], participantId: participantMap['Charlie Brown'], status: 'Registered' },
+      { courseId: courseMap[programMap['Cloud Computing Basics']], participantId: participantMap['Dana White'], status: 'Registered' },
+      { courseId: courseMap[programMap['Project Management']], participantId: participantMap['Eve Adams'], status: 'Registered' },
+      { courseId: courseMap[programMap['Project Management']], participantId: participantMap['Frank Miller'], status: 'Registered' },
+      { courseId: courseMap[programMap['Data Visualization']], participantId: participantMap['Grace Lee'], status: 'Registered' },
+      { courseId: courseMap[programMap['Agile Methodologies']], participantId: participantMap['Henry Ford'], status: 'Registered' },
+      { courseId: courseMap[programMap['UI/UX Design']], participantId: participantMap['Isabel Turner'], status: 'Registered' },
+      { courseId: courseMap[programMap['UI/UX Design']], participantId: participantMap['Jack Black'], status: 'Registered' },
+      { courseId: courseMap[programMap['Data Visualization']], participantId: participantMap['Karen Green'], status: 'Registered' },
+      { courseId: courseMap[programMap['Agile Methodologies']], participantId: participantMap['Liam Young'], status: 'Registered' },
+      { courseId: courseMap[programMap['Cloud Computing Basics']], participantId: participantMap['Mona Patel'], status: 'Registered' },
+      { courseId: courseMap[programMap['Project Management']], participantId: participantMap['Nina Rossi'], status: 'Registered' },
     ],
     skipDuplicates: true,
   })
@@ -132,7 +157,7 @@ async function seedInvoices(
 ) {
   await prisma.invoice.createMany({
     data: [
-      // Invoices for participants
+      // Invoices for participants (add more if needed for new registrations)
       { amount: 299.99, courseRegistrationId: registrationMap[participantMap['Charlie Brown'] + '_' + courseMap[programMap['AI Fundamentals']]] },
       { amount: 149.99, courseRegistrationId: registrationMap[participantMap['Dana White'] + '_' + courseMap[programMap['Web Development Bootcamp']]] },
       { amount: 199.99, courseRegistrationId: registrationMap[participantMap['Eve Adams'] + '_' + courseMap[programMap['Python for Beginners']]] },
@@ -145,6 +170,18 @@ async function seedInvoices(
       { amount: 179.99, courseRegistrationId: registrationMap[participantMap['Liam Young'] + '_' + courseMap[programMap['Digital Marketing 101']]] },
       { amount: 299.99, courseRegistrationId: registrationMap[participantMap['Mona Patel'] + '_' + courseMap[programMap['AI Fundamentals']]] },
       { amount: 399.99, courseRegistrationId: registrationMap[participantMap['Nina Rossi'] + '_' + courseMap[programMap['Web Development Bootcamp']]] },
+      { amount: 249.99, courseRegistrationId: registrationMap[participantMap['Charlie Brown'] + '_' + courseMap[programMap['Cloud Computing Basics']]] },
+      { amount: 249.99, courseRegistrationId: registrationMap[participantMap['Dana White'] + '_' + courseMap[programMap['Cloud Computing Basics']]] },
+      { amount: 299.99, courseRegistrationId: registrationMap[participantMap['Eve Adams'] + '_' + courseMap[programMap['Project Management']]] },
+      { amount: 299.99, courseRegistrationId: registrationMap[participantMap['Frank Miller'] + '_' + courseMap[programMap['Project Management']]] },
+      { amount: 199.99, courseRegistrationId: registrationMap[participantMap['Grace Lee'] + '_' + courseMap[programMap['Data Visualization']]] },
+      { amount: 179.99, courseRegistrationId: registrationMap[participantMap['Henry Ford'] + '_' + courseMap[programMap['Agile Methodologies']]] },
+      { amount: 259.99, courseRegistrationId: registrationMap[participantMap['Isabel Turner'] + '_' + courseMap[programMap['UI/UX Design']]] },
+      { amount: 259.99, courseRegistrationId: registrationMap[participantMap['Jack Black'] + '_' + courseMap[programMap['UI/UX Design']]] },
+      { amount: 199.99, courseRegistrationId: registrationMap[participantMap['Karen Green'] + '_' + courseMap[programMap['Data Visualization']]] },
+      { amount: 179.99, courseRegistrationId: registrationMap[participantMap['Liam Young'] + '_' + courseMap[programMap['Agile Methodologies']]] },
+      { amount: 249.99, courseRegistrationId: registrationMap[participantMap['Mona Patel'] + '_' + courseMap[programMap['Cloud Computing Basics']]] },
+      { amount: 299.99, courseRegistrationId: registrationMap[participantMap['Nina Rossi'] + '_' + courseMap[programMap['Project Management']]] },
     ],
     skipDuplicates: true,
   })
