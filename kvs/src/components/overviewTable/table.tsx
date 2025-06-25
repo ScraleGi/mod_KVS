@@ -1,6 +1,7 @@
 "use client"
 
 // -------------------- Imports --------------------
+import Link from "next/link"
 import * as React from "react"
 import {
   ColumnDef,
@@ -63,90 +64,199 @@ export type CourseRow = {
 
 // -------------------- Table Columns Definition --------------------
 export const columns: ColumnDef<CourseRow>[] = [
-  // Checkbox column for row selection
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-        className="cursor-pointer"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={value => row.toggleSelected(!!value)}
-        aria-label="Select row"
-        className="cursor-pointer"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
+
   // Course column with sorting
-  {
-    accessorKey: "course",
-    header: ({ column }) => (
-      <span className="flex items-center gap-1 select-none">
-        Course
-        <span
-          className="ml-1 h-4 w-4 cursor-pointer flex"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          role="button"
-          tabIndex={0}
-          onKeyDown={e => {
-            if (e.key === "Enter" || e.key === " ") {
-              column.toggleSorting(column.getIsSorted() === "asc")
-            }
-          }}
-        >
-          <ArrowUpDown
-            className={`h-4 w-4 transition-transform ${
-              column.getIsSorted()
-                ? column.getIsSorted() === "asc"
-                  ? "text-yellow-100 rotate-180"
-                  : "text-yellow-100"
-                : "text-gray-400"
-            }`}
-          />
-        </span>
+{
+  accessorKey: "course",
+  size: 200,
+  header: ({ column }) => (
+    <span className="flex items-center gap-1 select-none w-48 min-w-[8rem] pl-4">
+      Course
+      <span
+        className="ml-1 h-4 w-4 cursor-pointer flex"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        role="button"
+        tabIndex={0}
+        onKeyDown={e => {
+          if (e.key === "Enter" || e.key === " ") {
+            column.toggleSorting(column.getIsSorted() === "asc")
+          }
+        }}
+      >
+        <ArrowUpDown
+          className={`h-4 w-4 transition-transform ${
+            column.getIsSorted()
+              ? column.getIsSorted() === "asc"
+                ? "text-yellow-100 rotate-180"
+                : "text-yellow-100"
+              : "text-gray-400"
+          }`}
+        />
       </span>
-    ),
-  },
+    </span>
+  ),
+  cell: ({ row }) => (
+    <Link
+      href={`/course/${row.original.id}`}
+      className="text-blue-600 hover:text-blue-800 cursor-pointer w-48 min-w-[8rem] pl-4"
+      style={{ whiteSpace: "normal", overflowWrap: "break-word" }}
+    >
+      {row.getValue("course")}
+    </Link>
+  ),
+},
   // Area column
-  { accessorKey: "area", header: "Area" },
-  // Start Date column (left-aligned, not sortable)
-  {
-    accessorKey: "startDate",
-    header: () => (
-      <span className="block text-left w-full">Start Date</span>
-    ),
-    cell: ({ row }) => (
-      <span className="block text-left w-full">{row.getValue("startDate")}</span>
-    ),
+{
+  accessorKey: "area",
+  size: 220, // Increased from 140 to 220
+  header: ({ column }) => (
+    <span className="flex items-center gap-1 select-none w-56 min-w-[12rem] pl-2">
+      Area
+      <span
+        className="ml-1 h-4 w-4 cursor-pointer flex"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        role="button"
+        tabIndex={0}
+        onKeyDown={e => {
+          if (e.key === "Enter" || e.key === " ") {
+            column.toggleSorting(column.getIsSorted() === "asc")
+          }
+        }}
+      >
+        <ArrowUpDown
+          className={`h-4 w-4 transition-transform ${
+            column.getIsSorted()
+              ? column.getIsSorted() === "asc"
+                ? "text-yellow-100 rotate-180"
+                : "text-yellow-100"
+              : "text-gray-400"
+          }`}
+        />
+      </span>
+    </span>
+  ),
+  cell: ({ row }) => (
+    <span
+      className="block w-56 min-w-[12rem] pl-2"
+      style={{ whiteSpace: "nowrap", overflowWrap: "normal" }}
+    >
+      {row.getValue("area")}
+    </span>
+  ),
+},
+  // Start Date column (right-aligned)
+{
+  accessorKey: "startDate",
+  size: 120,
+  // Enable sorting and add sort icon
+  header: ({ column }) => (
+    <span className="flex items-center gap-1 justify-end w-28 min-w-[5rem] pr-2 select-none">
+      Start Date
+      <span
+        className="ml-1 h-4 w-4 cursor-pointer flex"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        role="button"
+        tabIndex={0}
+        onKeyDown={e => {
+          if (e.key === "Enter" || e.key === " ") {
+            column.toggleSorting(column.getIsSorted() === "asc")
+          }
+        }}
+      >
+        <ArrowUpDown
+          className={`h-4 w-4 transition-transform ${
+            column.getIsSorted()
+              ? column.getIsSorted() === "asc"
+                ? "text-yellow-100 rotate-180"
+                : "text-yellow-100"
+              : "text-gray-400"
+          }`}
+        />
+      </span>
+    </span>
+  ),
+  // Custom sorting: compare as dates
+  sortingFn: (rowA, rowB, columnId) => {
+    const a = rowA.getValue(columnId)
+    const b = rowB.getValue(columnId)
+    const dateA = a ? new Date(a as string).getTime() : 0
+    const dateB = b ? new Date(b as string).getTime() : 0
+    return dateA - dateB
   },
+  cell: ({ row }) => {
+    const value = row.getValue("startDate")
+    let formatted: string = ""
+    if (typeof value === "string" && value) {
+      const date = new Date(value)
+      formatted = !isNaN(date.getTime())
+        ? date.toLocaleDateString("de-DE")
+        : value
+    } else if (typeof value === "number") {
+      formatted = new Date(value).toLocaleDateString("de-DE")
+    } else {
+      formatted = ""
+    }
+    return (
+      <span className="block text-right w-28 min-w-[5rem] pr-2">{formatted}</span>
+    )
+  },
+},
   // Trainer column (left-aligned)
-  {
-    accessorKey: "trainer",
-    header: () => <span className="text-left w-full block">Trainer</span>,
-    cell: ({ row }) => (
-      <span className="block text-left w-full">{row.getValue("trainer")}</span>
-    ),
-  },
+{
+  accessorKey: "trainer",
+  size: 160,
+  header: ({ column }) => (
+    <span className="flex items-center gap-1 select-none w-40 min-w-[7rem] pl-2">
+      Trainer
+      <span
+        className="ml-1 h-4 w-4 cursor-pointer flex"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        role="button"
+        tabIndex={0}
+        onKeyDown={e => {
+          if (e.key === "Enter" || e.key === " ") {
+            column.toggleSorting(column.getIsSorted() === "asc")
+          }
+        }}
+      >
+        <ArrowUpDown
+          className={`h-4 w-4 transition-transform ${
+            column.getIsSorted()
+              ? column.getIsSorted() === "asc"
+                ? "text-yellow-100 rotate-180"
+                : "text-yellow-100"
+              : "text-gray-400"
+          }`}
+        />
+      </span>
+    </span>
+  ),
+  cell: ({ row }) => (
+    <span className="block text-left w-40 min-w-[7rem] truncate pl-2">{row.getValue("trainer")}</span>
+  ),
+},
   // Registrations column with sorting
-  {
-    accessorKey: "registrations",
-    header: ({ column }) => (
-      <span className="flex items-center gap-1 w-full justify-center select-none">
-        Registrations
-        <span
-          className="ml-1 h-4 w-4 cursor-pointer flex"
-          onClick={() => {
+{
+  accessorKey: "registrations",
+  size: 70, // Reduced from 120
+  header: ({ column }) => (
+    <span className="flex items-center gap-1 justify-end w-18 min-w-[3.5rem] pr-2 select-none">
+      Registrations
+      <span
+        className="ml-1 h-4 w-4 cursor-pointer flex"
+        onClick={() => {
+          if (!column.getIsSorted()) {
+            column.toggleSorting(false)
+          } else if (column.getIsSorted() === "asc") {
+            column.toggleSorting(true)
+          } else {
+            column.toggleSorting()
+          }
+        }}
+        role="button"
+        tabIndex={0}
+        onKeyDown={e => {
+          if (e.key === "Enter" || e.key === " ") {
             if (!column.getIsSorted()) {
               column.toggleSorting(false)
             } else if (column.getIsSorted() === "asc") {
@@ -154,96 +264,28 @@ export const columns: ColumnDef<CourseRow>[] = [
             } else {
               column.toggleSorting()
             }
-          }}
-          role="button"
-          tabIndex={0}
-          onKeyDown={e => {
-            if (e.key === "Enter" || e.key === " ") {
-              if (!column.getIsSorted()) {
-                column.toggleSorting(false)
-              } else if (column.getIsSorted() === "asc") {
-                column.toggleSorting(true)
-              } else {
-                column.toggleSorting()
-              }
-            }
-          }}
-        >
-          <ArrowUpDown
-            className={`h-4 w-4 transition-transform ${
-              column.getIsSorted()
-                ? column.getIsSorted() === "asc"
-                  ? "text-yellow-100 rotate-180"
-                  : "text-yellow-100"
-                : "text-gray-400"
-            }`}
-          />
-        </span>
+          }
+        }}
+      >
+        <ArrowUpDown
+          className={`h-4 w-4 transition-transform ${
+            column.getIsSorted()
+              ? column.getIsSorted() === "asc"
+                ? "text-yellow-100 rotate-180"
+                : "text-yellow-100"
+              : "text-gray-400"
+          }`}
+        />
       </span>
-    ),
-    cell: ({ row }) => (
-      <span className="block text-center w-full min-w-[60px]">
-        {row.getValue("registrations")}
-      </span>
-    ),
-  },
-  // Actions column (dropdown menu and dialog)
-  {
-    id: "actions",
-    enableHiding: false,
-    cell: ({ row }) => {
-      // Each row gets its own dialog state
-      const course = row.original
-      const [open, setOpen] = React.useState(false)
-      return (
-        <>
-          {/* Row actions dropdown */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0 cursor-pointer">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="bg-white shadow-lg border border-gray-200">
-              <DropdownMenuLabel className="border-b border-gray-200 pb-1">Actions</DropdownMenuLabel>
-              <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(course.id)}
-                className="cursor-pointer hover:bg-gray-100 transition-colors"
-              >
-                Copy course ID
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="cursor-pointer hover:bg-gray-100 transition-colors"
-                onClick={() => setOpen(true)}
-              >
-                View details
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          {/* Participants dialog */}
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogContent
-              className="bg-white max-w-5xl w-full p-8 resize overflow-auto"
-              style={{
-                minWidth: "700px",
-                maxWidth: "1100px",
-                borderRadius: "1rem",
-                boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
-              }}
-            >
-              <DialogTitle className="mb-4 text-2xl font-semibold">
-                Participants for {course.course}
-              </DialogTitle>
-              <div className="rounded-xl border border-gray-200 bg-white p-2 max-h-[70vh] overflow-auto overflow-x-auto">
-                <ParticipantsTable participants={course.participants ?? []} />
-              </div>
-            </DialogContent>
-          </Dialog>
-        </>
-      )
-    },
-  },
+    </span>
+  ),
+  cell: ({ row }) => (
+    <span className="block text-right w-16 min-w-[3.5rem] pr-2">
+      {row.getValue("registrations")}
+    </span>
+  ),
+},
+
 ]
 
 // -------------------- Main Table Component --------------------
@@ -262,7 +304,7 @@ export function CourseTable({ data }: { data: CourseRow[] }) {
   const table = useReactTable({
     data,
     columns,
-    initialState: { pagination: { pageSize: 5 } },
+    initialState: { pagination: { pageSize: 10 } },
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -322,7 +364,10 @@ export function CourseTable({ data }: { data: CourseRow[] }) {
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map(headerGroup => (
-              <TableRow key={headerGroup.id} className="bg-gray-600">
+              <TableRow
+                key={headerGroup.id}
+                className="bg-gray-600 hover:bg-gray-600" // Prevents hover color change
+              >
                 {headerGroup.headers.map(header => (
                   <TableHead
                     key={header.id}
