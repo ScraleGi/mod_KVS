@@ -1,19 +1,17 @@
-// Deine Version
 'use client';
 
 export default function TestPDF() {
-  const handleDownload = async () => {
-    const res = await fetch('/api/pdf');
+  const handleDownload = async (type: string, id: string) => {
+    const res = await fetch(`/api/pdf?type=${type}&id=${id}`);
     if (!res.ok) {
-      alert('Fehler beim Laden des PDFs');
+      alert(`Fehler beim Laden des ${type} PDFs`);
       return;
     }
     const blob = await res.blob();
     const url = URL.createObjectURL(blob);
 
-    // Parse filename from Content-Disposition header für Filenmae das es so heis
     const disposition = res.headers.get('Content-Disposition');
-    let filename = 'download.pdf';
+    let filename = `${type}.pdf`;
     if (disposition) {
       const match = disposition.match(/filename\*?=(?:UTF-8'')?["']?([^;"']+)/i);
       if (match && match[1]) {
@@ -25,19 +23,26 @@ export default function TestPDF() {
     a.href = url;
     a.download = filename;
     a.click();
-
     URL.revokeObjectURL(url);
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="p-4 flex flex-col items-center">
-        <h1 className="text-xl font-bold mb-4">PDF Generator</h1>
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <div className="p-6 flex flex-col items-center space-y-4 bg-white rounded shadow">
+        <h1 className="text-xl font-bold">PDF Generator</h1>
+
         <button
-          onClick={handleDownload}
+          onClick={() => handleDownload('invoice', '1')}  // Example: invoiceId = 1
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
         >
-          PDF erzeugen
+          Invoice PDF herunterladen
+        </button>
+
+        <button
+          onClick={() => handleDownload('certificate', '1')}  // Example: certificateId = 1
+          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+        >
+          Certificate PDF herunterladen
         </button>
       </div>
     </div>

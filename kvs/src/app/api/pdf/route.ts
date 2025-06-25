@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'  // prisma instance exportieren, z.B. /lib/prisma.ts
+import { PrismaClient } from '@prisma/client'
 import { getTemplateData } from '@/utils/getTemplateData'
 import { generatePDF } from '@/utils/generatePDF'
 import { pdfExists, loadPDF, savePDF } from '@/utils/fileStorage'
@@ -8,16 +8,19 @@ const prisma = new PrismaClient()
 
 export async function GET(req: NextRequest) {
   const url = new URL(req.url)
-  const invoiceId = url.searchParams.get('invoiceId')
+  const type = url.searchParams.get('type')  // 'invoice' or 'certificate'
+  const id = url.searchParams.get('id')      // invoiceId or courseRegistrationId (for certificate)
 
-  if (!invoiceId) {
-    return NextResponse.json({ error: 'Missing invoiceId' }, { status: 400 })
+  if (!type || !id) {
+    return NextResponse.json({ error: 'Missing type or id' }, { status: 400 })
   }
 
-  // Dateiname mit invoiceId für Eindeutigkeit
-  const filename = `invoice_${invoiceId}.pdf`
+  if (type !== 'invoice' && type !== 'certificate') {
+    return NextResponse.json({ error: 'Invalid type parameter' }, { status: 400 })
+  }
 
-  // Wenn PDF schon existiert -> direkt zurückgeben
+  const filename = `${type}_${id}.pdf`
+
   if (await pdfExists(filename)) {
     const existingPdf = await loadPDF(filename)
     if (existingPdf) {
@@ -30,38 +33,17 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  // Daten aus DB holen via Prisma
-  const invoice = await prisma.invoice.findUnique({
-    where: { id: invoiceId },
-    include: {
-      courseRegistration: {
-        include: {
-          participant: true,
-          course: {
-            include: {
-              program: true,
-              trainer: true,
-            },
-          },
-        },
-      },
-    },
-  })
+  const templateData = await getTemplateData(type, id, prisma)
 
-  if (!invoice) {
-    return NextResponse.json({ error: 'Invoice not found' }, { status: 404 })
+  if (!templateData) {
+    console.log('No template data found for', { type, id }) // Debug Log
+    return NextResponse.json({ error: 'Data not found' }, { status: 404 })
   }
 
-  // Template-Daten vorbereiten
-  const templateData = getTemplateData('invoice', invoice)
+  const pdfBuffer = await generatePDF(type, templateData)
 
-  // PDF generieren
-  const pdfBuffer = await generatePDF('invoice', templateData)
-
-  // PDF speichern
   await savePDF(filename, pdfBuffer)
 
-  // PDF als Download senden
   return new NextResponse(pdfBuffer, {
     headers: {
       'Content-Type': 'application/pdf',

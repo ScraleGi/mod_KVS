@@ -1,28 +1,56 @@
-import type { Invoice } from '@prisma/client'  // Prisma-Types nutzen
+import { PrismaClient } from '@prisma/client'
 
-type TemplateType = 'invoice' | 'certificate'
-
-export function getTemplateData(type: TemplateType, invoice: Invoice & any) {
+export async function getTemplateData(type: string, id: string, prisma: PrismaClient) {
   if (type === 'invoice') {
-    // invoice ist komplett mit Relationen geladen
+    const invoice = await prisma.invoice.findUnique({
+      where: { id },
+      include: {
+        courseRegistration: {
+          include: {
+            participant: true,
+            course: {
+              include: { trainer: true, program: true },
+            },
+          },
+        },
+      },
+    })
+
+    if (!invoice) return null
+
     return {
       user: invoice.courseRegistration.participant.name,
-      date: invoice.createdAt?.toLocaleDateString() ?? new Date().toLocaleDateString(),
+      courseName: invoice.courseRegistration.course.title,
+      trainerName: invoice.courseRegistration.course.trainer.name,
+      startDate: invoice.courseRegistration.course.startDate.toDateString(),
+      date: invoice.date.toDateString(),
       cost: invoice.amount,
-      courseName: invoice.courseRegistration.course.program.name,
-      trainerName: invoice.courseRegistration.course.trainer?.name ?? 'Unbekannt',
-      startDate: invoice.courseRegistration.course.startDate.toLocaleDateString(),
-      imageUrl: 'https://i.imgur.com/utRZT2L.png', // Öffentlich erreichbares Bild
+      imageUrl: 'https://i.imgur.com/utRZT2L.png',
     }
   }
 
-  if (type === 'certificate') {
+  if (type === 'certificate') {  // Korrektur hier
+    const reg = await prisma.courseRegistration.findUnique({
+      where: { id },
+      include: {
+        participant: true,
+        course: {
+          include: { trainer: true, program: true },
+        },
+      },
+    })
+
+    if (!reg) return null
+
     return {
-      user: invoice.courseRegistration.participant.name,
-      date: invoice.createdAt?.toLocaleDateString() ?? new Date().toLocaleDateString(),
-      zertifikatText: 'Hiermit wird bestätigt...',
+      user: reg.participant.name,
+      courseName: reg.course.title,
+      trainerName: reg.course.trainer.name,
+      startDate: reg.course.startDate.toDateString(),
+      date: new Date().toDateString(),
+      imageUrl: 'https://i.imgur.com/utRZT2L.png',  // Falls Logo gewünscht
     }
   }
 
-  throw new Error('Unknown template type')
+  return null
 }
