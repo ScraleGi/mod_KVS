@@ -1,5 +1,6 @@
 import { FaHome, FaBook, FaCalendarAlt, FaCog, FaSignOutAlt, FaRegEnvelope, FaChartBar } from 'react-icons/fa';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 const navItems = [
   { href: '/', label: 'Home', icon: FaHome },
@@ -15,6 +16,8 @@ type SidebarProps = {
 }
 
 const Sidebar = ({ isOpen }: SidebarProps) => {
+  const pathname = usePathname();
+
   return (
     <nav 
       aria-label='site-navigation'
@@ -25,27 +28,31 @@ const Sidebar = ({ isOpen }: SidebarProps) => {
     ">
 
     <ul className="flex-1 space-y-2 font-bold text-white">
-      {navItems.map(({ href, label, icon: Icon }) => (
-        <li key={href}>
-          <Link
-            href={href}
-            className="flex items-center px-2 py-2 rounded hover:shadow hover:bg-blue-500 transition-colors"
-        >
-          <Icon className="w-6 h-6 mr-2" />
-            { isOpen ? label: "" }
-          </Link>
-        </li>
-      ))}
+      {navItems.map(({ href, label, icon: Icon }) => {
+        const isActive = pathname === href;
+        return (
+          <li key={href}>
+            <Link
+              href={href}
+              className={`flex items-center px-2 py-2 rounded hover:shadow hover:bg-blue-500 transition-colors${isActive ? ' bg-blue-500 shadow' : ''}`}
+            >
+              <Icon className="w-6 h-6 mr-2" />
+              {isOpen && <span>{label}</span>}
+            </Link>
+          </li>
+        );
+      })}
     </ul>
 
     <div className="mt-4">
-      <a
+      <Link
         href="/logout"
         className="flex items-center px-3 py-2 text-red-400 hover:text-red-600 transition-colors"
       >
         <FaSignOutAlt className="w-6 h-6 mr-2" />
-        { isOpen ? "Logout" : ""}
-      </a>
+        {isOpen && <span>Logout</span>}
+      </Link>
+      
     </div>
     </nav>
   );
