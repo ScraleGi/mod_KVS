@@ -58,7 +58,8 @@ model CourseRegistration {
   participantId String
   participant   Participant @relation(fields: [participantId], references: [id])
   status        RegistrationStatus
-  invoices      Invoice[]  
+  invoices      Invoice[]
+  generatedDocuments Document[]  
 }
 
 model Participant {
@@ -74,6 +75,19 @@ model Invoice {
   courseRegistrationId  String
   courseRegistration    CourseRegistration   @relation(fields: [courseRegistrationId], references: [id])
 }
+
+
+model Document {
+  id                    String               @id @default(uuid())
+  role                  String
+  file                  String               // URL to the file
+  courseRegistrationId  String
+  courseRegistration    CourseRegistration   @relation(fields: [courseRegistrationId], references: [id])
+  createdAt        DateTime  @default(now())
+  deletedAt        DateTime? // Soft delete: null = not deleted, date = deleted 
+}
+
+
 
 enum RegistrationStatus {
   Interested

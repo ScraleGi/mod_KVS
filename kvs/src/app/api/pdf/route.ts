@@ -1,53 +1,71 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { generatePDF } from '@/utils/generatePDF';
-import { loadPDF, savePDF, pdfExists } from '@/utils/fileStorage';
+import { NextRequest, NextResponse } from 'next/server'
+import { PrismaClient } from '@prisma/client'  // prisma instance exportieren, z.B. /lib/prisma.ts
+import { getTemplateData } from '@/utils/getTemplateData'
+import { generatePDF } from '@/utils/generatePDF'
+import { pdfExists, loadPDF, savePDF } from '@/utils/fileStorage'
+
+const prisma = new PrismaClient()
 
 export async function GET(req: NextRequest) {
-  // ⚠️ In Zukunft: Prisma holen → hier: statische Demodaten das sind beispiele für pdf
-  const data = {
-    user: 'Max Mustermann',
-    date: new Date().toLocaleDateString(),
-    cost: 100, // Beispielwert – später aus DB holen
-    imageUrl: "https://i.imgur.com/utRZT2L.png"
-  };
+  const url = new URL(req.url)
+  const invoiceId = url.searchParams.get('invoiceId')
 
-  // 🔁 Dynamischer Dateiname basierend auf Daten, sanitized für Sicherheit
-  const filenameRaw = `invoice_${data.user.replace(/\s+/g, '_')}_${data.date}.pdf`;
-  const filename = filenameRaw.replace(/[^a-zA-Z0-9_\-.]/g, '');
+  if (!invoiceId) {
+    return NextResponse.json({ error: 'Missing invoiceId' }, { status: 400 })
+  }
 
-  // 📦 Prüfen, ob Datei bereits existiert
+  // Dateiname mit invoiceId für Eindeutigkeit
+  const filename = `invoice_${invoiceId}.pdf`
+
+  // Wenn PDF schon existiert -> direkt zurückgeben
   if (await pdfExists(filename)) {
-    const fileBuffer = await loadPDF(filename);
-    if (fileBuffer) {
-      return new NextResponse(fileBuffer, {
+    const existingPdf = await loadPDF(filename)
+    if (existingPdf) {
+      return new NextResponse(existingPdf, {
         headers: {
           'Content-Type': 'application/pdf',
-          'Content-Disposition': `attachment; filename="${filename}"; filename*=UTF-8''${encodeURIComponent(filename)}`,
+          'Content-Disposition': `attachment; filename="${filename}"`,
         },
-      });
+      })
     }
   }
 
-  // 🖨 PDF wenn nicht vorhanden generieren + speichern
-  const pdfBuffer = await generatePDF('invoice', data);
-  await savePDF(filename, pdfBuffer);
+  // Daten aus DB holen via Prisma
+  const invoice = await prisma.invoice.findUnique({
+    where: { id: invoiceId },
+    include: {
+      courseRegistration: {
+        include: {
+          participant: true,
+          course: {
+            include: {
+              program: true,
+              trainer: true,
+            },
+          },
+        },
+      },
+    },
+  })
 
+  if (!invoice) {
+    return NextResponse.json({ error: 'Invoice not found' }, { status: 404 })
+  }
+
+  // Template-Daten vorbereiten
+  const templateData = getTemplateData('invoice', invoice)
+
+  // PDF generieren
+  const pdfBuffer = await generatePDF('invoice', templateData)
+
+  // PDF speichern
+  await savePDF(filename, pdfBuffer)
+
+  // PDF als Download senden
   return new NextResponse(pdfBuffer, {
     headers: {
       'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename="${filename}"; filename*=UTF-8''${encodeURIComponent(filename)}`,
+      'Content-Disposition': `attachment; filename="${filename}"`,
     },
-  });
+  })
 }
-
-// Beispiel: Setting Content-Disposition Header
-
-// 1. inline → PDF wird im Browser-Tab angezeigt, Nutzer sieht die Datei direkt
-//    Der Dateiname ist ein Vorschlag, wird aber oft ignoriert bei Anzeige
-
-//                  'Content-Disposition': `inline; filename="${filename}"`
-
-// 2. attachment → PDF wird als Download angeboten
-//    Der Browser öffnet einen "Speichern unter"-Dialog mit dem Dateinamen
-
-//                  'Content-Disposition': `attachment; filename="${filename}"`

@@ -1,31 +1,34 @@
-import fs from 'fs/promises';
-import path from 'path';
+import fs from 'fs/promises'
+import path from 'path'
 
-const pdfDir = path.resolve(process.cwd(), 'src/storage/pdfs');
-
-export async function savePDF(filename: string, data: Buffer) {
-  await fs.mkdir(pdfDir, { recursive: true });
-  const filePath = path.join(pdfDir, filename);
-  await fs.writeFile(filePath, data);
-  return filePath;
-}
-
-export async function loadPDF(filename: string): Promise<Buffer | null> {
-  try {
-    const filePath = path.join(pdfDir, filename);
-    const file = await fs.readFile(filePath);
-    return file;
-  } catch (error) {
-    return null; // Datei nicht gefunden
-  }
-}
+const dir = path.resolve(process.cwd(), 'src/storage/pdfs')
 
 export async function pdfExists(filename: string): Promise<boolean> {
   try {
-    const filePath = path.join(pdfDir, filename);
-    await fs.access(filePath);
-    return true;
+    await fs.access(path.join(dir, filename))
+    return true
   } catch {
-    return false;
+    return false
+  }
+}
+
+//if the PDF exists, it will return the buffer or null if it does not exist
+export async function loadPDF(filename: string): Promise<Buffer | null> {
+  try {
+    return await fs.readFile(path.join(dir, filename))
+  } catch (e) {
+    console.error('LoadPDF Error:', e)
+    return null
+  }
+}
+
+//if pdf does not exist, it will create the directory and save the PDF     
+export async function savePDF(filename: string, buffer: Buffer): Promise<void> {
+  try {
+    await fs.mkdir(dir, { recursive: true })
+    await fs.writeFile(path.join(dir, filename), buffer)
+  } catch (e) {
+    console.error('SavePDF Error:', e)
+    throw e
   }
 }

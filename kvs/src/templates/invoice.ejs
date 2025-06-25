@@ -46,9 +46,15 @@
   </style>
 </head>
 <body>
-  <h1>PDF for <%= user %></h1>
-  <p>Created on <%= date %></p>
-  <p>The costs are <%= cost %></p>
+  <h1>Invoice for <%= user %></h1>
+  <p>Date: <%= date %></p>
+  <p>Course: <%= courseName %></p>
+  <p>Trainer: <%= trainerName %></p>
+  <p>Start Date: <%= startDate %></p>
+  <p>Amount: € <%= cost %></p>
+  <img src="<%= imageUrl %>" alt="Logo" width="150"/>
+</body>
+</html>
     <!-- dummy image -->
 
   <img src="https://i.imgur.com/utRZT2L.png" alt="cats">
