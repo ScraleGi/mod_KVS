@@ -1,5 +1,6 @@
 "use client"
 
+// -------------------- Imports --------------------
 import * as React from "react"
 import {
   ColumnDef,
@@ -31,7 +32,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -39,12 +39,11 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
 
 import { ParticipantsTable } from "./participants_table"
 
-// --- Types ---
+// -------------------- Types --------------------
 export type Participant = {
   id: string
   name: string
@@ -62,8 +61,9 @@ export type CourseRow = {
   participants?: Participant[]
 }
 
-// --- Main Table Columns ---
+// -------------------- Table Columns Definition --------------------
 export const columns: ColumnDef<CourseRow>[] = [
+  // Checkbox column for row selection
   {
     id: "select",
     header: ({ table }) => (
@@ -88,6 +88,7 @@ export const columns: ColumnDef<CourseRow>[] = [
     enableSorting: false,
     enableHiding: false,
   },
+  // Course column with sorting
   {
     accessorKey: "course",
     header: ({ column }) => (
@@ -117,16 +118,19 @@ export const columns: ColumnDef<CourseRow>[] = [
       </span>
     ),
   },
+  // Area column
   { accessorKey: "area", header: "Area" },
-{
-  accessorKey: "startDate",
-  header: () => (
-    <span className="block text-left w-full">Start Date</span>
-  ),
-  cell: ({ row }) => (
-    <span className="block text-left w-full">{row.getValue("startDate")}</span>
-  ),
-},
+  // Start Date column (left-aligned, not sortable)
+  {
+    accessorKey: "startDate",
+    header: () => (
+      <span className="block text-left w-full">Start Date</span>
+    ),
+    cell: ({ row }) => (
+      <span className="block text-left w-full">{row.getValue("startDate")}</span>
+    ),
+  },
+  // Trainer column (left-aligned)
   {
     accessorKey: "trainer",
     header: () => <span className="text-left w-full block">Trainer</span>,
@@ -134,6 +138,7 @@ export const columns: ColumnDef<CourseRow>[] = [
       <span className="block text-left w-full">{row.getValue("trainer")}</span>
     ),
   },
+  // Registrations column with sorting
   {
     accessorKey: "registrations",
     header: ({ column }) => (
@@ -182,14 +187,17 @@ export const columns: ColumnDef<CourseRow>[] = [
       </span>
     ),
   },
+  // Actions column (dropdown menu and dialog)
   {
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
+      // Each row gets its own dialog state
       const course = row.original
       const [open, setOpen] = React.useState(false)
       return (
         <>
+          {/* Row actions dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-8 w-8 p-0 cursor-pointer">
@@ -213,37 +221,44 @@ export const columns: ColumnDef<CourseRow>[] = [
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-<Dialog open={open} onOpenChange={setOpen}>
-  <DialogContent
-    className="bg-white max-w-5xl w-full p-8 resize overflow-auto"
-    style={{
-      minWidth: "700px",
-      maxWidth: "1100px",
-      borderRadius: "1rem",
-      boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
-    }}
-  >
-    <DialogTitle className="mb-4 text-2xl font-semibold">
-      Participants for {course.course}
-    </DialogTitle>
-    <div className="rounded-xl border border-gray-200 bg-white p-2 max-h-[70vh] overflow-auto overflow-x-auto">
-      <ParticipantsTable participants={course.participants ?? []} />
-    </div>
-  </DialogContent>
-</Dialog>
+          {/* Participants dialog */}
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogContent
+              className="bg-white max-w-5xl w-full p-8 resize overflow-auto"
+              style={{
+                minWidth: "700px",
+                maxWidth: "1100px",
+                borderRadius: "1rem",
+                boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
+              }}
+            >
+              <DialogTitle className="mb-4 text-2xl font-semibold">
+                Participants for {course.course}
+              </DialogTitle>
+              <div className="rounded-xl border border-gray-200 bg-white p-2 max-h-[70vh] overflow-auto overflow-x-auto">
+                <ParticipantsTable participants={course.participants ?? []} />
+              </div>
+            </DialogContent>
+          </Dialog>
         </>
       )
     },
   },
 ]
 
-// --- Main Table Component ---
+// -------------------- Main Table Component --------------------
+/**
+ * Renders the main courses table with filtering, sorting, pagination, and actions.
+ * @param data Array of CourseRow objects (courses with participants)
+ */
 export function CourseTable({ data }: { data: CourseRow[] }) {
+  // Table state hooks
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
 
+  // Create the table instance
   const table = useReactTable({
     data,
     columns,
@@ -264,8 +279,10 @@ export function CourseTable({ data }: { data: CourseRow[] }) {
     },
   })
 
+  // -------------------- Render --------------------
   return (
     <div className="w-full">
+      {/* Filter and column visibility controls */}
       <div className="flex items-center py-4">
         <Input
           placeholder="Filter courses..."
@@ -300,6 +317,7 @@ export function CourseTable({ data }: { data: CourseRow[] }) {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+      {/* Main table */}
       <div className="rounded-2xl shadow-xl border border-gray-200 overflow-hidden bg-white">
         <Table>
           <TableHeader>
@@ -350,6 +368,7 @@ export function CourseTable({ data }: { data: CourseRow[] }) {
           </TableBody>
         </Table>
       </div>
+      {/* Pagination controls */}
       <div className="flex items-center justify-end space-x-2 py-4">
         <Button
           variant="outline"
