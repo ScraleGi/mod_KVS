@@ -1,13 +1,18 @@
-export async function getTemplateData(
-  type: 'invoice' | 'certificate',
-  params: { user: string; date?: string }
-) {
+
+type TemplateType = 'invoice' | 'certificate';
+
+interface TemplateParams {
+  user: string;
+  date?: string;
+}
+
+export async function getTemplateData(type: TemplateType, params: TemplateParams) {
   if (type === 'invoice') {
     return {
       user: params.user,
       date: params.date ?? new Date().toLocaleDateString(),
-      preis: 299.99,
-      imageUrl: '', // Add your image path or URL here
+      cost: 299.99,
+      imageUrl: 'https://i.imgur.com/utRZT2L.png',
     };
   }
 

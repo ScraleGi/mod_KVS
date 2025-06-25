@@ -19,3 +19,4 @@ export async function generatePDF(templateName: string, data: object): Promise<B
 
   return pdfBuffer as Buffer;
 }
+
