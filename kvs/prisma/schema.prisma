@@ -73,6 +73,9 @@ model Invoice {
   amount                Float
   courseRegistrationId  String
   courseRegistration    CourseRegistration   @relation(fields: [courseRegistrationId], references: [id])
+  storno                Boolean              @default(false)
+  dueDate               DateTime
+  transactionNumber     String               @unique
 }
 
 enum RegistrationStatus {
