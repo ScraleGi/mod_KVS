@@ -26,7 +26,7 @@ export default async function EditAreaPage({ params }: EditAreaPageProps) {
             data: { name },
         });
         // Redirect back to the areas list after saving
-        redirect('/areas');
+        redirect('/area');
     }
     
     // Await params (Next.js 15+ requirement) and get the area id
@@ -80,7 +80,7 @@ export default async function EditAreaPage({ params }: EditAreaPageProps) {
                                 
                                 {/* Back to Areas link */}
                                 <Link
-                                    href="/areas"
+                                    href="/area"
                                     className="text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors duration-200 flex items-center"
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">

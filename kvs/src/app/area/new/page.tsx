@@ -22,8 +22,8 @@ async function createArea(formData: FormData) {
     data: { name },
   })
   
-  // Redirect to the areas list page after creation
-  redirect('/areas')
+  // Redirect to the area list page after creation
+  redirect('/area')
 }
 
 // Page component for adding a new area
@@ -70,7 +70,7 @@ export default function NewAreaPage() {
                 
                 {/* Cancel button, navigates back to areas list */}
                 <Link
-                  href="/areas"
+                  href="/area"
                   className="text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors duration-200 flex items-center"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">

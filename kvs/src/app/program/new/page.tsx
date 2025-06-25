@@ -4,13 +4,12 @@ import Link from 'next/link'
 
 const prisma = new PrismaClient()
 
-// Server action to create a new course
-async function createCourse(formData: FormData) {
+// Server action to create a new program
+async function createProgram(formData: FormData) {
   'use server'
   const name = formData.get('name') as string
   const description = formData.get('description') as string
   const teachingUnits = formData.get('teachingUnits')
-  const courseStart = formData.get('courseStart')
   const price = formData.get('price')
   const areaId = formData.get('areaId') as string
 
@@ -18,20 +17,19 @@ async function createCourse(formData: FormData) {
     throw new Error('Name and Area are required')
   }
 
-  await prisma.course.create({
+  await prisma.program.create({
     data: {
       name,
       description: description || null,
       teachingUnits: teachingUnits ? Number(teachingUnits) : null,
-      courseStart: courseStart ? new Date(courseStart as string) : null,
       price: price ? Number(price) : null,
       areaId,
     },
   })
-  redirect('/courses')
+  redirect('/program')
 }
 
-export default async function NewCoursePage() {
+export default async function NewProgramPage() {
   // Fetch all areas for the select dropdown
   const areas = await prisma.area.findMany({ orderBy: { name: 'asc' } })
 
@@ -41,9 +39,9 @@ export default async function NewCoursePage() {
         <div className="backdrop-blur-sm bg-white/90 rounded-2xl shadow-xl overflow-hidden border border-gray-100 transition-all duration-300 hover:shadow-2xl">
           <div className="px-8 py-10">
             <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-700 mb-8 tracking-tight">
-              Add New Course
+              Add New Program
             </h1>
-            <form action={createCourse} className="space-y-8">
+            <form action={createProgram} className="space-y-8">
               <div className="space-y-2">
                 <label htmlFor="name" className="block text-sm font-medium text-gray-600">
                   Name
@@ -54,7 +52,7 @@ export default async function NewCoursePage() {
                   type="text"
                   required
                   className="w-full px-5 py-3 bg-gray-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition-all duration-200"
-                  placeholder="Enter course name"
+                  placeholder="Enter program name"
                 />
               </div>
               <div className="space-y-2">
@@ -86,7 +84,7 @@ export default async function NewCoursePage() {
                   id="description"
                   name="description"
                   className="w-full px-5 py-3 bg-gray-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition-all duration-200"
-                  placeholder="Enter course description"
+                  placeholder="Enter program description"
                   rows={3}
                 />
               </div>
@@ -101,17 +99,6 @@ export default async function NewCoursePage() {
                   min={0}
                   className="w-full px-5 py-3 bg-gray-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition-all duration-200"
                   placeholder="Enter number of units"
-                />
-              </div>
-              <div className="space-y-2">
-                <label htmlFor="courseStart" className="block text-sm font-medium text-gray-600">
-                  Course Start
-                </label>
-                <input
-                  id="courseStart"
-                  name="courseStart"
-                  type="date"
-                  className="w-full px-5 py-3 bg-gray-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition-all duration-200"
                 />
               </div>
               <div className="space-y-2">
@@ -133,10 +120,10 @@ export default async function NewCoursePage() {
                   type="submit"
                   className="cursor-pointer inline-flex items-center px-6 py-3 border border-transparent text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-md hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
-                  Create Course
+                  Create Program
                 </button>
                 <Link
-                  href="/courses"
+                  href="/program"
                   className="text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors duration-200 flex items-center"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
