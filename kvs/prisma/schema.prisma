@@ -61,7 +61,7 @@ model CourseRegistration {
   createdAt     DateTime @default(now())
   deletedAt     DateTime?
   invoices      Invoice[]
-  generatedDocuments Document[]
+  generatedDocuments Document[]  
   discount      Float?   
   couponId      String? 
   coupon        Coupon?   @relation(fields: [couponId], references: [id])
