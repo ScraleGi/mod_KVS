@@ -22,6 +22,9 @@ export async function generatePDF(templateName: string, data: object): Promise<B
   // PDF mit A4 Format erzeugen
   const pdfBuffer = await page.pdf({ format: 'A4' })
 
+ // const layoutStyle = 'body { font-family: Arial, sans-serif; padding: 20px; }'
+
+
   // Browser schließen
   await browser.close()
 

@@ -1,7 +1,13 @@
 export function getTemplateData(type: string, id: string) {
+
+  // prisma integrieren, um Daten aus der DB zu holen
+
   // Beispiel: je nach type und id verschiedene Daten zurückgeben
   switch (type) {
     case 'invoice':
+
+      // Hier kannst du echte Daten aus der DB holen, mit Prisma
+      
       return {
         user: 'Max Mustermann',
         date: new Date().toISOString().split('T')[0],
