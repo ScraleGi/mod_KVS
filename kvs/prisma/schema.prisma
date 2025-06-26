@@ -109,7 +109,8 @@ model Invoice {
   id                    String               @id @default(uuid())
   amount                Float
   courseRegistrationId  String
-  courseRegistration    CourseRegistration   @relation(fields: [courseRegistrationId], references: [id])  isCancelled           Boolean              @default(false)
+  courseRegistration    CourseRegistration   @relation(fields: [courseRegistrationId], references: [id])  
+  isCancelled           Boolean              @default(false)
   dueDate               DateTime
   transactionNumber     String               @unique
   recipientId           String

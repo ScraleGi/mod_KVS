@@ -272,41 +272,7 @@ async function seedInvoices(
     skipDuplicates: true,
   })
 }
-// -------------------- Document Seeding --------------------  emin
-// here are we seed documents related to course registrations
-async function seedDocuments(
-  programMap: Record<string, string>,
-  courseMap: Record<string, string>,
-  registrationMap: Record<string, string>,
-  participantMap: Record<string, string>
-) {
-  await prisma.document.createMany({
-    data: [
-      {
-        role: 'Syllabus',
-        file: 'https://example.com/files/syllabus_ai.pdf',
-        courseRegistrationId: registrationMap[participantMap['Charlie Brown'] + '_' + courseMap[programMap['AI Fundamentals']]],
-      },
-      {
-        role: 'Certificate',
-        file: 'https://example.com/files/certificate_webdev.pdf',
-        courseRegistrationId: registrationMap[participantMap['Dana White'] + '_' + courseMap[programMap['Web Development Bootcamp']]],
-      },
-      {
-        role: 'Syllabus',
-        file: 'https://example.com/files/syllabus_python.pdf',
-        courseRegistrationId: registrationMap[participantMap['Eve Adams'] + '_' + courseMap[programMap['Python for Beginners']]],
-      },
-      {
-        role: 'Certificate',
-        file: 'https://example.com/files/certificate_marketing.pdf',
-        courseRegistrationId: registrationMap[participantMap['Frank Miller'] + '_' + courseMap[programMap['Digital Marketing 101']]],
-      },
-      // more dummy documents can be added here
-    ],
-    skipDuplicates: true,
-  })
-}
+
 // -------------------- Document Seeding --------------------  emin
 // here are we seed documents related to course registrations
 async function seedDocuments(
