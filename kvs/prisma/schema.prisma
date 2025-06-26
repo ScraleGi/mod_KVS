@@ -61,6 +61,7 @@ model CourseRegistration {
   createdAt     DateTime @default(now())
   deletedAt     DateTime?
   invoices      Invoice[]
+  generated Documents Document[]  
   discount      Float?   
   couponId      String? 
   coupon        Coupon?   @relation(fields: [couponId], references: [id])
@@ -134,6 +135,19 @@ enum RecipientType {
   PERSON
   COMPANY
 }
+
+
+model Document {
+  id                    String               @id @default(uuid())
+  role                  String
+  file                  String               // URL to the file
+  courseRegistrationId  String
+  courseRegistration    CourseRegistration   @relation(fields: [courseRegistrationId], references: [id])
+  createdAt        DateTime  @default(now())
+  deletedAt        DateTime? // Soft delete: null = not deleted, date = deleted 
+}
+
+
 
 enum RegistrationStatus {
   Interested

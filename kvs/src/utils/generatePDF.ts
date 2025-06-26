@@ -1,21 +1,33 @@
-import puppeteer from 'puppeteer';
-import ejs from 'ejs';
-import path from 'path';
+import puppeteer from 'puppeteer'
+import ejs from 'ejs'
+import path from 'path'
 
 export async function generatePDF(templateName: string, data: object): Promise<Buffer> {
-  const templatePath = path.resolve(process.cwd(), 'src/templates', `${templateName}.ejs`);
-  const html = await ejs.renderFile(templatePath, data);
+  // Template-Dateipfad ermitteln
+  const templatePath = path.resolve(process.cwd(), 'src/templates', `${templateName}.ejs`)
+  
+  // EJS Template mit Daten rendern (HTML generieren)
+  const html = await ejs.renderFile(templatePath, data)
 
+  // Puppeteer Browser starten (Headless + Sandbox off wegen Server)
   const browser = await puppeteer.launch({
     headless: true,
     args: ['--no-sandbox', '--disable-setuid-sandbox'],
-  });
+  })
 
-  const page = await browser.newPage();
-  await page.setContent(html, { waitUntil: 'networkidle0' });
+  const page = await browser.newPage()
+  // HTML als Content setzen und warten, bis geladen
+  await page.setContent(html, { waitUntil: 'networkidle0' })
 
-  const pdfBuffer = await page.pdf({ format: 'A4' });
-  await browser.close();
+  // PDF mit A4 Format erzeugen
+  const pdfBuffer = await page.pdf({ format: 'A4' })
 
-  return pdfBuffer as Buffer;
+ // const layoutStyle = 'body { font-family: Arial, sans-serif; padding: 20px; }'
+
+
+  // Browser schließen
+  await browser.close()
+
+  return pdfBuffer as Buffer
 }
+
