@@ -1,53 +1,41 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-import { getTemplateData } from '@/utils/getTemplateData'
-import { generatePDF } from '@/utils/generatePDF'
-import { pdfExists, loadPDF, savePDF } from '@/utils/fileStorage'
+import { NextRequest, NextResponse } from 'next/server';
+import { generatePDF } from '@/utils/generatePDF';
+import { pdfExists, loadPDF, savePDF } from '@/utils/fileStorage';
+import { getTemplateData } from '@/utils/getTemplateData';
 
-const prisma = new PrismaClient()
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const type = searchParams.get('type') || 'invoice';
+  const id = searchParams.get('id') || '1';
 
-export async function GET(req: NextRequest) {
-  const url = new URL(req.url)
-  const type = url.searchParams.get('type')  // 'invoice' or 'certificate'
-  const id = url.searchParams.get('id')      // invoiceId or courseRegistrationId (for certificate)
+  // Beispiel: hol dir die Daten für das PDF basierend auf type und id
+  // Hier einfach Dummy-Daten oder aus DB (ohne Prisma: hardcoded oder via getTemplateData)
+  const data = getTemplateData(type, id);  // Du kannst getTemplateData anpassen, um id zu nutzen
 
-  if (!type || !id) {
-    return NextResponse.json({ error: 'Missing type or id' }, { status: 400 })
-  }
-
-  if (type !== 'invoice' && type !== 'certificate') {
-    return NextResponse.json({ error: 'Invalid type parameter' }, { status: 400 })
-  }
-
-  const filename = `${type}_${id}.pdf`
+  const filenameRaw = `${type}_${data.user.replace(/\s+/g, '_')}_${data.date}.pdf`;
+  const filename = filenameRaw.replace(/[^a-zA-Z0-9_\-.]/g, '');
 
   if (await pdfExists(filename)) {
-    const existingPdf = await loadPDF(filename)
-    if (existingPdf) {
-      return new NextResponse(existingPdf, {
+    const fileBuffer = await loadPDF(filename);
+    if (fileBuffer) {
+      return new NextResponse(fileBuffer, {
+        status: 200,
         headers: {
           'Content-Type': 'application/pdf',
           'Content-Disposition': `attachment; filename="${filename}"`,
         },
-      })
+      });
     }
   }
 
-  const templateData = await getTemplateData(type, id, prisma)
-
-  if (!templateData) {
-    console.log('No template data found for', { type, id }) // Debug Log
-    return NextResponse.json({ error: 'Data not found' }, { status: 404 })
-  }
-
-  const pdfBuffer = await generatePDF(type, templateData)
-
-  await savePDF(filename, pdfBuffer)
+  const pdfBuffer = await generatePDF(type, data);
+  await savePDF(filename, pdfBuffer);
 
   return new NextResponse(pdfBuffer, {
+    status: 200,
     headers: {
       'Content-Type': 'application/pdf',
       'Content-Disposition': `attachment; filename="${filename}"`,
     },
-  })
+  });
 }

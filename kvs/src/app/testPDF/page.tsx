@@ -1,7 +1,12 @@
 'use client';
 
+import { useState } from 'react';
+
 export default function TestPDF() {
-  const handleDownload = async (type: string, id: string) => {
+  const [type, setType] = useState('invoice');
+  const [id, setId] = useState('1'); // Optional: id per Input ändern, hier statisch
+
+  const handleDownload = async () => {
     const res = await fetch(`/api/pdf?type=${type}&id=${id}`);
     if (!res.ok) {
       alert(`Fehler beim Laden des ${type} PDFs`);
@@ -28,21 +33,35 @@ export default function TestPDF() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="p-6 flex flex-col items-center space-y-4 bg-white rounded shadow">
+      <div className="p-6 flex flex-col items-center space-y-4 bg-white rounded shadow w-72">
         <h1 className="text-xl font-bold">PDF Generator</h1>
 
-        <button
-          onClick={() => handleDownload('invoice', '1')}  // Example: invoiceId = 1
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        <label htmlFor="pdf-type" className="font-semibold">Dokumenttyp auswählen:</label>
+        <select
+          id="pdf-type"
+          value={type}
+          onChange={(e) => setType(e.target.value)}
+          className="border border-gray-300 rounded px-3 py-2 w-full"
         >
-          Invoice PDF herunterladen
-        </button>
+          <option value="invoice">Invoice</option>
+          <option value="certificate">Certificate</option>
+          {/* weitere Typen hier */}
+        </select>
+
+        {/* Optional: id ändern, z.B. via Input */}
+        {/* <input
+          type="text"
+          value={id}
+          onChange={(e) => setId(e.target.value)}
+          className="border border-gray-300 rounded px-3 py-2 w-full"
+          placeholder="ID eingeben"
+        /> */}
 
         <button
-          onClick={() => handleDownload('certificate', '1')}  // Example: certificateId = 1
-          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+          onClick={handleDownload}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full"
         >
-          Certificate PDF herunterladen
+          PDF herunterladen
         </button>
       </div>
     </div>

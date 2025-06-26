@@ -1,56 +1,27 @@
-import { PrismaClient } from '@prisma/client'
-
-export async function getTemplateData(type: string, id: string, prisma: PrismaClient) {
-  if (type === 'invoice') {
-    const invoice = await prisma.invoice.findUnique({
-      where: { id },
-      include: {
-        courseRegistration: {
-          include: {
-            participant: true,
-            course: {
-              include: { trainer: true, program: true },
-            },
-          },
-        },
-      },
-    })
-
-    if (!invoice) return null
-
-    return {
-      user: invoice.courseRegistration.participant.name,
-      courseName: invoice.courseRegistration.course.title,
-      trainerName: invoice.courseRegistration.course.trainer.name,
-      startDate: invoice.courseRegistration.course.startDate.toDateString(),
-      date: invoice.date.toDateString(),
-      cost: invoice.amount,
-      imageUrl: 'https://i.imgur.com/utRZT2L.png',
-    }
+export function getTemplateData(type: string, id: string) {
+  // Beispiel: je nach type und id verschiedene Daten zurückgeben
+  switch (type) {
+    case 'invoice':
+      return {
+        user: 'Max Mustermann',
+        date: new Date().toISOString().split('T')[0],
+        invoiceId: id,
+        amount: '123,45 €',
+      };
+  case 'certificate':
+  return {
+    user: 'Anna Musterfrau',
+    date: new Date().toISOString().split('T')[0],
+    certificateId: id,
+    courseName: 'React Basics',    // angepasst an EJS
+    trainerName: 'Max trainer',    // Beispielwert hinzufügen
+    startDate: '2025-01-15',       // Beispielwert hinzufügen
+    imageUrl: 'https://example.com/logo.png', // Beispiel-URL, oder lokalen Pfad
+  };
+    default:
+      return {
+        user: 'Unbekannt',
+        date: new Date().toISOString().split('T')[0],
+      };
   }
-
-  if (type === 'certificate') {  // Korrektur hier
-    const reg = await prisma.courseRegistration.findUnique({
-      where: { id },
-      include: {
-        participant: true,
-        course: {
-          include: { trainer: true, program: true },
-        },
-      },
-    })
-
-    if (!reg) return null
-
-    return {
-      user: reg.participant.name,
-      courseName: reg.course.title,
-      trainerName: reg.course.trainer.name,
-      startDate: reg.course.startDate.toDateString(),
-      date: new Date().toDateString(),
-      imageUrl: 'https://i.imgur.com/utRZT2L.png',  // Falls Logo gewünscht
-    }
-  }
-
-  return null
 }
