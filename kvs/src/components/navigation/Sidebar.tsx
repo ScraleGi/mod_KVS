@@ -18,6 +18,20 @@ type SidebarProps = {
   isOpen: boolean;
 }
 
+const Tooltip = ({ children }: { children: React.ReactNode }) => (
+  <span className="
+    pointer-events-none
+    absolute left-full top-1/2 -translate-y-1/2 ml-3
+    whitespace-nowrap bg-gray-900 text-white text-xs font-medium
+    rounded shadow-lg px-3 py-1
+    opacity-0 scale-95 translate-x-2
+    group-hover:opacity-100 group-hover:scale-100 group-hover:translate-x-0
+    transition-all duration-200 z-30
+  " role="tooltip">
+    {children}
+  </span>
+);
+
 const Sidebar = ({ isOpen }: SidebarProps) => {
   const pathname = usePathname();
 
@@ -34,7 +48,7 @@ const Sidebar = ({ isOpen }: SidebarProps) => {
       {navItems.map(({ href, label, icon: Icon }) => {
         const isActive = pathname === href;
         return (
-          <li key={href}>
+          <li key={href} className='relative group'>
             <Link
               href={href}
               className={`flex items-center px-2 py-2 rounded hover:shadow hover:bg-blue-500 transition-colors${isActive ? ' bg-blue-500 shadow' : ''}`}
@@ -42,20 +56,23 @@ const Sidebar = ({ isOpen }: SidebarProps) => {
               <Icon className="w-6 h-6 mr-2" />
               {isOpen && <span>{label}</span>}
             </Link>
+            {!isOpen && <Tooltip>{label}</Tooltip>}
           </li>
         );
       })}
     </ul>
 
     <div className="mt-4">
-      <Link
-        href="/logout"
-        className="flex items-center px-3 py-2 text-red-400 hover:text-red-600 transition-colors"
-      >
-        <FaSignOutAlt className="w-6 h-6 mr-2" />
-        {isOpen && <span>Logout</span>}
-      </Link>
-      
+      <div className="relative group">
+        <Link
+          href="/logout"
+          className="flex items-center px-3 py-2 text-red-400 hover:text-red-600 transition-colors"
+        >
+          <FaSignOutAlt className="w-6 h-6 mr-2" />
+          {isOpen && <span>Logout</span>}
+        </Link>
+        {!isOpen && <Tooltip>Logout</Tooltip>}
+      </div>
     </div>
     </nav>
   );
