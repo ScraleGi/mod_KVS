@@ -1,7 +1,7 @@
 // npx prisma migrate reset   -> to reset the database
 // npx prisma db seed         -> to seed the database with dummy data
 
-import { PrismaClient } from '../generated/prisma'
+import { PrismaClient, RecipientType } from '../generated/prisma'
 
 const prisma = new PrismaClient()
 
@@ -53,11 +53,11 @@ async function seedPrograms(areaMap: Record<string, string>) {
 async function seedTrainers() {
   await prisma.trainer.createMany({
     data: [
-      { name: 'Alice Smith' },
-      { name: 'Bob Johnson' },
-      { name: 'Carmen Diaz' },
-      { name: 'David Lee' },
-      { name: 'Emily Clark' },
+      { name: 'Alice Smith', email: 'alice.smith@example.com', phoneNumber: '+49111111111' },
+      { name: 'Bob Johnson', email: 'bob.johnson@example.com', phoneNumber: '+49222222222' },
+      { name: 'Carmen Diaz', email: 'carmen.diaz@example.com', phoneNumber: '+49333333333' },
+      { name: 'David Lee', email: 'david.lee@example.com', phoneNumber: '+49444444444' },
+      { name: 'Emily Clark', email: 'emily.clark@example.com', phoneNumber: '+49555555555' },
     ],
     skipDuplicates: true,
   })
@@ -67,40 +67,96 @@ async function seedTrainers() {
 
 // -------------------- Course Seeding --------------------
 async function seedCourses(programMap: Record<string, string>, trainerMap: Record<string, string>) {
-  await prisma.course.createMany({
-    data: [
-      { programId: programMap['AI Fundamentals'], startDate: new Date('2024-09-01'), trainerId: trainerMap['Alice Smith'] },
-      { programId: programMap['Web Development Bootcamp'], startDate: new Date('2024-10-01'), trainerId: trainerMap['Bob Johnson'] },
-      { programId: programMap['Python for Beginners'], startDate: new Date('2024-11-01'), trainerId: trainerMap['Alice Smith'] },
-      { programId: programMap['Digital Marketing 101'], startDate: new Date('2024-12-01'), trainerId: trainerMap['Bob Johnson'] },
-      { programId: programMap['Cloud Computing Basics'], startDate: new Date('2025-01-15'), trainerId: trainerMap['Carmen Diaz'] },
-      { programId: programMap['Project Management'], startDate: new Date('2025-02-10'), trainerId: trainerMap['David Lee'] },
-      { programId: programMap['Data Visualization'], startDate: new Date('2025-03-05'), trainerId: trainerMap['Emily Clark'] },
-      { programId: programMap['Agile Methodologies'], startDate: new Date('2025-04-01'), trainerId: trainerMap['David Lee'] },
-      { programId: programMap['UI/UX Design'], startDate: new Date('2025-05-10'), trainerId: trainerMap['Carmen Diaz'] },
-    ],
-    skipDuplicates: true,
-  })
-  const courses = await prisma.course.findMany()
-  return Object.fromEntries(courses.map(course => [course.programId, course.id]))
+  const courseData = [
+    {
+      program: 'AI Fundamentals',
+      startDate: new Date('2024-09-01'),
+      mainTrainer: 'Alice Smith',
+      trainers: ['Bob Johnson', 'Carmen Diaz'],
+    },
+    {
+      program: 'Web Development Bootcamp',
+      startDate: new Date('2024-10-01'),
+      mainTrainer: 'Bob Johnson',
+      trainers: ['Alice Smith'],
+    },
+    {
+      program: 'Python for Beginners',
+      startDate: new Date('2024-11-01'),
+      mainTrainer: 'Alice Smith',
+      trainers: [],
+    },
+    {
+      program: 'Digital Marketing 101',
+      startDate: new Date('2024-12-01'),
+      mainTrainer: 'Bob Johnson',
+      trainers: ['Emily Clark'],
+    },
+    {
+      program: 'Cloud Computing Basics',
+      startDate: new Date('2025-01-15'),
+      mainTrainer: 'Carmen Diaz',
+      trainers: ['David Lee'],
+    },
+    {
+      program: 'Project Management',
+      startDate: new Date('2025-02-10'),
+      mainTrainer: 'David Lee',
+      trainers: [],
+    },
+    {
+      program: 'Data Visualization',
+      startDate: new Date('2025-03-05'),
+      mainTrainer: 'Emily Clark',
+      trainers: [],
+    },
+    {
+      program: 'Agile Methodologies',
+      startDate: new Date('2025-04-01'),
+      mainTrainer: 'David Lee',
+      trainers: ['Carmen Diaz'],
+    },
+    {
+      program: 'UI/UX Design',
+      startDate: new Date('2025-05-10'),
+      mainTrainer: 'Carmen Diaz',
+      trainers: ['Alice Smith'],
+    },
+  ]
+
+  const createdCourses = []
+  for (const c of courseData) {
+    const course = await prisma.course.create({
+      data: {
+        programId: programMap[c.program],
+        startDate: c.startDate,
+        mainTrainerId: trainerMap[c.mainTrainer],
+        trainers: {
+          connect: c.trainers.map(name => ({ id: trainerMap[name] })),
+        },
+      },
+    })
+    createdCourses.push({ ...c, id: course.id, programId: programMap[c.program] })
+  }
+  return Object.fromEntries(createdCourses.map(course => [course.programId, course.id]))
 }
 
 // -------------------- Participant Seeding --------------------
 async function seedParticipants() {
   await prisma.participant.createMany({
     data: [
-      { name: 'Charlie Brown', email: 'charlie.brown@example.com' },
-      { name: 'Dana White', email: 'dana.white@example.com' },
-      { name: 'Eve Adams', email: 'eve.adams@example.com' },
-      { name: 'Frank Miller', email: 'frank.miller@example.com' },
-      { name: 'Grace Lee', email: 'grace.lee@example.com' },
-      { name: 'Henry Ford', email: 'henry.ford@example.com' },
-      { name: 'Isabel Turner', email: 'isabel.turner@example.com' },
-      { name: 'Jack Black', email: 'jack.black@example.com' },
-      { name: 'Karen Green', email: 'karen.green@example.com' },
-      { name: 'Liam Young', email: 'liam.young@example.com' },
-      { name: 'Mona Patel', email: 'mona.patel@example.com' },
-      { name: 'Nina Rossi', email: 'nina.rossi@example.com' },
+      { name: 'Charlie Brown', email: 'charlie.brown@example.com', phoneNumber: '+491234567890' },
+      { name: 'Dana White', email: 'dana.white@example.com', phoneNumber: '+491234567891' },
+      { name: 'Eve Adams', email: 'eve.adams@example.com', phoneNumber: '+491234567892' },
+      { name: 'Frank Miller', email: 'frank.miller@example.com', phoneNumber: '+491234567893' },
+      { name: 'Grace Lee', email: 'grace.lee@example.com', phoneNumber: '+491234567894' },
+      { name: 'Henry Ford', email: 'henry.ford@example.com', phoneNumber: '+491234567895' },
+      { name: 'Isabel Turner', email: 'isabel.turner@example.com', phoneNumber: '+491234567896' },
+      { name: 'Jack Black', email: 'jack.black@example.com', phoneNumber: '+491234567897' },
+      { name: 'Karen Green', email: 'karen.green@example.com', phoneNumber: '+491234567898' },
+      { name: 'Liam Young', email: 'liam.young@example.com', phoneNumber: '+491234567899' },
+      { name: 'Mona Patel', email: 'mona.patel@example.com', phoneNumber: '+491234567800' },
+      { name: 'Nina Rossi', email: 'nina.rossi@example.com', phoneNumber: '+491234567801' },
     ],
     skipDuplicates: true,
   })
@@ -116,7 +172,6 @@ async function seedRegistrations(
 ) {
   await prisma.courseRegistration.createMany({
     data: [
-      // Existing registrations
       { courseId: courseMap[programMap['AI Fundamentals']], participantId: participantMap['Charlie Brown'], status: 'Registered' },
       { courseId: courseMap[programMap['Web Development Bootcamp']], participantId: participantMap['Dana White'], status: 'Interested' },
       { courseId: courseMap[programMap['Python for Beginners']], participantId: participantMap['Eve Adams'], status: 'Registered' },
@@ -148,46 +203,114 @@ async function seedRegistrations(
   return Object.fromEntries(registrations.map(r => [r.participantId + '_' + r.courseId, r.id]))
 }
 
+// -------------------- Coupon Seeding --------------------
+async function seedCoupons() {
+  await prisma.coupon.createMany({
+    data: [
+      { code: 'SUMMER25', description: '25% off summer promotion', percent: 25, expiresAt: new Date('2025-09-01') },
+      { code: 'WELCOME10', description: '10€ off for new users', amount: 10, expiresAt: new Date('2025-12-31') },
+    ],
+    skipDuplicates: true,
+  })
+  const coupons = await prisma.coupon.findMany()
+  return Object.fromEntries(coupons.map(c => [c.code, c.id]))
+}
+
+// -------------------- InvoiceRecipient Seeding --------------------
+async function seedInvoiceRecipients(participantMap: Record<string, string>) {
+  const recipients = [
+    {
+      type: RecipientType.COMPANY,
+      name: "Joe's Firma",
+      email: 'info@joesfirma.com',
+      address: 'Business Street 1, 12345 City',
+      participantId: null,
+    },
+    {
+      type: RecipientType.PERSON,
+      name: 'Charlie Brown',
+      email: 'charlie.brown@example.com',
+      address: 'Participant Street 2, 54321 City',
+      participantId: participantMap['Charlie Brown'],
+    },
+  ]
+  await prisma.invoiceRecipient.createMany({
+    data: recipients,
+    skipDuplicates: true,
+  })
+  const allRecipients = await prisma.invoiceRecipient.findMany()
+  return Object.fromEntries(allRecipients.map(r => [r.name, r.id]))
+}
+
 // -------------------- Invoice Seeding --------------------
 async function seedInvoices(
   programMap: Record<string, string>,
   courseMap: Record<string, string>,
   participantMap: Record<string, string>,
-  registrationMap: Record<string, string>
+  registrationMap: Record<string, string>,
+  recipientMap: Record<string, string>
 ) {
   await prisma.invoice.createMany({
     data: [
-      // Invoices for participants
-      { amount: 299.99, courseRegistrationId: registrationMap[participantMap['Charlie Brown'] + '_' + courseMap[programMap['AI Fundamentals']]], storno: false, dueDate: new Date('2024-09-15'), transactionNumber: 'INV-2024-001' },
-      { amount: 149.99, courseRegistrationId: registrationMap[participantMap['Dana White'] + '_' + courseMap[programMap['Web Development Bootcamp']]], storno: false, dueDate: new Date('2024-10-15'), transactionNumber: 'INV-2024-002' },
-      { amount: 199.99, courseRegistrationId: registrationMap[participantMap['Eve Adams'] + '_' + courseMap[programMap['Python for Beginners']]], storno: false, dueDate: new Date('2024-11-15'), transactionNumber: 'INV-2024-003' },
-      { amount: 179.99, courseRegistrationId: registrationMap[participantMap['Frank Miller'] + '_' + courseMap[programMap['Digital Marketing 101']]], storno: false, dueDate: new Date('2024-12-15'), transactionNumber: 'INV-2024-004' },
-      { amount: 299.99, courseRegistrationId: registrationMap[participantMap['Grace Lee'] + '_' + courseMap[programMap['AI Fundamentals']]], storno: false, dueDate: new Date('2024-09-30'), transactionNumber: 'INV-2024-005' },
-      { amount: 399.99, courseRegistrationId: registrationMap[participantMap['Henry Ford'] + '_' + courseMap[programMap['Web Development Bootcamp']]], storno: false, dueDate: new Date('2024-10-30'), transactionNumber: 'INV-2024-006' },
-      { amount: 299.99, courseRegistrationId: registrationMap[participantMap['Isabel Turner'] + '_' + courseMap[programMap['AI Fundamentals']]], storno: false, dueDate: new Date('2024-09-20'), transactionNumber: 'INV-2024-007' },
-      { amount: 149.99, courseRegistrationId: registrationMap[participantMap['Jack Black'] + '_' + courseMap[programMap['Web Development Bootcamp']]], storno: false, dueDate: new Date('2024-10-20'), transactionNumber: 'INV-2024-008' },
-      { amount: 199.99, courseRegistrationId: registrationMap[participantMap['Karen Green'] + '_' + courseMap[programMap['Python for Beginners']]], storno: false, dueDate: new Date('2024-11-20'), transactionNumber: 'INV-2024-009' },
-      { amount: 179.99, courseRegistrationId: registrationMap[participantMap['Liam Young'] + '_' + courseMap[programMap['Digital Marketing 101']]], storno: false, dueDate: new Date('2024-12-20'), transactionNumber: 'INV-2024-010' },
-      { amount: 299.99, courseRegistrationId: registrationMap[participantMap['Mona Patel'] + '_' + courseMap[programMap['AI Fundamentals']]], storno: false, dueDate: new Date('2024-09-25'), transactionNumber: 'INV-2024-011' },
-      { amount: 399.99, courseRegistrationId: registrationMap[participantMap['Nina Rossi'] + '_' + courseMap[programMap['Web Development Bootcamp']]], storno: false, dueDate: new Date('2024-10-25'), transactionNumber: 'INV-2024-012' },
+      {
+        amount: 299.99,
+        courseRegistrationId: registrationMap[participantMap['Charlie Brown'] + '_' + courseMap[programMap['AI Fundamentals']]],
+        isCancelled: false,
+        dueDate: new Date('2024-09-15'),
+        transactionNumber: 'INV-2024-001',
+        recipientId: recipientMap['Charlie Brown'],
+      },
+      {
+        amount: 149.99,
+        courseRegistrationId: registrationMap[participantMap['Dana White'] + '_' + courseMap[programMap['Web Development Bootcamp']]],
+        isCancelled: false,
+        dueDate: new Date('2024-10-15'),
+        transactionNumber: 'INV-2024-002',
+        recipientId: recipientMap["Joe's Firma"],
+      },
     ],
     skipDuplicates: true,
   })
 }
 
 // -------------------- Main Seed Function --------------------
+
 async function seedDatabase() {
-  // Seed each entity and build lookup maps for relationships
   const areaMap = await seedAreas()
   const programMap = await seedPrograms(areaMap)
   const trainerMap = await seedTrainers()
   const courseMap = await seedCourses(programMap, trainerMap)
   const participantMap = await seedParticipants()
   const registrationMap = await seedRegistrations(programMap, courseMap, participantMap)
-  await seedInvoices(programMap, courseMap, participantMap, registrationMap)
+  const couponMap = await seedCoupons() // <--- assign to variable!
+  const recipientMap = await seedInvoiceRecipients(participantMap)
+  await seedInvoices(programMap, courseMap, participantMap, registrationMap, recipientMap)
+
+  // --- Assign coupons/discounts to some registrations ---
+  // Charlie Brown gets SUMMER25 coupon and 50€ discount for AI Fundamentals
+const cbRegId = registrationMap[participantMap['Charlie Brown'] + '_' + courseMap[programMap['AI Fundamentals']]]
+if (cbRegId) {
+  await prisma.courseRegistration.update({
+    where: { id: cbRegId },
+    data: {
+      couponId: couponMap['SUMMER25'],
+      discount: 50,
+    },
+  })
 }
 
-// -------------------- Run Seeder --------------------
+  // Dana White gets WELCOME10 coupon for Web Development Bootcamp
+  const dwRegId = registrationMap[participantMap['Dana White'] + '_' + courseMap[programMap['Web Development Bootcamp']]]
+  if (dwRegId) {
+    await prisma.courseRegistration.update({
+      where: { id: dwRegId },
+      data: {
+        couponId: couponMap['WELCOME10'],
+      },
+    })
+  }
+}
+
 seedDatabase()
   .then(() => console.log('Dummy Data seeded.'))
   .catch((e) => {

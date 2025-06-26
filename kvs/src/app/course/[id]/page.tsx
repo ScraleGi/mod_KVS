@@ -18,7 +18,8 @@ export default async function CoursePage({ params }: CoursePageProps) {
     where: { id },
     include: {
       program: { include: { area: true } },
-      trainer: true,
+      mainTrainer: true,
+      trainers: true,
       registrations: {
         include: {
           participant: true,
@@ -56,10 +57,6 @@ export default async function CoursePage({ params }: CoursePageProps) {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-span-2">
-            {/* Course image placeholder */}
-            <div className="w-full h-56 bg-gray-200 rounded-lg flex items-center justify-center mb-6">
-              <span className="text-gray-400 text-lg">Course Image Placeholder</span>
-            </div>
             <div className="bg-white shadow rounded-lg p-6 mb-6">
               <p className="text-gray-600 mb-4">Course ID: {course.id}</p>
               <div className="flex items-center mb-4">
@@ -72,7 +69,13 @@ export default async function CoursePage({ params }: CoursePageProps) {
               </div>
               <div className="flex items-center mb-4">
                 <span className="font-semibold mr-2">Trainer:</span>
-                <span>{course.trainer?.name ?? 'N/A'}</span>
+                <span>{course.mainTrainer?.name ?? 'N/A'}</span>
+              {/* Optionally show additional trainers */}
+              {course.trainers && course.trainers.length > 0 && (
+                <span className="ml-2 text-xs text-gray-600 bg-gray-100 rounded px-2 py-1">
+                  Additional: {course.trainers.map(t => t.name).join(', ')}
+                </span>
+              )}
               </div>
               <div className="flex items-center mb-4">
                 <span className="font-semibold mr-2">Start Date:</span>
@@ -93,13 +96,28 @@ export default async function CoursePage({ params }: CoursePageProps) {
                   {course.registrations.map(reg => (
                     <li key={reg.id} className="py-2 flex flex-col md:flex-row md:items-center md:justify-between">
                       <div>
-                        <span className="font-semibold">{reg.participant?.name ?? 'Unknown'}</span>
+                        <Link
+                          href={`/participant/${reg.participant?.id}`}
+                          className="font-semibold text-blue-600 underline hover:text-blue-800"
+                        >
+                          {reg.participant?.name ?? 'Unknown'}
+                        </Link>
                         <span className="ml-2 text-gray-500 text-sm">({reg.status})</span>
                       </div>
                       <div className="text-sm text-gray-600">
                         Invoice(s):{" "}
                         {reg.invoices.length
-                          ? reg.invoices.map(inv => `#${inv.id}: €${inv.amount}`).join(", ")
+                          ? reg.invoices.map((inv, idx) => (
+                              <React.Fragment key={inv.id}>
+                                <Link
+                                  href={`/invoice/${inv.id}`}
+                                  className="text-blue-600 underline hover:text-blue-800"
+                                >
+                                  #{inv.id}: €{inv.amount}
+                                </Link>
+                                {idx < reg.invoices.length - 1 && ", "}
+                              </React.Fragment>
+                            ))
                           : "No invoice"}
                       </div>
                     </li>

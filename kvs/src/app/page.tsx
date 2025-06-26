@@ -1,10 +1,7 @@
 import { PrismaClient } from '../../generated/prisma'
-import { CourseTable, CourseRow } from '../components/overviewTable/table'
-
-// If you want to keep the Dashboard component, you can import it here
+import { CourseTable, columns, CourseRow } from '../components/overviewTable/table'
 import Dashboard from '@/components/navigation/Dashboard'
 
-// This is a Server Component (remove 'use client' since Prisma queries must run on the server)
 export default async function Home() {
   const prisma = new PrismaClient()
 
@@ -12,7 +9,8 @@ export default async function Home() {
   const courses = await prisma.course.findMany({
     include: {
       program: { include: { area: true } },
-      trainer: true,
+      mainTrainer: true,
+      trainers: true,
       registrations: {
         include: {
           participant: true,
@@ -28,7 +26,8 @@ export default async function Home() {
     course: course.program?.name ?? 'N/A',
     area: course.program?.area?.name ?? 'N/A',
     startDate: course.startDate ? new Date(course.startDate).toLocaleDateString() : 'N/A',
-    trainer: course.trainer?.name ?? 'N/A',
+    trainer: course.mainTrainer?.name ?? 'N/A',
+    additionalTrainers: course.trainers?.map(t => t.name).join(', ') ?? '',
     registrations: course.registrations.length,
     participants: course.registrations.map(reg => ({
       id: reg.participant?.id ?? reg.id,
@@ -42,10 +41,9 @@ export default async function Home() {
 
   return (
     <div className="p-8">
-      {/* Optionally keep the Dashboard at the top */}
       <Dashboard />
       <h1 className="text-3xl font-bold mb-6">Courses Overview</h1>
-      <CourseTable data={tableData} />
+      <CourseTable data={tableData} columns={columns} />
     </div>
   )
 }

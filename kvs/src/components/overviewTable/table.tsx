@@ -35,14 +35,6 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Checkbox } from "@/components/ui/checkbox"
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-} from "@/components/ui/dialog"
-
-import { ParticipantsTable } from "./participants_table"
 
 // -------------------- Types --------------------
 export type Participant = {
@@ -293,7 +285,15 @@ export const columns: ColumnDef<CourseRow>[] = [
  * Renders the main courses table with filtering, sorting, pagination, and actions.
  * @param data Array of CourseRow objects (courses with participants)
  */
-export function CourseTable({ data }: { data: CourseRow[] }) {
+export function CourseTable<T>({
+  data,
+  columns,
+  filterColumn = "course", // default for course tables
+}: {
+  data: T[]
+  columns: ColumnDef<T>[]
+  filterColumn?: string
+}) {
   // Table state hooks
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
@@ -327,10 +327,10 @@ export function CourseTable({ data }: { data: CourseRow[] }) {
       {/* Filter and column visibility controls */}
       <div className="flex items-center py-4">
         <Input
-          placeholder="Filter courses..."
-          value={(table.getColumn("course")?.getFilterValue() as string) ?? ""}
+          placeholder={`Filter ${filterColumn}...`}
+          value={(table.getColumn(filterColumn)?.getFilterValue() as string) ?? ""}
           onChange={event =>
-            table.getColumn("course")?.setFilterValue(event.target.value)
+            table.getColumn(filterColumn)?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />
