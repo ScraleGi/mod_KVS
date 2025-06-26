@@ -1,10 +1,9 @@
 'use client'
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { FaBars, FaSearch, FaBell, FaUserCircle } from 'react-icons/fa';
-
 
 type NavbarProps = {
     isOpen: boolean
@@ -12,12 +11,7 @@ type NavbarProps = {
 }
 
 const Navbar = ({ isOpen, setOpen }: NavbarProps) => {
-    const [mounted, setMounted] = useState(false);
     const [searchValue, setSearchValue] = useState('');
-
-    useEffect(() => {
-        setMounted(true);
-    }, []);
 
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchValue(e.target.value);
@@ -49,16 +43,14 @@ const Navbar = ({ isOpen, setOpen }: NavbarProps) => {
                     <span className='absolute inset-y-0 left-0 flex items-center pl-3'>
                         <FaSearch className='text-gray-400' />
                     </span>
-                    {mounted && (
-                        <input 
-                            type='text'
-                            value={searchValue}
-                            onChange={handleSearch}
-                            className='w-full bg-white text-gray-900 rounded px-4 py-1 pl-10 shadow outline-none transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white focus:shadow-lg'
-                            placeholder='Suche...'
-                            aria-label='Suche Kurse'
-                        />
-                    )}
+                    <input 
+                        type='text'
+                        value={searchValue}
+                        onChange={handleSearch}
+                        className='w-full bg-white text-gray-900 rounded px-4 py-1 pl-10 shadow outline-none transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white focus:shadow-lg'
+                        placeholder='Suche...'
+                        aria-label='Suche Kurse'
+                    />
                 </div>
 
                 <div className='text-white'>

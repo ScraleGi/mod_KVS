@@ -7,7 +7,7 @@ const prisma = new PrismaClient()
 
 // -------------------- Page Component --------------------
 /**
- * Page fetches all courses with related program, area, trainer, and registrations,
+ * Page fetches all courses with related program, area, mainTrainer, and registrations,
  * then renders a styled list of course cards with action buttons.
  */
 export default async function Page() {
@@ -15,7 +15,8 @@ export default async function Page() {
   const courses = await prisma.course.findMany({
     include: {
       program: { include: { area: true } },
-      trainer: true,
+      mainTrainer: true,
+      trainers: true, // If you want to show additional trainers
       registrations: true,
     },
   })
@@ -35,31 +36,56 @@ export default async function Page() {
               {courses.map(course => (
                 <div
                   key={course.id}
-                  className="bg-gray-50 rounded-xl shadow-md p-6 border border-gray-100 hover:shadow-lg transition-all"
+                  className="bg-gray-50 rounded-xl shadow-md p-6 border border-gray-100 hover:shadow-lg transition-all relative"
                 >
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-2">
-                    {/* Course Info */}
-                    <div>
-                      <h2 className="text-2xl font-bold text-black mb-1">{course.program?.name}</h2>
-                      <p className="text-indigo-600 text-sm mb-1 font-medium">
-                        {course.program?.area?.name || 'N/A'}
-                      </p>
-                      <p className="text-gray-500 text-sm">
-                        <span className="font-semibold">Start Date:</span>{' '}
-                        {course.startDate ? new Date(course.startDate).toLocaleDateString() : 'N/A'}
-                      </p>
-                    </div>
-                    {/* Trainer Info */}
-                    <div className="mt-2 md:mt-0">
-                      <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">
-                        Trainer: {course.trainer?.name || 'N/A'}
-                      </span>
-                    </div>
+                  <div className="flex items-center justify-between mb-1">
+                    <Link
+                      href={`/course/${course.id}`}
+                      className="text-xl font-bold text-blue-700 hover:underline block transition-colors"
+                    >
+                      {course.program?.name}
+                    </Link>
+                    <Link
+                      href={`/course/${course.id}/edit`}
+                      className="ml-2 p-2 rounded-full bg-blue-50 text-blue-400 hover:bg-blue-100 hover:text-blue-600 transition-colors duration-200"
+                      aria-label={`Edit ${course.program?.name ?? 'Course'}`}
+                      title="Edit Course"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                        />
+                      </svg>
+                    </Link>
                   </div>
-                  {/* Registrations Count */}
-                  <div className="flex items-center gap-4 mt-4">
-                    <span className="text-gray-700">
-                      <strong>Registrations:</strong> {course.registrations.length}
+                  <p className="text-indigo-600 text-sm mb-1 font-medium">
+                    {course.program?.area?.name || 'N/A'}
+                  </p>
+                  <p className="text-gray-500 text-sm">
+                    <span className="font-semibold">Start Date:</span>{' '}
+                    {course.startDate ? new Date(course.startDate).toLocaleDateString() : 'N/A'}
+                  </p>
+                  {/* Trainer, Additional Trainers, and Registrations in one row */}
+                  <div className="flex flex-wrap items-center gap-2 mt-4">
+                    <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">
+                      Trainer: {course.mainTrainer?.name || 'N/A'}
+                    </span>
+                    {course.trainers && course.trainers.length > 0 && (
+                      <span className="inline-block px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs font-semibold">
+                        Additional: {course.trainers.map(t => t.name).join(', ')}
+                      </span>
+                    )}
+                    <span className="inline-block px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-semibold">
+                      Registrations: {course.registrations.length}
                     </span>
                   </div>
                 </div>
