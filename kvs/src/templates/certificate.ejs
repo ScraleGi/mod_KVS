@@ -1,0 +1,23 @@
+<!-- IMPORTANT -->
+<!-- Zertifikat wird doppelseitug bedrcukt einmal vorderseite das Zertifikat name unterschrift etc und auf der Rückseite die Kursinhalte -->
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>Zertifikat</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    h1 { color: #2a9d8f; }
+    p { margin: 8px 0; }
+    img { width: 150px; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h1>Zertifikat für <%= user %></h1>
+  <p>Kurs: <%= courseName %></p>
+  <p>Trainer: <%= trainerName %></p>
+  <p>Startdatum: <%= startDate %></p>
+  <p>Ausstellungsdatum: <%= date %></p>
+  <img src="<%= imageUrl %>" alt="Logo" />
+</body>
+</html>

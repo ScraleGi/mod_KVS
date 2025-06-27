@@ -1,7 +1,26 @@
 import { PrismaClient } from '../../../generated/prisma'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 
 const prisma = new PrismaClient()
+
+// -------------------- Page Component --------------------
+/**
+ * Page fetches all courses with related program, area, mainTrainer, and registrations,
+ * then renders a styled list of course cards with action buttons.
+ */
+
+// Soft Delete Action für Kurs
+async function deleteCourse(formData: FormData) {
+  'use server'
+  const id = formData.get('id') as string
+  await prisma.course.update({
+    where: { id },
+    data: { deletedAt: new Date() }
+  })
+  // Redirect to course list after deletion
+  redirect('/course')
+}
 
 export default async function Page() {
   const courses = await prisma.course.findMany({

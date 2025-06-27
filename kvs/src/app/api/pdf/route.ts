@@ -1,52 +1,47 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generatePDF } from '@/utils/generatePDF';
-import { loadPDF, savePDF, pdfExists } from '@/utils/fileStorage';
+import { pdfExists, loadPDF, savePDF } from '@/utils/fileStorage';
+import { getTemplateData } from '@/utils/getTemplateData';
 
-export async function GET(req: NextRequest) {
-  // ⚠️ In Zukunft: Prisma holen → hier: statische Demodaten das sind beispiele für pdf
-  const data = {
-    user: 'Max Mustermann',
-    date: new Date().toLocaleDateString(),
-    cost: 100, // Beispielwert – später aus DB holen
-  };
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const type = searchParams.get('type') as string;
+  const id = searchParams.get('id') as string;
+  // + Parameter forceGenerate 
+  
+console.log(`PDF-Generierung für Typ: ${type}, ID: ${id}`);
 
-  // 🔁 Dynamischer Dateiname basierend auf Daten, sanitized für Sicherheit
-  const filenameRaw = `invoice_${data.user.replace(/\s+/g, '_')}_${data.date}.pdf`;
+  // Beispiel: hol dir die Daten für das PDF basierend auf type und id
+  // Hier einfach Dummy-Daten oder aus DB (ohne Prisma: hardcoded oder via getTemplateData)
+  const data = getTemplateData(type, id);  // Du kannst getTemplateData anpassen, um id zu nutzen
+
+  const filenameRaw = `${type}_${data.user.replace(/\s+/g, '_')}_${data.date}.pdf`;
   const filename = filenameRaw.replace(/[^a-zA-Z0-9_\-.]/g, '');
 
-  // 📦 Prüfen, ob Datei bereits existiert
+console.log(`PDF-Generierung für Typ: ${type}, ID: ${id}, Dateiname: ${filename}`);
+
+  // wenn forceGenerate nicht gesetzt ist, prüfe, ob PDF schon existiert
   if (await pdfExists(filename)) {
     const fileBuffer = await loadPDF(filename);
     if (fileBuffer) {
       return new NextResponse(fileBuffer, {
+        status: 200,
         headers: {
           'Content-Type': 'application/pdf',
-          'Content-Disposition': `attachment; filename="${filename}"; filename*=UTF-8''${encodeURIComponent(filename)}`,
+          'Content-Disposition': `attachment; filename="${filename}"`,
         },
       });
     }
   }
 
-  // 🖨 PDF wenn nicht vorhanden generieren + speichern
-  const pdfBuffer = await generatePDF('invoice', data);
+  const pdfBuffer = await generatePDF(type, data);
   await savePDF(filename, pdfBuffer);
 
   return new NextResponse(pdfBuffer, {
+    status: 200,
     headers: {
       'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename="${filename}"; filename*=UTF-8''${encodeURIComponent(filename)}`,
+      'Content-Disposition': `attachment; filename="${filename}"`,
     },
   });
 }
-
-// Beispiel: Setting Content-Disposition Header
-
-// 1. inline → PDF wird im Browser-Tab angezeigt, Nutzer sieht die Datei direkt
-//    Der Dateiname ist ein Vorschlag, wird aber oft ignoriert bei Anzeige
-
-//                  'Content-Disposition': `inline; filename="${filename}"`
-
-// 2. attachment → PDF wird als Download angeboten
-//    Der Browser öffnet einen "Speichern unter"-Dialog mit dem Dateinamen
-
-//                  'Content-Disposition': `attachment; filename="${filename}"`
