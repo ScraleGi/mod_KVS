@@ -5,7 +5,6 @@ export async function getTemplateData(type: string, id: string) {
   switch (type) {
     case 'invoice': {
       const invoice = await prisma.invoice.findUnique({
-        // Fetch invoice and related data from DB
         where: { id },
         include: {
           recipient: true,
@@ -35,7 +34,6 @@ export async function getTemplateData(type: string, id: string) {
       };
     }
     case 'certificate': {
-      // Fetch registration, course, participant, etc.
       const registration = await prisma.courseRegistration.findUnique({
         where: { id },
         include: {

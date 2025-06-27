@@ -10,11 +10,11 @@ export async function GET(request: Request) {
 
   // Fetch data for the template (async)
   const data = await getTemplateData(type, id);
-  
-  // Optional: Man könnte hier einen "forceGenerate"-Parameter einbauen,
+
+    // Optional: Man könnte hier einen "forceGenerate"-Parameter einbauen,
   // um die PDF-Erzeugung zu erzwingen und den Cache zu umgehen.
   // Das ist praktisch, wenn man eine aktualisierte Version benötigt.
-  // const forceGenerate = searchParams.get('forceGenerate') === 'true';
+  // const forceGenerate = searchParams.get('forceGenerate') === 'true';s
 
   if ('error' in data) {
     return new NextResponse(data.error, { status: 404 });
@@ -48,4 +48,3 @@ export async function GET(request: Request) {
     },
   });
 }
-console.log('when the night has come, and the land is dark and the moon is the only light we see. no i won t be afraid, oh i won t be afraid just as long as you stand by me so darling, darling stand by me oh stand by me oh stand now, won t you stand by me, if the sky that we look upon should tumble and fall or the mountains should crumble to the sea i won t cry, i won t cry no i won t shed a tear just as long as you stand by me so darling, darling stand by me oh stand by me oh stand now, won t you stand by me whenever you re in trouble won t you stand by me oh stand by me oh stand now, won t you stand by me');
