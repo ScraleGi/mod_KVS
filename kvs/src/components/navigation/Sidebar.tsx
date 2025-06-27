@@ -64,13 +64,13 @@ const Sidebar = ({ isOpen }: SidebarProps) => {
 
     <div className="mt-4">
       <div className="relative group">
-        <Link
-          href="/logout"
+        <a
+          href="/auth/logout"
           className="flex items-center px-3 py-2 text-red-400 hover:text-red-600 transition-colors"
         >
           <FaSignOutAlt className="w-6 h-6 mr-2" />
           {isOpen && <span>Logout</span>}
-        </Link>
+        </a>
         {!isOpen && <Tooltip>Logout</Tooltip>}
       </div>
     </div>
