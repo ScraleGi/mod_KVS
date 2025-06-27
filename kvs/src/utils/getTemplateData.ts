@@ -1,13 +1,11 @@
-
 import { PrismaClient } from '@prisma/client';
-
 const prisma = new PrismaClient();
 
 export async function getTemplateData(type: string, id: string) {
   switch (type) {
     case 'invoice': {
       const invoice = await prisma.invoice.findUnique({
-         // Fetch invoice and related data from DB
+        // Fetch invoice and related data from DB
         where: { id },
         include: {
           recipient: true,
@@ -62,6 +60,7 @@ export async function getTemplateData(type: string, id: string) {
       };
     }
     default:
-      return { user: 'Unbekannt', date: new Date().toISOString().split('T')[0] };
+      return { error: 'Unknown template type' };
   }
 }
+// Note: This function assumes Prisma is set up and connected to your database.

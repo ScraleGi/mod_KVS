@@ -7,12 +7,14 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const type = searchParams.get('type') as string;
   const id = searchParams.get('id') as string;
-  const forceGenerate = searchParams.get('forceGenerate') === 'true';
 
-   // Fetch data for the template (async)
+  // Fetch data for the template (async)
   const data = await getTemplateData(type, id);
-  // + Parameter forceGenerate could be added here if needed
-  // if (searchParams.get('forceGenerate') === 'true') { ???
+  
+  // Optional: Man könnte hier einen "forceGenerate"-Parameter einbauen,
+  // um die PDF-Erzeugung zu erzwingen und den Cache zu umgehen.
+  // Das ist praktisch, wenn man eine aktualisierte Version benötigt.
+  // const forceGenerate = searchParams.get('forceGenerate') === 'true';
 
   if ('error' in data) {
     return new NextResponse(data.error, { status: 404 });
@@ -22,20 +24,19 @@ export async function GET(request: Request) {
   const filenameRaw = `${type}_${(data.user || 'Unbekannt').replace(/\s+/g, '_')}_${data.date}.pdf`;
   const filename = filenameRaw.replace(/[^a-zA-Z0-9_\-.]/g, '');
 
-  // If not forceGenerate, check cache
-  if (!forceGenerate && await pdfExists(filename)) {
-    const fileBuffer = await loadPDF(filename);
-    if (fileBuffer) {
-      return new NextResponse(fileBuffer, {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/pdf',
-          'Content-Disposition': `attachment; filename="${filename}"`,
-        },
-      });
-    }
+  // Cache prüfen - wenn PDF schon existiert, zurückgeben
+  const fileBuffer = await loadPDF(filename);
+  if (fileBuffer) {
+    return new NextResponse(fileBuffer, {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': `attachment; filename="${filename}"`,
+      },
+    });
   }
-  // Generate and save new PDF
+
+  // PDF generieren und speichern
   const pdfBuffer = await generatePDF(type, data);
   await savePDF(filename, pdfBuffer);
 
@@ -47,3 +48,4 @@ export async function GET(request: Request) {
     },
   });
 }
+console.log('when the night has come, and the land is dark and the moon is the only light we see. no i won t be afraid, oh i won t be afraid just as long as you stand by me so darling, darling stand by me oh stand by me oh stand now, won t you stand by me, if the sky that we look upon should tumble and fall or the mountains should crumble to the sea i won t cry, i won t cry no i won t shed a tear just as long as you stand by me so darling, darling stand by me oh stand by me oh stand now, won t you stand by me whenever you re in trouble won t you stand by me oh stand by me oh stand now, won t you stand by me');
