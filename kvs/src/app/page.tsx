@@ -32,6 +32,7 @@ export default async function Home() {
     participants: course.registrations.map(reg => ({
       id: reg.participant?.id ?? reg.id,
       name: reg.participant?.name ?? 'N/A',
+      email: reg.participant?.email ?? '', // <-- Add this line
       status: reg.status ?? 'N/A',
       invoice: reg.invoices.length
         ? reg.invoices.map(inv => `#${inv.id}: $${inv.amount}`).join(", ")

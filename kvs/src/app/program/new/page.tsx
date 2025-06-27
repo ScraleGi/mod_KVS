@@ -34,16 +34,16 @@ export default async function NewProgramPage() {
   const areas = await prisma.area.findMany({ orderBy: { name: 'asc' } })
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-blue-50 flex items-center justify-center p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-gray-50 py-10 px-4 flex items-center justify-center">
       <div className="w-full max-w-md">
-        <div className="backdrop-blur-sm bg-white/90 rounded-2xl shadow-xl overflow-hidden border border-gray-100 transition-all duration-300 hover:shadow-2xl">
-          <div className="px-8 py-10">
-            <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-700 mb-8 tracking-tight">
+        <div className="bg-white rounded-sm shadow border border-gray-100">
+          <div className="px-6 py-8">
+            <h1 className="text-xl font-bold text-gray-900 mb-8 tracking-tight">
               Add New Program
             </h1>
-            <form action={createProgram} className="space-y-8">
-              <div className="space-y-2">
-                <label htmlFor="name" className="block text-sm font-medium text-gray-600">
+            <form action={createProgram} className="space-y-6">
+              <div className="space-y-1">
+                <label htmlFor="name" className="block text-xs font-medium text-gray-600">
                   Name
                 </label>
                 <input
@@ -51,12 +51,12 @@ export default async function NewProgramPage() {
                   name="name"
                   type="text"
                   required
-                  className="w-full px-5 py-3 bg-gray-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition-all duration-200"
+                  className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                   placeholder="Enter program name"
                 />
               </div>
-              <div className="space-y-2">
-                <label htmlFor="areaId" className="block text-sm font-medium text-gray-600">
+              <div className="space-y-1">
+                <label htmlFor="areaId" className="block text-xs font-medium text-gray-600">
                   Area
                 </label>
                 <select
@@ -64,7 +64,7 @@ export default async function NewProgramPage() {
                   name="areaId"
                   required
                   defaultValue=""
-                  className="w-full px-5 py-3 bg-gray-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition-all duration-200"
+                  className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                 >
                   <option value="" disabled>
                     Select area
@@ -76,20 +76,20 @@ export default async function NewProgramPage() {
                   ))}
                 </select>
               </div>
-              <div className="space-y-2">
-                <label htmlFor="description" className="block text-sm font-medium text-gray-600">
+              <div className="space-y-1">
+                <label htmlFor="description" className="block text-xs font-medium text-gray-600">
                   Description
                 </label>
                 <textarea
                   id="description"
                   name="description"
-                  className="w-full px-5 py-3 bg-gray-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition-all duration-200"
+                  className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                   placeholder="Enter program description"
                   rows={3}
                 />
               </div>
-              <div className="space-y-2">
-                <label htmlFor="teachingUnits" className="block text-sm font-medium text-gray-600">
+              <div className="space-y-1">
+                <label htmlFor="teachingUnits" className="block text-xs font-medium text-gray-600">
                   Teaching Units
                 </label>
                 <input
@@ -97,12 +97,12 @@ export default async function NewProgramPage() {
                   name="teachingUnits"
                   type="number"
                   min={0}
-                  className="w-full px-5 py-3 bg-gray-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition-all duration-200"
+                  className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                   placeholder="Enter number of units"
                 />
               </div>
-              <div className="space-y-2">
-                <label htmlFor="price" className="block text-sm font-medium text-gray-600">
+              <div className="space-y-1">
+                <label htmlFor="price" className="block text-xs font-medium text-gray-600">
                   Price (€)
                 </label>
                 <input
@@ -111,20 +111,20 @@ export default async function NewProgramPage() {
                   type="number"
                   min={0}
                   step="0.01"
-                  className="w-full px-5 py-3 bg-gray-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition-all duration-200"
+                  className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                   placeholder="Enter price"
                 />
               </div>
               <div className="pt-2 flex items-center justify-between">
                 <button
                   type="submit"
-                  className="cursor-pointer inline-flex items-center px-6 py-3 border border-transparent text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-md hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  className="inline-flex items-center px-5 py-2 border border-transparent text-xs font-semibold rounded text-white bg-blue-600 hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
                   Create Program
                 </button>
                 <Link
                   href="/program"
-                  className="text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors duration-200 flex items-center"
+                  className="text-xs font-medium text-gray-500 hover:text-gray-700 transition-colors flex items-center"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
