@@ -98,7 +98,7 @@ export default async function CoursePage({ params }: CoursePageProps) {
                       <div>
                         <Link
                           href={`/participant/${reg.participant?.id}`}
-                          className="font-semibold text-blue-600 underline hover:text-blue-800"
+                          className="font-semibold text-blue-600 hover:text-blue-800"
                         >
                           {reg.participant?.name ?? 'Unknown'}
                         </Link>
@@ -111,9 +111,9 @@ export default async function CoursePage({ params }: CoursePageProps) {
                               <React.Fragment key={inv.id}>
                                 <Link
                                   href={`/invoice/${inv.id}`}
-                                  className="text-blue-600 underline hover:text-blue-800"
+                                  className="text-blue-600 hover:text-blue-800"
                                 >
-                                  #{inv.id}: €{inv.amount}
+                                  #{inv.transactionNumber}: €{inv.amount}
                                 </Link>
                                 {idx < reg.invoices.length - 1 && ", "}
                               </React.Fragment>

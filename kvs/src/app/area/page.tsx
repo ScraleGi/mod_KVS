@@ -2,200 +2,173 @@ import { PrismaClient } from '../../../generated/prisma/client'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 
-// Initialize Prisma client for database operations
 const prisma = new PrismaClient()
 
-// Fetch all areas and their programs from the database
 async function getAreasWithPrograms() {
-  return prisma.area.findMany({
-    where: { deletedAt: null }, // Only fetch areas that are not soft-deleted
-    orderBy: { createdAt: 'desc' }, // Order areas by creation date (newest first)
+  // Fetch areas, their programs, and for each program, fetch courses and registrations
+  const areas = await prisma.area.findMany({
+    where: { deletedAt: null },
+    orderBy: { createdAt: 'desc' },
     include: {
       programs: {
-        where: { deletedAt: null }, // Only not-deleted programs
-        orderBy: { createdAt: 'desc' }, // Order programs by creation date (newest first)
-        select: { id: true, name: true } // Only select program id and name
+        where: { deletedAt: null },
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          name: true,
+          course: {
+            select: {
+              id: true,
+              registrations: { select: { id: true } }
+            }
+          }
+        }
       }
+    }
+  })
+
+  // For each area, calculate total courses and total participants
+  return areas.map(area => {
+    let courseCount = 0
+    let participantCount = 0
+    area.programs.forEach(program => {
+      courseCount += program.course.length
+      program.course.forEach(course => {
+        participantCount += course.registrations.length
+      })
+    })
+    return {
+      ...area,
+      courseCount,
+      participantCount
     }
   })
 }
 
-// Server action to soft delete an area and all its programs
 async function deleteArea(formData: FormData) {
   'use server'
   const id = formData.get('id') as string
   const now = new Date()
 
-  // Soft delete all programs in the area
   await prisma.program.updateMany({
     where: { areaId: id },
     data: { deletedAt: now }
   })
 
-  // Soft delete the area itself
   await prisma.area.update({
     where: { id },
     data: { deletedAt: now }
   })
 
-  // Redirect back to the area list after deletion
   redirect('/area')
 }
 
-// Main page component for listing all areas
-export default async function AreasPage({ searchParams }: { searchParams?: { open?: string } }) {
-  // Fetch areas and their programs
+export default async function AreasPage() {
   const areas = await getAreasWithPrograms()
 
-  // Await searchParams (Next.js 15+ requirement) and get the 'open' param if present
-  // 'open' will be the id of the area to expand, or undefined if none is open
-  const open = searchParams ? (await searchParams).open : undefined
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-blue-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto">
-        {/* Page Title */}
-        <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-700 mb-8 tracking-tight text-center">
-          Areas
-        </h1>
-        <div className="backdrop-blur-sm bg-white/90 rounded-2xl shadow-xl overflow-hidden border border-gray-100 transition-all duration-300 hover:shadow-2xl">
-          <div className="px-6 py-8">
-            {/* List of all areas */}
-            <ul className="space-y-3">
-              {areas.map(area => {
-                // Determine if this area card should be expanded
-                const isOpen = open === area.id
-                // Set the href for toggling the open state using query params
-                const href = isOpen ? '/area' : `/area?open=${area.id}`
-                return (
-                  <li key={area.id} className="bg-gray-50 rounded-xl overflow-hidden transition-all duration-200 hover:shadow-md hover:translate-x-1">
-                    <div className="flex items-center justify-between p-4">
-                      {/* Area name and chevron (clickable to expand/collapse details) */}
-                      <Link
-                        href={href}
-                        scroll={false}
-                        className="flex items-center flex-1 cursor-pointer select-none"
-                        aria-expanded={isOpen}
-                      >
-                        <span className="font-medium text-gray-700 text-lg">{area.name}</span>
-                        <span className="ml-2">
-                          {/* Chevron icon, rotates if open */}
-                          <svg
-                            className={`h-5 w-5 text-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                          </svg>
-                        </span>
-                      </Link>
-                      {/* Edit and Delete buttons, always visible and horizontal */}
-                      <div className="flex items-center space-x-2 ml-4">
-                        {/* Edit button */}
-                        <Link
-                          href={`/area/${area.id}/edit`}
-                          className="p-2 rounded-full bg-blue-50 text-blue-400 hover:bg-blue-100 hover:text-blue-600 transition-colors duration-200"
-                          aria-label={`Edit ${area.name}`}
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                            />
-                          </svg>
-                        </Link>
-                        {/* Delete button */}
-                        <form action={deleteArea}>
-                          <input type="hidden" name="id" value={area.id} />
-                          <button
-                            type="submit"
-                            className="cursor-pointer p-2 rounded-full bg-red-50 text-red-400 hover:bg-red-100 hover:text-red-600 transition-colors duration-200"
-                            aria-label={`Delete ${area.name}`}
-                          >
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-5 w-5"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                              />
-                            </svg>
-                          </button>
-                        </form>
-                      </div>
-                    </div>
-                    {/* Expanded area details, shown only if this card is open */}
-                    {isOpen && (
-                      <div className="px-4 pb-4">
-                        {/* List of programs for this area */}
-                        {area.programs.length > 0 ? (
-                          <ul className="list-disc pl-5 space-y-1">
-                            {area.programs.map(program => (
-                              <li key={program.id}>
-                                {/* Each course name is a link to its detail page */}
-                                <Link
-                                  href={`/program/${program.id}`}
-                                  className="text-blue-700 hover:underline"
-                                >
-                                  {program.name}
-                                </Link>
-                              </li>
-                            ))}
-                          </ul>
-                        ) : (
-                          <div className="text-gray-500 text-sm">No courses in this area.</div>
-                        )}
-                      </div>
-                    )}
-                  </li>
-                )
-              })}
-            </ul>
-            {/* Add new area, back to home and Deleted Programs buttons */}
-            <div className="mt-8 flex justify-center">
-              <Link
-                href="/area/new"
-                className="inline-flex items-center px-6 py-3 border border-transparent text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-md hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-                </svg>
-                Add New Area
-              </Link>
-              <Link
-                href="/"
-                className="ml-4 inline-flex items-center px-6 py-3 border border-gray-300 text-sm font-semibold rounded-xl text-gray-700 bg-white hover:bg-gray-50 shadow-sm hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z" clipRule="evenodd" />
-                </svg>
-                Back to Home
-              </Link>
-              <Link
-                  href="http://localhost:3000/area/deleted"
-                  className="ml-4 inline-flex items-center px-6 py-3 border border-gray-300 text-sm font-semibold rounded-xl text-gray-700 bg-red-100 hover:bg-red-200 shadow-sm hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                  </svg>
-                  Deleted Areas
-              </Link>
+    <div className="min-h-screen bg-gray-50 py-10 px-4">
+      <div className="max-w-[1600px] mx-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Areas</h1>
+          <div className="flex gap-2">
+            <Link
+              href="/area/new"
+              className="p-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition"
+              title="Add New Area"
+              aria-label="Add New Area"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 20 20" stroke="currentColor">
+                <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+              </svg>
+            </Link>
+            <Link
+              href="/"
+              className="p-2 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300 transition"
+              title="Back to Home"
+              aria-label="Back to Home"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 20 20" stroke="currentColor">
+                <path fillRule="evenodd" d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z" clipRule="evenodd" />
+              </svg>
+            </Link>
+            <Link
+              href="/area/deleted"
+              className="p-2 rounded-md bg-red-100 text-gray-700 hover:bg-red-200 transition"
+              title="Deleted Areas"
+              aria-label="Deleted Areas"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+            </Link>
+          </div>
+        </div>
+        {/* Areas Table Style List */}
+        <div className="bg-white rounded-sm shadow border border-gray-100">
+          <div className="divide-y divide-gray-100">
+            <div className="hidden md:grid grid-cols-[3fr_1fr_1fr_1fr_1fr] gap-3 px-4 py-3 text-[11px] font-semibold text-gray-100 uppercase tracking-wider bg-gray-600 rounded-t-sm w-full border-b border-gray-200">
+              <div>Area</div>
+              <div className="text-right">Programs</div>
+              <div className="text-right">Courses</div>
+              <div className="text-right">Participants</div>
+              <div className="text-right">Actions</div>
             </div>
+            {areas.length === 0 && (
+              <div className="px-4 py-12 text-center text-gray-400 text-sm">No areas found.</div>
+            )}
+            {areas.map(area => (
+              <div
+                key={area.id}
+                className="grid grid-cols-1 md:grid-cols-[3fr_1fr_1fr_1fr_1fr] gap-3 px-4 py-4 items-center hover:bg-gray-50 transition group w-full text-[13px]"
+              >
+                {/* Area Name */}
+                <div className="font-medium text-blue-700 truncate max-w-[400px]">
+                  <Link href={`/area/${area.id}`} className="text-blue-700 hover:underline">
+                    {area.name}
+                  </Link>
+                </div>
+                {/* Programs Count */}
+                <div className="text-gray-700 whitespace-nowrap text-right">
+                  {area.programs.length}
+                </div>
+                {/* Courses Count */}
+                <div className="text-gray-700 whitespace-nowrap text-right">
+                  {area.courseCount}
+                </div>
+                {/* Participants Count */}
+                <div className="text-gray-700 whitespace-nowrap text-right">
+                  {area.participantCount}
+                </div>
+                {/* Actions */}
+                <div className="flex justify-end gap-1">
+                  <Link
+                    href={`/area/${area.id}/edit`}
+                    className="p-2 rounded hover:bg-blue-100 text-blue-600 transition"
+                    title="Edit"
+                    aria-label="Edit"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                  </Link>
+                  <form action={deleteArea}>
+                    <input type="hidden" name="id" value={area.id} />
+                    <button
+                      type="submit"
+                      className="p-2 rounded hover:bg-red-100 text-red-600 transition"
+                      title="Delete"
+                      aria-label="Delete"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </form>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
