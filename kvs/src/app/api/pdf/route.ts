@@ -7,21 +7,23 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const type = searchParams.get('type') as string;
   const id = searchParams.get('id') as string;
-  // + Parameter forceGenerate 
-  
-console.log(`PDF-Generierung für Typ: ${type}, ID: ${id}`);
+  const forceGenerate = searchParams.get('forceGenerate') === 'true';
 
-  // Beispiel: hol dir die Daten für das PDF basierend auf type und id
-  // Hier einfach Dummy-Daten oder aus DB (ohne Prisma: hardcoded oder via getTemplateData)
-  const data = getTemplateData(type, id);  // Du kannst getTemplateData anpassen, um id zu nutzen
+   // Fetch data for the template (async)
+  const data = await getTemplateData(type, id);
+  // + Parameter forceGenerate could be added here if needed
+  // if (searchParams.get('forceGenerate') === 'true') { ???
 
-  const filenameRaw = `${type}_${data.user.replace(/\s+/g, '_')}_${data.date}.pdf`;
+  if ('error' in data) {
+    return new NextResponse(data.error, { status: 404 });
+  }
+
+  // filename logic with basic fallback if user field is missing
+  const filenameRaw = `${type}_${(data.user || 'Unbekannt').replace(/\s+/g, '_')}_${data.date}.pdf`;
   const filename = filenameRaw.replace(/[^a-zA-Z0-9_\-.]/g, '');
 
-console.log(`PDF-Generierung für Typ: ${type}, ID: ${id}, Dateiname: ${filename}`);
-
-  // wenn forceGenerate nicht gesetzt ist, prüfe, ob PDF schon existiert
-  if (await pdfExists(filename)) {
+  // If not forceGenerate, check cache
+  if (!forceGenerate && await pdfExists(filename)) {
     const fileBuffer = await loadPDF(filename);
     if (fileBuffer) {
       return new NextResponse(fileBuffer, {
@@ -33,7 +35,7 @@ console.log(`PDF-Generierung für Typ: ${type}, ID: ${id}, Dateiname: ${filename
       });
     }
   }
-
+  // Generate and save new PDF
   const pdfBuffer = await generatePDF(type, data);
   await savePDF(filename, pdfBuffer);
 

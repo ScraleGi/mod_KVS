@@ -1,33 +1,67 @@
-export function getTemplateData(type: string, id: string) {
 
-  // prisma integrieren, um Daten aus der DB zu holen
+import { PrismaClient } from '@prisma/client';
 
-  // Beispiel: je nach type und id verschiedene Daten zurückgeben
+const prisma = new PrismaClient();
+
+export async function getTemplateData(type: string, id: string) {
   switch (type) {
-    case 'invoice':
-
-      // Hier kannst du echte Daten aus der DB holen, mit Prisma
-      
+    case 'invoice': {
+      const invoice = await prisma.invoice.findUnique({
+         // Fetch invoice and related data from DB
+        where: { id },
+        include: {
+          recipient: true,
+          courseRegistration: {
+            include: {
+              participant: true,
+              course: {
+                include: {
+                  program: true,
+                  mainTrainer: true,
+                },
+              },
+            },
+          },
+        },
+      });
+      if (!invoice) return { error: 'Invoice not found' };
       return {
-        user: 'Max Mustermann',
-        date: new Date().toISOString().split('T')[0],
-        invoiceId: id,
-        amount: '123,45 €',
+        user: invoice.courseRegistration.participant.name,
+        date: invoice.dueDate.toISOString().split('T')[0],
+        invoiceId: invoice.id,
+        amount: invoice.amount.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' }),
+        recipient: invoice.recipient.name,
+        program: invoice.courseRegistration.course.program.name,
+        mainTrainer: invoice.courseRegistration.course.mainTrainer.name,
+        // Add more fields as needed
       };
-  case 'certificate':
-  return {
-    user: 'Anna Musterfrau',
-    date: new Date().toISOString().split('T')[0],
-    certificateId: id,
-    courseName: 'React Basics',    // angepasst an EJS
-    trainerName: 'Max trainer',    // Beispielwert hinzufügen
-    startDate: '2025-01-15',       // Beispielwert hinzufügen
-    imageUrl: 'https://example.com/logo.png', // Beispiel-URL, oder lokalen Pfad
-  };
+    }
+    case 'certificate': {
+      // Fetch registration, course, participant, etc.
+      const registration = await prisma.courseRegistration.findUnique({
+        where: { id },
+        include: {
+          participant: true,
+          course: {
+            include: {
+              program: true,
+              mainTrainer: true,
+            },
+          },
+        },
+      });
+      if (!registration) return { error: 'Registration not found' };
+      return {
+        user: registration.participant.name,
+        date: registration.createdAt.toISOString().split('T')[0],
+        certificateId: registration.id,
+        courseName: registration.course.program.name,
+        trainerName: registration.course.mainTrainer.name,
+        startDate: registration.course.startDate.toISOString().split('T')[0],
+        // Add more fields as needed
+      };
+    }
     default:
-      return {
-        user: 'Unbekannt',
-        date: new Date().toISOString().split('T')[0],
-      };
+      return { user: 'Unbekannt', date: new Date().toISOString().split('T')[0] };
   }
 }
