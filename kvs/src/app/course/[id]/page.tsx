@@ -97,7 +97,7 @@ export default async function CoursePage({ params }: CoursePageProps) {
                     <li key={reg.id} className="py-2 flex flex-col md:flex-row md:items-center md:justify-between">
                       <div>
                         <Link
-                          href={`/participant/${reg.participant?.id}`}
+                          href={`/courseregistration/${reg?.id}`}
                           className="font-semibold text-blue-600 underline hover:text-blue-800"
                         >
                           {reg.participant?.name ?? 'Unknown'}

@@ -46,6 +46,8 @@ export async function getTemplateData(type: string, id: string) {
           },
         },
       });
+// 
+
       if (!registration) return { error: 'Registration not found' };
       return {
         user: registration.participant.name,

@@ -4,7 +4,7 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <title>Zertifikat für <%= user %></title>
+  <title>Zertifikat für <%= course.program.name %></title>
   <style>
     body { font-family: Arial, sans-serif; padding: 40px; color: #333; }
     h1 { color: #2a9d8f; margin-bottom: 20px; }
@@ -12,14 +12,7 @@
   </style>
 </head>
 <body>
-  <h1>Zertifikat für <%= user %></h1>
+  <h1>Zertifikat für <%= course.program.name %></h1>
 
-  <p><strong>Kurs:</strong> <%= courseName %></p>
-  <p><strong>Trainer:</strong> <%= trainerName %></p>
-  <p><strong>Startdatum:</strong> <%= startDate %></p>
-  <p><strong>Ausstellungsdatum:</strong> <%= date %></p>
-
-  <!-- Optional: if you want to show certificate ID -->
-  <!-- <p><strong>Zertifikat-ID:</strong> <%= certificateId %></p> -->
 </body>
 </html>
