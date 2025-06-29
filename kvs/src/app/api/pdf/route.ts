@@ -1,50 +1,56 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { generatePDF } from '@/utils/generatePDF';
-import { pdfExists, loadPDF, savePDF } from '@/utils/fileStorage';
-import { getTemplateData } from '@/utils/getTemplateData';
+import { savePDF } from '@/utils/fileStorage';
+
+
 
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const type = searchParams.get('type') as string;
-  const id = searchParams.get('id') as string;
+  // Simple demo GET — you can fetch registration data here or hardcode for test
+  const type = 'certificate';
+  const registration = {/* mock or fetched data */};
 
-  // Fetch data for the template (async)
-  const data = await getTemplateData(type, id);
+  const pdfBuffer = await generatePDF(type, registration);
+
+  return new NextResponse(pdfBuffer, {
+    headers: {
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': 'attachment; filename="test.pdf"',
+    },
+  });
+}
+
+
+
+
+// This route handles PDF generation and saving based on client requests.
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    const { type, data, filename: filenameFromClient } = body;
+
+    if (!type || !data) {
+      return new NextResponse('Missing type or data in request body.', { status: 400 });
+    }
+
+    const pdfBuffer = await generatePDF(type, data);
 
     // Optional: Man könnte hier einen "forceGenerate"-Parameter einbauen,
-  // um die PDF-Erzeugung zu erzwingen und den Cache zu umgehen.
-  // Das ist praktisch, wenn man eine aktualisierte Version benötigt.
-  // const forceGenerate = searchParams.get('forceGenerate') === 'true';s
+    // um die PDF-Erzeugung zu erzwingen und den Cache zu umgehen.
+    // Das ist praktisch, wenn man eine aktualisierte Version benötigt.
 
-  if ('error' in data) {
-    return new NextResponse(data.error, { status: 404 });
-  }
+    const filename = filenameFromClient || `${type}_${Date.now()}.pdf`;
 
-  // filename logic with basic fallback if user field is missing
-  const filenameRaw = `${type}_${(data.user || 'Unbekannt').replace(/\s+/g, '_')}_${data.date}.pdf`;
-  const filename = filenameRaw.replace(/[^a-zA-Z0-9_\-.]/g, '');
+    await savePDF(filename, pdfBuffer);
 
-  // Cache prüfen - wenn PDF schon existiert, zurückgeben
-  const fileBuffer = await loadPDF(filename);
-  if (fileBuffer) {
-    return new NextResponse(fileBuffer, {
+    return new NextResponse(pdfBuffer, {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `attachment; filename="${filename}"`,
       },
     });
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    return new NextResponse('Internal Server Error', { status: 500 });
   }
-
-  // PDF generieren und speichern
-  const pdfBuffer = await generatePDF(type, data);
-  await savePDF(filename, pdfBuffer);
-
-  return new NextResponse(pdfBuffer, {
-    status: 200,
-    headers: {
-      'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename="${filename}"`,
-    },
-  });
 }
