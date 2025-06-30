@@ -20,7 +20,7 @@ export async function POST(request: Request) {
       return new NextResponse('Missing type or data in request body.', { status: 400 });
     }
 
-    
+    wwwwwwwwwwwwwwww
     const pdfBuffer = await generatePDF(type, data);
 
     // Optional: Man könnte hier einen "forceGenerate"-Parameter einbauen,
