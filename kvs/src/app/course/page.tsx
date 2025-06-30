@@ -4,13 +4,7 @@ import { redirect } from 'next/navigation'
 
 const prisma = new PrismaClient()
 
-// -------------------- Page Component --------------------
-/**
- * Page fetches all courses with related program, area, mainTrainer, and registrations,
- * then renders a styled list of course cards with action buttons.
- */
-
-// Soft Delete Action für Kurs
+// Soft Delete Action for Course
 async function deleteCourse(formData: FormData) {
   'use server'
   const id = formData.get('id') as string
@@ -18,18 +12,19 @@ async function deleteCourse(formData: FormData) {
     where: { id },
     data: { deletedAt: new Date() }
   })
-  // Redirect to course list after deletion
   redirect('/course')
 }
 
 export default async function Page() {
   const courses = await prisma.course.findMany({
+    where: { deletedAt: null },
     include: {
       program: { include: { area: true } },
       mainTrainer: true,
       trainers: true,
       registrations: true,
     },
+    orderBy: { createdAt: 'desc' },
   })
 
   return (
@@ -57,6 +52,16 @@ export default async function Page() {
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 20 20" stroke="currentColor">
                 <path fillRule="evenodd" d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z" clipRule="evenodd" />
+              </svg>
+            </Link>
+            <Link
+              href="/course/deleted"
+              className="p-2 rounded-md bg-red-100 text-gray-700 hover:bg-red-200 transition"
+              title="Deleted Courses"
+              aria-label="Deleted Courses"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
               </svg>
             </Link>
           </div>
@@ -121,17 +126,19 @@ export default async function Page() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                     </svg>
                   </Link>
-                  <button
-                    type="button"
-                    className="p-2 rounded hover:bg-red-100 text-red-600 transition"
-                    title="Delete"
-                    aria-label="Delete"
-                    // onClick={...} // Wire up your delete logic here
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                  </button>
+                  <form action={deleteCourse}>
+                    <input type="hidden" name="id" value={course.id} />
+                    <button
+                      type="submit"
+                      className="p-2 rounded hover:bg-red-100 text-red-600 transition"
+                      title="Delete"
+                      aria-label="Delete"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </form>
                 </div>
               </div>
             ))}
