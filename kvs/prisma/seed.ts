@@ -7,17 +7,17 @@ const prisma = new PrismaClient()
 
 // -------------------- Area Seeding --------------------
 async function seedAreas() {
-  const areaNames = [
-    'KI Campus',
-    'It & Coding Campus',
-    'Digital Markeing Academy',
-    'Green Campus',
-    'Business & Management Academy',
-    'E-Learning Lehrgänge',
-    'Digital Studies',
+  const areaData = [
+    { name: 'KI Campus', description: 'Artificial Intelligence and Machine Learning programs' },
+    { name: 'It & Coding Campus', description: 'IT and software development courses' },
+    { name: 'Digital Markeing Academy', description: 'Digital marketing and online business' },
+    { name: 'Green Campus', description: 'Sustainability and green technology education' },
+    { name: 'Business & Management Academy', description: 'Business, management, and leadership' },
+    { name: 'E-Learning Lehrgänge', description: 'Online learning and remote education' },
+    { name: 'Digital Studies', description: 'Digital transformation and modern studies' },
   ]
   await prisma.area.createMany({
-    data: areaNames.map(name => ({ name })),
+    data: areaData,
     skipDuplicates: true,
   })
   const areas = await prisma.area.findMany()

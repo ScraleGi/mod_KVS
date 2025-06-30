@@ -26,9 +26,13 @@ export default async function AreaDetailPage({ params }: { params: { id: string 
             <h1 className="text-2xl font-bold text-gray-900 mb-4 tracking-tight">
               {area.name}
             </h1>
+            <div className="w-full h-48 bg-gray-200 rounded flex items-center justify-center mb-2">
+              <span className="text-gray-400">[Image Placeholder]</span>
+            </div>
             <div className="mb-6">
-              <div className="w-full h-48 bg-gray-200 rounded flex items-center justify-center mb-2">
-                <span className="text-gray-400">[Image Placeholder]</span>
+              <h2 className="text-lg font-semibold text-gray-800 mb-2">Description</h2>
+              <div className="text-gray-700 text-sm mb-4">
+                {area.description || <span className="text-gray-400">No description.</span>}
               </div>
             </div>
             <div>
@@ -36,21 +40,21 @@ export default async function AreaDetailPage({ params }: { params: { id: string 
               {area.programs.length === 0 ? (
                 <div className="text-gray-500 text-sm">No programs in this area.</div>
               ) : (
-            <ul className="space-y-2">
-            {area.programs.map(program => (
-                <li key={program.id} className="bg-gray-50 rounded px-4 py-3 border border-gray-100">
-                <Link
-                    href={`/program/${program.id}`}
-                    className="text-blue-700 font-medium hover:underline text-sm"
-                >
-                    {program.name}
-                </Link>
-                <div className="text-gray-600 text-xs mt-1">
-                    {program.description || 'No description.'}
-                </div>
-                </li>
-            ))}
-            </ul>
+                <ul className="space-y-2">
+                  {area.programs.map(program => (
+                    <li key={program.id} className="bg-gray-50 rounded px-4 py-3 border border-gray-100">
+                      <Link
+                        href={`/program/${program.id}`}
+                        className="text-blue-700 font-medium hover:underline text-sm"
+                      >
+                        {program.name}
+                      </Link>
+                      <div className="text-gray-600 text-xs mt-1">
+                        {program.description || 'No description.'}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
               )}
             </div>
             <div className="mt-8 flex justify-between">
