@@ -75,10 +75,14 @@ export default async function CoursePage({ params }: CoursePageProps) {
                 </div>
                 <div className="flex items-center mb-4">
                   <span className="font-semibold mr-2">Trainer:</span>
-                  <span>{course.mainTrainer?.name ?? 'N/A'}</span>
+                  <span>
+                    {course.mainTrainer
+                      ? `${course.mainTrainer.name} ${course.mainTrainer.surname ?? ''}`
+                      : 'N/A'}
+                  </span>
                   {course.trainers && course.trainers.length > 0 && (
                     <span className="ml-2 text-xs text-gray-600 bg-gray-100 rounded px-2 py-1">
-                      Additional: {course.trainers.map(t => t.name).join(', ')}
+                      Additional: {course.trainers.map(t => `${t.name} ${t.surname ?? ''}`).join(', ')}
                     </span>
                   )}
                 </div>
@@ -125,7 +129,9 @@ export default async function CoursePage({ params }: CoursePageProps) {
                           href={`/course/${course.id}/participantDetails?participantId=${reg.participant?.id}`}
                           className="font-semibold text-blue-600 hover:text-blue-800"
                         >
-                          {reg.participant?.name ?? 'Unknown'}
+                          {reg.participant
+                            ? `${reg.participant.name} ${reg.participant.surname ?? ''}`
+                            : 'Unknown'}
                         </Link>
                       </div>
                       {/* Invoices */}

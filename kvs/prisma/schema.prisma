@@ -84,14 +84,22 @@ model CourseRegistration {
 }
 
 model Trainer {
-  id          String     @id @default(uuid())
-  name        String
-  email       String
-  phoneNumber String
-  createdAt   DateTime   @default(now())
-  deletedAt   DateTime?
-  mainCourses Course[]   @relation("MainTrainer")
-  courses     Course[]   @relation("CourseTrainers")
+  id                String     @id @default(uuid())
+  name              String
+  surname           String
+  salutation        String
+  title             String?
+  email             String
+  phoneNumber       String
+  birthday          DateTime
+  postalCode        String        
+  city              String
+  street            String
+  country           String
+  createdAt         DateTime   @default(now())
+  deletedAt         DateTime?
+  mainCourses       Course[]   @relation("MainTrainer")
+  courses           Course[]   @relation("CourseTrainers")
   @@index([deletedAt])
 }
 

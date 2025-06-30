@@ -126,7 +126,7 @@ export default async function EditCoursePage({ params }: EditCoursePageProps) {
                   <option value="" disabled>Select main trainer</option>
                   {trainers.map(trainer => (
                     <option key={trainer.id} value={trainer.id}>
-                      {trainer.name}
+                      {trainer.name} {trainer.surname}
                     </option>
                   ))}
                 </select>
@@ -148,7 +148,7 @@ export default async function EditCoursePage({ params }: EditCoursePageProps) {
                           defaultChecked={course?.trainers.some((t: any) => t.id === trainer.id)}
                           className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 trainer-checkbox"
                         />
-                        <span className="text-xs">{trainer.name}</span>
+                        <span className="text-xs">{trainer.name} {trainer.surname}</span>
                       </label>
                     ))}
                 </div>
