@@ -1,4 +1,4 @@
-import { PrismaClient, RegistrationStatus, RecipientType } from '../../../../../generated/prisma/client'
+import { PrismaClient, RecipientType } from '../../../../../../generated/prisma/client'
 import Link from 'next/link'
 import { revalidatePath } from 'next/cache'
 import crypto from 'crypto'
@@ -6,14 +6,13 @@ import crypto from 'crypto'
 const prisma = new PrismaClient()
 
 export default async function ParticipantDetailsPage({
-  params,
-  searchParams,
+  params
 }: {
-  params: { id: string }
-  searchParams?: { participantId?: string }
+  params: { id: string, participantId? : string }
 }) {
-  const courseId = await params.id
-  const participantId = searchParams?.participantId
+  const { id, participantId } = await params
+  const courseId = id
+
 
   if (!participantId) {
     return (
