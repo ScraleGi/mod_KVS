@@ -10,6 +10,7 @@ type Props = {
 const typeToLabel: Record<string, string> = {
   certificate: 'Certificate herunterladen',
   KursRegeln: 'Kursregeln herunterladen',
+  Teilnahmebestaetigung: 'Teilnahmebestaetigung herunterladen',
 };
 
 export function DownloadPDFButton({ registration, type, filename }: Props) {

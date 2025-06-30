@@ -20,7 +20,17 @@ export async function generatePDF(templateName: string, data: object): Promise<B
   await page.setContent(html, { waitUntil: 'networkidle0' })
 
   // PDF mit A4 Format erzeugen
-  const pdfBuffer = await page.pdf({ format: 'A4' })
+  const pdfBuffer = await page.pdf({ format: 'A4' 
+
+
+    // Optional: the footer should be rendered in every page
+    
+  // displayHeaderFooter: true,
+  // footerTemplate: `<div style="font-size:10px; text-align:center; width:100%;">Your Footer Here</div>`,
+  // margin: { bottom: '50px' },
+  })
+
+
 
   // Browser schließen
   await browser.close()

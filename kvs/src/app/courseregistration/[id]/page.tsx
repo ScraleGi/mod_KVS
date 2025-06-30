@@ -14,7 +14,7 @@ const prisma = new PrismaClient();
 export default async function CourseRegistrationPage({
   params,
 }: CourseRegistrationPageProps) {
-  const { id } = await params;
+  const { id } =  await params;
 
   const registration = await prisma.courseRegistration.findUnique({
     where: { id },
@@ -44,6 +44,7 @@ export default async function CourseRegistrationPage({
   const dateStr = new Date().toISOString().split('T')[0];
   const certificateFilename = `certificate_${participantName}_${dateStr}.pdf`;
   const kursRegelnFilename = `KursRegeln_${participantName}_${dateStr}.pdf`;
+  const teilnahmebestaetigungFilename = `Teilnahmebestaetigung_${participantName}_${dateStr}.pdf`;
 
   return (
     <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
@@ -59,6 +60,12 @@ export default async function CourseRegistrationPage({
         registration={registration}
         type="KursRegeln"
         filename={kursRegelnFilename}
+      />
+
+      <DownloadPDFButton
+        registration={registration}
+        type="Teilnahmebestaetigung"
+        filename={teilnahmebestaetigungFilename}
       />
     </div>
   );

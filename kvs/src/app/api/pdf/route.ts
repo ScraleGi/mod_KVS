@@ -4,19 +4,9 @@ import { savePDF } from '@/utils/fileStorage';
 
 
 // This route handles PDF generation and downloading based on a GET request. server side
-export async function GET(request: Request) {
-  // Simple demo GET — you can fetch registration data here or hardcode for test
-  const type = 'certificate';
-  const registration = {/* mock or fetched data */};
-
-  const pdfBuffer = await generatePDF(type, registration);
-
-  return new NextResponse(pdfBuffer, {
-    headers: {
-      'Content-Type': 'application/pdf',
-      'Content-Disposition': 'attachment; filename="test.pdf"',
-    },
-  });
+// Optional: If you want GET for testing, keep it minimal
+export async function GET() {
+  return new NextResponse('Send POST request to generate PDF', { status: 200 });
 }
 
 
