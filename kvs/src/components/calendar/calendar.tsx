@@ -13,6 +13,17 @@ type EventType = {
   coTrainers: string[];
 };
 
+
+ // highlighting Holidays 
+function renderEventContent(eventInfo: any) {
+  const isHoliday = eventInfo.event.id.startsWith('holiday-');
+  return (
+    <div style={{ color: isHoliday ? 'red' : 'black' }}>
+      <b>{eventInfo.timeText}</b> {eventInfo.event.title}
+    </div>
+  );
+}
+
 const Calendar: React.FC<{ events: EventType[] }> = ({ events }) => (
   <div className="p-4 bg-white rounded-2xl shadow-lg">
     <FullCalendar
@@ -22,6 +33,7 @@ const Calendar: React.FC<{ events: EventType[] }> = ({ events }) => (
       selectable
       editable
       height= {900}
+      eventContent={renderEventContent}
     />
   </div>
 );
