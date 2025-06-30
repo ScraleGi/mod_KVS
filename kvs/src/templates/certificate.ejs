@@ -45,12 +45,22 @@
     }
     .signature-section {
       display: flex;
-      justify-content: space-around;
-      margin-top: 40px;
+      justify-content: space-between;
+      margin-top: 60px;
       text-align: center;
+      align-items: flex-start; /* Wichtig: obenbündig für Linie */
     }
     .signature {
-      width: 40%;
+      width: 45%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .signature-line {
+      border-top: 1px solid #000;
+      width: 80%;
+      margin-bottom: 8px;
+      margin-top: 0;
     }
     .page-break {
       page-break-after: always;
@@ -70,7 +80,11 @@
     <li><span class="label">Ausbildung:</span> <%= course.startDate %> bis course.endDate</li>
     <li><span class="label">Dauer:</span> <%= course.program.teachingUnits %></li>
     <li><span class="label">Kursort:</span> kursort prisma</li>
-    <li><span class="label">Trainer:</span> <%= course.mainTrainer.name %></li>
+  
+    <% if (course.mainTrainer) { %>
+      <li><span class="label">Trainer:</span> <%= course.mainTrainer.name %></li>
+    <% } %>
+    
   </ul>
 
   <div class="spacer"></div>
@@ -79,15 +93,19 @@
 
   <div class="signature-section">
     <div class="signature">
-      <p>_________________________________________</p>
-      <p>model Geschäftsführer<br>Titel: MSc MBA</p>
-      <p>Geschäftsführer Digital Campus Vorarlberg</p>
+      <div class="signature-line"></div>
+      <div>
+        <p>Thomas Berchtold<br>Titel: MSc MBA</p>
+        <p>Geschäftsführer Digital Campus Vorarlberg</p>
+      </div>
     </div>
 
     <div class="signature">
-      <p>_________________________________________</p>
-      <p><%= course.mainTrainer.name %></p>
-      <p>Kursleiter der Digticam Campus !!!</p>
+      <div class="signature-line"></div>
+      <div>
+        <p><%= course.mainTrainer.name %></p>
+        <p>Kursleiter der Digital Campus !!!</p>
+      </div>
     </div>
   </div>
 

@@ -3,7 +3,7 @@ import { generatePDF } from '@/utils/generatePDF';
 import { savePDF } from '@/utils/fileStorage';
 
 
-
+// This route handles PDF generation and downloading based on a GET request. server side
 export async function GET(request: Request) {
   // Simple demo GET — you can fetch registration data here or hardcode for test
   const type = 'certificate';
@@ -22,7 +22,7 @@ export async function GET(request: Request) {
 
 
 
-// This route handles PDF generation and saving based on client requests.
+// This route handles PDF generation and saving based on client requests. cleint side
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -54,3 +54,5 @@ export async function POST(request: Request) {
     return new NextResponse('Internal Server Error', { status: 500 });
   }
 }
+
+
