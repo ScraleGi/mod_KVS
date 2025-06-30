@@ -54,11 +54,6 @@ export default async function NewCoursePage() {
                             programs={programmes}
                             onSubmit={createCourse}
                         />
-                        <div className="mt-8 text-center">
-                            <Link href="/course" className="text-blue-600 hover:underline">
-                                Zurück zur Kursliste
-                            </Link>
-                        </div>
                     </div>
                 </div>
             </div>
