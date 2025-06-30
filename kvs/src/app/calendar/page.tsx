@@ -1,5 +1,5 @@
 import { PrismaClient } from '../../../generated/prisma/client';
-import Calendar from './Calendar';
+import Calendar from '../../components/calendar/calendar';
 
 const prisma = new PrismaClient();
 
