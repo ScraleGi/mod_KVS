@@ -125,7 +125,7 @@ model Participant {
 
 model Invoice {
   id                    String               @id @default(uuid())
-  amount                Float
+  amount                Decimal              @db.Decimal(10, 2)
   courseRegistrationId  String
   courseRegistration    CourseRegistration   @relation(fields: [courseRegistrationId], references: [id])
   isCancelled           Boolean              @default(false)
@@ -136,16 +136,21 @@ model Invoice {
 }
 
 model InvoiceRecipient {
-  id            String       @id @default(uuid())
-  type          RecipientType
-  name          String
-  email         String?
-  address       String?
-  createdAt     DateTime @default(now())
-  deletedAt     DateTime?
-  participantId String?      // <-- Only set if PERSON
-  participant   Participant? @relation(fields: [participantId], references: [id])
-  invoices      Invoice[]
+  id                String       @id @default(uuid())
+  type              RecipientType
+  recipientName     String?      // Optional, only for PERSON required
+  recipientSurname  String?     // Optional, only for PERSON required
+  companyName       String?      // Optional, only for COMPANY required
+  recipientEmail    String
+  postalCode        String
+  recipientCity     String
+  recipientStreet   String
+  recipientCountry  String
+  createdAt         DateTime     @default(now())
+  deletedAt         DateTime?
+  participantId     String?      // Only set if PERSON
+  participant       Participant? @relation(fields: [participantId], references: [id])
+  invoices          Invoice[]
   @@index([deletedAt])
 }
 
