@@ -23,7 +23,6 @@ export default async function ParticipantPage({ params, searchParams }: Particip
         include: {
           course: { include: { program: true } },
           invoices: true,
-          // coupon: true, // <-- REMOVED
         }
       },
       invoiceRecipients: true,
@@ -65,8 +64,11 @@ export default async function ParticipantPage({ params, searchParams }: Particip
   })) as any
 
   // --- SANITIZE registrations for client component ---
+  // Only convert subsidyAmount and discountAmount for the course registration list
   const sanitizedRegistrations = participant.registrations.map(reg => ({
     ...reg,
+    subsidyAmount: reg.subsidyAmount ? reg.subsidyAmount.toString() : null,
+    discountAmount: reg.discountAmount ? reg.discountAmount.toString() : null,
     course: reg.course
       ? {
           ...reg.course,
@@ -78,7 +80,18 @@ export default async function ParticipantPage({ params, searchParams }: Particip
             : null,
         }
       : null,
+    // Do NOT convert invoices.amount here!
+    invoices: reg.invoices,
   }))
+
+  // Flatten all invoices for listing (sanitize amount here)
+  const allInvoices = sanitizedRegistrations.flatMap(reg =>
+    reg.invoices.map(inv => ({
+      ...inv,
+      amount: inv.amount != null ? inv.amount.toString() : null,
+      course: reg.course,
+    }))
+  )
 
   // Fetch all documents for this participant (not soft-deleted)
   const registrationIds = participant?.registrations.map(r => r.id) ?? []
@@ -243,7 +256,6 @@ export default async function ParticipantPage({ params, searchParams }: Particip
           >
             {reg.course?.program?.name ?? 'Unknown Course'}
           </Link>
-          {/* Coupon logic removed */}
           {reg.course?.startDate && (
             <span className="text-xs text-neutral-400 ml-2">
               {new Date(reg.course.startDate).toLocaleDateString('de-DE')}
@@ -329,14 +341,6 @@ export default async function ParticipantPage({ params, searchParams }: Particip
     }
   ]
 
-  // Flatten all invoices for listing
-  const allInvoices = participant.registrations.flatMap(reg =>
-    reg.invoices.map(inv => ({
-      ...inv,
-      course: reg.course
-    }))
-  )
-
   return (
     <div className="min-h-screen bg-neutral-50 flex items-center justify-center px-2 py-8">
       <div className="w-full max-w-2xl bg-white rounded-2xl shadow-md border border-neutral-100 p-0 overflow-hidden">
@@ -357,9 +361,9 @@ export default async function ParticipantPage({ params, searchParams }: Particip
 
         {/* Courses Registered */}
         <section className="px-8 py-6 border-b border-neutral-200">
-          <AlignedList
-            items={participant.registrations}
-            fields={courseFields}
+        <AlignedList
+          items={participant.registrations}
+          fields={courseFields}
             actions={reg => (
               <form action={removeRegistration}>
                 <input type="hidden" name="registrationId" value={reg.id} />

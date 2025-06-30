@@ -252,7 +252,8 @@ export default async function ParticipantDetailsPage({
                 href={`/participant/${registration.participant.id}`}
                 className="hover:underline text-blue-700"
               >
-                {registration.participant.name}
+                {registration.participant.salutation} {registration.participant.title ? registration.participant.title + ' ' : ''}
+                {registration.participant.name} {registration.participant.surname}
               </Link>
             </h1>
             <div className="flex flex-wrap gap-4 text-neutral-500 text-sm mt-1">
@@ -261,6 +262,12 @@ export default async function ParticipantDetailsPage({
               </span>
               <span>
                 <span className="font-medium text-neutral-700">Phone:</span> {registration.participant.phoneNumber}
+              </span>
+              <span>
+                <span className="font-medium text-neutral-700">Birthday:</span> {formatDateGerman(registration.participant.birthday)}
+              </span>
+              <span>
+                <span className="font-medium text-neutral-700">Address:</span> {registration.participant.street}, {registration.participant.postalCode} {registration.participant.city}, {registration.participant.country}
               </span>
             </div>
           </div>

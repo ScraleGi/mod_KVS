@@ -99,10 +99,11 @@ model Participant {
   name                  String
   surname               String
   salutation            String      // Anrede
+  title                 String?
   email                 String
   phoneNumber           String
   birthday              DateTime
-  postalCode            Int         // Nummer
+  postalCode            String        
   city                  String
   street                String
   country               String

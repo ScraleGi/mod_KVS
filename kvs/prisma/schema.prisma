@@ -96,14 +96,22 @@ model Trainer {
 }
 
 model Participant {
-  id                String               @id @default(uuid())
-  name              String
-  email             String
-  phoneNumber       String
-  createdAt         DateTime @default(now())
-  deletedAt         DateTime?
-  registrations     CourseRegistration[]
-  invoiceRecipients InvoiceRecipient[]   
+  id                    String      @id @default(uuid())
+  name                  String
+  surname               String
+  salutation            String      // Anrede
+  title                 String?
+  email                 String
+  phoneNumber           String
+  birthday              DateTime
+  postalCode            String        
+  city                  String
+  street                String
+  country               String
+  createdAt             DateTime    @default(now())
+  deletedAt             DateTime?
+  registrations         CourseRegistration[]
+  invoiceRecipients     InvoiceRecipient[]   
   @@index([deletedAt])
 }
 
