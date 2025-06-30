@@ -295,12 +295,6 @@ export default async function ParticipantDetailsPage({
                 )}
               </div>
             )}
-            {registration.discount && (
-              <div className="flex items-center gap-1 text-violet-700">
-                <span className="font-medium">Extra Discount:</span>
-                <span className="font-semibold">€{registration.discount}</span>
-              </div>
-            )}
           </div>
         </section>
 

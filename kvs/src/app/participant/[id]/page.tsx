@@ -30,15 +30,55 @@ export default async function ParticipantPage({ params, searchParams }: Particip
     }
   })
 
+    if (!participant) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-neutral-50">
+        <div className="max-w-md w-full px-4">
+          <Link href="/" className="text-blue-500 hover:underline mb-6 block">
+            &larr; Back to Home
+          </Link>
+          <div className="text-red-600 text-lg font-semibold">Participant not found.</div>
+        </div>
+      </div>
+    )
+  }
+
   // Fetch courses where participant is NOT registered
   const registeredCourseIds = participant?.registrations.map(r => r.courseId) ?? []
-  const availableCourses = await prisma.course.findMany({
+  let availableCourses = await prisma.course.findMany({
     where: {
       id: { notIn: registeredCourseIds },
       deletedAt: null,
     },
     include: { program: true }
   })
+
+// --- SANITIZE availableCourses ---
+availableCourses = availableCourses.map(course => ({
+  ...course,
+  program: course.program
+    ? {
+        ...course.program,
+        price: course.program.price ? course.program.price.toString() : null,
+      }
+    : null,
+})) as any
+
+  // --- SANITIZE registrations for client component ---
+  const sanitizedRegistrations = participant.registrations.map(reg => ({
+    ...reg,
+    course: reg.course
+      ? {
+          ...reg.course,
+          program: reg.course.program
+            ? {
+                ...reg.course.program,
+                price: reg.course.program.price ? reg.course.program.price.toString() : null,
+              }
+            : null,
+        }
+      : null,
+  }))
 
   // Fetch all documents for this participant (not soft-deleted)
   const registrationIds = participant?.registrations.map(r => r.id) ?? []
@@ -144,18 +184,7 @@ export default async function ParticipantPage({ params, searchParams }: Particip
     revalidatePath(`/participant/${id}`)
   }
 
-  if (!participant) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-neutral-50">
-        <div className="max-w-md w-full px-4">
-          <Link href="/" className="text-blue-500 hover:underline mb-6 block">
-            &larr; Back to Home
-          </Link>
-          <div className="text-red-600 text-lg font-semibold">Participant not found.</div>
-        </div>
-      </div>
-    )
-  }
+
 
   // Helper for aligned listing
   function AlignedList<T>({
@@ -222,14 +251,6 @@ export default async function ParticipantPage({ params, searchParams }: Particip
               className="inline-flex items-center justify-center w-5 h-5 rounded-sm bg-white border border-green-600"
             >
               <span className="text-xs font-bold text-green-600">G</span>
-            </span>
-          )}
-          {reg.discount && (
-            <span
-              title={`Extra Discount: €${reg.discount}`}
-              className="inline-flex items-center justify-center w-5 h-5 rounded-sm bg-white border border-violet-500"
-            >
-              <span className="text-xs font-bold text-violet-500">R</span>
             </span>
           )}
           {reg.course?.startDate && (
@@ -395,7 +416,7 @@ export default async function ParticipantPage({ params, searchParams }: Particip
             addButton={
               <ClientInvoiceModalWrapper
                 addInvoice={addInvoice}
-                registrations={participant.registrations}
+                registrations={sanitizedRegistrations}
               />
             }
           />

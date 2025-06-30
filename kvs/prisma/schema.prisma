@@ -63,7 +63,6 @@ model CourseRegistration {
   deletedAt     DateTime?
   invoices      Invoice[]
   generatedDocuments Document[]  
-  discount      Float?   
   couponId      String? 
   coupon        Coupon?   @relation(fields: [couponId], references: [id])
   @@index([deletedAt])

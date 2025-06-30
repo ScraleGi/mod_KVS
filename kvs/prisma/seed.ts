@@ -333,15 +333,14 @@ async function seedDatabase() {
   const recipientMap = await seedInvoiceRecipients(participantMap)
   await seedInvoices(programMap, courseMap, participantMap, registrationMap, recipientMap)
 
-  // --- Assign coupons/discounts to some registrations ---
-  // Charlie Brown gets SUMMER25 coupon and 50€ discount for AI Fundamentals
+  // --- Assign coupons to some registrations ---
+  // Charlie Brown gets SUMMER25 coupon for AI Fundamentals
   const cbRegId = registrationMap[participantMap['Charlie Brown'] + '_' + courseMap[programMap['AI Fundamentals']]]
   if (cbRegId) {
     await prisma.courseRegistration.update({
       where: { id: cbRegId },
       data: {
         couponId: couponMap['SUMMER25'],
-        discount: 50,
       },
     })
   }
