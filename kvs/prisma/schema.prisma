@@ -24,15 +24,15 @@ model Area {
 }
 
 model Program { 
-  id            String   @id @default(uuid())
+  id            String      @id @default(uuid())
   name          String
-  description   String?    // optional
-  teachingUnits Int?       // optional
-  price         Float?     // optional
-  createdAt     DateTime @default(now())
-  deletedAt     DateTime? // Soft delete: null = not deleted, date = deleted
+  description   String?     // optional
+  teachingUnits Int?        // optional
+  price         Decimal?    @db.Decimal(10, 2) 
+  createdAt     DateTime    @default(now())
+  deletedAt     DateTime?   // Soft delete: null = not deleted, date = deleted
   areaId        String
-  area          Area     @relation(fields: [areaId], references: [id])
+  area          Area        @relation(fields: [areaId], references: [id])
   course        Course[]
   @@index([deletedAt])
 }
@@ -42,6 +42,7 @@ model Course {
   programId     String
   program       Program   @relation(fields: [programId], references: [id])
   startDate     DateTime
+  endDate       DateTime
   createdAt     DateTime  @default(now())
   deletedAt     DateTime?
   mainTrainerId String

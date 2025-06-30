@@ -31,6 +31,7 @@ export default async function EditCoursePage({ params }: EditCoursePageProps) {
     'use server'
     const id = formData.get('id') as string
     const startDate = formData.get('startDate') as string
+    const endDate = formData.get('endDate') as string 
     const mainTrainerId = formData.get('mainTrainerId') as string
     const trainerIds = formData.getAll('trainerIds') as string[]
     const filteredTrainerIds = trainerIds.filter(tid => tid !== mainTrainerId)
@@ -39,6 +40,7 @@ export default async function EditCoursePage({ params }: EditCoursePageProps) {
       where: { id },
       data: {
         startDate: startDate ? new Date(startDate) : undefined,
+        endDate: endDate ? new Date(endDate) : undefined,
         mainTrainer: { connect: { id: mainTrainerId } },
         trainers: {
           set: filteredTrainerIds.map(id => ({ id })),
@@ -92,6 +94,21 @@ export default async function EditCoursePage({ params }: EditCoursePageProps) {
                   defaultValue={course?.startDate?.toISOString().slice(0, 10)}
                   className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                   required
+                />
+              </div>
+              {/* End Date */}
+              <div className="space-y-1">
+                <label htmlFor="endDate" className="block text-xs font-medium text-gray-600">
+                  End Date
+                </label>
+                <input
+                  id="endDate"
+                  name="endDate"
+                  type="date"
+                  required
+                  className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                  placeholder="End date"
+                  defaultValue={course?.endDate ? course.endDate.toISOString().substring(0, 10) : ''}
                 />
               </div>
               {/* Main Trainer */}

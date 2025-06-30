@@ -1,7 +1,7 @@
 // npx prisma migrate reset   -> to reset the database
 // npx prisma db seed         -> to seed the database with dummy data
 
-import { PrismaClient, RecipientType } from '../generated/prisma'
+import { PrismaClient, RecipientType, Prisma } from '../generated/prisma'
 
 const prisma = new PrismaClient()
 
@@ -28,20 +28,20 @@ async function seedAreas() {
 async function seedPrograms(areaMap: Record<string, string>) {
   await prisma.program.createMany({
     data: [
-      { name: 'AI Fundamentals', description: 'Introduction to Artificial Intelligence.', teachingUnits: 8, price: 299.99, areaId: areaMap['KI Campus'] },
-      { name: 'Machine Learning Basics', teachingUnits: 10, price: 349.99, areaId: areaMap['KI Campus'] },
-      { name: 'Web Development Bootcamp', description: 'Full stack web development.', teachingUnits: 12, price: 399.99, areaId: areaMap['It & Coding Campus'] },
-      { name: 'Python for Beginners', teachingUnits: 6, price: 149.99, areaId: areaMap['It & Coding Campus'] },
+      { name: 'AI Fundamentals', description: 'Introduction to Artificial Intelligence.', teachingUnits: 8, price: new Prisma.Decimal('299.99'), areaId: areaMap['KI Campus'] },
+      { name: 'Machine Learning Basics', teachingUnits: 10, price: new Prisma.Decimal('349.99'), areaId: areaMap['KI Campus'] },
+      { name: 'Web Development Bootcamp', description: 'Full stack web development.', teachingUnits: 12, price: new Prisma.Decimal('399.99'), areaId: areaMap['It & Coding Campus'] },
+      { name: 'Python for Beginners', teachingUnits: 6, price: new Prisma.Decimal('149.99'), areaId: areaMap['It & Coding Campus'] },
       { name: 'Digital Marketing 101', description: 'Basics of digital marketing.', teachingUnits: 7, areaId: areaMap['Digital Markeing Academy'] },
       { name: 'Sustainability in Business', description: 'Green business practices.', teachingUnits: 5, areaId: areaMap['Green Campus'] },
-      { name: 'Business Strategy', teachingUnits: 9, price: 299.99, areaId: areaMap['Business & Management Academy'] },
+      { name: 'Business Strategy', teachingUnits: 9, price: new Prisma.Decimal('299.99'), areaId: areaMap['Business & Management Academy'] },
       { name: 'E-Learning Essentials', description: 'How to create effective e-learning courses.', areaId: areaMap['E-Learning Lehrgänge'] },
-      { name: 'Digital Transformation', teachingUnits: 8, price: 199.99, areaId: areaMap['Digital Studies'] },
-      { name: 'Cloud Computing Basics', teachingUnits: 8, price: 249.99, areaId: areaMap['It & Coding Campus'] },
-      { name: 'Project Management', teachingUnits: 10, price: 299.99, areaId: areaMap['Business & Management Academy'] },
-      { name: 'Data Visualization', teachingUnits: 7, price: 199.99, areaId: areaMap['Digital Studies'] },
-      { name: 'Agile Methodologies', teachingUnits: 6, price: 179.99, areaId: areaMap['Business & Management Academy'] },
-      { name: 'UI/UX Design', teachingUnits: 8, price: 259.99, areaId: areaMap['It & Coding Campus'] },
+      { name: 'Digital Transformation', teachingUnits: 8, price: new Prisma.Decimal('199.99'), areaId: areaMap['Digital Studies'] },
+      { name: 'Cloud Computing Basics', teachingUnits: 8, price: new Prisma.Decimal('249.99'), areaId: areaMap['It & Coding Campus'] },
+      { name: 'Project Management', teachingUnits: 10, price: new Prisma.Decimal('299.99'), areaId: areaMap['Business & Management Academy'] },
+      { name: 'Data Visualization', teachingUnits: 7, price: new Prisma.Decimal('199.99'), areaId: areaMap['Digital Studies'] },
+      { name: 'Agile Methodologies', teachingUnits: 6, price: new Prisma.Decimal('179.99'), areaId: areaMap['Business & Management Academy'] },
+      { name: 'UI/UX Design', teachingUnits: 8, price: new Prisma.Decimal('259.99'), areaId: areaMap['It & Coding Campus'] },
     ],
     skipDuplicates: true,
   })
@@ -71,54 +71,63 @@ async function seedCourses(programMap: Record<string, string>, trainerMap: Recor
     {
       program: 'AI Fundamentals',
       startDate: new Date('2024-09-01'),
+      endDate: new Date('2024-09-15'),
       mainTrainer: 'Alice Smith',
       trainers: ['Bob Johnson', 'Carmen Diaz'],
     },
     {
       program: 'Web Development Bootcamp',
       startDate: new Date('2024-10-01'),
+      endDate: new Date('2024-10-21'),
       mainTrainer: 'Bob Johnson',
       trainers: ['Alice Smith'],
     },
     {
       program: 'Python for Beginners',
       startDate: new Date('2024-11-01'),
+      endDate: new Date('2024-11-10'),
       mainTrainer: 'Alice Smith',
       trainers: [],
     },
     {
       program: 'Digital Marketing 101',
       startDate: new Date('2024-12-01'),
+      endDate: new Date('2024-12-14'),
       mainTrainer: 'Bob Johnson',
       trainers: ['Emily Clark'],
     },
     {
       program: 'Cloud Computing Basics',
       startDate: new Date('2025-01-15'),
+      endDate: new Date('2025-01-29'),
       mainTrainer: 'Carmen Diaz',
       trainers: ['David Lee'],
     },
     {
       program: 'Project Management',
       startDate: new Date('2025-02-10'),
+      endDate: new Date('2025-02-24'),
       mainTrainer: 'David Lee',
       trainers: [],
     },
     {
       program: 'Data Visualization',
       startDate: new Date('2025-03-05'),
+      endDate: new Date('2025-03-19'),
       mainTrainer: 'Emily Clark',
       trainers: [],
     },
     {
       program: 'Agile Methodologies',
       startDate: new Date('2025-04-01'),
+      endDate: new Date('2025-04-10'),
       mainTrainer: 'David Lee',
       trainers: ['Carmen Diaz'],
     },
     {
       program: 'UI/UX Design',
       startDate: new Date('2025-05-10'),
+      endDate: new Date('2025-05-24'),
       mainTrainer: 'Carmen Diaz',
       trainers: ['Alice Smith'],
     },
@@ -130,6 +139,7 @@ async function seedCourses(programMap: Record<string, string>, trainerMap: Recor
       data: {
         programId: programMap[c.program],
         startDate: c.startDate,
+        endDate: c.endDate, // <-- add this line
         mainTrainerId: trainerMap[c.mainTrainer],
         trainers: {
           connect: c.trainers.map(name => ({ id: trainerMap[name] })),

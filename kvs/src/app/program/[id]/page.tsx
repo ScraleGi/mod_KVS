@@ -11,7 +11,7 @@ interface ProgramPageProps {
 const prisma = new PrismaClient();
 
 export default async function ProgramPage({ params }: ProgramPageProps) {
-    const { id } = params;
+    const { id } = await params;
 
     // Fetch program data, area, and courses with mainTrainer and registrations
     const program = await prisma.program.findUnique({
