@@ -1,19 +1,110 @@
-<!-- IMPORTANT -->
-<!-- Zertifikat wird doppelseitug bedrcukt einmal vorderseite das Zertifikat name unterschrift etc und auf der Rückseite die Kursinhalte -->
 <!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <title></title>
+  <title>Zertifikat - <%= participant.name %></title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 40px; color: #333; }
-    h1 { color: #2a9d8f; margin-bottom: 20px; }
-    p { margin: 8px 0; font-size: 1.1em; }
+    body {
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      color: #000;
+      text-align: center;
+      line-height: 1.5;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    h1 {
+      font-size: 3em;
+      margin-bottom: 20px;
+    }
+    h2 {
+      font-size: 1.5em;
+      margin-bottom: 15px;
+    }
+    p {
+      margin: 8px 0;
+      font-size: 1.1em;
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 20px auto;
+      text-align: left;
+      display: inline-block;
+    }
+    li {
+      margin-bottom: 8px;
+      font-size: 1.1em;
+    }
+    li span.label {
+      font-weight: bold;
+    }
+    .spacer {
+      flex-grow: 1;
+    }
+    .signature-section {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 40px;
+      text-align: center;
+    }
+    .signature {
+      width: 40%;
+    }
+    .page-break {
+      page-break-after: always;
+    }
   </style>
 </head>
 <body>
-  <h1>Zertifikat für <%= course.program.name %></h1>
-  <h2>das Zertifikat für <%=participant.name  %> </h2>
+
+  <!-- Vorderseite: Zertifikat -->
+  <h1>ZERTIFIKAT</h1>
+  <h1><%= course.program.name %></h1>
+
+  <h2><%= participant.name %></h2>
+  <p>hat den <%= course.program.name %> erfolgreich abgeschlossen.</p>
+
+  <ul>
+    <li><span class="label">Ausbildung:</span> <%= course.startDate %> bis course.endDate</li>
+    <li><span class="label">Dauer:</span> <%= course.program.teachingUnits %></li>
+    <li><span class="label">Kursort:</span> kursort prisma</li>
+    <li><span class="label">Trainer:</span> <%= course.mainTrainer.name %></li>
+  </ul>
+
+  <div class="spacer"></div>
+
+  <p>Kursort: kursort prisma, <%= new Date().toLocaleDateString('de-DE') %></p>
+
+  <div class="signature-section">
+    <div class="signature">
+      <p>_________________________________________</p>
+      <p>model Geschäftsführer<br>Titel: MSc MBA</p>
+      <p>Geschäftsführer Digital Campus Vorarlberg</p>
+    </div>
+
+    <div class="signature">
+      <p>_________________________________________</p>
+      <p><%= course.mainTrainer.name %></p>
+      <p>Kursleiter der Digticam Campus !!!</p>
+    </div>
+  </div>
+
+  <!-- Hinweise für Datenmodell -->
+  <!-- course.endDate needed in Prisma Schema -->
+  <!-- !!! Hier auch Prisma-Schema: Wer ist wer bei den Trainern -->
+
+  <!-- Seitenumbruch für Rückseite falls für PDF -->
+  <div class="page-break"></div>
+
+  <!-- Rückseite: Kursinhalte -->
+  <h1>Kursinhalte</h1>
+
+  <ul>
+    <p>course.program.contents.forEachfunction(content) </p> 
+    <li>content </li>
+  </ul>
 
 </body>
 </html>
