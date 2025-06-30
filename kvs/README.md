@@ -85,10 +85,6 @@ npm run dev
 
 ## Nützliche Befehle
 
-- Prisma Studio (GUI für DB):  
-  ```bash
-  npx prisma studio
-  ```
 - Migration erzeugen:  
   ```bash
   npx prisma migrate dev --name <migration-name>
