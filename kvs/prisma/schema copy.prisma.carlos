@@ -78,6 +78,8 @@ model CourseRegistration {
   discount          Boolean
   discountAmount    Decimal   @db.Decimal(10, 2)   
   discountRemark    String?
+
+  @@index([deletedAt])
 }
 
 model Trainer {

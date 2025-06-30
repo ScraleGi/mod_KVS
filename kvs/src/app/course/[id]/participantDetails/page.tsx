@@ -5,6 +5,11 @@ import crypto from 'crypto'
 
 const prisma = new PrismaClient()
 
+function formatDateGerman(date: Date | string | null | undefined) {
+  if (!date) return 'N/A'
+  return new Date(date).toLocaleDateString('de-DE')
+}
+
 export default async function ParticipantDetailsPage({
   params,
   searchParams,
@@ -13,7 +18,7 @@ export default async function ParticipantDetailsPage({
   searchParams?: { participantId?: string }
 }) {
   const courseId = await params.id
-  const participantId = searchParams?.participantId
+  const participantId = await searchParams?.participantId
 
   if (!participantId) {
     return (
@@ -277,11 +282,73 @@ export default async function ParticipantDetailsPage({
             <div className="flex items-center gap-1">
               <span className="font-medium text-neutral-600">Start:</span>
               <span className="text-neutral-600">
-                {registration.course?.startDate
-                  ? new Date(registration.course.startDate).toLocaleDateString()
-                  : 'N/A'}
+                {formatDateGerman(registration.course?.startDate)}
               </span>
             </div>
+            {/* Show status timestamps if present */}
+            {registration.infoSessionAt && (
+              <div className="flex items-center gap-1">
+                <span className="font-medium text-neutral-600">Info Session:</span>
+                <span className="text-neutral-600">
+                  {formatDateGerman(registration.infoSessionAt)}
+                </span>
+              </div>
+            )}
+            {registration.interestedAt && (
+              <div className="flex items-center gap-1">
+                <span className="font-medium text-neutral-600">Interested:</span>
+                <span className="text-neutral-600">
+                  {formatDateGerman(registration.interestedAt)}
+                </span>
+              </div>
+            )}
+            {registration.registeredAt && (
+              <div className="flex items-center gap-1">
+                <span className="font-medium text-neutral-600">Registered:</span>
+                <span className="text-neutral-600">
+                  {formatDateGerman(registration.registeredAt)}
+                </span>
+              </div>
+            )}
+            {registration.unregisteredAt && (
+              <div className="flex items-center gap-1">
+                <span className="font-medium text-neutral-600">Unregistered:</span>
+                <span className="text-neutral-600">
+                  {formatDateGerman(registration.unregisteredAt)}
+                </span>
+              </div>
+            )}
+            {/* General Remark */}
+            {registration.generalRemark && (
+              <div className="flex items-center gap-1">
+                <span className="font-medium text-neutral-600">Remark:</span>
+                <span className="text-neutral-600">{registration.generalRemark}</span>
+              </div>
+            )}
+            {/* Subsidy info */}
+            {(registration.subsidyRemark || registration.subsidyAmount) && (
+              <div className="flex items-center gap-1 text-green-700">
+                <span className="font-medium">Subsidy:</span>
+                {registration.subsidyRemark && (
+                  <span>{registration.subsidyRemark}</span>
+                )}
+                {registration.subsidyAmount && (
+                  <span className="ml-1 text-xs">({registration.subsidyAmount.toString()}€)</span>
+                )}
+              </div>
+            )}
+            {/* Discount info */}
+            {(registration.discountRemark || registration.discountAmount) && (
+              <div className="flex items-center gap-1 text-blue-700">
+                <span className="font-medium">Discount:</span>
+                {registration.discountRemark && (
+                  <span>{registration.discountRemark}</span>
+                )}
+                {registration.discountAmount && (
+                  <span className="ml-1 text-xs">({registration.discountAmount.toString()}€)</span>
+                )}
+              </div>
+            )}
           </div>
         </section>
 

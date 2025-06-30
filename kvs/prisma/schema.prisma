@@ -54,17 +54,33 @@ model Course {
 }
 
 model CourseRegistration {
-  id            String      @id @default(uuid())
-  courseId      String
-  course        Course @relation(fields: [courseId], references: [id])
-  participantId String
-  participant   Participant @relation(fields: [participantId], references: [id])
-  createdAt     DateTime @default(now())
-  deletedAt     DateTime?
-  invoices      Invoice[]
-  generatedDocuments Document[]  
-  
+  id                  String      @id @default(uuid())
+  courseId            String
+  course              Course      @relation(fields: [courseId], references: [id])
+  participantId       String
+  participant         Participant @relation(fields: [participantId], references: [id])
+  createdAt           DateTime    @default(now())
+  deletedAt           DateTime?
+  invoices            Invoice[]
+  generatedDocuments  Document[]  
+
+  // Status timestamps (boolean flags removed)
+  infoSessionAt       DateTime?   // When info session was attended
+  registeredAt        DateTime?   // When registered
+  unregisteredAt      DateTime?   // When unregistered
+  interestedAt        DateTime?   // When shown interest
+
+  generalRemark       String?
+
+  // Subsidy and discount fields (amounts are nullable)
+  subsidyRemark       String?
+  subsidyAmount       Decimal?    @db.Decimal(10, 2)
+  discountRemark      String?
+  discountAmount      Decimal?    @db.Decimal(10, 2)
+
   @@index([deletedAt])
+  @@index([courseId])
+  @@index([participantId])
 }
 
 model Trainer {

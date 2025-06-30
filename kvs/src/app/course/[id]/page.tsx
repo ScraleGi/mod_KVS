@@ -10,6 +10,11 @@ interface CoursePageProps {
 
 const prisma = new PrismaClient()
 
+function formatDateGerman(date: Date | string | null | undefined) {
+  if (!date) return 'N/A'
+  return new Date(date).toLocaleDateString('de-DE')
+}
+
 export default async function CoursePage({ params }: CoursePageProps) {
   const { id } = await params
 
@@ -79,7 +84,7 @@ export default async function CoursePage({ params }: CoursePageProps) {
                 </div>
                 <div className="flex items-center mb-4">
                   <span className="font-semibold mr-2">Start Date:</span>
-                  <span>{course.startDate ? new Date(course.startDate).toLocaleDateString() : 'N/A'}</span>
+                  <span>{formatDateGerman(course.startDate)}</span>
                 </div>
                 <div className="flex items-center mb-4">
                   <span className="font-semibold mr-2">Registrations:</span>
@@ -135,6 +140,11 @@ export default async function CoursePage({ params }: CoursePageProps) {
                                 >
                                   #{inv.transactionNumber}
                                 </Link>
+                                {inv.dueDate && (
+                                  <span className="ml-1 text-xs text-gray-500">
+                                    (Fällig: {formatDateGerman(inv.dueDate)})
+                                  </span>
+                                )}
                                 {idx < reg.invoices.length - 1 && ", "}
                               </React.Fragment>
                             ))
@@ -155,6 +165,11 @@ export default async function CoursePage({ params }: CoursePageProps) {
                                 {doc.file.split('/').pop()}
                               </a>
                               <span className="ml-1 text-xs text-gray-500">({doc.role})</span>
+                              {doc.createdAt && (
+                                <span className="ml-1 text-xs text-gray-400">
+                                  [{formatDateGerman(doc.createdAt)}]
+                                </span>
+                              )}
                               {idx < reg.generatedDocuments.length - 1 && ", "}
                             </React.Fragment>
                           ))
