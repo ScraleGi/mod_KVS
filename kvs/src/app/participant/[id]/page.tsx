@@ -13,7 +13,7 @@ interface ParticipantPageProps {
 }
 
 export default async function ParticipantPage({ params, searchParams }: ParticipantPageProps) {
-  const { id } = params
+  const { id } = await params
 
   // Fetch participant and their registrations
   const participant = await prisma.participant.findUnique({
@@ -23,14 +23,14 @@ export default async function ParticipantPage({ params, searchParams }: Particip
         include: {
           course: { include: { program: true } },
           invoices: true,
-          coupon: true,
+          // coupon: true, // <-- REMOVED
         }
       },
       invoiceRecipients: true,
     }
   })
 
-    if (!participant) {
+  if (!participant) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-neutral-50">
         <div className="max-w-md w-full px-4">
@@ -53,16 +53,16 @@ export default async function ParticipantPage({ params, searchParams }: Particip
     include: { program: true }
   })
 
-// --- SANITIZE availableCourses ---
-availableCourses = availableCourses.map(course => ({
-  ...course,
-  program: course.program
-    ? {
-        ...course.program,
-        price: course.program.price ? course.program.price.toString() : null,
-      }
-    : null,
-})) as any
+  // --- SANITIZE availableCourses ---
+  availableCourses = availableCourses.map(course => ({
+    ...course,
+    program: course.program
+      ? {
+          ...course.program,
+          price: course.program.price ? course.program.price.toString() : null,
+        }
+      : null,
+  })) as any
 
   // --- SANITIZE registrations for client component ---
   const sanitizedRegistrations = participant.registrations.map(reg => ({
@@ -184,8 +184,6 @@ availableCourses = availableCourses.map(course => ({
     revalidatePath(`/participant/${id}`)
   }
 
-
-
   // Helper for aligned listing
   function AlignedList<T>({
     items,
@@ -245,14 +243,7 @@ availableCourses = availableCourses.map(course => ({
           >
             {reg.course?.program?.name ?? 'Unknown Course'}
           </Link>
-          {reg.coupon && (
-            <span
-              title={`Coupon: ${reg.coupon.code}${reg.coupon.percent ? ` (${reg.coupon.percent}% off)` : ''}${reg.coupon.amount ? ` (${reg.coupon.amount}€ off)` : ''}`}
-              className="inline-flex items-center justify-center w-5 h-5 rounded-sm bg-white border border-green-600"
-            >
-              <span className="text-xs font-bold text-green-600">G</span>
-            </span>
-          )}
+          {/* Coupon logic removed */}
           {reg.course?.startDate && (
             <span className="text-xs text-neutral-400 ml-2">
               {new Date(reg.course.startDate).toLocaleDateString('de-DE')}

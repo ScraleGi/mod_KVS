@@ -38,7 +38,6 @@ export default async function ParticipantDetailsPage({
       participant: true,
       course: { include: { program: true } },
       invoices: true,
-      coupon: true,
     }
   })
 
@@ -283,18 +282,6 @@ export default async function ParticipantDetailsPage({
                   : 'N/A'}
               </span>
             </div>
-            {registration.coupon && (
-              <div className="flex items-center gap-1 text-green-700">
-                <span className="font-medium">Coupon:</span>
-                <span className="font-semibold">{registration.coupon.code}</span>
-                {registration.coupon.percent && (
-                  <span className="ml-1 text-xs">({registration.coupon.percent}% off)</span>
-                )}
-                {registration.coupon.amount && (
-                  <span className="ml-1 text-xs">({registration.coupon.amount}€ off)</span>
-                )}
-              </div>
-            )}
           </div>
         </section>
 

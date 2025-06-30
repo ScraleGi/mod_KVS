@@ -1,6 +1,3 @@
-// npx prisma migrate reset   -> to reset the database
-// npx prisma db seed         -> to seed the database with dummy data
-
 import { PrismaClient, RecipientType, Prisma } from '../generated/prisma'
 
 const prisma = new PrismaClient()
@@ -213,19 +210,6 @@ async function seedRegistrations(
   return Object.fromEntries(registrations.map(r => [r.participantId + '_' + r.courseId, r.id]))
 }
 
-// -------------------- Coupon Seeding --------------------
-async function seedCoupons() {
-  await prisma.coupon.createMany({
-    data: [
-      { code: 'SUMMER25', description: '25% off summer promotion', percent: 25, expiresAt: new Date('2025-09-01') },
-      { code: 'WELCOME10', description: '10€ off for new users', amount: 10, expiresAt: new Date('2025-12-31') },
-    ],
-    skipDuplicates: true,
-  })
-  const coupons = await prisma.coupon.findMany()
-  return Object.fromEntries(coupons.map(c => [c.code, c.id]))
-}
-
 // -------------------- InvoiceRecipient Seeding --------------------
 async function seedInvoiceRecipients(participantMap: Record<string, string>) {
   const recipients = [
@@ -282,6 +266,7 @@ async function seedInvoices(
     skipDuplicates: true,
   })
 }
+
 // -------------------- Document Seeding --------------------
 async function seedDocuments(
   programMap: Record<string, string>,
@@ -328,33 +313,8 @@ async function seedDatabase() {
   const registrationMap = await seedRegistrations(programMap, courseMap, participantMap)
 
   await seedDocuments(programMap, courseMap, registrationMap, participantMap)
-
-  const couponMap = await seedCoupons()
   const recipientMap = await seedInvoiceRecipients(participantMap)
   await seedInvoices(programMap, courseMap, participantMap, registrationMap, recipientMap)
-
-  // --- Assign coupons to some registrations ---
-  // Charlie Brown gets SUMMER25 coupon for AI Fundamentals
-  const cbRegId = registrationMap[participantMap['Charlie Brown'] + '_' + courseMap[programMap['AI Fundamentals']]]
-  if (cbRegId) {
-    await prisma.courseRegistration.update({
-      where: { id: cbRegId },
-      data: {
-        couponId: couponMap['SUMMER25'],
-      },
-    })
-  }
-
-  // Dana White gets WELCOME10 coupon for Web Development Bootcamp
-  const dwRegId = registrationMap[participantMap['Dana White'] + '_' + courseMap[programMap['Web Development Bootcamp']]]
-  if (dwRegId) {
-    await prisma.courseRegistration.update({
-      where: { id: dwRegId },
-      data: {
-        couponId: couponMap['WELCOME10'],
-      },
-    })
-  }
 }
 
 seedDatabase()
