@@ -1,4 +1,4 @@
-import { PrismaClient, RegistrationStatus, RecipientType } from '../../../../../generated/prisma/client'
+import { PrismaClient, RecipientType } from '../../../../../generated/prisma/client'
 import Link from 'next/link'
 import { revalidatePath } from 'next/cache'
 import crypto from 'crypto'
@@ -274,10 +274,6 @@ export default async function ParticipantDetailsPage({
               >
                 {registration.course?.program?.name ?? 'Unknown Course'}
               </Link>
-            </div>
-            <div className="flex items-center gap-1">
-              <span className="font-medium text-neutral-600">Status:</span>
-              <span className="text-neutral-600">{registration.status}</span>
             </div>
             <div className="flex items-center gap-1">
               <span className="font-medium text-neutral-600">Start:</span>

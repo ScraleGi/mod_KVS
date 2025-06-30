@@ -139,7 +139,7 @@ async function seedCourses(programMap: Record<string, string>, trainerMap: Recor
       data: {
         programId: programMap[c.program],
         startDate: c.startDate,
-        endDate: c.endDate, // <-- add this line
+        endDate: c.endDate,
         mainTrainerId: trainerMap[c.mainTrainer],
         trainers: {
           connect: c.trainers.map(name => ({ id: trainerMap[name] })),
@@ -182,30 +182,30 @@ async function seedRegistrations(
 ) {
   await prisma.courseRegistration.createMany({
     data: [
-      { courseId: courseMap[programMap['AI Fundamentals']], participantId: participantMap['Charlie Brown'], status: 'Registered' },
-      { courseId: courseMap[programMap['Web Development Bootcamp']], participantId: participantMap['Dana White'], status: 'Interested' },
-      { courseId: courseMap[programMap['Python for Beginners']], participantId: participantMap['Eve Adams'], status: 'Registered' },
-      { courseId: courseMap[programMap['Digital Marketing 101']], participantId: participantMap['Frank Miller'], status: 'Started' },
-      { courseId: courseMap[programMap['AI Fundamentals']], participantId: participantMap['Grace Lee'], status: 'Interested' },
-      { courseId: courseMap[programMap['Web Development Bootcamp']], participantId: participantMap['Henry Ford'], status: 'Registered' },
-      { courseId: courseMap[programMap['AI Fundamentals']], participantId: participantMap['Isabel Turner'], status: 'Registered' },
-      { courseId: courseMap[programMap['Web Development Bootcamp']], participantId: participantMap['Jack Black'], status: 'Interested' },
-      { courseId: courseMap[programMap['Python for Beginners']], participantId: participantMap['Karen Green'], status: 'Registered' },
-      { courseId: courseMap[programMap['Digital Marketing 101']], participantId: participantMap['Liam Young'], status: 'Started' },
-      { courseId: courseMap[programMap['AI Fundamentals']], participantId: participantMap['Mona Patel'], status: 'Interested' },
-      { courseId: courseMap[programMap['Web Development Bootcamp']], participantId: participantMap['Nina Rossi'], status: 'Registered' },
-      { courseId: courseMap[programMap['Cloud Computing Basics']], participantId: participantMap['Charlie Brown'], status: 'Registered' },
-      { courseId: courseMap[programMap['Cloud Computing Basics']], participantId: participantMap['Dana White'], status: 'Registered' },
-      { courseId: courseMap[programMap['Project Management']], participantId: participantMap['Eve Adams'], status: 'Registered' },
-      { courseId: courseMap[programMap['Project Management']], participantId: participantMap['Frank Miller'], status: 'Registered' },
-      { courseId: courseMap[programMap['Data Visualization']], participantId: participantMap['Grace Lee'], status: 'Registered' },
-      { courseId: courseMap[programMap['Agile Methodologies']], participantId: participantMap['Henry Ford'], status: 'Registered' },
-      { courseId: courseMap[programMap['UI/UX Design']], participantId: participantMap['Isabel Turner'], status: 'Registered' },
-      { courseId: courseMap[programMap['UI/UX Design']], participantId: participantMap['Jack Black'], status: 'Registered' },
-      { courseId: courseMap[programMap['Data Visualization']], participantId: participantMap['Karen Green'], status: 'Registered' },
-      { courseId: courseMap[programMap['Agile Methodologies']], participantId: participantMap['Liam Young'], status: 'Registered' },
-      { courseId: courseMap[programMap['Cloud Computing Basics']], participantId: participantMap['Mona Patel'], status: 'Registered' },
-      { courseId: courseMap[programMap['Project Management']], participantId: participantMap['Nina Rossi'], status: 'Registered' },
+      { courseId: courseMap[programMap['AI Fundamentals']], participantId: participantMap['Charlie Brown'] },
+      { courseId: courseMap[programMap['Web Development Bootcamp']], participantId: participantMap['Dana White'] },
+      { courseId: courseMap[programMap['Python for Beginners']], participantId: participantMap['Eve Adams'] },
+      { courseId: courseMap[programMap['Digital Marketing 101']], participantId: participantMap['Frank Miller'] },
+      { courseId: courseMap[programMap['AI Fundamentals']], participantId: participantMap['Grace Lee'] },
+      { courseId: courseMap[programMap['Web Development Bootcamp']], participantId: participantMap['Henry Ford'] },
+      { courseId: courseMap[programMap['AI Fundamentals']], participantId: participantMap['Isabel Turner'] },
+      { courseId: courseMap[programMap['Web Development Bootcamp']], participantId: participantMap['Jack Black'] },
+      { courseId: courseMap[programMap['Python for Beginners']], participantId: participantMap['Karen Green'] },
+      { courseId: courseMap[programMap['Digital Marketing 101']], participantId: participantMap['Liam Young'] },
+      { courseId: courseMap[programMap['AI Fundamentals']], participantId: participantMap['Mona Patel'] },
+      { courseId: courseMap[programMap['Web Development Bootcamp']], participantId: participantMap['Nina Rossi'] },
+      { courseId: courseMap[programMap['Cloud Computing Basics']], participantId: participantMap['Charlie Brown'] },
+      { courseId: courseMap[programMap['Cloud Computing Basics']], participantId: participantMap['Dana White'] },
+      { courseId: courseMap[programMap['Project Management']], participantId: participantMap['Eve Adams'] },
+      { courseId: courseMap[programMap['Project Management']], participantId: participantMap['Frank Miller'] },
+      { courseId: courseMap[programMap['Data Visualization']], participantId: participantMap['Grace Lee'] },
+      { courseId: courseMap[programMap['Agile Methodologies']], participantId: participantMap['Henry Ford'] },
+      { courseId: courseMap[programMap['UI/UX Design']], participantId: participantMap['Isabel Turner'] },
+      { courseId: courseMap[programMap['UI/UX Design']], participantId: participantMap['Jack Black'] },
+      { courseId: courseMap[programMap['Data Visualization']], participantId: participantMap['Karen Green'] },
+      { courseId: courseMap[programMap['Agile Methodologies']], participantId: participantMap['Liam Young'] },
+      { courseId: courseMap[programMap['Cloud Computing Basics']], participantId: participantMap['Mona Patel'] },
+      { courseId: courseMap[programMap['Project Management']], participantId: participantMap['Nina Rossi'] },
     ],
     skipDuplicates: true,
   })
@@ -282,8 +282,7 @@ async function seedInvoices(
     skipDuplicates: true,
   })
 }
-// -------------------- Document Seeding --------------------  emin
-// here are we seed documents related to course registrations
+// -------------------- Document Seeding --------------------
 async function seedDocuments(
   programMap: Record<string, string>,
   courseMap: Record<string, string>,
@@ -330,22 +329,22 @@ async function seedDatabase() {
 
   await seedDocuments(programMap, courseMap, registrationMap, participantMap)
 
-  const couponMap = await seedCoupons() // <--- assign to variable!
+  const couponMap = await seedCoupons()
   const recipientMap = await seedInvoiceRecipients(participantMap)
   await seedInvoices(programMap, courseMap, participantMap, registrationMap, recipientMap)
 
   // --- Assign coupons/discounts to some registrations ---
   // Charlie Brown gets SUMMER25 coupon and 50€ discount for AI Fundamentals
-const cbRegId = registrationMap[participantMap['Charlie Brown'] + '_' + courseMap[programMap['AI Fundamentals']]]
-if (cbRegId) {
-  await prisma.courseRegistration.update({
-    where: { id: cbRegId },
-    data: {
-      couponId: couponMap['SUMMER25'],
-      discount: 50,
-    },
-  })
-}
+  const cbRegId = registrationMap[participantMap['Charlie Brown'] + '_' + courseMap[programMap['AI Fundamentals']]]
+  if (cbRegId) {
+    await prisma.courseRegistration.update({
+      where: { id: cbRegId },
+      data: {
+        couponId: couponMap['SUMMER25'],
+        discount: 50,
+      },
+    })
+  }
 
   // Dana White gets WELCOME10 coupon for Web Development Bootcamp
   const dwRegId = registrationMap[participantMap['Dana White'] + '_' + courseMap[programMap['Web Development Bootcamp']]]

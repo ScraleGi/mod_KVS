@@ -17,6 +17,7 @@ datasource db {
 model Area {
   id          String      @id @default(uuid())
   name        String
+  description String?
   createdAt   DateTime    @default(now())
   deletedAt   DateTime?   // Soft delete: null = not deleted, date = deleted
   programs    Program[]   // Relation: one Area has many Programs

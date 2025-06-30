@@ -114,7 +114,7 @@ export default async function CoursePage({ params }: CoursePageProps) {
                       key={reg.id}
                       className="py-4 flex flex-col md:flex-row md:items-start md:gap-6"
                     >
-                      {/* Participant Name & Status */}
+                      {/* Participant Name */}
                       <div className="md:w-1/4 w-full mb-2 md:mb-0">
                         <Link
                           href={`/course/${course.id}/participantDetails?participantId=${reg.participant?.id}`}
@@ -122,7 +122,6 @@ export default async function CoursePage({ params }: CoursePageProps) {
                         >
                           {reg.participant?.name ?? 'Unknown'}
                         </Link>
-                        <span className="ml-2 text-gray-500 text-sm">({reg.status})</span>
                       </div>
                       {/* Invoices */}
                       <div className="md:w-1/3 w-full mb-2 md:mb-0 text-sm text-gray-600">

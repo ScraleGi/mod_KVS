@@ -15,12 +15,12 @@ datasource db {
 }
 
 model Area {
-  id          String @id @default(uuid())
-  name        String
-  description String?
-  createdAt   DateTime @default(now())
-  deletedAt   DateTime? // Soft delete: null = not deleted, date = deleted
-  programs    Program[] // Relation: one Area has many Programs
+  id                  String @id @default(uuid())
+  name                String
+  description         String?
+  createdAt           DateTime @default(now())
+  deletedAt           DateTime? // Soft delete: null = not deleted, date = deleted
+  programs            Program[] // Relation: one Area has many Programs
   @@index([deletedAt])
 }
 
@@ -59,7 +59,6 @@ model CourseRegistration {
   course        Course @relation(fields: [courseId], references: [id])
   participantId String
   participant   Participant @relation(fields: [participantId], references: [id])
-  status        RegistrationStatus
   createdAt     DateTime @default(now())
   deletedAt     DateTime?
   invoices      Invoice[]
@@ -138,7 +137,6 @@ enum RecipientType {
   COMPANY
 }
 
-
 model Document {
   id                    String               @id @default(uuid())
   role                  String
@@ -147,15 +145,6 @@ model Document {
   courseRegistration    CourseRegistration   @relation(fields: [courseRegistrationId], references: [id])
   createdAt        DateTime  @default(now())
   deletedAt        DateTime? // Soft delete: null = not deleted, date = deleted 
-}
-
-
-
-enum RegistrationStatus {
-  Interested
-  Registered
-  Started
-  Finished
 }
 
 model Room {

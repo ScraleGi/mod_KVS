@@ -1,4 +1,4 @@
-import { PrismaClient, RegistrationStatus, RecipientType } from '../../../../generated/prisma/client'
+import { PrismaClient, RecipientType } from '../../../../generated/prisma/client'
 import Link from 'next/link'
 import { revalidatePath } from 'next/cache'
 import crypto from 'crypto'
@@ -63,12 +63,10 @@ export default async function ParticipantPage({ params, searchParams }: Particip
   async function registerToCourse(formData: FormData) {
     'use server'
     const courseId = formData.get('courseId') as string
-    const status = formData.get('status') as RegistrationStatus
     await prisma.courseRegistration.create({
       data: {
         courseId,
         participantId: id,
-        status,
       }
     })
     revalidatePath(`/participant/${id}`)
@@ -243,13 +241,6 @@ export default async function ParticipantPage({ params, searchParams }: Particip
       ),
       width: 'flex-[2]'
     },
-    {
-      label: 'Status',
-      render: (reg: typeof participant.registrations[0]) => (
-        <div className="flex items-center h-full text-xs text-neutral-400">{reg.status}</div>
-      ),
-      width: 'flex-1'
-    }
   ]
 
   // Invoice listing data
@@ -376,7 +367,6 @@ export default async function ParticipantPage({ params, searchParams }: Particip
               <ClientCourseModalWrapper
                 registerToCourse={registerToCourse}
                 availableCourses={availableCourses}
-                RegistrationStatus={RegistrationStatus}
               />
             }
           />
