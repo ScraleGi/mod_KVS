@@ -1,4 +1,7 @@
 "use client"
+import { CourseParticipantsDialog } from "./CourseParticipantsDialog"
+import { CoursesDialog } from "./participantCoursesDialog"
+
 
 // -------------------- Imports --------------------
 import Link from "next/link"
@@ -44,6 +47,15 @@ export type Participant = {
   invoice: string
 }
 
+export type ParticipantRow = {
+  id: string
+  name: string
+  email: string
+  phoneNumber: string
+  courses: { id: string; name: string; startDate?: string | Date }[] // <-- Add startDate here
+}
+
+
 export type CourseRow = {
   id: string
   course: string
@@ -61,36 +73,36 @@ export const columns: ColumnDef<CourseRow>[] = [
 {
   accessorKey: "course",
   size: 200,
-  header: ({ column }) => (
-    <span className="flex items-center gap-1 select-none w-48 min-w-[8rem] pl-4">
-      Course
-      <span
-        className="ml-1 h-4 w-4 cursor-pointer flex"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        role="button"
-        tabIndex={0}
-        onKeyDown={e => {
-          if (e.key === "Enter" || e.key === " ") {
-            column.toggleSorting(column.getIsSorted() === "asc")
-          }
-        }}
-      >
-        <ArrowUpDown
-          className={`h-4 w-4 transition-transform ${
-            column.getIsSorted()
-              ? column.getIsSorted() === "asc"
-                ? "text-yellow-100 rotate-180"
-                : "text-yellow-100"
-              : "text-gray-400"
-          }`}
-        />
-      </span>
+header: ({ column }) => (
+  <span className="flex items-center gap-1 select-none w-48 min-w-[8rem] pl-8">
+    Course
+    <span
+      className="ml-1 h-4 w-4 cursor-pointer flex"
+      onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      role="button"
+      tabIndex={0}
+      onKeyDown={e => {
+        if (e.key === "Enter" || e.key === " ") {
+          column.toggleSorting(column.getIsSorted() === "asc")
+        }
+      }}
+    >
+      <ArrowUpDown
+        className={`h-4 w-4 transition-transform ${
+          column.getIsSorted()
+            ? column.getIsSorted() === "asc"
+              ? "text-yellow-100 rotate-180"
+              : "text-yellow-100"
+            : "text-gray-400"
+        }`}
+      />
     </span>
-  ),
+  </span>
+),
   cell: ({ row }) => (
     <Link
       href={`/course/${row.original.id}`}
-      className="text-blue-600 hover:text-blue-800 cursor-pointer w-48 min-w-[8rem] pl-4"
+      className="relative text-blue-600 hover:text-blue-800 pl-8 inline-block after:content-[''] after:absolute after:left-8 after:bottom-0 after:w-0 hover:after:w-[calc(100%-2rem)] after:h-[2px] after:bg-blue-600 after:transition-all after:duration-300"
       style={{ whiteSpace: "normal", overflowWrap: "break-word" }}
     >
       {row.getValue("course")}
@@ -273,11 +285,62 @@ export const columns: ColumnDef<CourseRow>[] = [
   ),
   cell: ({ row }) => (
     <span className="block text-right w-16 min-w-[3.5rem] pr-2">
-      {row.getValue("registrations")}
+      <CourseParticipantsDialog participants={row.original.participants ?? []}>
+        {row.getValue("registrations")}
+      </CourseParticipantsDialog>
     </span>
   ),
 },
 
+]
+
+export const participantColumns: ColumnDef<ParticipantRow>[] = [
+  {
+    accessorKey: "name",
+    header: ({ column }) => (
+      <span className="flex items-center gap-1 select-none pl-8">
+        Name
+        <span
+          className="ml-1 h-4 w-4 cursor-pointer flex"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          <ArrowUpDown className="h-4 w-4 text-gray-400" />
+        </span>
+      </span>
+    ),
+    cell: ({ row }) => (
+      <Link
+        href={`/participant/${row.original.id}`}
+        className="relative text-blue-600 hover:text-blue-800 pl-8 inline-block after:content-[''] after:absolute after:left-8 after:bottom-0 after:w-0 hover:after:w-[calc(100%-2rem)] after:h-[2px] after:bg-blue-600 after:transition-all after:duration-300"
+      >
+        {row.getValue("name")}
+      </Link>
+    ),
+  },
+  {
+    accessorKey: "email",
+    header: "Email",
+    cell: ({ row }) => <span>{row.getValue("email")}</span>,
+  },
+  {
+    accessorKey: "phoneNumber",
+    header: () => <span className="block text-right w-full pr-8">Phone</span>,
+    cell: ({ row }) => (
+      <span className="block text-right pr-8">{row.getValue("phoneNumber")}</span>
+    ),
+  },
+  {
+    id: "courses",
+    header: () => (
+      <span className="block text-right w-full pr-8">Courses</span>
+    ),
+    cell: ({ row }) => (
+      <div className="text-right pr-8">
+        {/* Pass courses with startDate to CoursesDialog */}
+        <CoursesDialog courses={row.original.courses} />
+      </div>
+    ),
+  },
 ]
 
 // -------------------- Main Table Component --------------------
@@ -360,27 +423,27 @@ export function CourseTable<T>({
         </DropdownMenu>
       </div>
       {/* Main table */}
-      <div className="rounded-2xl shadow-xl border border-gray-200 overflow-hidden bg-white">
+      <div className="shadow border border-gray-200 overflow-hidden bg-white rounded-md">
         <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map(headerGroup => (
-              <TableRow
-                key={headerGroup.id}
-                className="bg-gray-600 hover:bg-gray-600" // Prevents hover color change
-              >
-                {headerGroup.headers.map(header => (
-                  <TableHead
-                    key={header.id}
-                    className="py-4 px-3 text-gray-100 font-semibold text-base"
-                  >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(header.column.columnDef.header, header.getContext())}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
+<TableHeader>
+  {table.getHeaderGroups().map(headerGroup => (
+    <TableRow
+      key={headerGroup.id}
+      className="bg-gray-600 hover:bg-gray-600 border-b border-gray-200" // <-- add this
+    >
+      {headerGroup.headers.map(header => (
+        <TableHead
+          key={header.id}
+          className="py-4 px-3 text-gray-100 font-semibold text-base"
+        >
+          {header.isPlaceholder
+            ? null
+            : flexRender(header.column.columnDef.header, header.getContext())}
+        </TableHead>
+      ))}
+    </TableRow>
+  ))}
+</TableHeader>
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row, idx, arr) => (

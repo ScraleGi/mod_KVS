@@ -4,12 +4,16 @@ import * as React from "react"
 import { Dialog, DialogContent, DialogTrigger, DialogTitle } from "@/components/ui/dialog"
 import Link from "next/link"
 
-export function CoursesDialog({ courses }: { courses: { id: string; name: string }[] }) {
+export function CoursesDialog({
+  courses,
+}: {
+  courses: { id: string; name: string; startDate?: string | Date }[]
+}) {
   const [open, setOpen] = React.useState(false)
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button className="text-blue-600 underline hover:text-blue-800">
+        <button className="text-blue-600 hover:text-blue-800 cursor-pointer">
           {courses.length}
         </button>
       </DialogTrigger>
@@ -28,6 +32,11 @@ export function CoursesDialog({ courses }: { courses: { id: string; name: string
                 >
                   {course.name}
                 </Link>
+                {course.startDate && (
+                  <span className="ml-2 text-xs text-neutral-500">
+                    ({new Date(course.startDate).toLocaleDateString('de-DE')})
+                  </span>
+                )}
               </li>
             ))}
           </ul>
