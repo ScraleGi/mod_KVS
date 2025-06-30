@@ -117,10 +117,17 @@ export default async function CoursePage({ params }: CoursePageProps) {
                       {/* Participant Name & Status */}
                       <div className="md:w-1/4 w-full mb-2 md:mb-0">
                         <Link
+
+
                         href={`/courseregistration/${reg?.id}`}
                           className="font-semibold text-blue-600 underline hover:text-blue-800"
+
+
+
                           // href={`/course/${course.id}/participantDetails/${reg.participant?.id}`}
                           // className="font-semibold text-blue-600 hover:text-blue-800"
+
+
                         >
                           {reg.participant?.name ?? 'Unknown'}
                         </Link>

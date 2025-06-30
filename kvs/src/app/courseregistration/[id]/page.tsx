@@ -11,10 +11,8 @@ interface CourseRegistrationPageProps {
 
 const prisma = new PrismaClient();
 
-export default async function CourseRegistrationPage({
-  params,
-}: CourseRegistrationPageProps) {
-  const { id } =  await params;
+export default async function CourseRegistrationPage({ params }: CourseRegistrationPageProps) {
+  const { id } = params;
 
   const registration = await prisma.courseRegistration.findUnique({
     where: { id },
@@ -24,9 +22,6 @@ export default async function CourseRegistrationPage({
       invoices: true,
     },
   });
-
-  // Debugging output
-  console.log(registration, 'Registration fetched for ID:', id);
 
   if (!registration) {
     return (
@@ -39,7 +34,6 @@ export default async function CourseRegistrationPage({
     );
   }
 
-  //filename generation
   const participantName = registration.participant.name.replace(/\s+/g, '_');
   const dateStr = new Date().toISOString().split('T')[0];
   const certificateFilename = `certificate_${participantName}_${dateStr}.pdf`;
@@ -47,103 +41,71 @@ export default async function CourseRegistrationPage({
   const teilnahmebestaetigungFilename = `Teilnahmebestaetigung_${participantName}_${dateStr}.pdf`;
 
   return (
-    <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-xl font-semibold text-gray-800 mb-6">
-        {registration.participant.name}
-      </h2>
-      <DownloadPDFButton
-        registration={registration}
-        type="certificate"
-        filename={certificateFilename}
-      />
-      <DownloadPDFButton
-        registration={registration}
-        type="KursRegeln"
-        filename={kursRegelnFilename}
-      />
+    <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      <div className="container mx-auto max-w-2xl py-8 px-4">
+        {/* Navigation */}
+        <div className="flex gap-4 mb-6">
+          <Link href="/course" className="text-blue-500 hover:underline">
+            &larr; Back to Courses
+          </Link>
+          <Link href="/" className="text-blue-500 hover:underline">
+            &larr; Back to Home
+          </Link>
+        </div>
 
-      <DownloadPDFButton
-        registration={registration}
-        type="Teilnahmebestaetigung"
-        filename={teilnahmebestaetigungFilename}
-      />
+        {/* Participant Card */}
+        <div className="bg-white shadow rounded-lg p-6 mb-6">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">{registration.participant.name}</h2>
+
+          <div className="mb-4">
+            <div className="text-sm text-gray-600">
+              <span className="font-semibold">Course:</span> {registration.course?.program?.name ?? 'N/A'}
+            </div>
+            <div className="text-sm text-gray-600">
+              <span className="font-semibold">Trainer:</span> {registration.course?.mainTrainer?.name ?? 'N/A'}
+            </div>
+          </div>
+
+          {/* Button Section - Equal Row Height */}
+          <div className="space-y-3">
+            {/* Certificate Row */}
+            <div className="flex items-center justify-between bg-blue-50 rounded px-4 py-3 h-14">
+              <span className="font-medium text-blue-700 truncate">Certificate PDF</span>
+              <div className="flex-shrink-0">
+                <DownloadPDFButton
+                  registration={registration}
+                  type="certificate"
+                  filename={certificateFilename}
+                />
+              </div>
+            </div>
+
+            {/* Kursregeln Row */}
+            <div className="flex items-center justify-between bg-emerald-50 rounded px-4 py-3 h-14">
+              <span className="font-medium text-emerald-700 truncate">Kursregeln PDF</span>
+              <div className="flex-shrink-0">
+                <DownloadPDFButton
+                  registration={registration}
+                  type="KursRegeln"
+                  filename={kursRegelnFilename}
+                />
+              </div>
+            </div>
+
+            {/* Teilnahmebestätigung Row */}
+            <div className="flex items-center justify-between bg-yellow-50 rounded px-4 py-3 h-14">
+              <span className="font-medium text-yellow-700 truncate">Teilnahmebestätigung PDF</span>
+              <div className="flex-shrink-0">
+                <DownloadPDFButton
+                  registration={registration}
+                  type="Teilnahmebestaetigung"
+                  filename={teilnahmebestaetigungFilename}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
-
-
-/* This code was made with gyula
-import React from 'react'
-import Link from 'next/link'
-import { $Enums, PrismaClient } from '../../../../generated/prisma/client'
-import { savePDF } from '@/utils/fileStorage'
-import { generatePDF } from '@/utils/generatePDF'
-
-interface CourseRegistrationPageProps {
-  params: {
-    id: string
-  }
-}
-
-const prisma = new PrismaClient()
-
-export default async function CourseRegistrationPage({ params }: CourseRegistrationPageProps) {
-    const { id } = await params
-
-    console.log('Fetching registration for ID:', id)
-    const registration = await prisma.courseRegistration.findUnique({
-    where: { id },
-    include: {
-      course: { include: { program: { include: {area: true }}, mainTrainer: true } },
-      participant: true,
-      invoices: true,
-    },
-  })
-
-  console.log('Registration:', registration)
-
-    if (!registration) {
-        return (
-            <div className="container mx-auto py-8 px-4">
-                <Link href="/" className="text-blue-500 hover:underline mb-6 block">
-                    &larr; Back to Home
-                </Link>
-                <div className="text-red-600 text-lg font-semibold">Registration not found.</div>
-            </div>
-        )
-    }
-
-
-
-    return (
-        <div>
-          <div>Hello World!</div>
-            <form action={async () => {
-            'use server'
-            // Call your server function here, e.g. generateCertificate(registration.id)
-            // You can import and call a server action or API route
-            console.log('Certificate button clicked for registration:', registration.id)
-            
-              const pdfBuffer = await generatePDF('certificate', registration)
-              await savePDF('test.pdf', pdfBuffer);
-            }}>
-            <button type="submit" className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-              certificate
-            </button>
-            </form>
-
-            <form action={async () => {
-            'use server'
-              const pdfBuffer = await generatePDF('KursRegeln', registration)
-              await savePDF('kursregeln.pdf', pdfBuffer);
-            }}>
-            <button type="submit" className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-              Kurs Regeln
-            </button>
-            </form>
-        </div>
-    )
-
-}
-
-*/
