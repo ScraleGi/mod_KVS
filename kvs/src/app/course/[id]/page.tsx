@@ -13,7 +13,7 @@ const prisma = new PrismaClient()
 export default async function CoursePage({ params }: CoursePageProps) {
   const { id } = await params
 
-  // Fetch course with related data
+  // Fetch course with related data, including generatedDocuments for each registration
   const course = await prisma.course.findUnique({
     where: { id },
     include: {
@@ -24,6 +24,10 @@ export default async function CoursePage({ params }: CoursePageProps) {
         include: {
           participant: true,
           invoices: true,
+          generatedDocuments: {
+            where: { deletedAt: null },
+            orderBy: { createdAt: 'desc' }
+          }
         },
       },
     },
@@ -56,34 +60,46 @@ export default async function CoursePage({ params }: CoursePageProps) {
         <h1 className="text-3xl font-bold mb-6">{course.program?.name ?? 'Course'}</h1>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Main course details and participants */}
           <div className="md:col-span-2">
-            <div className="bg-white shadow rounded-lg p-6 mb-6">
-              <p className="text-gray-600 mb-4">Course ID: {course.id}</p>
-              <div className="flex items-center mb-4">
-                <span className="font-semibold mr-2">Program:</span>
-                <span>{course.program?.name ?? 'Unknown'}</span>
+            <div className="bg-white shadow rounded-lg p-6 mb-6 flex flex-col md:flex-row md:gap-8">
+              <div className="flex-1">
+                <div className="flex items-center mb-4">
+                  <span className="font-semibold mr-2">Area:</span>
+                  <span>{course.program?.area?.name ?? 'Unknown'}</span>
+                </div>
+                <div className="flex items-center mb-4">
+                  <span className="font-semibold mr-2">Trainer:</span>
+                  <span>{course.mainTrainer?.name ?? 'N/A'}</span>
+                  {course.trainers && course.trainers.length > 0 && (
+                    <span className="ml-2 text-xs text-gray-600 bg-gray-100 rounded px-2 py-1">
+                      Additional: {course.trainers.map(t => t.name).join(', ')}
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center mb-4">
+                  <span className="font-semibold mr-2">Start Date:</span>
+                  <span>{course.startDate ? new Date(course.startDate).toLocaleDateString() : 'N/A'}</span>
+                </div>
+                <div className="flex items-center mb-4">
+                  <span className="font-semibold mr-2">Registrations:</span>
+                  <span>{course.registrations.length}</span>
+                </div>
               </div>
-              <div className="flex items-center mb-4">
-                <span className="font-semibold mr-2">Area:</span>
-                <span>{course.program?.area?.name ?? 'Unknown'}</span>
-              </div>
-              <div className="flex items-center mb-4">
-                <span className="font-semibold mr-2">Trainer:</span>
-                <span>{course.mainTrainer?.name ?? 'N/A'}</span>
-              {/* Optionally show additional trainers */}
-              {course.trainers && course.trainers.length > 0 && (
-                <span className="ml-2 text-xs text-gray-600 bg-gray-100 rounded px-2 py-1">
-                  Additional: {course.trainers.map(t => t.name).join(', ')}
-                </span>
-              )}
-              </div>
-              <div className="flex items-center mb-4">
-                <span className="font-semibold mr-2">Start Date:</span>
-                <span>{course.startDate ? new Date(course.startDate).toLocaleDateString() : 'N/A'}</span>
-              </div>
-              <div className="flex items-center mb-4">
-                <span className="font-semibold mr-2">Registrations:</span>
-                <span>{course.registrations.length}</span>
+              {/* Actions column */}
+              <div className="flex flex-col gap-2 md:w-48 w-full mt-4 md:mt-0">
+                <button
+                  type="button"
+                  className="cursor-pointer w-full px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium rounded border border-blue-200 shadow-sm transition text-sm"
+                >
+                  Generate Diplom
+                </button>
+                <button
+                  type="button"
+                  className="cursor-pointer w-full px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-medium rounded border border-emerald-200 shadow-sm transition text-sm"
+                >
+                  Generate Invoice
+                </button>
               </div>
             </div>
 
@@ -94,18 +110,23 @@ export default async function CoursePage({ params }: CoursePageProps) {
               ) : (
                 <ul className="divide-y divide-gray-200">
                   {course.registrations.map(reg => (
-                    <li key={reg.id} className="py-2 flex flex-col md:flex-row md:items-center md:justify-between">
-                      <div>
+                    <li
+                      key={reg.id}
+                      className="py-4 flex flex-col md:flex-row md:items-start md:gap-6"
+                    >
+                      {/* Participant Name & Status */}
+                      <div className="md:w-1/4 w-full mb-2 md:mb-0">
                         <Link
-                          href={`/participant/${reg.participant?.id}`}
+                          href={`/course/${course.id}/participantDetails?participantId=${reg.participant?.id}`}
                           className="font-semibold text-blue-600 hover:text-blue-800"
                         >
                           {reg.participant?.name ?? 'Unknown'}
                         </Link>
                         <span className="ml-2 text-gray-500 text-sm">({reg.status})</span>
                       </div>
-                      <div className="text-sm text-gray-600">
-                        Invoice(s):{" "}
+                      {/* Invoices */}
+                      <div className="md:w-1/3 w-full mb-2 md:mb-0 text-sm text-gray-600">
+                        <span className="font-semibold">Invoice(s): </span>
                         {reg.invoices.length
                           ? reg.invoices.map((inv, idx) => (
                               <React.Fragment key={inv.id}>
@@ -113,12 +134,34 @@ export default async function CoursePage({ params }: CoursePageProps) {
                                   href={`/invoice/${inv.id}`}
                                   className="text-blue-600 hover:text-blue-800"
                                 >
-                                  #{inv.transactionNumber}: €{inv.amount}
+                                  #{inv.transactionNumber}
                                 </Link>
                                 {idx < reg.invoices.length - 1 && ", "}
                               </React.Fragment>
                             ))
-                          : "No invoice"}
+                          : "No invoices"}
+                      </div>
+                      {/* Documents */}
+                      <div className="md:w-1/3 w-full text-sm text-gray-600">
+                        <span className="font-semibold">Document(s): </span>
+                        {reg.generatedDocuments && reg.generatedDocuments.length > 0 ? (
+                          reg.generatedDocuments.map((doc, idx) => (
+                            <React.Fragment key={doc.id}>
+                              <a
+                                href={doc.file}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 hover:text-blue-800 underline"
+                              >
+                                {doc.file.split('/').pop()}
+                              </a>
+                              <span className="ml-1 text-xs text-gray-500">({doc.role})</span>
+                              {idx < reg.generatedDocuments.length - 1 && ", "}
+                            </React.Fragment>
+                          ))
+                        ) : (
+                          "No documents"
+                        )}
                       </div>
                     </li>
                   ))}

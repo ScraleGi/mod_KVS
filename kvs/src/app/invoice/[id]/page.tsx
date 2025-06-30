@@ -97,15 +97,23 @@ export default async function InvoicePage({ params }: InvoicePageProps) {
             ))}
         </div>
         <div className="flex flex-row gap-6 mt-8">
+       <div className="flex flex-row gap-6 mt-8">
           <Link
             href={`/participant/${invoice.courseRegistration?.participant?.id}`}
             className="text-blue-500 hover:underline text-sm"
           >
             &larr; Back to Participant
           </Link>
+          <Link
+            href={`/course/${invoice.courseRegistration?.course?.id}`}
+            className="text-blue-500 hover:underline text-sm"
+          >
+            &larr; Back to Course
+          </Link>
           <Link href="/" className="text-blue-500 hover:underline text-sm">
             &larr; Back to Home
           </Link>
+        </div>
         </div>
       </div>
     </div>

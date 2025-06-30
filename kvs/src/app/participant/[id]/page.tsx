@@ -13,7 +13,7 @@ interface ParticipantPageProps {
 }
 
 export default async function ParticipantPage({ params, searchParams }: ParticipantPageProps) {
-  const { id } = await params
+  const { id } = params
 
   // Fetch participant and their registrations
   const participant = await prisma.participant.findUnique({
@@ -39,6 +39,25 @@ export default async function ParticipantPage({ params, searchParams }: Particip
     },
     include: { program: true }
   })
+
+  // Fetch all documents for this participant (not soft-deleted)
+  const registrationIds = participant?.registrations.map(r => r.id) ?? []
+  const documents = registrationIds.length
+    ? await prisma.document.findMany({
+        where: {
+          courseRegistrationId: { in: registrationIds },
+          deletedAt: null,
+        },
+        orderBy: { createdAt: 'desc' },
+        include: {
+          courseRegistration: {
+            include: {
+              course: { include: { program: true } }
+            }
+          }
+        }
+      })
+    : []
 
   // Server action to register participant in a course
   async function registerToCourse(formData: FormData) {
@@ -88,7 +107,6 @@ export default async function ParticipantPage({ params, searchParams }: Particip
         name: recipientName,
         email: recipientEmail || null,
         address: recipientAddress || null,
-        // Optionally: participantId: id if recipientType === 'PERSON'
       }
     })
 
@@ -113,6 +131,17 @@ export default async function ParticipantPage({ params, searchParams }: Particip
     const invoiceId = formData.get("invoiceId") as string
     await prisma.invoice.delete({
       where: { id: invoiceId }
+    })
+    revalidatePath(`/participant/${id}`)
+  }
+
+  // Server action to soft-delete a document
+  async function removeDocument(formData: FormData) {
+    "use server"
+    const documentId = formData.get("documentId") as string
+    await prisma.document.update({
+      where: { id: documentId },
+      data: { deletedAt: new Date() }
     })
     revalidatePath(`/participant/${id}`)
   }
@@ -253,6 +282,50 @@ export default async function ParticipantPage({ params, searchParams }: Particip
     }
   ]
 
+  // Document listing data
+  const documentFields = [
+    {
+      label: 'Document',
+      render: (doc: any) => (
+        <div className="flex items-center gap-2">
+          <a
+            href={doc.file}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-700 hover:text-blue-900 font-medium text-sm"
+          >
+            {doc.file.split('/').pop()}
+          </a>
+          {doc.courseRegistration?.course?.program?.name && (
+            <span className="text-xs text-neutral-400 ml-2">
+              {doc.courseRegistration.course.program.name}
+            </span>
+          )}
+        </div>
+      ),
+      width: 'flex-[2]'
+    },
+    {
+      label: 'File',
+      render: (doc: any) => (
+        <div className="flex items-center h-full text-neutral-700 text-sm">
+          {(() => {
+            const ext = doc.file.split('.').pop()?.toUpperCase() || '';
+            return ext;
+          })()}
+        </div>
+      ),
+      width: 'flex-1'
+    },
+    {
+      label: 'Role',
+      render: (doc: any) => (
+        <div className="flex items-center h-full text-neutral-700 text-sm">{doc.role}</div>
+      ),
+      width: 'flex-1'
+    }
+  ]
+
   // Flatten all invoices for listing
   const allInvoices = participant.registrations.flatMap(reg =>
     reg.invoices.map(inv => ({
@@ -336,6 +409,30 @@ export default async function ParticipantPage({ params, searchParams }: Particip
               />
             }
           />
+        </section>
+
+        {/* Documents Section */}
+        <section className="px-8 py-6 border-b border-neutral-200">
+          <AlignedList
+            items={documents}
+            fields={documentFields}
+            actions={doc => (
+              <form action={removeDocument}>
+                <input type="hidden" name="documentId" value={doc.id} />
+                <button
+                  type="submit"
+                  className="cursor-pointer flex items-center justify-center w-7 h-7 rounded-full bg-neutral-100 text-neutral-400 hover:text-red-500 hover:bg-red-50 border border-transparent hover:border-red-200 transition"
+                  title="Remove document"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 12h12" />
+                  </svg>
+                </button>
+              </form>
+            )}
+            emptyText="No documents found"
+          />
+
         </section>
 
         {/* Navigation */}
