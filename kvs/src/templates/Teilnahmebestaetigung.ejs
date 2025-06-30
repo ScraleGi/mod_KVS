@@ -19,22 +19,22 @@ const options = { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Eur
 
     <h1>Teilnahmebestätigung</h1>
 <ul>
-    <li>Ausbildung: <%=registration.course.program.name %></li>
+    <li>Ausbildung: <%=course.program.name %></li>
     <li>Ort: kkursort prisma</li>
     <li>Nummer:</li>
-    <li>Unerricht: <%= registration.course.program.teachingUnits %> + Trainingseinheiten von a !prismakurstunden! Wochenstunden </kurstunden></li>
-    <li>Beginn/Ende: <%= new Date(registration.course.startDate).toLocaleDateString('de-DE', ao) %> - end date </li>
+    <li>Unerricht: <%= course.program.teachingUnits %> + Trainingseinheiten von a !prismakurstunden! Wochenstunden </kurstunden></li>
+    <li>Beginn/Ende: <%= new Date(course.startDate).toLocaleDateString('de-DE', ao) %> - end date </li>
     <li>Praktikum/Projekt: !kurstage von bis! (wie viele ECT für project vorgesehen sind)</li>
     <li>Beginn/Ende: !projekt start date - projekt end date!</li>
 </ul>
 
-Wir bestätigen hiermit, das <%= registration.participant.name %> an der Ausbildung <%= registration.course.program.name %> teilnimmt un dieser Kurs
-im Rahmen von <%= registration.course.program.teachingUnits %> unterichteinheinenvon start - end stattfinden wird 
+Wir bestätigen hiermit, das <%= participant.name %> an der Ausbildung <%= course.program.name %> teilnimmt un dieser Kurs
+im Rahmen von <%= course.program.teachingUnits %> unterichteinheinenvon start - end stattfinden wird 
 Für Fragen oder Auskünfte stehen wir Ihnen unter der Telefonummer +43 (0)50 258 8614 bzw per Email an info@digitalcampusvorarlberg.at gerne zur verfügung.
 
 <ul>
     <li>prisma titel</li>
-    <li> <%= registration.participant.name %> </li>
+    <li> <%= participant.name %> </li>
     <li>particiant.adress</li>
     <li>participant ort</li>
 </ul>
