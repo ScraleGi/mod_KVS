@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+<% 
+    const ao = { day: 'numeric', month: 'numeric', year: 'numeric', timeZone: 'Europe/Berlin' };
+%>
+
+<%
+const options = { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/Berlin' };
+  const formattedDate = new Date().toLocaleDateString('de-DE', options); %>
+
+<p>Feldkrich(current place), <%= formattedDate  %></p> this one the right side of the page 
+
+    <h1>Teilnahmebestätigung</h1>
+<ul>
+    <li>Ausbildung: <%=course.program.name %></li>
+    <li>Ort: kkursort prisma</li>
+    <li>Nummer:</li>
+    <li>Unerricht: <%= course.program.teachingUnits %> + Trainingseinheiten von a !prismakurstunden! Wochenstunden </kurstunden></li>
+    <li>Beginn/Ende: <%= new Date(course.startDate).toLocaleDateString('de-DE', ao) %> - end date </li>
+    <li>Praktikum/Projekt: !kurstage von bis! (wie viele ECT für project vorgesehen sind)</li>
+    <li>Beginn/Ende: !projekt start date - projekt end date!</li>
+</ul>
+
+Wir bestätigen hiermit, das <%= participant.name %> an der Ausbildung <%= course.program.name %> teilnimmt un dieser Kurs
+im Rahmen von <%= course.program.teachingUnits %> unterichteinheinenvon start - end stattfinden wird 
+Für Fragen oder Auskünfte stehen wir Ihnen unter der Telefonummer +43 (0)50 258 8614 bzw per Email an info@digitalcampusvorarlberg.at gerne zur verfügung.
+
+<ul>
+    <li>prisma titel</li>
+    <li> <%= participant.name %> </li>
+    <li>particiant.adress</li>
+    <li>participant ort</li>
+</ul>
+this on teh left side of the page upper
+
+
+freundliche Grüße 
+
+
+Thomas Berchtold<br>
+Geschäftsführer 
+</body>
+</html>
+
+  

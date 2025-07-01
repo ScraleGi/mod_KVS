@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { PrismaClient } from '../../../../generated/prisma/client';
-import { DownloadPDFButton } from '../../../components/';
+import { DownloadPDFButton } from '../../../components/DownloadButton/DownloadButton';
 
 interface CourseRegistrationPageProps {
   params: {
@@ -73,6 +73,7 @@ export default async function CourseRegistrationPage({ params }: CourseRegistrat
               <span className="font-medium text-blue-700 truncate">Certificate PDF</span>
               <div className="flex-shrink-0">
                 <DownloadPDFButton
+                  uuidString={registration.id}
                   registration={registration}
                   documentType="certificate"
                   filename={certificateFilename}
@@ -85,6 +86,7 @@ export default async function CourseRegistrationPage({ params }: CourseRegistrat
               <span className="font-medium text-emerald-700 truncate">Kursregeln PDF</span>
               <div className="flex-shrink-0">
                 <DownloadPDFButton
+                  uuidString={registration.id}
                   registration={registration}
                   documentType="KursRegeln"
                   filename={kursRegelnFilename}
@@ -97,6 +99,7 @@ export default async function CourseRegistrationPage({ params }: CourseRegistrat
               <span className="font-medium text-yellow-700 truncate">Teilnahmebestätigung PDF</span>
               <div className="flex-shrink-0">
                 <DownloadPDFButton
+                  uuidString={registration.id}
                   registration={registration}
                   documentType="Teilnahmebestaetigung"
                   filename={teilnahmebestaetigungFilename}
