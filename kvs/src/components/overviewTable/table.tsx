@@ -43,13 +43,14 @@ import {
 export type Participant = {
   id: string
   name: string
-  status: string
+  surname: string
   invoice: string
 }
 
 export type ParticipantRow = {
   id: string
   name: string
+  surname: string
   email: string
   phoneNumber: string
   courses: { id: string; name: string; startDate?: string | Date }[] // <-- Add startDate here
@@ -313,7 +314,7 @@ export const participantColumns: ColumnDef<ParticipantRow>[] = [
         href={`/participant/${row.original.id}`}
         className="relative text-blue-600 hover:text-blue-800 pl-8 inline-block after:content-[''] after:absolute after:left-8 after:bottom-0 after:w-0 hover:after:w-[calc(100%-2rem)] after:h-[2px] after:bg-blue-600 after:transition-all after:duration-300"
       >
-        {row.getValue("name")}
+        {row.original.name} {row.original.surname}
       </Link>
     ),
   },

@@ -6,7 +6,7 @@ const prisma = new PrismaClient()
 
 export default async function AreaDetailPage({ params }: { params: { id: string } }) {
   const area = await prisma.area.findUnique({
-    where: { id: params.id, deletedAt: null },
+    where: { id: await params.id, deletedAt: null },
     include: {
       programs: {
         where: { deletedAt: null },
