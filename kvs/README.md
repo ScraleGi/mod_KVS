@@ -63,6 +63,24 @@ npm run dev
 Öffne [http://localhost:3000](http://localhost:3000) im Browser.
 
 ---
+### 5. lokale pdf generierung
+
+.env:
+STORAGE_ROOT="PFAD" einfügen.
+
+info: 
+1. auf explorer den pfad kopiereen = PFAD
+2. den PFAD in STORAGE_ROOT=PFAD in der .env datei einfügen
+3. die \-backlslahses zusätlichen backslash zufügen
+
+bsp: 
+
+Ein Ordner in Downloads erstellen mit den namen kvs-pdf
+den ordner öffnen und den PFAD oberhalb kopieren = C:\Users\Hafiz2\Downloads\kvs-pdf
+einen zusätzlichen backslash zu den backslahses zufügen C:\\Users\\Hafiz2\\Downloads\\kvs-pdf
+
+STORAGE_ROOT="C:\\Users\\Hafiz2\\Downloads\\kvs-pdf"
+
 
 ## Wichtige Technologien
 
