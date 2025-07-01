@@ -2,17 +2,17 @@ import { PrismaClient, RecipientType } from '../../../../../../generated/prisma/
 import Link from 'next/link'
 import { revalidatePath } from 'next/cache'
 import crypto from 'crypto'
+import type { Invoice, Document } from '../../../../../../generated/prisma/client'
 
 const prisma = new PrismaClient()
 
 export default async function ParticipantDetailsPage({
-  params
+  params,
 }: {
-  params: { id: string, participantId? : string }
+  params: { id: string, participantId?: string } | Promise<{ id: string, participantId?: string }>
 }) {
   const { id, participantId } = await params
   const courseId = id
-
 
   if (!participantId) {
     return (
@@ -124,10 +124,14 @@ export default async function ParticipantDetailsPage({
   }
 
   // Invoice listing data for this registration
-  const invoiceFields = [
+  const invoiceFields: {
+    label: string,
+    render: (inv: Invoice) => React.ReactNode,
+    width?: string
+  }[] = [
     {
       label: 'Invoice',
-      render: (inv: any) => (
+      render: (inv) => (
         <div className="flex items-center gap-2">
           <Link
             href={`/invoice/${inv.id}`}
@@ -141,7 +145,7 @@ export default async function ParticipantDetailsPage({
     },
     {
       label: 'Amount',
-      render: (inv: any) => (
+      render: (inv) => (
         <div className="flex items-center h-full text-neutral-700 text-sm">€{inv.amount}</div>
       ),
       width: 'flex-1'
@@ -149,10 +153,14 @@ export default async function ParticipantDetailsPage({
   ]
 
   // Document listing fields
-  const documentFields = [
+  const documentFields: {
+    label: string,
+    render: (doc: Document) => React.ReactNode,
+    width?: string
+  }[] = [
     {
       label: 'Document',
-      render: (doc: any) => (
+      render: (doc) => (
         <div className="flex items-center gap-2">
           <a
             href={doc.file}
@@ -168,7 +176,7 @@ export default async function ParticipantDetailsPage({
     },
     {
       label: 'File',
-      render: (doc: any) => (
+      render: (doc) => (
         <div className="flex items-center h-full text-neutral-700 text-sm">
           {(() => {
             const ext = doc.file.split('.').pop()?.toUpperCase() || '';
@@ -180,7 +188,7 @@ export default async function ParticipantDetailsPage({
     },
     {
       label: 'Role',
-      render: (doc: any) => (
+      render: (doc) => (
         <div className="flex items-center h-full text-neutral-700 text-sm">{doc.role}</div>
       ),
       width: 'flex-1'
@@ -309,7 +317,7 @@ export default async function ParticipantDetailsPage({
 
         {/* Invoices Section */}
         <section className="px-8 py-6 border-b border-neutral-200">
-          <AlignedList
+          <AlignedList<Invoice>
             items={registration.invoices}
             fields={invoiceFields}
             actions={inv => (
@@ -332,7 +340,7 @@ export default async function ParticipantDetailsPage({
 
         {/* Documents Section */}
         <section className="px-8 py-6 border-b border-neutral-200">
-          <AlignedList
+          <AlignedList<Document>
             items={documents}
             fields={documentFields}
             actions={doc => (
