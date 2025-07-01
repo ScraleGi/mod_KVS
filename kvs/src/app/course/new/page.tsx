@@ -1,6 +1,6 @@
 import { PrismaClient } from '../../../../generated/prisma/client'
+import React from 'react'
 import { redirect } from 'next/navigation'
-import Link from 'next/link'
 import EditCourseForm from '@/components/course/CreateCourseForm'
 
 const prisma = new PrismaClient()
