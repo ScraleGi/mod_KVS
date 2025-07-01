@@ -881,12 +881,9 @@ async function seedInvoices(
   })
 }
 
-<<<<<<< HEAD
 // -------------------- Document Seeding --------------------  emin
 // here are we seed documents related to course registrations
-=======
 // -------------------- Document Seeding --------------------
->>>>>>> main
 async function seedDocuments(
   programMap: Record<string, string>,
   courseMap: Record<string, string>,
