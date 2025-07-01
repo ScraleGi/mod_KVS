@@ -76,10 +76,12 @@ info:
 bsp: 
 
 Ein Ordner in Downloads erstellen mit den namen kvs-pdf
-den ordner öffnen und den PFAD oberhalb kopieren = C:\Users\Hafiz2\Downloads\kvs-pdf
-einen zusätzlichen backslash zu den backslahses zufügen C:\\Users\\Hafiz2\\Downloads\\kvs-pdf
+den ordner öffnen und den PFAD oberhalb kopieren = C:\Users\DeviceUserName\Downloads\kvs-pdf
+einen zusätzlichen backslash zu den backslahses zufügen C:\\Users\\DeviceUserName\\Downloads\\kvs-pdf
 
-STORAGE_ROOT="C:\\Users\\Hafiz2\\Downloads\\kvs-pdf"
+DeviceUserName= ist der Benutzername im Pc/laptop also
+
+STORAGE_ROOT="C:\\Users\\DeviceUserName\\Downloads\\kvs-pdf"
 
 
 ## Wichtige Technologien
