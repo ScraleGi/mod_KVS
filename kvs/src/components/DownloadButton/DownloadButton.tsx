@@ -5,20 +5,15 @@ import { generateAndDownloadPDF } from '@/app/actions/pdfActions'
 
 type Props = {
   registration: any
-  type: string
+  documentType: string
   filename: string
 }
 
-const typeToLabel: Record<string, string> = {
-  certificate: 'Certificate herunterladen',
-  KursRegeln: 'Kursregeln herunterladen',
-  Teilnahmebestaetigung: 'Teilnahmebestaetigung herunterladen',
-}
 
-export function DownloadPDFButton({ registration, type, filename }: Props) {
+export function DownloadPDFButton({ registration, documentType, filename }: Props) {
   const handleDownload = async () => {
     try {
-      const buffer = await generateAndDownloadPDF(type, registration, filename)
+      const buffer = await generateAndDownloadPDF(documentType, registration, filename)
 
       const blob = new Blob([buffer], { type: 'application/pdf' })
       const link = document.createElement('a')
@@ -38,7 +33,7 @@ export function DownloadPDFButton({ registration, type, filename }: Props) {
       className="w-full mb-4 px-4 py-3 bg-green-600 text-white font-medium rounded hover:bg-green-700 transition-colors duration-200"
       onClick={handleDownload}
     >
-      {typeToLabel[type] || 'PDF herunterladen'}
+      {documentType + " herunterladen" || 'PDF herunterladen'}
     </button>
   )
 }

@@ -12,7 +12,7 @@ interface CourseRegistrationPageProps {
 const prisma = new PrismaClient();
 
 export default async function CourseRegistrationPage({ params }: CourseRegistrationPageProps) {
-  const { id } = params;
+  const { id } = await params;
 
   const registration = await prisma.courseRegistration.findUnique({
     where: { id },
@@ -74,7 +74,7 @@ export default async function CourseRegistrationPage({ params }: CourseRegistrat
               <div className="flex-shrink-0">
                 <DownloadPDFButton
                   registration={registration}
-                  type="certificate"
+                  documentType="certificate"
                   filename={certificateFilename}
                 />
               </div>
@@ -86,7 +86,7 @@ export default async function CourseRegistrationPage({ params }: CourseRegistrat
               <div className="flex-shrink-0">
                 <DownloadPDFButton
                   registration={registration}
-                  type="KursRegeln"
+                  documentType="KursRegeln"
                   filename={kursRegelnFilename}
                 />
               </div>
@@ -98,7 +98,7 @@ export default async function CourseRegistrationPage({ params }: CourseRegistrat
               <div className="flex-shrink-0">
                 <DownloadPDFButton
                   registration={registration}
-                  type="Teilnahmebestaetigung"
+                  documentType="Teilnahmebestaetigung"
                   filename={teilnahmebestaetigungFilename}
                 />
               </div>
