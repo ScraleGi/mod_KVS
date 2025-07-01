@@ -10,6 +10,11 @@ interface CoursePageProps {
 
 const prisma = new PrismaClient()
 
+function formatDateGerman(date: Date | string | null | undefined) {
+  if (!date) return 'N/A'
+  return new Date(date).toLocaleDateString('de-DE')
+}
+
 export default async function CoursePage({ params }: CoursePageProps) {
   const { id } = await params
 
@@ -70,16 +75,20 @@ export default async function CoursePage({ params }: CoursePageProps) {
                 </div>
                 <div className="flex items-center mb-4">
                   <span className="font-semibold mr-2">Trainer:</span>
-                  <span>{course.mainTrainer?.name ?? 'N/A'}</span>
+                  <span>
+                    {course.mainTrainer
+                      ? `${course.mainTrainer.name} ${course.mainTrainer.surname ?? ''}`
+                      : 'N/A'}
+                  </span>
                   {course.trainers && course.trainers.length > 0 && (
                     <span className="ml-2 text-xs text-gray-600 bg-gray-100 rounded px-2 py-1">
-                      Additional: {course.trainers.map(t => t.name).join(', ')}
+                      Additional: {course.trainers.map(t => `${t.name} ${t.surname ?? ''}`).join(', ')}
                     </span>
                   )}
                 </div>
                 <div className="flex items-center mb-4">
                   <span className="font-semibold mr-2">Start Date:</span>
-                  <span>{course.startDate ? new Date(course.startDate).toLocaleDateString() : 'N/A'}</span>
+                  <span>{formatDateGerman(course.startDate)}</span>
                 </div>
                 <div className="flex items-center mb-4">
                   <span className="font-semibold mr-2">Registrations:</span>
@@ -114,15 +123,16 @@ export default async function CoursePage({ params }: CoursePageProps) {
                       key={reg.id}
                       className="py-4 flex flex-col md:flex-row md:items-start md:gap-6"
                     >
-                      {/* Participant Name & Status */}
+                      {/* Participant Name */}
                       <div className="md:w-1/4 w-full mb-2 md:mb-0">
                         <Link
                           href={`/course/${course.id}/participantDetails/${reg.participant?.id}`}
                           className="font-semibold text-blue-600 hover:text-blue-800"
                         >
-                          {reg.participant?.name ?? 'Unknown'}
+                          {reg.participant
+                            ? `${reg.participant.name} ${reg.participant.surname ?? ''}`
+                            : 'Unknown'}
                         </Link>
-                        <span className="ml-2 text-gray-500 text-sm">({reg.status})</span>
                       </div>
                       {/* Invoices */}
                       <div className="md:w-1/3 w-full mb-2 md:mb-0 text-sm text-gray-600">
@@ -134,8 +144,13 @@ export default async function CoursePage({ params }: CoursePageProps) {
                                   href={`/invoice/${inv.id}`}
                                   className="text-blue-600 hover:text-blue-800"
                                 >
-                                  #{inv.transactionNumber}
+                                  #{inv.invoiceNumber}
                                 </Link>
+                                {inv.dueDate && (
+                                  <span className="ml-1 text-xs text-gray-500">
+                                    (Fällig: {formatDateGerman(inv.dueDate)})
+                                  </span>
+                                )}
                                 {idx < reg.invoices.length - 1 && ", "}
                               </React.Fragment>
                             ))
@@ -156,6 +171,11 @@ export default async function CoursePage({ params }: CoursePageProps) {
                                 {doc.file.split('/').pop()}
                               </a>
                               <span className="ml-1 text-xs text-gray-500">({doc.role})</span>
+                              {doc.createdAt && (
+                                <span className="ml-1 text-xs text-gray-400">
+                                  [{formatDateGerman(doc.createdAt)}]
+                                </span>
+                              )}
                               {idx < reg.generatedDocuments.length - 1 && ", "}
                             </React.Fragment>
                           ))

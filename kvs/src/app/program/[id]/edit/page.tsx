@@ -128,10 +128,10 @@ export default async function EditProgramPage({ params }: EditProgramPageProps) 
                 <input
                   id="price"
                   name="price"
-                  type="number"
+                  type="decimal"
                   min={0}
                   step="0.01"
-                  defaultValue={program.price ?? ''}
+                  defaultValue={program.price ? program.price.toString() : ''}
                   className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                   placeholder="Enter price"
                 />

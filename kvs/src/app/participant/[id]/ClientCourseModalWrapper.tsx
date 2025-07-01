@@ -5,11 +5,9 @@ import AddCourseModal from '../../../components/forms/AddCourseModal' // Adjust 
 export default function ClientCourseModalWrapper({
   registerToCourse,
   availableCourses,
-  RegistrationStatus,
 }: {
   registerToCourse: (formData: FormData) => void
   availableCourses: any[]
-  RegistrationStatus: any
 }) {
   const [open, setOpen] = useState(false)
 
@@ -33,7 +31,6 @@ export default function ClientCourseModalWrapper({
           setOpen(false)
         }}
         availableCourses={availableCourses}
-        RegistrationStatus={RegistrationStatus}
       />
     </>
   )

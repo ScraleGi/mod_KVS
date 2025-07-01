@@ -11,7 +11,7 @@ export default async function DeletedItemsPage({
   params: { id: string }
   searchParams?: { participantId?: string }
 }) {
-  const courseId = params.id
+  const courseId = await params.id
   const participantId = searchParams?.participantId
 
   if (!participantId) {

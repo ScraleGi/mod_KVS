@@ -15,23 +15,23 @@ datasource db {
 }
 
 model Area {
-  id                  String @id @default(uuid())
-  name                String
-  description         String?
-  createdAt           DateTime @default(now())
-  deletedAt           DateTime? // Soft delete: null = not deleted, date = deleted
-  programs            Program[] // Relation: one Area has many Programs
+  id          String      @id @default(uuid())
+  name        String
+  description String?
+  createdAt   DateTime    @default(now())
+  deletedAt   DateTime?   // Soft delete: null = not deleted, date = deleted
+  programs    Program[]   // Relation: one Area has many Programs
   @@index([deletedAt])
 }
 
 model Program { 
   id            String      @id @default(uuid())
   name          String
-  description   String?     // optional
-  teachingUnits Int?        // optional
-  price         Decimal?    @db.Decimal(10, 2) 
+  description   String?                             // optional
+  teachingUnits Int?                                // optional
+  price         Decimal     @db.Decimal(10, 2)   
   createdAt     DateTime    @default(now())
-  deletedAt     DateTime?   // Soft delete: null = not deleted, date = deleted
+  deletedAt     DateTime?                           // Soft delete: null = not deleted, date = deleted
   areaId        String
   area          Area        @relation(fields: [areaId], references: [id])
   course        Course[]
@@ -54,48 +54,39 @@ model Course {
 }
 
 model CourseRegistration {
-  id                  String      @id @default(uuid())
-  courseId            String
-  course              Course      @relation(fields: [courseId], references: [id])
-  participantId       String
-  participant         Participant @relation(fields: [participantId], references: [id])
-  createdAt           DateTime    @default(now())
-  deletedAt           DateTime?
-  invoices            Invoice[]
-  generatedDocuments  Document[]  
+  id            String        @id @default(uuid())
+  courseId      String
+  course        Course        @relation(fields: [courseId], references: [id])
+  participantId String
+  participant   Participant   @relation(fields: [participantId], references: [id])
+  createdAt     DateTime      @default(now())
+  deletedAt     DateTime?
+  invoices      Invoice[]
+  generatedDocuments Document[]  
 
-  // Status timestamps (boolean flags removed)
-  infoSessionAt       DateTime?   // When info session was attended
-  registeredAt        DateTime?   // When registered
-  unregisteredAt      DateTime?   // When unregistered
-  interestedAt        DateTime?   // When shown interest
-
-  generalRemark       String?
-
-  // Subsidy and discount fields (amounts are nullable)
-  subsidyRemark       String?
-  subsidyAmount       Decimal?    @db.Decimal(10, 2)
-  discountRemark      String?
-  discountAmount      Decimal?    @db.Decimal(10, 2)
+  infoSession       Boolean   @default(false)   // Has visited info session
+  registered        Boolean   @default(false)   // Registered for this course
+  registeredAt      DateTime?                   // When registered
+  unregistered      Boolean   @default(false)   // Unregistered from this course
+  unregisteredAt    DateTime?                   // When unregistered
+  interested        Boolean   @default(false)   // Shown interest
+  interestedAt      DateTime?                   // When shown interest
+  remark            String?
+  subsidy           Boolean
+  subsidyAmount     Decimal   @db.Decimal(10, 2)
+  subsidyRemark     String? 
+  discount          Boolean
+  discountAmount    Decimal   @db.Decimal(10, 2)   
+  discountRemark    String?
 
   @@index([deletedAt])
-  @@index([courseId])
-  @@index([participantId])
 }
 
 model Trainer {
   id                String     @id @default(uuid())
   name              String
-  surname           String
-  salutation        String
-  title             String?
   email             String
   phoneNumber       String
-  birthday          DateTime
-  postalCode        String        
-  city              String
-  street            String
-  country           String
   createdAt         DateTime   @default(now())
   deletedAt         DateTime?
   mainCourses       Course[]   @relation("MainTrainer")
@@ -131,27 +122,26 @@ model Invoice {
   courseRegistration    CourseRegistration   @relation(fields: [courseRegistrationId], references: [id])
   isCancelled           Boolean              @default(false)
   dueDate               DateTime
-  transactionNumber     String?              @unique // <-- nullable
+  transactionNumber     String?
   recipientId           String
   recipient             InvoiceRecipient     @relation(fields: [recipientId], references: [id])
 }
 
 model InvoiceRecipient {
-  id                String       @id @default(uuid())
-  type              RecipientType
-  recipientName     String?      // Optional, only for PERSON required
-  recipientSurname  String?     // Optional, only for PERSON required
-  companyName       String?      // Optional, only for COMPANY required
-  recipientEmail    String
-  postalCode        String
-  recipientCity     String
-  recipientStreet   String
-  recipientCountry  String
-  createdAt         DateTime     @default(now())
-  deletedAt         DateTime?
-  participantId     String?      // Only set if PERSON
-  participant       Participant? @relation(fields: [participantId], references: [id])
-  invoices          Invoice[]
+  id             String          @id @default(uuid())
+  type           RecipientType
+  contactName    String
+  contactSurname String
+  email          String
+  postalCode     Int
+  city           String
+  street         String
+  country        String
+  createdAt      DateTime        @default(now())
+  deletedAt      DateTime?
+  participantId  String?         // <-- Only set if PERSON
+  participant    Participant?    @relation(fields: [participantId], references: [id])
+  invoices       Invoice[]
   @@index([deletedAt])
 }
 
@@ -160,38 +150,38 @@ enum RecipientType {
   COMPANY
 }
 
+
 model Document {
   id                    String               @id @default(uuid())
   role                  String
   file                  String               // URL to the file
   courseRegistrationId  String
   courseRegistration    CourseRegistration   @relation(fields: [courseRegistrationId], references: [id])
-  createdAt        DateTime  @default(now())
-  deletedAt        DateTime? // Soft delete: null = not deleted, date = deleted 
+  createdAt             DateTime             @default(now())
+  deletedAt             DateTime?            // Soft delete: null = not deleted, date = deleted 
 }
 
 model Room {
-  id              String   @id @default(uuid())
+  id              String              @id @default(uuid())
   name            String
   capacity        Int?
   location        String? 
-  createdAt       DateTime @default(now())
-  deletedAt       DateTime? // Soft delete: null = not deleted, date = deleted 
+  createdAt       DateTime            @default(now())
+  deletedAt       DateTime?           // Soft delete: null = not deleted, date = deleted 
   reservations    RoomReservation[]
   @@index([deletedAt])
 }
 
 model RoomReservation {
-  id               String    @id @default(uuid())
+  id               String       @id @default(uuid())
   name             String 
-  startTime        DateTime  //Kombination aus Datum + Uhrzeit
-  duration         Int       // Dauer in Minuten
+  startTime        DateTime     //Kombination aus Datum + Uhrzeit
+  duration         Int          // Dauer in Minuten
   endTime          DateTime 
-  roomId           String    // FK-Spalte für die Relation zu Room
-  room             Room      @relation(fields: [roomId], references: [id])
-  createdAt        DateTime  @default(now())
-  deletedAt        DateTime? // Soft delete: null = not deleted, date = deleted 
+  roomId           String       // FK-Spalte für die Relation zu Room
+  room             Room         @relation(fields: [roomId], references: [id])
+  createdAt        DateTime     @default(now())
+  deletedAt        DateTime?    // Soft delete: null = not deleted, date = deleted 
   @@index([deletedAt])
 }
-
 

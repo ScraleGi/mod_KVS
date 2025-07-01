@@ -108,7 +108,7 @@ export default async function NewProgramPage() {
                 <input
                   id="price"
                   name="price"
-                  type="number"
+                  type="decimal"
                   min={0}
                   step="0.01"
                   className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
