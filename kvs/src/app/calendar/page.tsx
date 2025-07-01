@@ -29,6 +29,7 @@ export default async function CalendarPage() {
     id: `holiday-${holiday.id}`,
     title: holiday.title + '(Feiertag)',
     start: holiday.date.toISOString(),
+    allDay: true,
     mainTrainer: '',
     coTrainers:[]
   }));
