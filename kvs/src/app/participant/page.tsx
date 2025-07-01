@@ -24,6 +24,7 @@ export default async function ParticipantOverviewPage() {
 const data: ParticipantRow[] = participants.map(p => ({
   id: p.id,
   name: p.name,
+  surname: p.surname,
   email: p.email,
   phoneNumber: p.phoneNumber,
   courses: p.registrations

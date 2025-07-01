@@ -101,11 +101,15 @@ export default async function Page() {
                   {course.startDate ? new Date(course.startDate).toLocaleDateString() : 'N/A'}
                 </div>
                 {/* Main Trainer */}
-                <div className="text-gray-700 truncate max-w-[120px]">{course.mainTrainer?.name || 'N/A'}</div>
+                <div className="text-gray-700 truncate max-w-[120px]">
+                {course.mainTrainer
+                  ? `${course.mainTrainer.name} ${course.mainTrainer.surname}`
+                  : 'N/A'}
+                </div>
                 {/* Additional Trainers */}
                 <div className="text-gray-700 truncate max-w-[160px]">
                   {course.trainers && course.trainers.length > 0
-                    ? course.trainers.map(t => t.name).join(', ')
+                    ? course.trainers.map(t => `${t.name} ${t.surname}`).join(', ')
                     : <span className="text-gray-400">—</span>}
                 </div>
                 {/* Registrations */}
