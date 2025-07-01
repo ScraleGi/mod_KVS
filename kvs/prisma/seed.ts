@@ -119,13 +119,11 @@ async function seedTrainers() {
     skipDuplicates: true,
   })
   const trainers = await prisma.trainer.findMany()
-  // Use full name for mapping (name only, as in your model)
   return Object.fromEntries(trainers.map(t => [`${t.name} ${t.surname}`, t.id]))
 }
 
 // -------------------- Course Seeding --------------------
 async function seedCourses(programMap: Record<string, string>, trainerMap: Record<string, string>) {
-  // Use both name and surname for mapping
   const courseData = [
     {
       program: 'AI Fundamentals',
@@ -215,7 +213,7 @@ async function seedParticipants() {
   await prisma.participant.createMany({
     data: [
       {
-        name: 'Charlie', // Only first name
+        name: 'Charlie',
         surname: 'Brown',
         salutation: 'Herr',
         title: 'B.Sc.',
@@ -689,68 +687,115 @@ async function seedRegistrations(
 // -------------------- InvoiceRecipient Seeding --------------------
 async function seedInvoiceRecipients(participantMap: Record<string, string>) {
   const recipients = [
+    // Company recipient
     {
       type: RecipientType.COMPANY,
-      name: "Joe's Firma",
-      email: 'info@joesfirma.com',
-      address: 'Business Street 1, 12345 City',
+      companyName: "Joe's Firma",
+      recipientEmail: 'info@joesfirma.com',
+      postalCode: '12345',
+      recipientCity: 'City',
+      recipientStreet: 'Business Street 1',
+      recipientCountry: 'DE',
       participantId: null,
+      recipientName: null,
+      recipientSurname: null,
     },
+    // Person recipients
     {
       type: RecipientType.PERSON,
-      name: 'Charlie Brown',
-      email: 'charlie.brown@example.com',
-      address: 'Participant Street 2, 54321 City',
+      recipientName: 'Charlie',
+      recipientSurname: 'Brown',
+      recipientEmail: 'charlie.brown@example.com',
+      postalCode: '10115',
+      recipientCity: 'Berlin',
+      recipientStreet: 'Musterstraße 1',
+      recipientCountry: 'DE',
       participantId: participantMap['Charlie Brown'],
+      companyName: null,
     },
     {
       type: RecipientType.PERSON,
-      name: 'Grace Lee',
-      email: 'grace.lee@example.com',
-      address: 'Participant Street 3, 54321 City',
+      recipientName: 'Grace',
+      recipientSurname: 'Lee',
+      recipientEmail: 'grace.lee@example.com',
+      postalCode: '70173',
+      recipientCity: 'Stuttgart',
+      recipientStreet: 'Nebenstraße 5',
+      recipientCountry: 'DE',
       participantId: participantMap['Grace Lee'],
+      companyName: null,
     },
     {
       type: RecipientType.PERSON,
-      name: 'Dana White',
-      email: 'dana.white@example.com',
-      address: 'Participant Street 4, 54321 City',
+      recipientName: 'Dana',
+      recipientSurname: 'White',
+      recipientEmail: 'dana.white@example.com',
+      postalCode: '20095',
+      recipientCity: 'Hamburg',
+      recipientStreet: 'Beispielweg 2',
+      recipientCountry: 'DE',
       participantId: participantMap['Dana White'],
+      companyName: null,
     },
     {
       type: RecipientType.PERSON,
-      name: 'Henry Ford',
-      email: 'henry.ford@example.com',
-      address: 'Participant Street 5, 54321 City',
+      recipientName: 'Henry',
+      recipientSurname: 'Ford',
+      recipientEmail: 'henry.ford@example.com',
+      postalCode: '80331',
+      recipientCity: 'München',
+      recipientStreet: 'Ringstraße 6',
+      recipientCountry: 'DE',
       participantId: participantMap['Henry Ford'],
+      companyName: null,
     },
     {
       type: RecipientType.PERSON,
-      name: 'Eve Adams',
-      email: 'eve.adams@example.com',
-      address: 'Participant Street 6, 54321 City',
+      recipientName: 'Eve',
+      recipientSurname: 'Adams',
+      recipientEmail: 'eve.adams@example.com',
+      postalCode: '50667',
+      recipientCity: 'Köln',
+      recipientStreet: 'Teststraße 3',
+      recipientCountry: 'DE',
       participantId: participantMap['Eve Adams'],
+      companyName: null,
     },
     {
       type: RecipientType.PERSON,
-      name: 'Karen Green',
-      email: 'karen.green@example.com',
-      address: 'Participant Street 7, 54321 City',
+      recipientName: 'Karen',
+      recipientSurname: 'Green',
+      recipientEmail: 'karen.green@example.com',
+      postalCode: '04109',
+      recipientCity: 'Leipzig',
+      recipientStreet: 'Gartenstraße 9',
+      recipientCountry: 'DE',
       participantId: participantMap['Karen Green'],
+      companyName: null,
     },
     {
       type: RecipientType.PERSON,
-      name: 'Frank Miller',
-      email: 'frank.miller@example.com',
-      address: 'Participant Street 8, 54321 City',
+      recipientName: 'Frank',
+      recipientSurname: 'Miller',
+      recipientEmail: 'frank.miller@example.com',
+      postalCode: '60311',
+      recipientCity: 'Frankfurt',
+      recipientStreet: 'Hauptstraße 4',
+      recipientCountry: 'DE',
       participantId: participantMap['Frank Miller'],
+      companyName: null,
     },
     {
       type: RecipientType.PERSON,
-      name: 'Mona Patel',
-      email: 'mona.patel@example.com',
-      address: 'Participant Street 9, 54321 City',
+      recipientName: 'Mona',
+      recipientSurname: 'Patel',
+      recipientEmail: 'mona.patel@example.com',
+      postalCode: '39104',
+      recipientCity: 'Magdeburg',
+      recipientStreet: 'Blumenstraße 11',
+      recipientCountry: 'DE',
       participantId: participantMap['Mona Patel'],
+      companyName: null,
     },
     // Add more recipients as needed
   ]
@@ -759,7 +804,11 @@ async function seedInvoiceRecipients(participantMap: Record<string, string>) {
     skipDuplicates: true,
   })
   const allRecipients = await prisma.invoiceRecipient.findMany()
-  return Object.fromEntries(allRecipients.map(r => [r.name, r.id]))
+  return Object.fromEntries(
+    allRecipients.map(r =>
+      [r.type === RecipientType.COMPANY ? r.companyName : `${r.recipientName} ${r.recipientSurname}`, r.id]
+    )
+  )
 }
 
 // -------------------- Invoice Seeding --------------------
@@ -773,84 +822,58 @@ async function seedInvoices(
   await prisma.invoice.createMany({
     data: [
       {
-        amount: 299.99,
+        invoiceNumber: '2024-001',
+        amount: new Prisma.Decimal('299.99'),
         courseRegistrationId: registrationMap[participantMap['Charlie Brown'] + '_' + courseMap[programMap['AI Fundamentals']]],
         isCancelled: false,
         dueDate: new Date('2024-09-15'),
-        transactionNumber: 'INV-2024-001',
+        transactionNumber: 'INV-2024-001', // Paid
         recipientId: recipientMap['Charlie Brown'],
       },
       {
-        amount: 149.99,
+        invoiceNumber: '2024-002',
+        amount: new Prisma.Decimal('149.99'),
         courseRegistrationId: registrationMap[participantMap['Dana White'] + '_' + courseMap[programMap['Web Development Bootcamp']]],
         isCancelled: false,
         dueDate: new Date('2024-10-15'),
-        transactionNumber: 'INV-2024-002',
+        transactionNumber: null, // Not paid yet
         recipientId: recipientMap["Joe's Firma"],
       },
       {
-        amount: 299.99,
+        invoiceNumber: '2024-003',
+        amount: new Prisma.Decimal('299.99'),
         courseRegistrationId: registrationMap[participantMap['Grace Lee'] + '_' + courseMap[programMap['AI Fundamentals']]],
         isCancelled: false,
         dueDate: new Date('2024-09-16'),
-        transactionNumber: 'INV-2024-003',
+        transactionNumber: 'INV-2024-003', // Paid
         recipientId: recipientMap['Grace Lee'],
       },
       {
-        amount: 399.99,
+        invoiceNumber: '2024-004',
+        amount: new Prisma.Decimal('399.99'),
         courseRegistrationId: registrationMap[participantMap['Henry Ford'] + '_' + courseMap[programMap['Web Development Bootcamp']]],
         isCancelled: false,
         dueDate: new Date('2024-10-22'),
-        transactionNumber: 'INV-2024-004',
+        transactionNumber: null, // Not paid yet
         recipientId: recipientMap['Henry Ford'],
       },
       {
-        amount: 149.99,
+        invoiceNumber: '2024-005',
+        amount: new Prisma.Decimal('149.99'),
         courseRegistrationId: registrationMap[participantMap['Eve Adams'] + '_' + courseMap[programMap['Python for Beginners']]],
         isCancelled: false,
         dueDate: new Date('2024-11-11'),
-        transactionNumber: 'INV-2024-005',
+        transactionNumber: 'INV-2024-005', // Paid
         recipientId: recipientMap['Eve Adams'],
       },
       {
-        amount: 149.99,
+        invoiceNumber: '2024-006',
+        amount: new Prisma.Decimal('149.99'),
         courseRegistrationId: registrationMap[participantMap['Karen Green'] + '_' + courseMap[programMap['Python for Beginners']]],
         isCancelled: false,
         dueDate: new Date('2024-11-12'),
-        transactionNumber: 'INV-2024-006',
+        transactionNumber: null, // Not paid yet
         recipientId: recipientMap['Karen Green'],
-      },
-      {
-        amount: 199.99,
-        courseRegistrationId: registrationMap[participantMap['Liam Young'] + '_' + courseMap[programMap['Cloud Computing Basics']]],
-        isCancelled: false,
-        dueDate: new Date('2025-01-30'),
-        transactionNumber: 'INV-2025-001',
-        recipientId: recipientMap['Liam Young'] || recipientMap['Charlie Brown'],
-      },
-      {
-        amount: 199.99,
-        courseRegistrationId: registrationMap[participantMap['Olga Schmidt'] + '_' + courseMap[programMap['Cloud Computing Basics']]],
-        isCancelled: false,
-        dueDate: new Date('2025-01-31'),
-        transactionNumber: 'INV-2025-002',
-        recipientId: recipientMap['Olga Schmidt'] || recipientMap['Charlie Brown'],
-      },
-      {
-        amount: 259.99,
-        courseRegistrationId: registrationMap[participantMap['Karen Green'] + '_' + courseMap[programMap['UI/UX Design']]],
-        isCancelled: false,
-        dueDate: new Date('2025-05-25'),
-        transactionNumber: 'INV-2025-003',
-        recipientId: recipientMap['Karen Green'],
-      },
-      {
-        amount: 259.99,
-        courseRegistrationId: registrationMap[participantMap['Mona Patel'] + '_' + courseMap[programMap['UI/UX Design']]],
-        isCancelled: false,
-        dueDate: new Date('2025-05-26'),
-        transactionNumber: 'INV-2025-004',
-        recipientId: recipientMap['Mona Patel'],
       },
       // Add more invoices as needed for other participants/courses
     ],
@@ -877,86 +900,7 @@ async function seedDocuments(
         file: 'https://example.com/files/certificate_ai.pdf',
         courseRegistrationId: registrationMap[participantMap['Grace Lee'] + '_' + courseMap[programMap['AI Fundamentals']]],
       },
-      {
-        role: 'Syllabus',
-        file: 'https://example.com/files/syllabus_webdev.pdf',
-        courseRegistrationId: registrationMap[participantMap['Dana White'] + '_' + courseMap[programMap['Web Development Bootcamp']]],
-      },
-      {
-        role: 'Certificate',
-        file: 'https://example.com/files/certificate_webdev.pdf',
-        courseRegistrationId: registrationMap[participantMap['Henry Ford'] + '_' + courseMap[programMap['Web Development Bootcamp']]],
-      },
-      {
-        role: 'Syllabus',
-        file: 'https://example.com/files/syllabus_python.pdf',
-        courseRegistrationId: registrationMap[participantMap['Eve Adams'] + '_' + courseMap[programMap['Python for Beginners']]],
-      },
-      {
-        role: 'Certificate',
-        file: 'https://example.com/files/certificate_python.pdf',
-        courseRegistrationId: registrationMap[participantMap['Karen Green'] + '_' + courseMap[programMap['Python for Beginners']]],
-      },
-      {
-        role: 'Syllabus',
-        file: 'https://example.com/files/syllabus_marketing.pdf',
-        courseRegistrationId: registrationMap[participantMap['Frank Miller'] + '_' + courseMap[programMap['Digital Marketing 101']]],
-      },
-      {
-        role: 'Certificate',
-        file: 'https://example.com/files/certificate_marketing.pdf',
-        courseRegistrationId: registrationMap[participantMap['Mona Patel'] + '_' + courseMap[programMap['Digital Marketing 101']]],
-      },
-      {
-        role: 'Syllabus',
-        file: 'https://example.com/files/syllabus_cloud.pdf',
-        courseRegistrationId: registrationMap[participantMap['Liam Young'] + '_' + courseMap[programMap['Cloud Computing Basics']]],
-      },
-      {
-        role: 'Certificate',
-        file: 'https://example.com/files/certificate_cloud.pdf',
-        courseRegistrationId: registrationMap[participantMap['Olga Schmidt'] + '_' + courseMap[programMap['Cloud Computing Basics']]],
-      },
-      {
-        role: 'Syllabus',
-        file: 'https://example.com/files/syllabus_pm.pdf',
-        courseRegistrationId: registrationMap[participantMap['Paul Weber'] + '_' + courseMap[programMap['Project Management']]],
-      },
-      {
-        role: 'Certificate',
-        file: 'https://example.com/files/certificate_pm.pdf',
-        courseRegistrationId: registrationMap[participantMap['Quentin Bauer'] + '_' + courseMap[programMap['Project Management']]],
-      },
-      {
-        role: 'Syllabus',
-        file: 'https://example.com/files/syllabus_dataviz.pdf',
-        courseRegistrationId: registrationMap[participantMap['Rita Hoffmann'] + '_' + courseMap[programMap['Data Visualization']]],
-      },
-      {
-        role: 'Certificate',
-        file: 'https://example.com/files/certificate_dataviz.pdf',
-        courseRegistrationId: registrationMap[participantMap['Stefan König'] + '_' + courseMap[programMap['Data Visualization']]],
-      },
-      {
-        role: 'Syllabus',
-        file: 'https://example.com/files/syllabus_agile.pdf',
-        courseRegistrationId: registrationMap[participantMap['Tina Schulz'] + '_' + courseMap[programMap['Agile Methodologies']]],
-      },
-      {
-        role: 'Certificate',
-        file: 'https://example.com/files/certificate_agile.pdf',
-        courseRegistrationId: registrationMap[participantMap['Nina Rossi'] + '_' + courseMap[programMap['Agile Methodologies']]],
-      },
-      {
-        role: 'Syllabus',
-        file: 'https://example.com/files/syllabus_uiux.pdf',
-        courseRegistrationId: registrationMap[participantMap['Karen Green'] + '_' + courseMap[programMap['UI/UX Design']]],
-      },
-      {
-        role: 'Certificate',
-        file: 'https://example.com/files/certificate_uiux.pdf',
-        courseRegistrationId: registrationMap[participantMap['Mona Patel'] + '_' + courseMap[programMap['UI/UX Design']]],
-      },
+      // ...add more documents as needed...
     ],
     skipDuplicates: true,
   })

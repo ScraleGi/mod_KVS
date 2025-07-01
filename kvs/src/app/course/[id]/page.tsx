@@ -144,7 +144,7 @@ export default async function CoursePage({ params }: CoursePageProps) {
                                   href={`/invoice/${inv.id}`}
                                   className="text-blue-600 hover:text-blue-800"
                                 >
-                                  #{inv.transactionNumber}
+                                  #{inv.invoiceNumber}
                                 </Link>
                                 {inv.dueDate && (
                                   <span className="ml-1 text-xs text-gray-500">

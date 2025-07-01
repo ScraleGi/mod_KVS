@@ -125,12 +125,13 @@ model Participant {
 
 model Invoice {
   id                    String               @id @default(uuid())
+  invoiceNumber         String               @unique
   amount                Decimal              @db.Decimal(10, 2)
   courseRegistrationId  String
   courseRegistration    CourseRegistration   @relation(fields: [courseRegistrationId], references: [id])
   isCancelled           Boolean              @default(false)
   dueDate               DateTime
-  transactionNumber     String               @unique
+  transactionNumber     String?              @unique // <-- nullable
   recipientId           String
   recipient             InvoiceRecipient     @relation(fields: [recipientId], references: [id])
 }

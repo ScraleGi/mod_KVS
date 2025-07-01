@@ -1,7 +1,6 @@
-import { PrismaClient, RecipientType } from '../../../../../generated/prisma/client'
+import { PrismaClient, RecipientType } from '../../../../../generated/prisma'
 import Link from 'next/link'
 import { revalidatePath } from 'next/cache'
-import crypto from 'crypto'
 
 const prisma = new PrismaClient()
 
@@ -42,7 +41,11 @@ export default async function ParticipantDetailsPage({
     include: {
       participant: true,
       course: { include: { program: true } },
-      invoices: true,
+      invoices: {
+        include: {
+          recipient: true,
+        }
+      },
     }
   })
 
@@ -64,33 +67,55 @@ export default async function ParticipantDetailsPage({
     const dueDateString = formData.get('dueDate') as string
     const recipientType = formData.get('recipientType') as RecipientType
     const recipientName = formData.get('recipientName') as string
-    const recipientEmail = formData.get('recipientEmail') as string | null
-    const recipientAddress = formData.get('recipientAddress') as string | null
+    const recipientSurname = formData.get('recipientSurname') as string | null
+    const companyName = formData.get('companyName') as string | null
+    const recipientEmail = formData.get('recipientEmail') as string
+    const postalCode = formData.get('postalCode') as string
+    const recipientCity = formData.get('recipientCity') as string
+    const recipientStreet = formData.get('recipientStreet') as string
+    const recipientCountry = formData.get('recipientCountry') as string
 
-    if (!recipientType || !recipientName) {
-      throw new Error('Recipient type and name are required.')
+    if (!recipientType || !recipientEmail || !postalCode || !recipientCity || !recipientStreet || !recipientCountry) {
+      throw new Error('All recipient fields are required.')
+    }
+
+    let recipientData: any = {
+      type: recipientType,
+      recipientEmail,
+      postalCode,
+      recipientCity,
+      recipientStreet,
+      recipientCountry,
+    }
+
+    if (recipientType === RecipientType.PERSON) {
+      recipientData.recipientName = recipientName
+      recipientData.recipientSurname = recipientSurname
+      recipientData.companyName = null
+      recipientData.participantId = registration?.participantId
+    } else if (recipientType === RecipientType.COMPANY) {
+      recipientData.companyName = companyName
+      recipientData.recipientName = null
+      recipientData.recipientSurname = null
+      recipientData.participantId = null
     }
 
     const recipient = await prisma.invoiceRecipient.create({
-      data: {
-        type: recipientType,
-        name: recipientName,
-        email: recipientEmail || null,
-        address: recipientAddress || null,
-      }
+      data: recipientData
     })
 
-    const transactionNumber = `INV-${Date.now()}-${crypto.randomBytes(3).toString('hex').toUpperCase()}`
+  const invoiceNumber = `INV-${Date.now()}-${Math.floor(Math.random() * 1000)}`
 
-    await prisma.invoice.create({
-      data: {
-        courseRegistrationId: registration!.id,
-        amount,
-        transactionNumber,
-        dueDate: dueDateString ? new Date(dueDateString) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        recipientId: recipient.id,
-      }
-    })
+  await prisma.invoice.create({
+    data: {
+      invoiceNumber,
+      courseRegistrationId: registration!.id,
+      amount,
+      transactionNumber: null, // explicitly set to null for unpaid invoice
+      dueDate: dueDateString ? new Date(dueDateString) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      recipientId: recipient.id,
+    }
+  })
     revalidatePath(`/course/${courseId}/participantDetails?participantId=${participantId}`)
   }
 
@@ -138,7 +163,7 @@ export default async function ParticipantDetailsPage({
             href={`/invoice/${inv.id}`}
             className="text-blue-700 hover:text-blue-900 font-medium text-sm"
           >
-            #{inv.transactionNumber ?? inv.id}
+            #{inv.invoiceNumber ?? inv.id}
           </Link>
         </div>
       ),
@@ -147,9 +172,23 @@ export default async function ParticipantDetailsPage({
     {
       label: 'Amount',
       render: (inv: any) => (
-        <div className="flex items-center h-full text-neutral-700 text-sm">€{inv.amount}</div>
+        <div className="flex items-center h-full text-neutral-700 text-sm">
+          €{inv.amount?.toString()}
+        </div>
       ),
       width: 'flex-1'
+    },
+    {
+      label: 'Recipient',
+      render: (inv: any) => (
+        <div className="flex flex-col text-neutral-700 text-xs">
+          {inv.recipient.type === 'COMPANY'
+            ? inv.recipient.companyName
+            : `${inv.recipient.recipientName} ${inv.recipient.recipientSurname}`}
+          <span className="text-neutral-400">{inv.recipient.recipientEmail}</span>
+        </div>
+      ),
+      width: 'flex-[2]'
     }
   ]
 

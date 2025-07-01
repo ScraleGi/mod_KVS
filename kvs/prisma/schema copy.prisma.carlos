@@ -122,7 +122,7 @@ model Invoice {
   courseRegistration    CourseRegistration   @relation(fields: [courseRegistrationId], references: [id])
   isCancelled           Boolean              @default(false)
   dueDate               DateTime
-  transactionNumber     String
+  transactionNumber     String?
   recipientId           String
   recipient             InvoiceRecipient     @relation(fields: [recipientId], references: [id])
 }

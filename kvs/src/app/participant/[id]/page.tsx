@@ -1,7 +1,6 @@
-import { PrismaClient, RecipientType } from '../../../../generated/prisma/client'
+import { PrismaClient, RecipientType } from '../../../../generated/prisma'
 import Link from 'next/link'
 import { revalidatePath } from 'next/cache'
-import crypto from 'crypto'
 import ClientInvoiceModalWrapper from './ClientInvoiceModalWrapper'
 import ClientCourseModalWrapper from './ClientCourseModalWrapper'
 
@@ -13,7 +12,7 @@ interface ParticipantPageProps {
 }
 
 export default async function ParticipantPage({ params, searchParams }: ParticipantPageProps) {
-  const { id } = await params
+  const { id } = params
 
   // Fetch participant and their registrations
   const participant = await prisma.participant.findUnique({
@@ -22,7 +21,11 @@ export default async function ParticipantPage({ params, searchParams }: Particip
       registrations: {
         include: {
           course: { include: { program: true } },
-          invoices: true,
+          invoices: {
+            include: {
+              recipient: true,
+            }
+          },
         }
       },
       invoiceRecipients: true,
@@ -80,15 +83,17 @@ export default async function ParticipantPage({ params, searchParams }: Particip
             : null,
         }
       : null,
-    // Do NOT convert invoices.amount here!
-    invoices: reg.invoices,
+    invoices: reg.invoices.map(inv => ({
+      ...inv,
+      amount: inv.amount != null ? inv.amount.toString() : null,
+      recipient: inv.recipient,
+    })),
   }))
 
   // Flatten all invoices for listing (sanitize amount here)
   const allInvoices = sanitizedRegistrations.flatMap(reg =>
     reg.invoices.map(inv => ({
       ...inv,
-      amount: inv.amount != null ? inv.amount.toString() : null,
       course: reg.course,
     }))
   )
@@ -143,36 +148,58 @@ export default async function ParticipantPage({ params, searchParams }: Particip
 
     // Get recipient fields from form
     const recipientType = formData.get('recipientType') as RecipientType
-    const recipientName = formData.get('recipientName') as string
-    const recipientEmail = formData.get('recipientEmail') as string | null
-    const recipientAddress = formData.get('recipientAddress') as string | null
+    const recipientName = formData.get('recipientName') as string | null
+    const recipientSurname = formData.get('recipientSurname') as string | null
+    const companyName = formData.get('companyName') as string | null
+    const recipientEmail = formData.get('recipientEmail') as string
+    const postalCode = formData.get('postalCode') as string
+    const recipientCity = formData.get('recipientCity') as string
+    const recipientStreet = formData.get('recipientStreet') as string
+    const recipientCountry = formData.get('recipientCountry') as string
 
-    if (!recipientType || !recipientName) {
-      throw new Error('Recipient type and name are required.')
+    if (!recipientType || !recipientEmail || !postalCode || !recipientCity || !recipientStreet || !recipientCountry) {
+      throw new Error('All recipient fields are required.')
+    }
+
+    let recipientData: any = {
+      type: recipientType,
+      recipientEmail,
+      postalCode,
+      recipientCity,
+      recipientStreet,
+      recipientCountry,
+    }
+
+    if (recipientType === RecipientType.PERSON) {
+      recipientData.recipientName = recipientName
+      recipientData.recipientSurname = recipientSurname
+      recipientData.companyName = null
+      recipientData.participantId = id
+    } else if (recipientType === RecipientType.COMPANY) {
+      recipientData.companyName = companyName
+      recipientData.recipientName = null
+      recipientData.recipientSurname = null
+      recipientData.participantId = null
     }
 
     // Create the recipient
     const recipient = await prisma.invoiceRecipient.create({
-      data: {
-        type: recipientType,
-        name: recipientName,
-        email: recipientEmail || null,
-        address: recipientAddress || null,
-      }
+      data: recipientData
     })
 
-    // Generate a unique transaction number
-    const transactionNumber = `INV-${Date.now()}-${crypto.randomBytes(3).toString('hex').toUpperCase()}`
+    // Generate a unique invoice number
+  const invoiceNumber = `INV-${Date.now()}-${Math.floor(Math.random() * 1000)}`
 
-    await prisma.invoice.create({
-      data: {
-        courseRegistrationId: registrationId,
-        amount,
-        transactionNumber,
-        dueDate: dueDateString ? new Date(dueDateString) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        recipientId: recipient.id,
-      }
-    })
+  await prisma.invoice.create({
+    data: {
+      invoiceNumber,
+      courseRegistrationId: registrationId,
+      amount,
+      transactionNumber: null, // explicitly set to null for unpaid invoice
+      dueDate: dueDateString ? new Date(dueDateString) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      recipientId: recipient.id,
+    }
+  })
     revalidatePath(`/participant/${id}`)
   }
 
@@ -277,7 +304,7 @@ export default async function ParticipantPage({ params, searchParams }: Particip
             href={`/invoice/${inv.id}`}
             className="text-blue-700 hover:text-blue-900 font-medium text-sm"
           >
-            #{inv.transactionNumber ?? inv.id}
+            #{inv.invoiceNumber ?? inv.id}
           </Link>
           {inv.course?.program?.name && (
             <span className="text-xs text-neutral-400 ml-2">
@@ -294,6 +321,18 @@ export default async function ParticipantPage({ params, searchParams }: Particip
         <div className="flex items-center h-full text-neutral-700 text-sm">€{inv.amount}</div>
       ),
       width: 'flex-1'
+    },
+    {
+      label: 'Recipient',
+      render: (inv: any) => (
+        <div className="flex flex-col text-neutral-700 text-xs">
+          {inv.recipient?.type === 'COMPANY'
+            ? inv.recipient?.companyName
+            : `${inv.recipient?.recipientName ?? ''} ${inv.recipient?.recipientSurname ?? ''}`}
+          <span className="text-neutral-400">{inv.recipient?.recipientEmail}</span>
+        </div>
+      ),
+      width: 'flex-[2]'
     }
   ]
 
