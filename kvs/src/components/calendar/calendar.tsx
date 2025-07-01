@@ -73,30 +73,38 @@ const Calendar: React.FC<{ events: EventType[] }> = ({ events }) => {
   return (
     <div className="p-4 bg-white rounded-2xl shadow-lg">
       <FullCalendar
-        plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-        initialView="timeGridWeek"
-        slotDuration='00:30:00'
-        slotMinTime='06:00:00'
-        slotMaxTime='24:00:00'
-        events={[...events, ...backgroundEvents]}
-        selectable
-        editable
-        height={1100}
-        eventContent={renderEventContent}
-        eventClassNames={(arg) => {
-          if (arg.event.id.startsWith('holiday-')) {
-            return ['bg-red-200', 'text-white', 'border-none'];
-          }
-          return [];
-        }}
-        dayCellClassNames={arg => {
-          const dateStr = arg.date.toISOString().slice(0, 10);
-          if (holidayDates.has(dateStr)) {
-            return ['bg-red-100'];
-          }
-          return [];
-        }}
-        datesSet={handleDatesSet}
+      plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+      initialView="timeGridWeek"
+      headerToolbar={{
+        // left: Navigation buttons (prev, next, today)
+        left: 'prev,next today',
+        // center: Title (current month/week/day)
+        center: 'title',
+        // right: View selection buttons (month, week, day)
+        right: 'dayGridMonth,timeGridWeek,timeGridDay'
+      }}
+      slotDuration='00:30:00'
+      slotMinTime='06:00:00'
+      slotMaxTime='24:00:00'
+      events={[...events, ...backgroundEvents]}
+      selectable
+      editable
+      height={1100}
+      eventContent={renderEventContent}
+      eventClassNames={(arg) => {
+        if (arg.event.id.startsWith('holiday-')) {
+        return ['bg-red-200', 'text-white', 'border-none'];
+        }
+        return [];
+      }}
+      dayCellClassNames={arg => {
+        const dateStr = arg.date.toISOString().slice(0, 10);
+        if (holidayDates.has(dateStr)) {
+        return ['bg-red-100'];
+        }
+        return [];
+      }}
+      datesSet={handleDatesSet}
       />
     </div>
   );
