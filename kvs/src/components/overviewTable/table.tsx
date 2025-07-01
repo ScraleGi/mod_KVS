@@ -1,6 +1,8 @@
 "use client"
 import { CourseParticipantsDialog } from "./CourseParticipantsDialog"
 import { CoursesDialog } from "./participantCoursesDialog"
+import { FilterHeader } from "./FilterHeader"
+import { DoubleFilterHeader } from "./DoubleFilterHeader"
 
 
 // -------------------- Imports --------------------
@@ -38,6 +40,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { access } from "fs"
 
 // -------------------- Types --------------------
 export type Participant = {
@@ -67,77 +70,38 @@ export type CourseRow = {
 }
 
 // -------------------- Table Columns Definition --------------------
-export const columns: ColumnDef<CourseRow>[] = [
-
+export const home: ColumnDef<CourseRow>[] = [
   // Course column with sorting
 {
   accessorKey: "course",
-  size: 200,
-header: ({ column }) => (
-  <span className="flex items-center gap-1 select-none w-48 min-w-[8rem] pl-8">
-    Course
-    <span
-      className="ml-1 h-4 w-4 cursor-pointer flex"
-      onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      role="button"
-      tabIndex={0}
-      onKeyDown={e => {
-        if (e.key === "Enter" || e.key === " ") {
-          column.toggleSorting(column.getIsSorted() === "asc")
-        }
-      }}
-    >
-      <ArrowUpDown
-        className={`h-4 w-4 transition-transform ${
-          column.getIsSorted()
-            ? column.getIsSorted() === "asc"
-              ? "text-yellow-100 rotate-180"
-              : "text-yellow-100"
-            : "text-gray-400"
-        }`}
-      />
-    </span>
-  </span>
-),
+  size: 220,
+  header: ({ column }) => (
+    <FilterHeader
+      column={column}
+      label="Kurs"
+      placeholder="Filter Kurs..."
+    />
+  ),
+    
   cell: ({ row }) => (
-    <Link
-      href={`/course/${row.original.id}`}
-      className="relative text-blue-600 hover:text-blue-800 pl-8 inline-block after:content-[''] after:absolute after:left-8 after:bottom-0 after:w-0 hover:after:w-[calc(100%-2rem)] after:h-[2px] after:bg-blue-600 after:transition-all after:duration-300"
-      style={{ whiteSpace: "normal", overflowWrap: "break-word" }}
+    <span
+      className="block w-56 min-w-[12rem] pl-2"
+      style={{ whiteSpace: "nowrap", overflowWrap: "normal" }}
     >
       {row.getValue("course")}
-    </Link>
+    </span>
   ),
 },
   // Area column
 {
   accessorKey: "area",
-  size: 220, // Increased from 140 to 220
+  size: 220,
   header: ({ column }) => (
-    <span className="flex items-center gap-1 select-none w-56 min-w-[12rem] pl-2">
-      Area
-      <span
-        className="ml-1 h-4 w-4 cursor-pointer flex"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        role="button"
-        tabIndex={0}
-        onKeyDown={e => {
-          if (e.key === "Enter" || e.key === " ") {
-            column.toggleSorting(column.getIsSorted() === "asc")
-          }
-        }}
-      >
-        <ArrowUpDown
-          className={`h-4 w-4 transition-transform ${
-            column.getIsSorted()
-              ? column.getIsSorted() === "asc"
-                ? "text-yellow-100 rotate-180"
-                : "text-yellow-100"
-              : "text-gray-400"
-          }`}
-        />
-      </span>
-    </span>
+    <FilterHeader
+      column={column}
+      label="Bereich"
+      placeholder="Filter Bereich..."
+    />
   ),
   cell: ({ row }) => (
     <span
@@ -152,91 +116,45 @@ header: ({ column }) => (
 {
   accessorKey: "startDate",
   size: 120,
-  // Enable sorting and add sort icon
   header: ({ column }) => (
-    <span className="flex items-center gap-1 justify-end w-28 min-w-[5rem] pr-2 select-none">
-      Start Date
-      <span
-        className="ml-1 h-4 w-4 cursor-pointer flex"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        role="button"
-        tabIndex={0}
-        onKeyDown={e => {
-          if (e.key === "Enter" || e.key === " ") {
-            column.toggleSorting(column.getIsSorted() === "asc")
-          }
-        }}
-      >
-        <ArrowUpDown
-          className={`h-4 w-4 transition-transform ${
-            column.getIsSorted()
-              ? column.getIsSorted() === "asc"
-                ? "text-yellow-100 rotate-180"
-                : "text-yellow-100"
-              : "text-gray-400"
-          }`}
-        />
-      </span>
-    </span>
-  ),
-  // Custom sorting: compare as dates
-  sortingFn: (rowA, rowB, columnId) => {
-    const a = rowA.getValue(columnId)
-    const b = rowB.getValue(columnId)
-    const dateA = a ? new Date(a as string).getTime() : 0
-    const dateB = b ? new Date(b as string).getTime() : 0
-    return dateA - dateB
+  <DoubleFilterHeader
+    column={column}
+    label="Start Datum"
+    placeholderFrom="Filter von..."
+    placeholderTo="Filter bis..."
+    typeDefinition="date"
+  />
+),
+  // Filterfunktion für Zeitraum
+  filterFn: (row, columnId, filterValue: [string, string]) => {
+    const value = row.getValue(columnId)
+    if (!value) return false
+    const date = new Date(value as string)
+    const [from, to] = filterValue
+    if (from && date < new Date(from)) return false
+    if (to && date > new Date(to)) return false
+    return true
   },
-  cell: ({ row }) => {
-    const value = row.getValue("startDate")
-    let formatted: string = ""
-    if (typeof value === "string" && value) {
-      const date = new Date(value)
-      formatted = !isNaN(date.getTime())
-        ? date.toLocaleDateString("de-DE")
-        : value
-    } else if (typeof value === "number") {
-      formatted = new Date(value).toLocaleDateString("de-DE")
-    } else {
-      formatted = ""
-    }
-    return (
-      <span className="block text-right w-28 min-w-[5rem] pr-2">{formatted}</span>
-    )
-  },
+  // ...restlicher Code...
 },
   // Trainer column (left-aligned)
 {
   accessorKey: "trainer",
   size: 160,
   header: ({ column }) => (
-    <span className="flex items-center gap-1 select-none w-40 min-w-[7rem] pl-2">
-      Trainer
-      <span
-        className="ml-1 h-4 w-4 cursor-pointer flex"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        role="button"
-        tabIndex={0}
-        onKeyDown={e => {
-          if (e.key === "Enter" || e.key === " ") {
-            column.toggleSorting(column.getIsSorted() === "asc")
-          }
-        }}
-      >
-        <ArrowUpDown
-          className={`h-4 w-4 transition-transform ${
-            column.getIsSorted()
-              ? column.getIsSorted() === "asc"
-                ? "text-yellow-100 rotate-180"
-                : "text-yellow-100"
-              : "text-gray-400"
-          }`}
-        />
-      </span>
-    </span>
+    <FilterHeader
+      column={column}
+      label="Trainer"
+      placeholder="Filter Trainer..."
+    />
   ),
   cell: ({ row }) => (
-    <span className="block text-left w-40 min-w-[7rem] truncate pl-2">{row.getValue("trainer")}</span>
+    <span
+      className="block w-56 min-w-[12rem] pl-2"
+      style={{ whiteSpace: "nowrap", overflowWrap: "normal" }}
+    >
+      {row.getValue("trainer")}
+    </span>
   ),
 },
   // Registrations column with sorting
@@ -244,47 +162,16 @@ header: ({ column }) => (
   accessorKey: "registrations",
   size: 70, // Reduced from 120
   header: ({ column }) => (
-    <span className="flex items-center gap-1 justify-end w-18 min-w-[3.5rem] pr-2 select-none">
-      Registrations
-      <span
-        className="ml-1 h-4 w-4 cursor-pointer flex"
-        onClick={() => {
-          if (!column.getIsSorted()) {
-            column.toggleSorting(false)
-          } else if (column.getIsSorted() === "asc") {
-            column.toggleSorting(true)
-          } else {
-            column.toggleSorting()
-          }
-        }}
-        role="button"
-        tabIndex={0}
-        onKeyDown={e => {
-          if (e.key === "Enter" || e.key === " ") {
-            if (!column.getIsSorted()) {
-              column.toggleSorting(false)
-            } else if (column.getIsSorted() === "asc") {
-              column.toggleSorting(true)
-            } else {
-              column.toggleSorting()
-            }
-          }
-        }}
-      >
-        <ArrowUpDown
-          className={`h-4 w-4 transition-transform ${
-            column.getIsSorted()
-              ? column.getIsSorted() === "asc"
-                ? "text-yellow-100 rotate-180"
-                : "text-yellow-100"
-              : "text-gray-400"
-          }`}
-        />
-      </span>
-    </span>
+    <DoubleFilterHeader
+      column={column}
+      label="Anmeldungen"
+      placeholderFrom="Filter von..."
+      placeholderTo="Filter bis..."
+      typeDefinition="number"
+    />
   ),
   cell: ({ row }) => (
-    <span className="block text-right w-16 min-w-[3.5rem] pr-2">
+    <span className="block text-right w-8 min-w-[2rem] pr-2">
       <CourseParticipantsDialog participants={row.original.participants ?? []}>
         {row.getValue("registrations")}
       </CourseParticipantsDialog>
@@ -324,7 +211,7 @@ export const participantColumns: ColumnDef<ParticipantRow>[] = [
   },
   {
     accessorKey: "phoneNumber",
-    header: () => <span className="block text-right w-full pr-8">Phone</span>,
+    header: () => <span className="block text-right w-full pr-8">Telefonnummer</span>,
     cell: ({ row }) => (
       <span className="block text-right pr-8">{row.getValue("phoneNumber")}</span>
     ),
@@ -332,7 +219,7 @@ export const participantColumns: ColumnDef<ParticipantRow>[] = [
   {
     id: "courses",
     header: () => (
-      <span className="block text-right w-full pr-8">Courses</span>
+      <span className="block text-right w-full pr-8">Kurse</span>
     ),
     cell: ({ row }) => (
       <div className="text-right pr-8">
