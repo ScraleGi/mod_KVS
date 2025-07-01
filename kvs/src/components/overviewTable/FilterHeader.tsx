@@ -10,7 +10,7 @@ type FilterHeaderProps = {
 
 export function FilterHeader({ column, label, placeholder = "Filter..." }: FilterHeaderProps) {
   const [showFilter, setShowFilter] = React.useState(false)
-
+  
   return (
     <span className="flex flex-col w-56 min-w-[12rem] pl-2 relative">
       <span className="flex items-center gap-1 select-none">

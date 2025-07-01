@@ -1,6 +1,6 @@
 "use client"
-import { CourseParticipantsDialog } from "./CourseParticipantsDialog"
-import { CoursesDialog } from "./participantCoursesDialog"
+import { CourseParticipantsDialog } from "../participants/CourseParticipantsDialog"
+import { CoursesDialog } from "../participants/participantCoursesDialog"
 import { FilterHeader } from "./FilterHeader"
 import { DoubleFilterHeader } from "./DoubleFilterHeader"
 
@@ -20,10 +20,8 @@ import {
   ColumnFiltersState,
   VisibilityState,
 } from "@tanstack/react-table"
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import {
   Table,
   TableBody,
@@ -32,15 +30,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { access } from "fs"
+
 
 // -------------------- Types --------------------
 export type Participant = {
@@ -125,6 +115,18 @@ export const home: ColumnDef<CourseRow>[] = [
     typeDefinition="date"
   />
 ),
+  cell: ({ row }) => {
+    const date = new Date(row.getValue("startDate") as string)
+    return (
+      <span className="block pr-2">
+        {date.toLocaleDateString("de-DE", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        })}
+      </span>
+    )
+  },
   // Filterfunktion für Zeitraum
   filterFn: (row, columnId, filterValue: [string, string]) => {
     const value = row.getValue(columnId)
@@ -185,15 +187,11 @@ export const participantColumns: ColumnDef<ParticipantRow>[] = [
   {
     accessorKey: "name",
     header: ({ column }) => (
-      <span className="flex items-center gap-1 select-none pl-8">
-        Name
-        <span
-          className="ml-1 h-4 w-4 cursor-pointer flex"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          <ArrowUpDown className="h-4 w-4 text-gray-400" />
-        </span>
-      </span>
+      <FilterHeader
+        column={column}
+        label="Name"
+        placeholder="Filter Name..."
+      />
     ),
     cell: ({ row }) => (
       <Link
@@ -206,28 +204,53 @@ export const participantColumns: ColumnDef<ParticipantRow>[] = [
   },
   {
     accessorKey: "email",
-    header: "Email",
+    header: ({ column }) => (
+      <FilterHeader
+        column={column}
+        label="E-Mail"
+        placeholder="Filter E-Mail..."
+      />
+    ),
     cell: ({ row }) => <span>{row.getValue("email")}</span>,
   },
   {
     accessorKey: "phoneNumber",
-    header: () => <span className="block text-right w-full pr-8">Telefonnummer</span>,
+    header: ({ column }) => (
+      <FilterHeader
+        column={column}
+        label="Telefon"
+        placeholder="Filter Telefon..."
+      />
+    ),
     cell: ({ row }) => (
       <span className="block text-right pr-8">{row.getValue("phoneNumber")}</span>
     ),
   },
   {
-    id: "courses",
-    header: () => (
-      <span className="block text-right w-full pr-8">Kurse</span>
-    ),
-    cell: ({ row }) => (
-      <div className="text-right pr-8">
-        {/* Pass courses with startDate to CoursesDialog */}
-        <CoursesDialog courses={row.original.courses} />
-      </div>
-    ),
+  accessorKey: "courses",
+  header: ({ column }) => (
+    <FilterHeader
+      column={column}
+      label="Kurse"
+      placeholder="Filter Anzahl Kurse..."
+    />
+  ),
+  cell: ({ row }) => (
+      <CoursesDialog courses={row.original.courses ?? []} />
+  ),
+  // Filter: nach Anzahl der Kurse (als Zahl oder String im Input)
+  filterFn: (row, filterValue) => {
+    if (!filterValue) return true
+    const count = Array.isArray(row.original.courses) ? row.original.courses.length : 0
+    return count === Number(filterValue)
   },
+  // Sortierung nach Anzahl der Kurse
+  sortingFn: (rowA, rowB) => {
+    const a = Array.isArray(rowA.original.courses) ? rowA.original.courses.length : 0
+    const b = Array.isArray(rowB.original.courses) ? rowB.original.courses.length : 0
+    return a - b
+  },
+},
 ]
 
 // -------------------- Main Table Component --------------------
@@ -274,41 +297,6 @@ export function CourseTable<T>({
   // -------------------- Render --------------------
   return (
     <div className="w-full">
-      {/* Filter and column visibility controls */}
-      <div className="flex items-center py-4">
-        <Input
-          placeholder={`Filter ${filterColumn}...`}
-          value={(table.getColumn(filterColumn)?.getFilterValue() as string) ?? ""}
-          onChange={event =>
-            table.getColumn(filterColumn)?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto cursor-pointer">
-              Columns <ChevronDown />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="bg-white">
-            {table
-              .getAllColumns()
-              .filter(column => column.getCanHide())
-              .map(column => (
-                <DropdownMenuCheckboxItem
-                  key={column.id}
-                  className="capitalize cursor-pointer"
-                  checked={column.getIsVisible()}
-                  onCheckedChange={value =>
-                    column.toggleVisibility(!!value)
-                  }
-                >
-                  {column.id}
-                </DropdownMenuCheckboxItem>
-              ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
       {/* Main table */}
       <div className="shadow border border-gray-200 overflow-hidden bg-white rounded-md">
         <Table>
