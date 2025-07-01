@@ -1,18 +1,22 @@
-import { PrismaClient, RecipientType } from '../../../../../../generated/prisma/client'
+import { PrismaClient, RecipientType } from '../../../../../../generated/prisma'
 import Link from 'next/link'
 import { revalidatePath } from 'next/cache'
-import crypto from 'crypto'
+import type { Invoice, Document } from '../../../../../../generated/prisma'
 
 const prisma = new PrismaClient()
 
+function formatDateGerman(date: Date | string | null | undefined) {
+  if (!date) return 'N/A'
+  return new Date(date).toLocaleDateString('de-DE')
+}
+
 export default async function ParticipantDetailsPage({
-  params
+  params,
 }: {
-  params: { id: string, participantId? : string }
+  params: { id: string, participantId?: string } | Promise<{ id: string, participantId?: string }>
 }) {
   const { id, participantId } = await params
   const courseId = id
-
 
   if (!participantId) {
     return (
@@ -28,18 +32,29 @@ export default async function ParticipantDetailsPage({
   }
 
   // Fetch registration for this participant in this course
-  const registration = await prisma.courseRegistration.findFirst({
-    where: {
-      courseId,
-      participantId,
+const registration = await prisma.courseRegistration.findFirst({
+  where: {
+    courseId,
+    participantId,
+  },
+  include: {
+    participant: true,
+    course: { include: { program: true } },
+    invoices: {
+      include: {
+        recipient: true,
+      }
     },
-    include: {
-      participant: true,
-      course: { include: { program: true } },
-      invoices: true,
-      coupon: true,
-    }
-  })
+  }
+})
+
+// Sanitize invoices (convert Decimal to string)
+const sanitizedInvoices = registration
+  ? registration.invoices.map(inv => ({
+      ...inv,
+      amount: inv.amount?.toString(),
+    }))
+  : []
 
   // Fetch documents for this registration (not soft-deleted)
   const documents = registration
@@ -59,33 +74,55 @@ export default async function ParticipantDetailsPage({
     const dueDateString = formData.get('dueDate') as string
     const recipientType = formData.get('recipientType') as RecipientType
     const recipientName = formData.get('recipientName') as string
-    const recipientEmail = formData.get('recipientEmail') as string | null
-    const recipientAddress = formData.get('recipientAddress') as string | null
+    const recipientSurname = formData.get('recipientSurname') as string | null
+    const companyName = formData.get('companyName') as string | null
+    const recipientEmail = formData.get('recipientEmail') as string
+    const postalCode = formData.get('postalCode') as string
+    const recipientCity = formData.get('recipientCity') as string
+    const recipientStreet = formData.get('recipientStreet') as string
+    const recipientCountry = formData.get('recipientCountry') as string
 
-    if (!recipientType || !recipientName) {
-      throw new Error('Recipient type and name are required.')
+    if (!recipientType || !recipientEmail || !postalCode || !recipientCity || !recipientStreet || !recipientCountry) {
+      throw new Error('All recipient fields are required.')
+    }
+
+    let recipientData: any = {
+      type: recipientType,
+      recipientEmail,
+      postalCode,
+      recipientCity,
+      recipientStreet,
+      recipientCountry,
+    }
+
+    if (recipientType === RecipientType.PERSON) {
+      recipientData.recipientName = recipientName
+      recipientData.recipientSurname = recipientSurname
+      recipientData.companyName = null
+      recipientData.participantId = registration?.participantId
+    } else if (recipientType === RecipientType.COMPANY) {
+      recipientData.companyName = companyName
+      recipientData.recipientName = null
+      recipientData.recipientSurname = null
+      recipientData.participantId = null
     }
 
     const recipient = await prisma.invoiceRecipient.create({
-      data: {
-        type: recipientType,
-        name: recipientName,
-        email: recipientEmail || null,
-        address: recipientAddress || null,
-      }
+      data: recipientData
     })
 
-    const transactionNumber = `INV-${Date.now()}-${crypto.randomBytes(3).toString('hex').toUpperCase()}`
+  const invoiceNumber = `INV-${Date.now()}-${Math.floor(Math.random() * 1000)}`
 
-    await prisma.invoice.create({
-      data: {
-        courseRegistrationId: registration!.id,
-        amount,
-        transactionNumber,
-        dueDate: dueDateString ? new Date(dueDateString) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        recipientId: recipient.id,
-      }
-    })
+  await prisma.invoice.create({
+    data: {
+      invoiceNumber,
+      courseRegistrationId: registration!.id,
+      amount,
+      transactionNumber: null, // explicitly set to null for unpaid invoice
+      dueDate: dueDateString ? new Date(dueDateString) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      recipientId: recipient.id,
+    }
+  })
     revalidatePath(`/course/${courseId}/participantDetails?participantId=${participantId}`)
   }
 
@@ -124,16 +161,20 @@ export default async function ParticipantDetailsPage({
   }
 
   // Invoice listing data for this registration
-  const invoiceFields = [
+  const invoiceFields: {
+    label: string,
+    render: (inv: any) => React.ReactNode,
+    width?: string
+  }[] = [
     {
       label: 'Invoice',
-      render: (inv: any) => (
+      render: (inv) => (
         <div className="flex items-center gap-2">
           <Link
             href={`/invoice/${inv.id}`}
             className="text-blue-700 hover:text-blue-900 font-medium text-sm"
           >
-            #{inv.transactionNumber ?? inv.id}
+            #{inv.invoiceNumber ?? inv.id}
           </Link>
         </div>
       ),
@@ -141,18 +182,36 @@ export default async function ParticipantDetailsPage({
     },
     {
       label: 'Amount',
-      render: (inv: any) => (
-        <div className="flex items-center h-full text-neutral-700 text-sm">€{inv.amount}</div>
+      render: (inv) => (
+        <div className="flex items-center h-full text-neutral-700 text-sm">
+          €{inv.amount?.toString()}
+        </div>
       ),
       width: 'flex-1'
+    },
+    {
+      label: 'Recipient',
+      render: (inv: any) => (
+        <div className="flex flex-col text-neutral-700 text-xs">
+          {inv.recipient.type === 'COMPANY'
+            ? inv.recipient.companyName
+            : `${inv.recipient.recipientName} ${inv.recipient.recipientSurname}`}
+          <span className="text-neutral-400">{inv.recipient.recipientEmail}</span>
+        </div>
+      ),
+      width: 'flex-[2]'
     }
   ]
 
   // Document listing fields
-  const documentFields = [
+  const documentFields: {
+    label: string,
+    render: (doc: Document) => React.ReactNode,
+    width?: string
+  }[] = [
     {
       label: 'Document',
-      render: (doc: any) => (
+      render: (doc) => (
         <div className="flex items-center gap-2">
           <a
             href={doc.file}
@@ -168,7 +227,7 @@ export default async function ParticipantDetailsPage({
     },
     {
       label: 'File',
-      render: (doc: any) => (
+      render: (doc) => (
         <div className="flex items-center h-full text-neutral-700 text-sm">
           {(() => {
             const ext = doc.file.split('.').pop()?.toUpperCase() || '';
@@ -180,7 +239,7 @@ export default async function ParticipantDetailsPage({
     },
     {
       label: 'Role',
-      render: (doc: any) => (
+      render: (doc) => (
         <div className="flex items-center h-full text-neutral-700 text-sm">{doc.role}</div>
       ),
       width: 'flex-1'
@@ -247,7 +306,8 @@ export default async function ParticipantDetailsPage({
                 href={`/participant/${registration.participant.id}`}
                 className="hover:underline text-blue-700"
               >
-                {registration.participant.name}
+                {registration.participant.salutation} {registration.participant.title ? registration.participant.title + ' ' : ''}
+                {registration.participant.name} {registration.participant.surname}
               </Link>
             </h1>
             <div className="flex flex-wrap gap-4 text-neutral-500 text-sm mt-1">
@@ -256,6 +316,12 @@ export default async function ParticipantDetailsPage({
               </span>
               <span>
                 <span className="font-medium text-neutral-700">Phone:</span> {registration.participant.phoneNumber}
+              </span>
+              <span>
+                <span className="font-medium text-neutral-700">Birthday:</span> {formatDateGerman(registration.participant.birthday)}
+              </span>
+              <span>
+                <span className="font-medium text-neutral-700">Address:</span> {registration.participant.street}, {registration.participant.postalCode} {registration.participant.city}, {registration.participant.country}
               </span>
             </div>
           </div>
@@ -275,33 +341,73 @@ export default async function ParticipantDetailsPage({
               </Link>
             </div>
             <div className="flex items-center gap-1">
-              <span className="font-medium text-neutral-600">Status:</span>
-              <span className="text-neutral-600">{registration.status}</span>
-            </div>
-            <div className="flex items-center gap-1">
               <span className="font-medium text-neutral-600">Start:</span>
               <span className="text-neutral-600">
-                {registration.course?.startDate
-                  ? new Date(registration.course.startDate).toLocaleDateString()
-                  : 'N/A'}
+                {formatDateGerman(registration.course?.startDate)}
               </span>
             </div>
-            {registration.coupon && (
+            {/* Show status timestamps if present */}
+            {registration.infoSessionAt && (
+              <div className="flex items-center gap-1">
+                <span className="font-medium text-neutral-600">Info Session:</span>
+                <span className="text-neutral-600">
+                  {formatDateGerman(registration.infoSessionAt)}
+                </span>
+              </div>
+            )}
+            {registration.interestedAt && (
+              <div className="flex items-center gap-1">
+                <span className="font-medium text-neutral-600">Interested:</span>
+                <span className="text-neutral-600">
+                  {formatDateGerman(registration.interestedAt)}
+                </span>
+              </div>
+            )}
+            {registration.registeredAt && (
+              <div className="flex items-center gap-1">
+                <span className="font-medium text-neutral-600">Registered:</span>
+                <span className="text-neutral-600">
+                  {formatDateGerman(registration.registeredAt)}
+                </span>
+              </div>
+            )}
+            {registration.unregisteredAt && (
+              <div className="flex items-center gap-1">
+                <span className="font-medium text-neutral-600">Unregistered:</span>
+                <span className="text-neutral-600">
+                  {formatDateGerman(registration.unregisteredAt)}
+                </span>
+              </div>
+            )}
+            {/* General Remark */}
+            {registration.generalRemark && (
+              <div className="flex items-center gap-1">
+                <span className="font-medium text-neutral-600">Remark:</span>
+                <span className="text-neutral-600">{registration.generalRemark}</span>
+              </div>
+            )}
+            {/* Subsidy info */}
+            {(registration.subsidyRemark || registration.subsidyAmount) && (
               <div className="flex items-center gap-1 text-green-700">
-                <span className="font-medium">Coupon:</span>
-                <span className="font-semibold">{registration.coupon.code}</span>
-                {registration.coupon.percent && (
-                  <span className="ml-1 text-xs">({registration.coupon.percent}% off)</span>
+                <span className="font-medium">Subsidy:</span>
+                {registration.subsidyRemark && (
+                  <span>{registration.subsidyRemark}</span>
                 )}
-                {registration.coupon.amount && (
-                  <span className="ml-1 text-xs">({registration.coupon.amount}€ off)</span>
+                {registration.subsidyAmount && (
+                  <span className="ml-1 text-xs">({registration.subsidyAmount.toString()}€)</span>
                 )}
               </div>
             )}
-            {registration.discount && (
-              <div className="flex items-center gap-1 text-violet-700">
-                <span className="font-medium">Extra Discount:</span>
-                <span className="font-semibold">€{registration.discount}</span>
+            {/* Discount info */}
+            {(registration.discountRemark || registration.discountAmount) && (
+              <div className="flex items-center gap-1 text-blue-700">
+                <span className="font-medium">Discount:</span>
+                {registration.discountRemark && (
+                  <span>{registration.discountRemark}</span>
+                )}
+                {registration.discountAmount && (
+                  <span className="ml-1 text-xs">({registration.discountAmount.toString()}€)</span>
+                )}
               </div>
             )}
           </div>
@@ -309,8 +415,8 @@ export default async function ParticipantDetailsPage({
 
         {/* Invoices Section */}
         <section className="px-8 py-6 border-b border-neutral-200">
-          <AlignedList
-            items={registration.invoices}
+        <AlignedList<any>
+          items={sanitizedInvoices}
             fields={invoiceFields}
             actions={inv => (
               <form action={removeInvoice}>
@@ -332,7 +438,7 @@ export default async function ParticipantDetailsPage({
 
         {/* Documents Section */}
         <section className="px-8 py-6 border-b border-neutral-200">
-          <AlignedList
+          <AlignedList<Document>
             items={documents}
             fields={documentFields}
             actions={doc => (

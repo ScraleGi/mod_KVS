@@ -8,35 +8,38 @@ const prisma = new PrismaClient()
 async function createCourse(formData: FormData) {
   'use server'
 
-    const programId = formData.get('programId') as string
-    const startDate = formData.get('startDate') as string
-    const mainTrainerId = formData.get('mainTrainerId') as string
-    const filteredTrainerIds = formData.getAll('trainerIds') as string[]
+  const programId = formData.get('programId') as string
+  const startDate = formData.get('startDate') as string
+  const endDate = formData.get('endDate') as string // <-- add this line
+  const mainTrainerId = formData.get('mainTrainerId') as string
+  const filteredTrainerIds = formData.getAll('trainerIds') as string[]
 
-    // Kurs anlegen
-    await prisma.course.create({
-  data: {
-    program: { connect: { id: programId } },
-    startDate: new Date(startDate),
-    mainTrainer: { connect: { id: mainTrainerId } },
-    trainers: {
-      connect: filteredTrainerIds.map(id => ({ id })),
+  await prisma.course.create({
+    data: {
+      program: { connect: { id: programId } },
+      startDate: new Date(startDate),
+      endDate: new Date(endDate), // <-- add this line
+      mainTrainer: { connect: { id: mainTrainerId } },
+      trainers: {
+        connect: filteredTrainerIds.map(id => ({ id })),
+      },
     },
-    // createdAt, deletedAt werden automatisch gesetzt
-  },
-})
-    redirect('/course')
+  })
+  redirect('/course')
 }
 
 export default async function NewCoursePage() {
-    // Alle Trainer laden
     const trainers = await prisma.trainer.findMany({
         orderBy: { name: 'asc' },
     })
-    // Alle Programme laden
-    const programmes = await prisma.program.findMany({
+    // Serialize Decimal fields in programmes
+    const programmes = (await prisma.program.findMany({
         orderBy: { name: 'asc' },
-    })
+    })).map(p => ({
+        ...p,
+        price: p.price ? p.price.toString() : null, // <-- serialize Decimal to string
+    }))
+
     return (
         <div className="min-h-screen bg-gradient-to-b from-slate-50 to-blue-50 flex items-center justify-center p-4 sm:p-6 lg:p-8">
             <div className="w-full max-w-md">
@@ -51,11 +54,6 @@ export default async function NewCoursePage() {
                             programs={programmes}
                             onSubmit={createCourse}
                         />
-                        <div className="mt-8 text-center">
-                            <Link href="/course" className="text-blue-600 hover:underline">
-                                Zurück zur Kursliste
-                            </Link>
-                        </div>
                     </div>
                 </div>
             </div>

@@ -1,7 +1,6 @@
-import { PrismaClient, RegistrationStatus, RecipientType } from '../../../../generated/prisma/client'
+import { PrismaClient, RecipientType } from '../../../../generated/prisma'
 import Link from 'next/link'
 import { revalidatePath } from 'next/cache'
-import crypto from 'crypto'
 import ClientInvoiceModalWrapper from './ClientInvoiceModalWrapper'
 import ClientCourseModalWrapper from './ClientCourseModalWrapper'
 
@@ -13,7 +12,7 @@ interface ParticipantPageProps {
 }
 
 export default async function ParticipantPage({ params, searchParams }: ParticipantPageProps) {
-  const { id } = params
+  const { id } = await params
 
   // Fetch participant and their registrations
   const participant = await prisma.participant.findUnique({
@@ -22,23 +21,82 @@ export default async function ParticipantPage({ params, searchParams }: Particip
       registrations: {
         include: {
           course: { include: { program: true } },
-          invoices: true,
-          coupon: true,
+          invoices: {
+            include: {
+              recipient: true,
+            }
+          },
         }
       },
       invoiceRecipients: true,
     }
   })
 
+  if (!participant) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-neutral-50">
+        <div className="max-w-md w-full px-4">
+          <Link href="/" className="text-blue-500 hover:underline mb-6 block">
+            &larr; Back to Home
+          </Link>
+          <div className="text-red-600 text-lg font-semibold">Participant not found.</div>
+        </div>
+      </div>
+    )
+  }
+
   // Fetch courses where participant is NOT registered
   const registeredCourseIds = participant?.registrations.map(r => r.courseId) ?? []
-  const availableCourses = await prisma.course.findMany({
+  let availableCourses = await prisma.course.findMany({
     where: {
       id: { notIn: registeredCourseIds },
       deletedAt: null,
     },
     include: { program: true }
   })
+
+  // --- SANITIZE availableCourses ---
+  availableCourses = availableCourses.map(course => ({
+    ...course,
+    program: course.program
+      ? {
+          ...course.program,
+          price: course.program.price ? course.program.price.toString() : null,
+        }
+      : null,
+  })) as any
+
+  // --- SANITIZE registrations for client component ---
+  // Only convert subsidyAmount and discountAmount for the course registration list
+  const sanitizedRegistrations = participant.registrations.map(reg => ({
+    ...reg,
+    subsidyAmount: reg.subsidyAmount ? reg.subsidyAmount.toString() : null,
+    discountAmount: reg.discountAmount ? reg.discountAmount.toString() : null,
+    course: reg.course
+      ? {
+          ...reg.course,
+          program: reg.course.program
+            ? {
+                ...reg.course.program,
+                price: reg.course.program.price ? reg.course.program.price.toString() : null,
+              }
+            : null,
+        }
+      : null,
+    invoices: reg.invoices.map(inv => ({
+      ...inv,
+      amount: inv.amount != null ? inv.amount.toString() : null,
+      recipient: inv.recipient,
+    })),
+  }))
+
+  // Flatten all invoices for listing (sanitize amount here)
+  const allInvoices = sanitizedRegistrations.flatMap(reg =>
+    reg.invoices.map(inv => ({
+      ...inv,
+      course: reg.course,
+    }))
+  )
 
   // Fetch all documents for this participant (not soft-deleted)
   const registrationIds = participant?.registrations.map(r => r.id) ?? []
@@ -63,12 +121,10 @@ export default async function ParticipantPage({ params, searchParams }: Particip
   async function registerToCourse(formData: FormData) {
     'use server'
     const courseId = formData.get('courseId') as string
-    const status = formData.get('status') as RegistrationStatus
     await prisma.courseRegistration.create({
       data: {
         courseId,
         participantId: id,
-        status,
       }
     })
     revalidatePath(`/participant/${id}`)
@@ -92,36 +148,58 @@ export default async function ParticipantPage({ params, searchParams }: Particip
 
     // Get recipient fields from form
     const recipientType = formData.get('recipientType') as RecipientType
-    const recipientName = formData.get('recipientName') as string
-    const recipientEmail = formData.get('recipientEmail') as string | null
-    const recipientAddress = formData.get('recipientAddress') as string | null
+    const recipientName = formData.get('recipientName') as string | null
+    const recipientSurname = formData.get('recipientSurname') as string | null
+    const companyName = formData.get('companyName') as string | null
+    const recipientEmail = formData.get('recipientEmail') as string
+    const postalCode = formData.get('postalCode') as string
+    const recipientCity = formData.get('recipientCity') as string
+    const recipientStreet = formData.get('recipientStreet') as string
+    const recipientCountry = formData.get('recipientCountry') as string
 
-    if (!recipientType || !recipientName) {
-      throw new Error('Recipient type and name are required.')
+    if (!recipientType || !recipientEmail || !postalCode || !recipientCity || !recipientStreet || !recipientCountry) {
+      throw new Error('All recipient fields are required.')
+    }
+
+    let recipientData: any = {
+      type: recipientType,
+      recipientEmail,
+      postalCode,
+      recipientCity,
+      recipientStreet,
+      recipientCountry,
+    }
+
+    if (recipientType === RecipientType.PERSON) {
+      recipientData.recipientName = recipientName
+      recipientData.recipientSurname = recipientSurname
+      recipientData.companyName = null
+      recipientData.participantId = id
+    } else if (recipientType === RecipientType.COMPANY) {
+      recipientData.companyName = companyName
+      recipientData.recipientName = null
+      recipientData.recipientSurname = null
+      recipientData.participantId = null
     }
 
     // Create the recipient
     const recipient = await prisma.invoiceRecipient.create({
-      data: {
-        type: recipientType,
-        name: recipientName,
-        email: recipientEmail || null,
-        address: recipientAddress || null,
-      }
+      data: recipientData
     })
 
-    // Generate a unique transaction number
-    const transactionNumber = `INV-${Date.now()}-${crypto.randomBytes(3).toString('hex').toUpperCase()}`
+    // Generate a unique invoice number
+  const invoiceNumber = `INV-${Date.now()}-${Math.floor(Math.random() * 1000)}`
 
-    await prisma.invoice.create({
-      data: {
-        courseRegistrationId: registrationId,
-        amount,
-        transactionNumber,
-        dueDate: dueDateString ? new Date(dueDateString) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        recipientId: recipient.id,
-      }
-    })
+  await prisma.invoice.create({
+    data: {
+      invoiceNumber,
+      courseRegistrationId: registrationId,
+      amount,
+      transactionNumber: null, // explicitly set to null for unpaid invoice
+      dueDate: dueDateString ? new Date(dueDateString) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      recipientId: recipient.id,
+    }
+  })
     revalidatePath(`/participant/${id}`)
   }
 
@@ -144,19 +222,6 @@ export default async function ParticipantPage({ params, searchParams }: Particip
       data: { deletedAt: new Date() }
     })
     revalidatePath(`/participant/${id}`)
-  }
-
-  if (!participant) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-neutral-50">
-        <div className="max-w-md w-full px-4">
-          <Link href="/" className="text-blue-500 hover:underline mb-6 block">
-            &larr; Back to Home
-          </Link>
-          <div className="text-red-600 text-lg font-semibold">Participant not found.</div>
-        </div>
-      </div>
-    )
   }
 
   // Helper for aligned listing
@@ -218,22 +283,6 @@ export default async function ParticipantPage({ params, searchParams }: Particip
           >
             {reg.course?.program?.name ?? 'Unknown Course'}
           </Link>
-          {reg.coupon && (
-            <span
-              title={`Coupon: ${reg.coupon.code}${reg.coupon.percent ? ` (${reg.coupon.percent}% off)` : ''}${reg.coupon.amount ? ` (${reg.coupon.amount}€ off)` : ''}`}
-              className="inline-flex items-center justify-center w-5 h-5 rounded-sm bg-white border border-green-600"
-            >
-              <span className="text-xs font-bold text-green-600">G</span>
-            </span>
-          )}
-          {reg.discount && (
-            <span
-              title={`Extra Discount: €${reg.discount}`}
-              className="inline-flex items-center justify-center w-5 h-5 rounded-sm bg-white border border-violet-500"
-            >
-              <span className="text-xs font-bold text-violet-500">R</span>
-            </span>
-          )}
           {reg.course?.startDate && (
             <span className="text-xs text-neutral-400 ml-2">
               {new Date(reg.course.startDate).toLocaleDateString('de-DE')}
@@ -243,13 +292,6 @@ export default async function ParticipantPage({ params, searchParams }: Particip
       ),
       width: 'flex-[2]'
     },
-    {
-      label: 'Status',
-      render: (reg: typeof participant.registrations[0]) => (
-        <div className="flex items-center h-full text-xs text-neutral-400">{reg.status}</div>
-      ),
-      width: 'flex-1'
-    }
   ]
 
   // Invoice listing data
@@ -262,7 +304,7 @@ export default async function ParticipantPage({ params, searchParams }: Particip
             href={`/invoice/${inv.id}`}
             className="text-blue-700 hover:text-blue-900 font-medium text-sm"
           >
-            #{inv.transactionNumber ?? inv.id}
+            #{inv.invoiceNumber ?? inv.id}
           </Link>
           {inv.course?.program?.name && (
             <span className="text-xs text-neutral-400 ml-2">
@@ -279,6 +321,18 @@ export default async function ParticipantPage({ params, searchParams }: Particip
         <div className="flex items-center h-full text-neutral-700 text-sm">€{inv.amount}</div>
       ),
       width: 'flex-1'
+    },
+    {
+      label: 'Recipient',
+      render: (inv: any) => (
+        <div className="flex flex-col text-neutral-700 text-xs">
+          {inv.recipient?.type === 'COMPANY'
+            ? inv.recipient?.companyName
+            : `${inv.recipient?.recipientName ?? ''} ${inv.recipient?.recipientSurname ?? ''}`}
+          <span className="text-neutral-400">{inv.recipient?.recipientEmail}</span>
+        </div>
+      ),
+      width: 'flex-[2]'
     }
   ]
 
@@ -326,14 +380,6 @@ export default async function ParticipantPage({ params, searchParams }: Particip
     }
   ]
 
-  // Flatten all invoices for listing
-  const allInvoices = participant.registrations.flatMap(reg =>
-    reg.invoices.map(inv => ({
-      ...inv,
-      course: reg.course
-    }))
-  )
-
   return (
     <div className="min-h-screen bg-neutral-50 flex items-center justify-center px-2 py-8">
       <div className="w-full max-w-2xl bg-white rounded-2xl shadow-md border border-neutral-100 p-0 overflow-hidden">
@@ -354,9 +400,9 @@ export default async function ParticipantPage({ params, searchParams }: Particip
 
         {/* Courses Registered */}
         <section className="px-8 py-6 border-b border-neutral-200">
-          <AlignedList
-            items={participant.registrations}
-            fields={courseFields}
+        <AlignedList
+          items={participant.registrations}
+          fields={courseFields}
             actions={reg => (
               <form action={removeRegistration}>
                 <input type="hidden" name="registrationId" value={reg.id} />
@@ -376,7 +422,6 @@ export default async function ParticipantPage({ params, searchParams }: Particip
               <ClientCourseModalWrapper
                 registerToCourse={registerToCourse}
                 availableCourses={availableCourses}
-                RegistrationStatus={RegistrationStatus}
               />
             }
           />
@@ -405,7 +450,7 @@ export default async function ParticipantPage({ params, searchParams }: Particip
             addButton={
               <ClientInvoiceModalWrapper
                 addInvoice={addInvoice}
-                registrations={participant.registrations}
+                registrations={sanitizedRegistrations}
               />
             }
           />

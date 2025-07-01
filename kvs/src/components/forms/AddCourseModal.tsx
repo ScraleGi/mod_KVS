@@ -6,13 +6,11 @@ export default function AddCourseModal({
   onClose,
   onSubmit,
   availableCourses,
-  RegistrationStatus,
 }: {
   open: boolean
   onClose: () => void
   onSubmit: (formData: FormData) => Promise<void>
   availableCourses: any[]
-  RegistrationStatus: any
 }) {
   const dialogRef = useRef<HTMLDivElement>(null)
 
@@ -62,21 +60,6 @@ export default function AddCourseModal({
                 <option key={course.id} value={course.id}>
                   {course.program?.name ?? 'Course'} ({new Date(course.startDate).toLocaleDateString()})
                 </option>
-              ))}
-            </select>
-          </div>
-          <div className="space-y-1">
-            <label className="block text-xs font-medium text-gray-600 text-left" htmlFor="status">
-              Status
-            </label>
-            <select
-              id="status"
-              name="status"
-              required
-              className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-            >
-              {(Object.values(RegistrationStatus) as string[]).map(status => (
-                <option key={status} value={status}>{status}</option>
               ))}
             </select>
           </div>
