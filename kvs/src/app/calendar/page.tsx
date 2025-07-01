@@ -21,6 +21,7 @@ export default async function CalendarPage() {
     id: course.id,
     title: course.program?.name ?? 'Kurs',
     start: course.startDate.toISOString(),
+    allDay: true,
     mainTrainer: course.mainTrainer?.name ?? '',
     coTrainers: course.trainers?.map(t => t.name) ?? []
   }));

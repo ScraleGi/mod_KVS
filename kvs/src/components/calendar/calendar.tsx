@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
@@ -8,41 +8,98 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 
 type EventType = {
   id: string;
-  title: string;
+  title?: string; // optional, damit Background-Events kein title brauchen
   start: string;
   end?: string;
-  mainTrainer: string;
-  coTrainers: string[];
+  allDay?: boolean;
+  mainTrainer?: string;
+  coTrainers?: string[];
+  display?: string;
+  color?: string;
 };
 
+// Hilfsfunktion: Gibt ein Set aller Feiertagsdaten (YYYY-MM-DD) zurück
+function getHolidayDates(events: EventType[]): Set<string> {
+  return new Set(
+    events
+      .filter(e => e.id.startsWith('holiday-'))
+      .map(e => e.start.slice(0, 10))
+  );
+}
 
 // highlighting Holidays 
 function renderEventContent(eventInfo: any) {
   const isHoliday = eventInfo.event.id.startsWith('holiday-');
   return (
-    <div style={{ color: isHoliday ? 'red' : 'black' }}>
+    <div style={{ color: isHoliday ? 'white' : 'black' }}>
       <b>{eventInfo.timeText}</b> {eventInfo.event.title}
     </div>
   );
 }
 
-const Calendar: React.FC<{ events: EventType[] }> = ({ events }) => (
-  <div className="p-4 bg-white rounded-2xl shadow-lg">
-    <FullCalendar
-      plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-      initialView="timeGridWeek"
-      slotDuration='00:30:00' // ← Optional: Zeitslots alle 30 Minuten
-      slotMinTime='06:00:00'   // ← Optional: Kalender startet um 8 Uhr
-      slotMaxTime='24:00:00'   // ← Optional: Kalender endet um 18 Uhr
-      allDaySlot={false}          // ← Optional: All-Day-Zeile ausblenden
-      events={events}
-      selectable
-      editable
-      height= {1000}
-      eventContent={renderEventContent}
-    />
-  </div>
+const Calendar: React.FC<{ events: EventType[] }> = ({ events }) => {
+  const holidayDates = getHolidayDates(events);
+  const [backgroundEvents, setBackgroundEvents] = useState<EventType[]>([]);
 
-);
+  // Callback, wenn sich der sichtbare Bereich ändert
+  const handleDatesSet = useCallback((arg: any) => {
+    const start = new Date(arg.start);
+    const end = new Date(arg.end);
+    const bgEvents: EventType[] = [];
+    for (let d = new Date(start); d < end; d.setDate(d.getDate() + 1)) {
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      // 6-13 Uhr
+      bgEvents.push({
+        id: `bg-morning-${yyyy}${mm}${dd}`,
+        start: `${yyyy}-${mm}-${dd}T06:00:00`,
+        end: `${yyyy}-${mm}-${dd}T13:00:00`,
+        display: 'background',
+        color: '#d1d5db'
+      });
+      // 17-23 Uhr
+      bgEvents.push({
+        id: `bg-evening-${yyyy}${mm}${dd}`,
+        start: `${yyyy}-${mm}-${dd}T18:00:00`,
+        end: `${yyyy}-${mm}-${dd}T24:00:00`,
+        display: 'background',
+        color: '#d1d5db'
+      });
+    }
+    setBackgroundEvents(bgEvents);
+  }, []);
+
+  return (
+    <div className="p-4 bg-white rounded-2xl shadow-lg">
+      <FullCalendar
+        plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+        initialView="timeGridWeek"
+        slotDuration='00:30:00'
+        slotMinTime='06:00:00'
+        slotMaxTime='24:00:00'
+        events={[...events, ...backgroundEvents]}
+        selectable
+        editable
+        height={1100}
+        eventContent={renderEventContent}
+        eventClassNames={(arg) => {
+          if (arg.event.id.startsWith('holiday-')) {
+            return ['bg-red-200', 'text-white', 'border-none'];
+          }
+          return [];
+        }}
+        dayCellClassNames={arg => {
+          const dateStr = arg.date.toISOString().slice(0, 10);
+          if (holidayDates.has(dateStr)) {
+            return ['bg-red-100'];
+          }
+          return [];
+        }}
+        datesSet={handleDatesSet}
+      />
+    </div>
+  );
+};
 
 export default Calendar;
