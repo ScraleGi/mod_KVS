@@ -1,5 +1,5 @@
 import { PrismaClient } from '../../generated/prisma'
-import { CourseTable, columns, CourseRow } from '../components/overviewTable/table'
+import { CourseTable, home, CourseRow } from '../components/overviewTable/table'
 import Dashboard from '@/components/navigation/Dashboard'
 
 export default async function Home() {
@@ -44,7 +44,8 @@ export default async function Home() {
     <div className="p-8">
       <Dashboard />
       <h1 className="text-3xl font-bold mb-6">Courses Overview</h1>
-      <CourseTable data={tableData} columns={columns} />
+      <CourseTable data={tableData} columns={home} />
     </div>
   )
 }
+
