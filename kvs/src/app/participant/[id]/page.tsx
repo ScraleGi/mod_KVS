@@ -12,7 +12,7 @@ interface ParticipantPageProps {
 }
 
 export default async function ParticipantPage({ params, searchParams }: ParticipantPageProps) {
-  const { id } = params
+  const { id } = await params
 
   // Fetch participant and their registrations
   const participant = await prisma.participant.findUnique({
