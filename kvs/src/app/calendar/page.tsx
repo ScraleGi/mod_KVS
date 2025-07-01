@@ -16,7 +16,7 @@ export default async function CalendarPage() {
   });
 
   const holidays = await prisma.holiday.findMany();
-
+  //Coures-Events 
   const CourseEvents = courses.map(course => ({
     id: course.id,
     title: course.program?.name ?? 'Kurs',
@@ -24,7 +24,7 @@ export default async function CalendarPage() {
     mainTrainer: course.mainTrainer?.name ?? '',
     coTrainers: course.trainers?.map(t => t.name) ?? []
   }));
-
+  //Holiday-Events
   const holidayEvents = holidays.map(holiday => ({
     id: `holiday-${holiday.id}`,
     title: holiday.title + '(Feiertag)',
