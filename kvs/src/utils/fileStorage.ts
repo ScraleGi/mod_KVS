@@ -1,16 +1,24 @@
 import fs from 'fs/promises';
 import path from 'path';
 
-const pdfDir = path.join(process.cwd(), 'src', 'storage', 'pdfs');
 
-export async function savePDF(filename: string, data: Buffer): Promise<string> {
+function getStoragePath(uuidString: string): string {
+  const pdfDir = path.join(process.env.STORAGE_ROOT || process.cwd() ,'pdf', uuidString) ;
+
+  return pdfDir;
+}
+
+
+export async function savePDF(uuidString: string, filename: string, data: Buffer): Promise<string> {
+  const pdfDir = getStoragePath(uuidString);
   await fs.mkdir(pdfDir, { recursive: true });
   const filePath = path.join(pdfDir, filename);
   await fs.writeFile(filePath, data);
   return filePath;
 }
 
-export async function loadPDF(filename: string): Promise<Buffer | null> {
+export async function loadPDF(uuidString: string, filename: string): Promise<Buffer | null> {
+  const pdfDir = getStoragePath(uuidString);
   const filePath = path.join(pdfDir, filename);
   try {
     return await fs.readFile(filePath);
@@ -19,7 +27,8 @@ export async function loadPDF(filename: string): Promise<Buffer | null> {
   }
 }
 
-export async function pdfExists(filename: string): Promise<boolean> {
+export async function pdfExists(uuidString: string, filename: string): Promise<boolean> {
+  const pdfDir = getStoragePath(uuidString);
   const filePath = path.join(pdfDir, filename);
   try {
     await fs.access(filePath);

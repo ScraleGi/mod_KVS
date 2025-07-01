@@ -2,8 +2,12 @@
 
 import { generatePDF } from '@/utils/generatePDF'
 import { savePDF } from '@/utils/fileStorage'
+import { PrismaClient } from '../../../generated/prisma'
 
-export async function generateAndDownloadPDF(type: string, data: any, filename?: string): Promise<Buffer> {
+
+const prisma = new PrismaClient()
+
+export async function generateAndDownloadPDF(uuidString: string, type: string, data: any, filename?: string): Promise<Buffer> {
   if (!type || !data) {
     throw new Error('Missing type or data for PDF generation')
   }
@@ -11,7 +15,22 @@ export async function generateAndDownloadPDF(type: string, data: any, filename?:
   const pdfBuffer = await generatePDF(type, data)
   const finalFilename = filename || `${type}_${Date.now()}.pdf`
 
-  await savePDF(finalFilename, pdfBuffer)
+  await savePDF(uuidString, finalFilename, pdfBuffer)
+  prisma.document.create({
+    data: {
+      role: type,
+      file: finalFilename,
+      courseRegistrationId: uuidString
+    }
+  })  
+  .then(() => console.log('Document has been registered in DB.'))
+  .catch((e) => {
+    console.error(e)
+  })
+  .finally(async () => {
+    await prisma.$disconnect()
+  })
+
 
   return pdfBuffer
 }

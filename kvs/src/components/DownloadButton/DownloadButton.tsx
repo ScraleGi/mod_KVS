@@ -4,16 +4,17 @@ import React from 'react'
 import { generateAndDownloadPDF } from '@/app/actions/pdfActions'
 
 type Props = {
+  uuidString: string
   registration: any
   documentType: string
   filename: string
 }
 
 
-export function DownloadPDFButton({ registration, documentType, filename }: Props) {
+export function DownloadPDFButton({ uuidString, registration, documentType, filename }: Props) {
   const handleDownload = async () => {
     try {
-      const buffer = await generateAndDownloadPDF(documentType, registration, filename)
+      const buffer = await generateAndDownloadPDF(uuidString, documentType, registration, filename)
 
       const blob = new Blob([buffer], { type: 'application/pdf' })
       const link = document.createElement('a')
