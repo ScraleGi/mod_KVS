@@ -1,6 +1,7 @@
 import { PrismaClient, RecipientType } from '../../../../../../generated/prisma'
 import Link from 'next/link'
 import { revalidatePath } from 'next/cache'
+import type { Invoice, Document } from '../../../../../../generated/prisma'
 
 const prisma = new PrismaClient()
 
@@ -31,21 +32,29 @@ export default async function ParticipantDetailsPage({
   }
 
   // Fetch registration for this participant in this course
-  const registration = await prisma.courseRegistration.findFirst({
-    where: {
-      courseId,
-      participantId,
+const registration = await prisma.courseRegistration.findFirst({
+  where: {
+    courseId,
+    participantId,
+  },
+  include: {
+    participant: true,
+    course: { include: { program: true } },
+    invoices: {
+      include: {
+        recipient: true,
+      }
     },
-    include: {
-      participant: true,
-      course: { include: { program: true } },
-      invoices: {
-        include: {
-          recipient: true,
-        }
-      },
-    }
-  })
+  }
+})
+
+// Sanitize invoices (convert Decimal to string)
+const sanitizedInvoices = registration
+  ? registration.invoices.map(inv => ({
+      ...inv,
+      amount: inv.amount?.toString(),
+    }))
+  : []
 
   // Fetch documents for this registration (not soft-deleted)
   const documents = registration
@@ -154,7 +163,7 @@ export default async function ParticipantDetailsPage({
   // Invoice listing data for this registration
   const invoiceFields: {
     label: string,
-    render: (inv: Invoice) => React.ReactNode,
+    render: (inv: any) => React.ReactNode,
     width?: string
   }[] = [
     {
@@ -174,7 +183,9 @@ export default async function ParticipantDetailsPage({
     {
       label: 'Amount',
       render: (inv) => (
-        <div className="flex items-center h-full text-neutral-700 text-sm">€{inv.amount}</div>
+        <div className="flex items-center h-full text-neutral-700 text-sm">
+          €{inv.amount?.toString()}
+        </div>
       ),
       width: 'flex-1'
     },
@@ -404,8 +415,8 @@ export default async function ParticipantDetailsPage({
 
         {/* Invoices Section */}
         <section className="px-8 py-6 border-b border-neutral-200">
-          <AlignedList<Invoice>
-            items={registration.invoices}
+        <AlignedList<any>
+          items={sanitizedInvoices}
             fields={invoiceFields}
             actions={inv => (
               <form action={removeInvoice}>

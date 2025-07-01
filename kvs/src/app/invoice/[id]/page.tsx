@@ -38,7 +38,7 @@ function formatRecipient(recipient: any) {
 }
 
 export default async function InvoicePage({ params }: InvoicePageProps) {
-  const { id } = params
+  const { id } = await params
 
   const invoiceRaw = await prisma.invoice.findUnique({
     where: { id },
