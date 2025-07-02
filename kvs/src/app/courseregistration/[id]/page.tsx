@@ -39,6 +39,7 @@ export default async function CourseRegistrationPage({ params }: CourseRegistrat
   const certificateFilename = `certificate_${participantName}_${dateStr}.pdf`;
   const kursRegelnFilename = `KursRegeln_${participantName}_${dateStr}.pdf`;
   const teilnahmebestaetigungFilename = `Teilnahmebestaetigung_${participantName}_${dateStr}.pdf`;
+  const invoiceFilename = `invoice_${participantName}_${dateStr}.pdf`;
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50">
@@ -70,7 +71,7 @@ export default async function CourseRegistrationPage({ params }: CourseRegistrat
           <div className="space-y-3">
             {/* Certificate Row */}
             <div className="flex items-center justify-between bg-blue-50 rounded px-4 py-3 h-14">
-              <span className="font-medium text-blue-700 truncate">Certificate PDF</span>
+              <span className="font-medium text-blue-700 truncate">Certificate</span>
               <div className="flex-shrink-0">
                 <DownloadPDFButton
                   uuidString={registration.id}
@@ -83,7 +84,7 @@ export default async function CourseRegistrationPage({ params }: CourseRegistrat
 
             {/* Kursregeln Row */}
             <div className="flex items-center justify-between bg-emerald-50 rounded px-4 py-3 h-14">
-              <span className="font-medium text-emerald-700 truncate">Kursregeln PDF</span>
+              <span className="font-medium text-emerald-700 truncate">Kursregeln</span>
               <div className="flex-shrink-0">
                 <DownloadPDFButton
                   uuidString={registration.id}
@@ -96,13 +97,26 @@ export default async function CourseRegistrationPage({ params }: CourseRegistrat
 
             {/* Teilnahmebestätigung Row */}
             <div className="flex items-center justify-between bg-yellow-50 rounded px-4 py-3 h-14">
-              <span className="font-medium text-yellow-700 truncate">Teilnahmebestätigung PDF</span>
+              <span className="font-medium text-yellow-700 truncate">Teilnahmebestätigung</span>
               <div className="flex-shrink-0">
                 <DownloadPDFButton
                   uuidString={registration.id}
                   registration={registration}
                   documentType="Teilnahmebestaetigung"
                   filename={teilnahmebestaetigungFilename}
+                />
+              </div>
+            </div>
+
+            {/* invoice Row */}
+            <div className="flex items-center justify-between bg-yellow-50 rounded px-4 py-3 h-14">
+              <span className="font-medium text-yellow-700 truncate">Rechnung</span>
+              <div className="flex-shrink-0">
+                <DownloadPDFButton
+                  uuidString={registration.id}
+                  registration={registration}
+                  documentType="invoice"
+                  filename={invoiceFilename}
                 />
               </div>
             </div>
