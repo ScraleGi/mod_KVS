@@ -23,7 +23,7 @@ export async function generateAndDownloadPDF(uuidString: string, type: string, d
   const finalFilename = filename || `${type}_${Date.now()}.pdf`
 
   await savePDF(uuidString, finalFilename, pdfBuffer)
-  prisma.document.create({
+  await prisma.document.create({
     data: {
       role: type,
       file: finalFilename,
