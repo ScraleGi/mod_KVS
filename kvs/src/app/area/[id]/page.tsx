@@ -5,8 +5,10 @@ import { notFound } from 'next/navigation'
 const prisma = new PrismaClient()
 
 export default async function AreaDetailPage({ params }: { params: { id: string } }) {
+const { id } = await params;
+// here await added 
   const area = await prisma.area.findUnique({
-    where: { id: params.id, deletedAt: null },
+    where: { id, deletedAt: null },
     include: {
       programs: {
         where: { deletedAt: null },
@@ -14,9 +16,9 @@ export default async function AreaDetailPage({ params }: { params: { id: string 
         select: { id: true, name: true, description: true }
       }
     }
-  })
+  });
 
-  if (!area) return notFound()
+  if (!area) return notFound();
 
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4">
