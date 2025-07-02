@@ -82,7 +82,7 @@ export default async function ParticipantDetailsPage({
       },
     }
   })
-
+  console.log('Registration:', registration)
   // Sanitize registration for client components
   const sanitizedRegistration = sanitizeRegistration(registration)
 
