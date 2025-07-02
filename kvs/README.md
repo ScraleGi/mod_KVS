@@ -71,7 +71,7 @@ STORAGE_ROOT="PFAD" einfügen.
 info: 
 1. auf explorer den pfad kopiereen = PFAD
 2. den PFAD in STORAGE_ROOT=PFAD in der .env datei einfügen
-3. die \-backlslahses zusätlichen backslash zufügen
+3. bei \-(backlslahses) zusätzlichen backslash zufügen
 
 bsp: 
 
