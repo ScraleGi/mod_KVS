@@ -1,7 +1,8 @@
 'use client';
 
 import { Geist, Geist_Mono } from "next/font/google";
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation'
 import Sidebar from '@/components/navigation/Sidebar';
 import Navbar from '@/components/navigation/Navbar';
 import "./globals.css";
@@ -22,25 +23,46 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  
-// State für Sidebar-Öffnen/Schließen
-const [isOpen, setOpen] = useState(true);
+  const [isOpen, setOpen] = useState(true);
+  const [user, setUser] = useState<string | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const res = await fetch('/api/session');
+        const data = await res.json();
+        if (data.user){
+          setUser(data.user.email);
+        } else {
+          setUser(null);
+          router.push('/auth/login')
+        }
+      } catch (_error) {
+        setUser(null);
+        router.push('/auth/login')
+      }
+    };
+    checkAuth();
+  }, [router]);
 
   return (
-    <html lang="en">
-      <body className={`min-h-screen flex flex-col ${geistSans.variable} ${geistMono.variable}`}>
-        <Navbar isOpen={isOpen} setOpen={setOpen} />
-        <div className="flex grow">
-          <Sidebar isOpen={isOpen} />
-          <main className="flex-1 transition-all duration-200">{children}</main>
-        </div>
+    <html lang="de">
+      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+        {user == null ? (
+          <div className="min-h-screen flex flex-col">
+            {/* Hier könntest du einen Loader anzeigen */}
+          </div>
+        ) : (
+          <div className="min-h-screen flex flex-col">
+            <Navbar isOpen={isOpen} setOpen={setOpen} user={user}/>
+            <div className="flex grow">
+              <Sidebar isOpen={isOpen} />
+              <main className="flex-1 transition-all duration-200">{children}</main>
+            </div>
+          </div>
+        )}
       </body>
     </html>
   );
 }
-
-
-
-// 1: ABOUT SEITE 
-// 2. parameter [slug] 
-// 3. Db connection (mySQL2)

@@ -2,12 +2,13 @@
 
 import * as React from "react"
 import { Dialog, DialogContent, DialogTrigger, DialogTitle } from "@/components/ui/dialog"
+import Link from "next/link"
 
 export function CourseParticipantsDialog({
   participants,
   children,
 }: {
-  participants: { id: string; name: string; email?: string }[] // <-- add email
+  participants: { id: string; name: string; surname?: string; email?: string }[]
   children: React.ReactNode
 }) {
   const [open, setOpen] = React.useState(false)
@@ -26,7 +27,12 @@ export function CourseParticipantsDialog({
           <ul>
             {participants.map(p => (
               <li key={p.id}>
-                {p.name}
+                <Link
+                  href={`/participant/${p.id}`}
+                  className="text-blue-600 hover:underline"
+                >
+                  {p.name} {p.surname}
+                </Link>
                 {p.email && (
                   <span className="ml-2 text-xs text-neutral-500">&lt;{p.email}&gt;</span>
                 )}

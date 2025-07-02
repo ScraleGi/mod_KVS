@@ -1,6 +1,6 @@
 import { PrismaClient } from "../../../generated/prisma/client"
-import { CourseTable } from "@/components/overviewTable/table"
-import { participantColumns, ParticipantRow, AddParticipantButton } from "@/components/overviewTable/participantColumns"
+import { CourseTable, participantColumns, ParticipantRow } from "@/components/overviewTable/table"
+import { AddParticipantButton } from "@/components/participants/buttonAddParticipant"
 
 const prisma = new PrismaClient()
 
@@ -24,6 +24,7 @@ export default async function ParticipantOverviewPage() {
 const data: ParticipantRow[] = participants.map(p => ({
   id: p.id,
   name: p.name,
+  surname: p.surname,
   email: p.email,
   phoneNumber: p.phoneNumber,
   courses: p.registrations
@@ -41,7 +42,7 @@ const data: ParticipantRow[] = participants.map(p => ({
         <h1 className="text-2xl font-bold">Participants Overview</h1>
         <AddParticipantButton />
       </div>
-      <CourseTable data={data} columns={participantColumns} filterColumn="name" />
+      <CourseTable<ParticipantRow> data={data} columns={participantColumns} filterColumn="name" />
     </div>
   )
 }

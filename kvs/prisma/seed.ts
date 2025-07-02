@@ -1,23 +1,20 @@
-// npx prisma migrate reset   -> to reset the database
-// npx prisma db seed         -> to seed the database with dummy data
-
-import { PrismaClient, RecipientType } from '../generated/prisma'
+import { PrismaClient, RecipientType, Prisma } from '../generated/prisma'
 
 const prisma = new PrismaClient()
 
 // -------------------- Area Seeding --------------------
 async function seedAreas() {
-  const areaNames = [
-    'KI Campus',
-    'It & Coding Campus',
-    'Digital Markeing Academy',
-    'Green Campus',
-    'Business & Management Academy',
-    'E-Learning Lehrgänge',
-    'Digital Studies',
+  const areaData = [
+    { name: 'KI Campus', description: 'Artificial Intelligence and Machine Learning programs' },
+    { name: 'It & Coding Campus', description: 'IT and software development courses' },
+    { name: 'Digital Markeing Academy', description: 'Digital marketing and online business' },
+    { name: 'Green Campus', description: 'Sustainability and green technology education' },
+    { name: 'Business & Management Academy', description: 'Business, management, and leadership' },
+    { name: 'E-Learning Lehrgänge', description: 'Online learning and remote education' },
+    { name: 'Digital Studies', description: 'Digital transformation and modern studies' },
   ]
   await prisma.area.createMany({
-    data: areaNames.map(name => ({ name })),
+    data: areaData,
     skipDuplicates: true,
   })
   const areas = await prisma.area.findMany()
@@ -28,20 +25,20 @@ async function seedAreas() {
 async function seedPrograms(areaMap: Record<string, string>) {
   await prisma.program.createMany({
     data: [
-      { name: 'AI Fundamentals', description: 'Introduction to Artificial Intelligence.', teachingUnits: 8, price: 299.99, areaId: areaMap['KI Campus'] },
-      { name: 'Machine Learning Basics', teachingUnits: 10, price: 349.99, areaId: areaMap['KI Campus'] },
-      { name: 'Web Development Bootcamp', description: 'Full stack web development.', teachingUnits: 12, price: 399.99, areaId: areaMap['It & Coding Campus'] },
-      { name: 'Python for Beginners', teachingUnits: 6, price: 149.99, areaId: areaMap['It & Coding Campus'] },
+      { name: 'AI Fundamentals', description: 'Introduction to Artificial Intelligence.', teachingUnits: 8, price: new Prisma.Decimal('299.99'), areaId: areaMap['KI Campus'] },
+      { name: 'Machine Learning Basics', teachingUnits: 10, price: new Prisma.Decimal('349.99'), areaId: areaMap['KI Campus'] },
+      { name: 'Web Development Bootcamp', description: 'Full stack web development.', teachingUnits: 12, price: new Prisma.Decimal('399.99'), areaId: areaMap['It & Coding Campus'] },
+      { name: 'Python for Beginners', teachingUnits: 6, price: new Prisma.Decimal('149.99'), areaId: areaMap['It & Coding Campus'] },
       { name: 'Digital Marketing 101', description: 'Basics of digital marketing.', teachingUnits: 7, areaId: areaMap['Digital Markeing Academy'] },
       { name: 'Sustainability in Business', description: 'Green business practices.', teachingUnits: 5, areaId: areaMap['Green Campus'] },
-      { name: 'Business Strategy', teachingUnits: 9, price: 299.99, areaId: areaMap['Business & Management Academy'] },
+      { name: 'Business Strategy', teachingUnits: 9, price: new Prisma.Decimal('299.99'), areaId: areaMap['Business & Management Academy'] },
       { name: 'E-Learning Essentials', description: 'How to create effective e-learning courses.', areaId: areaMap['E-Learning Lehrgänge'] },
-      { name: 'Digital Transformation', teachingUnits: 8, price: 199.99, areaId: areaMap['Digital Studies'] },
-      { name: 'Cloud Computing Basics', teachingUnits: 8, price: 249.99, areaId: areaMap['It & Coding Campus'] },
-      { name: 'Project Management', teachingUnits: 10, price: 299.99, areaId: areaMap['Business & Management Academy'] },
-      { name: 'Data Visualization', teachingUnits: 7, price: 199.99, areaId: areaMap['Digital Studies'] },
-      { name: 'Agile Methodologies', teachingUnits: 6, price: 179.99, areaId: areaMap['Business & Management Academy'] },
-      { name: 'UI/UX Design', teachingUnits: 8, price: 259.99, areaId: areaMap['It & Coding Campus'] },
+      { name: 'Digital Transformation', teachingUnits: 8, price: new Prisma.Decimal('199.99'), areaId: areaMap['Digital Studies'] },
+      { name: 'Cloud Computing Basics', teachingUnits: 8, price: new Prisma.Decimal('249.99'), areaId: areaMap['It & Coding Campus'] },
+      { name: 'Project Management', teachingUnits: 10, price: new Prisma.Decimal('299.99'), areaId: areaMap['Business & Management Academy'] },
+      { name: 'Data Visualization', teachingUnits: 7, price: new Prisma.Decimal('199.99'), areaId: areaMap['Digital Studies'] },
+      { name: 'Agile Methodologies', teachingUnits: 6, price: new Prisma.Decimal('179.99'), areaId: areaMap['Business & Management Academy'] },
+      { name: 'UI/UX Design', teachingUnits: 8, price: new Prisma.Decimal('259.99'), areaId: areaMap['It & Coding Campus'] },
     ],
     skipDuplicates: true,
   })
@@ -53,16 +50,76 @@ async function seedPrograms(areaMap: Record<string, string>) {
 async function seedTrainers() {
   await prisma.trainer.createMany({
     data: [
-      { name: 'Alice Smith', email: 'alice.smith@example.com', phoneNumber: '+49111111111' },
-      { name: 'Bob Johnson', email: 'bob.johnson@example.com', phoneNumber: '+49222222222' },
-      { name: 'Carmen Diaz', email: 'carmen.diaz@example.com', phoneNumber: '+49333333333' },
-      { name: 'David Lee', email: 'david.lee@example.com', phoneNumber: '+49444444444' },
-      { name: 'Emily Clark', email: 'emily.clark@example.com', phoneNumber: '+49555555555' },
+      {
+        name: 'Anna',
+        surname: 'Müller',
+        salutation: 'Frau',
+        title: 'Dr.',
+        email: 'anna.mueller@example.com',
+        phoneNumber: '+4915112345678',
+        birthday: new Date('1980-03-15'),
+        postalCode: '10115',
+        city: 'Berlin',
+        street: 'Lehrstraße 1',
+        country: 'DE',
+      },
+      {
+        name: 'Bernd',
+        surname: 'Schmidt',
+        salutation: 'Herr',
+        title: 'Prof.',
+        email: 'bernd.schmidt@example.com',
+        phoneNumber: '+4915223456789',
+        birthday: new Date('1975-07-22'),
+        postalCode: '20095',
+        city: 'Hamburg',
+        street: 'Dozentenweg 2',
+        country: 'DE',
+      },
+      {
+        name: 'Claudia',
+        surname: 'Fischer',
+        salutation: 'Frau',
+        title: null,
+        email: 'claudia.fischer@example.com',
+        phoneNumber: '+4915334567890',
+        birthday: new Date('1985-11-05'),
+        postalCode: '50667',
+        city: 'Köln',
+        street: 'Seminarstraße 3',
+        country: 'DE',
+      },
+      {
+        name: 'Dieter',
+        surname: 'Weber',
+        salutation: 'Herr',
+        title: null,
+        email: 'dieter.weber@example.com',
+        phoneNumber: '+4915445678901',
+        birthday: new Date('1978-02-28'),
+        postalCode: '80331',
+        city: 'München',
+        street: 'Akademieweg 4',
+        country: 'DE',
+      },
+      {
+        name: 'Eva',
+        surname: 'Schneider',
+        salutation: 'Frau',
+        title: 'M.Sc.',
+        email: 'eva.schneider@example.com',
+        phoneNumber: '+4915556789012',
+        birthday: new Date('1990-06-12'),
+        postalCode: '70173',
+        city: 'Stuttgart',
+        street: 'Bildungsallee 5',
+        country: 'DE',
+      },
     ],
     skipDuplicates: true,
   })
   const trainers = await prisma.trainer.findMany()
-  return Object.fromEntries(trainers.map(t => [t.name, t.id]))
+  return Object.fromEntries(trainers.map(t => [`${t.name} ${t.surname}`, t.id]))
 }
 
 // -------------------- Course Seeding --------------------
@@ -71,56 +128,65 @@ async function seedCourses(programMap: Record<string, string>, trainerMap: Recor
     {
       program: 'AI Fundamentals',
       startDate: new Date('2024-09-01'),
-      mainTrainer: 'Alice Smith',
-      trainers: ['Bob Johnson', 'Carmen Diaz'],
+      endDate: new Date('2024-09-15'),
+      mainTrainer: 'Anna Müller',
+      trainers: ['Bernd Schmidt', 'Claudia Fischer'],
     },
     {
       program: 'Web Development Bootcamp',
       startDate: new Date('2024-10-01'),
-      mainTrainer: 'Bob Johnson',
-      trainers: ['Alice Smith'],
+      endDate: new Date('2024-10-21'),
+      mainTrainer: 'Bernd Schmidt',
+      trainers: ['Anna Müller'],
     },
     {
       program: 'Python for Beginners',
       startDate: new Date('2024-11-01'),
-      mainTrainer: 'Alice Smith',
+      endDate: new Date('2024-11-10'),
+      mainTrainer: 'Anna Müller',
       trainers: [],
     },
     {
       program: 'Digital Marketing 101',
       startDate: new Date('2024-12-01'),
-      mainTrainer: 'Bob Johnson',
-      trainers: ['Emily Clark'],
+      endDate: new Date('2024-12-14'),
+      mainTrainer: 'Bernd Schmidt',
+      trainers: ['Eva Schneider'],
     },
     {
       program: 'Cloud Computing Basics',
       startDate: new Date('2025-01-15'),
-      mainTrainer: 'Carmen Diaz',
-      trainers: ['David Lee'],
+      endDate: new Date('2025-01-29'),
+      mainTrainer: 'Claudia Fischer',
+      trainers: ['Dieter Weber'],
     },
     {
       program: 'Project Management',
       startDate: new Date('2025-02-10'),
-      mainTrainer: 'David Lee',
+      endDate: new Date('2025-02-24'),
+      mainTrainer: 'Dieter Weber',
       trainers: [],
     },
     {
       program: 'Data Visualization',
       startDate: new Date('2025-03-05'),
-      mainTrainer: 'Emily Clark',
+      endDate: new Date('2025-03-19'),
+      mainTrainer: 'Eva Schneider',
       trainers: [],
     },
     {
       program: 'Agile Methodologies',
       startDate: new Date('2025-04-01'),
-      mainTrainer: 'David Lee',
-      trainers: ['Carmen Diaz'],
+      endDate: new Date('2025-04-10'),
+      mainTrainer: 'Dieter Weber',
+      trainers: ['Claudia Fischer'],
     },
     {
       program: 'UI/UX Design',
       startDate: new Date('2025-05-10'),
-      mainTrainer: 'Carmen Diaz',
-      trainers: ['Alice Smith'],
+      endDate: new Date('2025-05-24'),
+      mainTrainer: 'Claudia Fischer',
+      trainers: ['Anna Müller'],
     },
   ]
 
@@ -130,9 +196,10 @@ async function seedCourses(programMap: Record<string, string>, trainerMap: Recor
       data: {
         programId: programMap[c.program],
         startDate: c.startDate,
+        endDate: c.endDate,
         mainTrainerId: trainerMap[c.mainTrainer],
         trainers: {
-          connect: c.trainers.map(name => ({ id: trainerMap[name] })),
+          connect: c.trainers.map(fullName => ({ id: trainerMap[fullName] })),
         },
       },
     })
@@ -145,23 +212,245 @@ async function seedCourses(programMap: Record<string, string>, trainerMap: Recor
 async function seedParticipants() {
   await prisma.participant.createMany({
     data: [
-      { name: 'Charlie Brown', email: 'charlie.brown@example.com', phoneNumber: '+491234567890' },
-      { name: 'Dana White', email: 'dana.white@example.com', phoneNumber: '+491234567891' },
-      { name: 'Eve Adams', email: 'eve.adams@example.com', phoneNumber: '+491234567892' },
-      { name: 'Frank Miller', email: 'frank.miller@example.com', phoneNumber: '+491234567893' },
-      { name: 'Grace Lee', email: 'grace.lee@example.com', phoneNumber: '+491234567894' },
-      { name: 'Henry Ford', email: 'henry.ford@example.com', phoneNumber: '+491234567895' },
-      { name: 'Isabel Turner', email: 'isabel.turner@example.com', phoneNumber: '+491234567896' },
-      { name: 'Jack Black', email: 'jack.black@example.com', phoneNumber: '+491234567897' },
-      { name: 'Karen Green', email: 'karen.green@example.com', phoneNumber: '+491234567898' },
-      { name: 'Liam Young', email: 'liam.young@example.com', phoneNumber: '+491234567899' },
-      { name: 'Mona Patel', email: 'mona.patel@example.com', phoneNumber: '+491234567800' },
-      { name: 'Nina Rossi', email: 'nina.rossi@example.com', phoneNumber: '+491234567801' },
+      {
+        name: 'Charlie',
+        surname: 'Brown',
+        salutation: 'Herr',
+        title: 'B.Sc.',
+        email: 'charlie.brown@example.com',
+        phoneNumber: '+491234567890',
+        birthday: new Date('1990-01-01'),
+        postalCode: '10115',
+        city: 'Berlin',
+        street: 'Musterstraße 1',
+        country: 'DE',
+      },
+      {
+        name: 'Dana',
+        surname: 'White',
+        salutation: 'Frau',
+        title: 'Mag.',
+        email: 'dana.white@example.com',
+        phoneNumber: '+491234567891',
+        birthday: new Date('1988-02-02'),
+        postalCode: '20095',
+        city: 'Hamburg',
+        street: 'Beispielweg 2',
+        country: 'DE',
+      },
+      {
+        name: 'Eve',
+        surname: 'Adams',
+        salutation: 'Frau',
+        title: 'Dr.',
+        email: 'eve.adams@example.com',
+        phoneNumber: '+491234567892',
+        birthday: new Date('1992-03-03'),
+        postalCode: '50667',
+        city: 'Köln',
+        street: 'Teststraße 3',
+        country: 'DE',
+      },
+      {
+        name: 'Frank',
+        surname: 'Miller',
+        salutation: 'Herr',
+        title: null,
+        email: 'frank.miller@example.com',
+        phoneNumber: '+491234567893',
+        birthday: new Date('1985-04-04'),
+        postalCode: '60311',
+        city: 'Frankfurt',
+        street: 'Hauptstraße 4',
+        country: 'DE',
+      },
+      {
+        name: 'Grace',
+        surname: 'Lee',
+        salutation: 'Frau',
+        title: null,
+        email: 'grace.lee@example.com',
+        phoneNumber: '+491234567894',
+        birthday: new Date('1991-05-05'),
+        postalCode: '70173',
+        city: 'Stuttgart',
+        street: 'Nebenstraße 5',
+        country: 'DE',
+      },
+      {
+        name: 'Henry',
+        surname: 'Ford',
+        salutation: 'Herr',
+        title: null,
+        email: 'henry.ford@example.com',
+        phoneNumber: '+491234567895',
+        birthday: new Date('1980-06-06'),
+        postalCode: '80331',
+        city: 'München',
+        street: 'Ringstraße 6',
+        country: 'DE',
+      },
+      {
+        name: 'Isabel',
+        surname: 'Turner',
+        salutation: 'Frau',
+        title: null,
+        email: 'isabel.turner@example.com',
+        phoneNumber: '+491234567896',
+        birthday: new Date('1993-07-07'),
+        postalCode: '90402',
+        city: 'Nürnberg',
+        street: 'Allee 7',
+        country: 'DE',
+      },
+      {
+        name: 'Jack',
+        surname: 'Black',
+        salutation: 'Herr',
+        title: null,
+        email: 'jack.black@example.com',
+        phoneNumber: '+491234567897',
+        birthday: new Date('1987-08-08'),
+        postalCode: '01067',
+        city: 'Dresden',
+        street: 'Parkweg 8',
+        country: 'DE',
+      },
+      {
+        name: 'Karen',
+        surname: 'Green',
+        salutation: 'Frau',
+        title: null,
+        email: 'karen.green@example.com',
+        phoneNumber: '+491234567898',
+        birthday: new Date('1994-09-09'),
+        postalCode: '04109',
+        city: 'Leipzig',
+        street: 'Gartenstraße 9',
+        country: 'DE',
+      },
+      {
+        name: 'Liam',
+        surname: 'Young',
+        salutation: 'Herr',
+        title: null,
+        email: 'liam.young@example.com',
+        phoneNumber: '+491234567899',
+        birthday: new Date('1986-10-10'),
+        postalCode: '28195',
+        city: 'Bremen',
+        street: 'Wiesenweg 10',
+        country: 'DE',
+      },
+      {
+        name: 'Mona',
+        surname: 'Patel',
+        salutation: 'Frau',
+        title: null,
+        email: 'mona.patel@example.com',
+        phoneNumber: '+491234567800',
+        birthday: new Date('1995-11-11'),
+        postalCode: '39104',
+        city: 'Magdeburg',
+        street: 'Blumenstraße 11',
+        country: 'DE',
+      },
+      {
+        name: 'Nina',
+        surname: 'Rossi',
+        salutation: 'Frau',
+        title: null,
+        email: 'nina.rossi@example.com',
+        phoneNumber: '+491234567801',
+        birthday: new Date('1990-12-12'),
+        postalCode: '99084',
+        city: 'Erfurt',
+        street: 'Waldweg 12',
+        country: 'DE',
+      },
+      {
+        name: 'Olga',
+        surname: 'Schmidt',
+        salutation: 'Frau',
+        title: null,
+        email: 'olga.schmidt@example.com',
+        phoneNumber: '+491234567802',
+        birthday: new Date('1989-01-13'),
+        postalCode: '14467',
+        city: 'Potsdam',
+        street: 'Seeweg 13',
+        country: 'DE',
+      },
+      {
+        name: 'Paul',
+        surname: 'Weber',
+        salutation: 'Herr',
+        title: null,
+        email: 'paul.weber@example.com',
+        phoneNumber: '+491234567803',
+        birthday: new Date('1982-02-14'),
+        postalCode: '18055',
+        city: 'Rostock',
+        street: 'Bergstraße 14',
+        country: 'DE',
+      },
+      {
+        name: 'Quentin',
+        surname: 'Bauer',
+        salutation: 'Herr',
+        title: null,
+        email: 'quentin.bauer@example.com',
+        phoneNumber: '+491234567804',
+        birthday: new Date('1983-03-15'),
+        postalCode: '17489',
+        city: 'Greifswald',
+        street: 'Talweg 15',
+        country: 'DE',
+      },
+      {
+        name: 'Rita',
+        surname: 'Hoffmann',
+        salutation: 'Frau',
+        title: null,
+        email: 'rita.hoffmann@example.com',
+        phoneNumber: '+491234567805',
+        birthday: new Date('1984-04-16'),
+        postalCode: '37073',
+        city: 'Göttingen',
+        street: 'Feldweg 16',
+        country: 'DE',
+      },
+      {
+        name: 'Stefan',
+        surname: 'König',
+        salutation: 'Herr',
+        title: null,
+        email: 'stefan.koenig@example.com',
+        phoneNumber: '+491234567806',
+        birthday: new Date('1985-05-17'),
+        postalCode: '34117',
+        city: 'Kassel',
+        street: 'Bachstraße 17',
+        country: 'DE',
+      },
+      {
+        name: 'Tina',
+        surname: 'Schulz',
+        salutation: 'Frau',
+        title: null,
+        email: 'tina.schulz@example.com',
+        phoneNumber: '+491234567807',
+        birthday: new Date('1986-06-18'),
+        postalCode: '44135',
+        city: 'Dortmund',
+        street: 'Heideweg 18',
+        country: 'DE',
+      },
     ],
     skipDuplicates: true,
   })
   const participants = await prisma.participant.findMany()
-  return Object.fromEntries(participants.map(p => [p.name, p.id]))
+  return Object.fromEntries(participants.map(p => [p.name + ' ' + p.surname, p.id]))
 }
 
 // -------------------- Course Registration Seeding --------------------
@@ -172,30 +461,222 @@ async function seedRegistrations(
 ) {
   await prisma.courseRegistration.createMany({
     data: [
-      { courseId: courseMap[programMap['AI Fundamentals']], participantId: participantMap['Charlie Brown'], status: 'Registered' },
-      { courseId: courseMap[programMap['Web Development Bootcamp']], participantId: participantMap['Dana White'], status: 'Interested' },
-      { courseId: courseMap[programMap['Python for Beginners']], participantId: participantMap['Eve Adams'], status: 'Registered' },
-      { courseId: courseMap[programMap['Digital Marketing 101']], participantId: participantMap['Frank Miller'], status: 'Started' },
-      { courseId: courseMap[programMap['AI Fundamentals']], participantId: participantMap['Grace Lee'], status: 'Interested' },
-      { courseId: courseMap[programMap['Web Development Bootcamp']], participantId: participantMap['Henry Ford'], status: 'Registered' },
-      { courseId: courseMap[programMap['AI Fundamentals']], participantId: participantMap['Isabel Turner'], status: 'Registered' },
-      { courseId: courseMap[programMap['Web Development Bootcamp']], participantId: participantMap['Jack Black'], status: 'Interested' },
-      { courseId: courseMap[programMap['Python for Beginners']], participantId: participantMap['Karen Green'], status: 'Registered' },
-      { courseId: courseMap[programMap['Digital Marketing 101']], participantId: participantMap['Liam Young'], status: 'Started' },
-      { courseId: courseMap[programMap['AI Fundamentals']], participantId: participantMap['Mona Patel'], status: 'Interested' },
-      { courseId: courseMap[programMap['Web Development Bootcamp']], participantId: participantMap['Nina Rossi'], status: 'Registered' },
-      { courseId: courseMap[programMap['Cloud Computing Basics']], participantId: participantMap['Charlie Brown'], status: 'Registered' },
-      { courseId: courseMap[programMap['Cloud Computing Basics']], participantId: participantMap['Dana White'], status: 'Registered' },
-      { courseId: courseMap[programMap['Project Management']], participantId: participantMap['Eve Adams'], status: 'Registered' },
-      { courseId: courseMap[programMap['Project Management']], participantId: participantMap['Frank Miller'], status: 'Registered' },
-      { courseId: courseMap[programMap['Data Visualization']], participantId: participantMap['Grace Lee'], status: 'Registered' },
-      { courseId: courseMap[programMap['Agile Methodologies']], participantId: participantMap['Henry Ford'], status: 'Registered' },
-      { courseId: courseMap[programMap['UI/UX Design']], participantId: participantMap['Isabel Turner'], status: 'Registered' },
-      { courseId: courseMap[programMap['UI/UX Design']], participantId: participantMap['Jack Black'], status: 'Registered' },
-      { courseId: courseMap[programMap['Data Visualization']], participantId: participantMap['Karen Green'], status: 'Registered' },
-      { courseId: courseMap[programMap['Agile Methodologies']], participantId: participantMap['Liam Young'], status: 'Registered' },
-      { courseId: courseMap[programMap['Cloud Computing Basics']], participantId: participantMap['Mona Patel'], status: 'Registered' },
-      { courseId: courseMap[programMap['Project Management']], participantId: participantMap['Nina Rossi'], status: 'Registered' },
+      // AI Fundamentals
+      {
+        courseId: courseMap[programMap['AI Fundamentals']],
+        participantId: participantMap['Charlie Brown'],
+        registeredAt: new Date('2024-08-15'),
+        infoSessionAt: new Date('2024-08-01'),
+        generalRemark: 'Attended info session and registered early.',
+        subsidyRemark: 'Eligible for 50% subsidy.',
+        subsidyAmount: new Prisma.Decimal('149.99'),
+        discountRemark: null,
+        discountAmount: null,
+      },
+      {
+        courseId: courseMap[programMap['AI Fundamentals']],
+        participantId: participantMap['Grace Lee'],
+        registeredAt: new Date('2024-08-20'),
+        infoSessionAt: new Date('2024-08-01'),
+        generalRemark: 'Attended info session.',
+        subsidyRemark: null,
+        subsidyAmount: null,
+        discountRemark: null,
+        discountAmount: null,
+      },
+      {
+        courseId: courseMap[programMap['AI Fundamentals']],
+        participantId: participantMap['Isabel Turner'],
+        registeredAt: new Date('2024-08-22'),
+        generalRemark: 'Registered late.',
+        subsidyRemark: 'Special subsidy.',
+        subsidyAmount: new Prisma.Decimal('100.00'),
+        discountRemark: null,
+        discountAmount: null,
+      },
+      // Web Development Bootcamp
+      {
+        courseId: courseMap[programMap['Web Development Bootcamp']],
+        participantId: participantMap['Dana White'],
+        registeredAt: new Date('2024-09-10'),
+        interestedAt: new Date('2024-09-01'),
+        generalRemark: 'Expressed interest before registering.',
+        subsidyRemark: null,
+        subsidyAmount: null,
+        discountRemark: 'Early bird discount.',
+        discountAmount: new Prisma.Decimal('50.00'),
+      },
+      {
+        courseId: courseMap[programMap['Web Development Bootcamp']],
+        participantId: participantMap['Henry Ford'],
+        registeredAt: new Date('2024-09-15'),
+        unregisteredAt: new Date('2024-09-20'),
+        generalRemark: 'Unregistered after initial registration.',
+        subsidyRemark: null,
+        subsidyAmount: null,
+        discountRemark: null,
+        discountAmount: null,
+      },
+      {
+        courseId: courseMap[programMap['Web Development Bootcamp']],
+        participantId: participantMap['Jack Black'],
+        registeredAt: new Date('2024-09-18'),
+        infoSessionAt: new Date('2024-09-05'),
+        generalRemark: 'Attended info session.',
+        subsidyRemark: null,
+        subsidyAmount: null,
+        discountRemark: null,
+        discountAmount: null,
+      },
+      // Python for Beginners
+      {
+        courseId: courseMap[programMap['Python for Beginners']],
+        participantId: participantMap['Eve Adams'],
+        registeredAt: new Date('2024-10-01'),
+        infoSessionAt: new Date('2024-09-20'),
+        generalRemark: 'Attended info session.',
+        subsidyRemark: null,
+        subsidyAmount: null,
+        discountRemark: null,
+        discountAmount: null,
+      },
+      {
+        courseId: courseMap[programMap['Python for Beginners']],
+        participantId: participantMap['Karen Green'],
+        registeredAt: new Date('2024-10-02'),
+        generalRemark: 'Very motivated.',
+        subsidyRemark: null,
+        subsidyAmount: null,
+        discountRemark: 'Student discount.',
+        discountAmount: new Prisma.Decimal('20.00'),
+      },
+      // Digital Marketing 101
+      {
+        courseId: courseMap[programMap['Digital Marketing 101']],
+        participantId: participantMap['Frank Miller'],
+        registeredAt: new Date('2024-11-15'),
+        interestedAt: new Date('2024-11-01'),
+        generalRemark: 'Very interested in marketing.',
+        subsidyRemark: null,
+        subsidyAmount: null,
+        discountRemark: 'Group discount.',
+        discountAmount: new Prisma.Decimal('30.00'),
+      },
+      {
+        courseId: courseMap[programMap['Digital Marketing 101']],
+        participantId: participantMap['Mona Patel'],
+        registeredAt: new Date('2024-11-18'),
+        generalRemark: 'Marketing background.',
+        subsidyRemark: null,
+        subsidyAmount: null,
+        discountRemark: null,
+        discountAmount: null,
+      },
+      // Cloud Computing Basics
+      {
+        courseId: courseMap[programMap['Cloud Computing Basics']],
+        participantId: participantMap['Liam Young'],
+        registeredAt: new Date('2025-01-10'),
+        generalRemark: 'Cloud enthusiast.',
+        subsidyRemark: null,
+        subsidyAmount: null,
+        discountRemark: null,
+        discountAmount: null,
+      },
+      {
+        courseId: courseMap[programMap['Cloud Computing Basics']],
+        participantId: participantMap['Olga Schmidt'],
+        registeredAt: new Date('2025-01-12'),
+        generalRemark: 'Interested in cloud.',
+        subsidyRemark: null,
+        subsidyAmount: null,
+        discountRemark: 'Early bird.',
+        discountAmount: new Prisma.Decimal('25.00'),
+      },
+      // Project Management
+      {
+        courseId: courseMap[programMap['Project Management']],
+        participantId: participantMap['Paul Weber'],
+        registeredAt: new Date('2025-02-01'),
+        generalRemark: 'Project manager.',
+        subsidyRemark: null,
+        subsidyAmount: null,
+        discountRemark: null,
+        discountAmount: null,
+      },
+      {
+        courseId: courseMap[programMap['Project Management']],
+        participantId: participantMap['Quentin Bauer'],
+        registeredAt: new Date('2025-02-03'),
+        generalRemark: 'Interested in PM.',
+        subsidyRemark: null,
+        subsidyAmount: null,
+        discountRemark: 'Referral.',
+        discountAmount: new Prisma.Decimal('40.00'),
+      },
+      // Data Visualization
+      {
+        courseId: courseMap[programMap['Data Visualization']],
+        participantId: participantMap['Rita Hoffmann'],
+        registeredAt: new Date('2025-03-01'),
+        generalRemark: 'Data analyst.',
+        subsidyRemark: null,
+        subsidyAmount: null,
+        discountRemark: null,
+        discountAmount: null,
+      },
+      {
+        courseId: courseMap[programMap['Data Visualization']],
+        participantId: participantMap['Stefan König'],
+        registeredAt: new Date('2025-03-02'),
+        generalRemark: 'Visualization expert.',
+        subsidyRemark: null,
+        subsidyAmount: null,
+        discountRemark: 'Company discount.',
+        discountAmount: new Prisma.Decimal('35.00'),
+      },
+      // Agile Methodologies
+      {
+        courseId: courseMap[programMap['Agile Methodologies']],
+        participantId: participantMap['Tina Schulz'],
+        registeredAt: new Date('2025-04-01'),
+        generalRemark: 'Agile coach.',
+        subsidyRemark: null,
+        subsidyAmount: null,
+        discountRemark: null,
+        discountAmount: null,
+      },
+      {
+        courseId: courseMap[programMap['Agile Methodologies']],
+        participantId: participantMap['Nina Rossi'],
+        registeredAt: new Date('2025-04-02'),
+        generalRemark: 'Scrum master.',
+        subsidyRemark: null,
+        subsidyAmount: null,
+        discountRemark: 'Early bird.',
+        discountAmount: new Prisma.Decimal('15.00'),
+      },
+      // UI/UX Design
+      {
+        courseId: courseMap[programMap['UI/UX Design']],
+        participantId: participantMap['Karen Green'],
+        registeredAt: new Date('2025-05-01'),
+        generalRemark: 'Designer.',
+        subsidyRemark: null,
+        subsidyAmount: null,
+        discountRemark: null,
+        discountAmount: null,
+      },
+      {
+        courseId: courseMap[programMap['UI/UX Design']],
+        participantId: participantMap['Mona Patel'],
+        registeredAt: new Date('2025-05-02'),
+        generalRemark: 'UX enthusiast.',
+        subsidyRemark: null,
+        subsidyAmount: null,
+        discountRemark: 'Student discount.',
+        discountAmount: new Prisma.Decimal('30.00'),
+      },
     ],
     skipDuplicates: true,
   })
@@ -203,43 +684,131 @@ async function seedRegistrations(
   return Object.fromEntries(registrations.map(r => [r.participantId + '_' + r.courseId, r.id]))
 }
 
-// -------------------- Coupon Seeding --------------------
-async function seedCoupons() {
-  await prisma.coupon.createMany({
-    data: [
-      { code: 'SUMMER25', description: '25% off summer promotion', percent: 25, expiresAt: new Date('2025-09-01') },
-      { code: 'WELCOME10', description: '10€ off for new users', amount: 10, expiresAt: new Date('2025-12-31') },
-    ],
-    skipDuplicates: true,
-  })
-  const coupons = await prisma.coupon.findMany()
-  return Object.fromEntries(coupons.map(c => [c.code, c.id]))
-}
-
 // -------------------- InvoiceRecipient Seeding --------------------
 async function seedInvoiceRecipients(participantMap: Record<string, string>) {
   const recipients = [
+    // Company recipient
     {
       type: RecipientType.COMPANY,
-      name: "Joe's Firma",
-      email: 'info@joesfirma.com',
-      address: 'Business Street 1, 12345 City',
+      companyName: "Joe's Firma",
+      recipientEmail: 'info@joesfirma.com',
+      postalCode: '12345',
+      recipientCity: 'City',
+      recipientStreet: 'Business Street 1',
+      recipientCountry: 'DE',
       participantId: null,
+      recipientName: null,
+      recipientSurname: null,
+    },
+    // Person recipients
+    {
+      type: RecipientType.PERSON,
+      recipientName: 'Charlie',
+      recipientSurname: 'Brown',
+      recipientEmail: 'charlie.brown@example.com',
+      postalCode: '10115',
+      recipientCity: 'Berlin',
+      recipientStreet: 'Musterstraße 1',
+      recipientCountry: 'DE',
+      participantId: participantMap['Charlie Brown'],
+      companyName: null,
     },
     {
       type: RecipientType.PERSON,
-      name: 'Charlie Brown',
-      email: 'charlie.brown@example.com',
-      address: 'Participant Street 2, 54321 City',
-      participantId: participantMap['Charlie Brown'],
+      recipientName: 'Grace',
+      recipientSurname: 'Lee',
+      recipientEmail: 'grace.lee@example.com',
+      postalCode: '70173',
+      recipientCity: 'Stuttgart',
+      recipientStreet: 'Nebenstraße 5',
+      recipientCountry: 'DE',
+      participantId: participantMap['Grace Lee'],
+      companyName: null,
     },
+    {
+      type: RecipientType.PERSON,
+      recipientName: 'Dana',
+      recipientSurname: 'White',
+      recipientEmail: 'dana.white@example.com',
+      postalCode: '20095',
+      recipientCity: 'Hamburg',
+      recipientStreet: 'Beispielweg 2',
+      recipientCountry: 'DE',
+      participantId: participantMap['Dana White'],
+      companyName: null,
+    },
+    {
+      type: RecipientType.PERSON,
+      recipientName: 'Henry',
+      recipientSurname: 'Ford',
+      recipientEmail: 'henry.ford@example.com',
+      postalCode: '80331',
+      recipientCity: 'München',
+      recipientStreet: 'Ringstraße 6',
+      recipientCountry: 'DE',
+      participantId: participantMap['Henry Ford'],
+      companyName: null,
+    },
+    {
+      type: RecipientType.PERSON,
+      recipientName: 'Eve',
+      recipientSurname: 'Adams',
+      recipientEmail: 'eve.adams@example.com',
+      postalCode: '50667',
+      recipientCity: 'Köln',
+      recipientStreet: 'Teststraße 3',
+      recipientCountry: 'DE',
+      participantId: participantMap['Eve Adams'],
+      companyName: null,
+    },
+    {
+      type: RecipientType.PERSON,
+      recipientName: 'Karen',
+      recipientSurname: 'Green',
+      recipientEmail: 'karen.green@example.com',
+      postalCode: '04109',
+      recipientCity: 'Leipzig',
+      recipientStreet: 'Gartenstraße 9',
+      recipientCountry: 'DE',
+      participantId: participantMap['Karen Green'],
+      companyName: null,
+    },
+    {
+      type: RecipientType.PERSON,
+      recipientName: 'Frank',
+      recipientSurname: 'Miller',
+      recipientEmail: 'frank.miller@example.com',
+      postalCode: '60311',
+      recipientCity: 'Frankfurt',
+      recipientStreet: 'Hauptstraße 4',
+      recipientCountry: 'DE',
+      participantId: participantMap['Frank Miller'],
+      companyName: null,
+    },
+    {
+      type: RecipientType.PERSON,
+      recipientName: 'Mona',
+      recipientSurname: 'Patel',
+      recipientEmail: 'mona.patel@example.com',
+      postalCode: '39104',
+      recipientCity: 'Magdeburg',
+      recipientStreet: 'Blumenstraße 11',
+      recipientCountry: 'DE',
+      participantId: participantMap['Mona Patel'],
+      companyName: null,
+    },
+    // Add more recipients as needed
   ]
   await prisma.invoiceRecipient.createMany({
     data: recipients,
     skipDuplicates: true,
   })
   const allRecipients = await prisma.invoiceRecipient.findMany()
-  return Object.fromEntries(allRecipients.map(r => [r.name, r.id]))
+  return Object.fromEntries(
+    allRecipients.map(r =>
+      [r.type === RecipientType.COMPANY ? r.companyName : `${r.recipientName} ${r.recipientSurname}`, r.id]
+    )
+  )
 }
 
 // -------------------- Invoice Seeding --------------------
@@ -253,27 +822,68 @@ async function seedInvoices(
   await prisma.invoice.createMany({
     data: [
       {
-        amount: 299.99,
+        invoiceNumber: '2024-001',
+        amount: new Prisma.Decimal('299.99'),
         courseRegistrationId: registrationMap[participantMap['Charlie Brown'] + '_' + courseMap[programMap['AI Fundamentals']]],
         isCancelled: false,
         dueDate: new Date('2024-09-15'),
-        transactionNumber: 'INV-2024-001',
+        transactionNumber: 'INV-2024-001', // Paid
         recipientId: recipientMap['Charlie Brown'],
       },
       {
-        amount: 149.99,
+        invoiceNumber: '2024-002',
+        amount: new Prisma.Decimal('149.99'),
         courseRegistrationId: registrationMap[participantMap['Dana White'] + '_' + courseMap[programMap['Web Development Bootcamp']]],
         isCancelled: false,
         dueDate: new Date('2024-10-15'),
-        transactionNumber: 'INV-2024-002',
+        transactionNumber: null, // Not paid yet
         recipientId: recipientMap["Joe's Firma"],
       },
+      {
+        invoiceNumber: '2024-003',
+        amount: new Prisma.Decimal('299.99'),
+        courseRegistrationId: registrationMap[participantMap['Grace Lee'] + '_' + courseMap[programMap['AI Fundamentals']]],
+        isCancelled: false,
+        dueDate: new Date('2024-09-16'),
+        transactionNumber: 'INV-2024-003', // Paid
+        recipientId: recipientMap['Grace Lee'],
+      },
+      {
+        invoiceNumber: '2024-004',
+        amount: new Prisma.Decimal('399.99'),
+        courseRegistrationId: registrationMap[participantMap['Henry Ford'] + '_' + courseMap[programMap['Web Development Bootcamp']]],
+        isCancelled: false,
+        dueDate: new Date('2024-10-22'),
+        transactionNumber: null, // Not paid yet
+        recipientId: recipientMap['Henry Ford'],
+      },
+      {
+        invoiceNumber: '2024-005',
+        amount: new Prisma.Decimal('149.99'),
+        courseRegistrationId: registrationMap[participantMap['Eve Adams'] + '_' + courseMap[programMap['Python for Beginners']]],
+        isCancelled: false,
+        dueDate: new Date('2024-11-11'),
+        transactionNumber: 'INV-2024-005', // Paid
+        recipientId: recipientMap['Eve Adams'],
+      },
+      {
+        invoiceNumber: '2024-006',
+        amount: new Prisma.Decimal('149.99'),
+        courseRegistrationId: registrationMap[participantMap['Karen Green'] + '_' + courseMap[programMap['Python for Beginners']]],
+        isCancelled: false,
+        dueDate: new Date('2024-11-12'),
+        transactionNumber: null, // Not paid yet
+        recipientId: recipientMap['Karen Green'],
+      },
+      // Add more invoices as needed for other participants/courses
     ],
     skipDuplicates: true,
   })
 }
+
 // -------------------- Document Seeding --------------------  emin
 // here are we seed documents related to course registrations
+// -------------------- Document Seeding --------------------
 async function seedDocuments(
   programMap: Record<string, string>,
   courseMap: Record<string, string>,
@@ -289,20 +899,10 @@ async function seedDocuments(
       },
       {
         role: 'Certificate',
-        file: 'https://example.com/files/certificate_webdev.pdf',
-        courseRegistrationId: registrationMap[participantMap['Dana White'] + '_' + courseMap[programMap['Web Development Bootcamp']]],
+        file: 'https://example.com/files/certificate_ai.pdf',
+        courseRegistrationId: registrationMap[participantMap['Grace Lee'] + '_' + courseMap[programMap['AI Fundamentals']]],
       },
-      {
-        role: 'Syllabus',
-        file: 'https://example.com/files/syllabus_python.pdf',
-        courseRegistrationId: registrationMap[participantMap['Eve Adams'] + '_' + courseMap[programMap['Python for Beginners']]],
-      },
-      {
-        role: 'Certificate',
-        file: 'https://example.com/files/certificate_marketing.pdf',
-        courseRegistrationId: registrationMap[participantMap['Frank Miller'] + '_' + courseMap[programMap['Digital Marketing 101']]],
-      },
-      // more dummy documents can be added here
+      // ...add more documents as needed...
     ],
     skipDuplicates: true,
   })
@@ -381,38 +981,9 @@ async function seedDatabase() {
   const registrationMap = await seedRegistrations(programMap, courseMap, participantMap)
 
   await seedDocuments(programMap, courseMap, registrationMap, participantMap)
-
-  const couponMap = await seedCoupons() // <--- assign to variable!
   const recipientMap = await seedInvoiceRecipients(participantMap)
   await seedInvoices(programMap, courseMap, participantMap, registrationMap, recipientMap)
-
-  // --- Assign coupons/discounts to some registrations ---
-  // Charlie Brown gets SUMMER25 coupon and 50€ discount for AI Fundamentals
-  const cbRegId = registrationMap[participantMap['Charlie Brown'] + '_' + courseMap[programMap['AI Fundamentals']]]
-  if (cbRegId) {
-    await prisma.courseRegistration.update({
-      where: { id: cbRegId },
-      data: {
-        couponId: couponMap['SUMMER25'],
-        discount: 50,
-      },
-    })
-  }
-
-  // Dana White gets WELCOME10 coupon for Web Development Bootcamp
-  const dwRegId = registrationMap[participantMap['Dana White'] + '_' + courseMap[programMap['Web Development Bootcamp']]]
-  if (dwRegId) {
-    await prisma.courseRegistration.update({
-      where: { id: dwRegId },
-      data: {
-        couponId: couponMap['WELCOME10'],
-      },
-    })
-  }
-
-  //feiertage einfügen
-  await seedHoliday();
-
+  await seedHoliday()
 }
 
 

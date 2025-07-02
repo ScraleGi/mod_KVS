@@ -1,20 +1,27 @@
 <!DOCTYPE html>
-<html>
+<html lang="de">
 <head>
-  <meta charset="utf-8" />
-  <title>Rechnung</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 2rem; }
-    h1 { color: #333; }
-
-    body {
-      padding-left: 60px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>Rechnung</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .total { font-weight: bold; }
+    </style>
 </head>
 <body>
-  <h1>Rechnung für <%= user %></h1>
-  <p>Datum: <%= date %></p>
-  <p>Betrag: <%= amount %> €</p>
+
+    <p>Digital Campus Vorarlberg<br>
+    Straße 78<br>
+    Vanilans</p>
+
+    <h1>RECHNUNG</h1>
+
+    <p><strong>Datum:</strong> <%= invoiceDate %></p>
+    <p><strong>Rechnungsnummer:</strong></p>
+
+   
 </body>
 </html>

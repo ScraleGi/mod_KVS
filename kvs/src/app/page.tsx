@@ -1,5 +1,5 @@
 import { PrismaClient } from '../../generated/prisma'
-import { CourseTable, columns, CourseRow } from '../components/overviewTable/table'
+import { CourseTable, home, CourseRow } from '../components/overviewTable/table'
 import Dashboard from '@/components/navigation/Dashboard'
 
 export default async function Home() {
@@ -26,14 +26,14 @@ export default async function Home() {
     course: course.program?.name ?? 'N/A',
     area: course.program?.area?.name ?? 'N/A',
     startDate: course.startDate ? new Date(course.startDate).toLocaleDateString() : 'N/A',
-    trainer: course.mainTrainer?.name ?? 'N/A',
+    trainer: course.mainTrainer ? `${course.mainTrainer.name} ${course.mainTrainer.surname}` : 'N/A',
     additionalTrainers: course.trainers?.map(t => t.name).join(', ') ?? '',
     registrations: course.registrations.length,
     participants: course.registrations.map(reg => ({
       id: reg.participant?.id ?? reg.id,
       name: reg.participant?.name ?? 'N/A',
+      surname: reg.participant?.surname ?? '',
       email: reg.participant?.email ?? '', // <-- Add this line
-      status: reg.status ?? 'N/A',
       invoice: reg.invoices.length
         ? reg.invoices.map(inv => `#${inv.id}: $${inv.amount}`).join(", ")
         : "No invoice",
@@ -44,7 +44,8 @@ export default async function Home() {
     <div className="p-8">
       <Dashboard />
       <h1 className="text-3xl font-bold mb-6">Courses Overview</h1>
-      <CourseTable data={tableData} columns={columns} />
+      <CourseTable data={tableData} columns={home} />
     </div>
   )
 }
+

@@ -23,7 +23,7 @@ export default async function EditAreaPage({ params }: EditAreaPageProps) {
     redirect('/area');
   };
 
-  const { id } = params;
+  const { id } = await params;
   const area = await prisma.area.findUnique({
     where: { id },
   });

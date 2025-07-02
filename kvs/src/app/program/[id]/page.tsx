@@ -11,7 +11,7 @@ interface ProgramPageProps {
 const prisma = new PrismaClient();
 
 export default async function ProgramPage({ params }: ProgramPageProps) {
-    const { id } = params;
+    const { id } = await params;
 
     // Fetch program data, area, and courses with mainTrainer and registrations
     const program = await prisma.program.findUnique({
@@ -60,7 +60,7 @@ export default async function ProgramPage({ params }: ProgramPageProps) {
                     <div className="md:col-span-2">
 
                         <div className="bg-white shadow rounded-lg p-6 mb-6">
-                            <p className="text-gray-600 mb-4">Program ID: {program.id}</p>
+
                             <div className="flex items-center mb-4">
                                 <span className="font-semibold mr-2">Area:</span>
                                 <span>{program.area?.name ?? 'Unknown'}</span>
@@ -108,7 +108,7 @@ export default async function ProgramPage({ params }: ProgramPageProps) {
                                                         </div>
                                                         <div className="text-gray-500 text-sm">
                                                             <span className="font-semibold">Main Trainer:</span>{" "}
-                                                            {course.mainTrainer?.name || "N/A"}
+                                                            {course.mainTrainer ? `${course.mainTrainer.name} ${course.mainTrainer.surname}` : "N/A"}
                                                         </div>
                                                     </div>
                                                     <div className="mt-2 md:mt-0">

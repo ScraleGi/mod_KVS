@@ -1,7 +1,6 @@
-import { PrismaClient, RegistrationStatus, RecipientType } from '../../../../generated/prisma/client'
+import { PrismaClient, RecipientType } from '../../../../generated/prisma'
 import Link from 'next/link'
 import { revalidatePath } from 'next/cache'
-import crypto from 'crypto'
 import ClientInvoiceModalWrapper from './ClientInvoiceModalWrapper'
 import ClientCourseModalWrapper from './ClientCourseModalWrapper'
 
@@ -22,17 +21,33 @@ export default async function ParticipantPage({ params, searchParams }: Particip
       registrations: {
         include: {
           course: { include: { program: true } },
-          invoices: true,
-          coupon: true,
+          invoices: {
+            include: {
+              recipient: true,
+            }
+          },
         }
       },
       invoiceRecipients: true,
     }
   })
 
+  if (!participant) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-neutral-50">
+        <div className="max-w-md w-full px-4">
+          <Link href="/" className="text-blue-500 hover:underline mb-6 block">
+            &larr; Back to Home
+          </Link>
+          <div className="text-red-600 text-lg font-semibold">Participant not found.</div>
+        </div>
+      </div>
+    )
+  }
+
   // Fetch courses where participant is NOT registered
   const registeredCourseIds = participant?.registrations.map(r => r.courseId) ?? []
-  const availableCourses = await prisma.course.findMany({
+  let availableCourses = await prisma.course.findMany({
     where: {
       id: { notIn: registeredCourseIds },
       deletedAt: null,
@@ -40,16 +55,82 @@ export default async function ParticipantPage({ params, searchParams }: Particip
     include: { program: true }
   })
 
+  const labelMap: Record<string, string> = {
+  certificate: 'Zertifikat',
+  KursRegeln: 'Kursregeln',
+  Teilnahmebestaetigung: 'Teilnahmebestätigung',
+}
+
+  // --- SANITIZE availableCourses ---
+  availableCourses = availableCourses.map(course => ({
+    ...course,
+    program: course.program
+      ? {
+          ...course.program,
+          price: course.program.price ? course.program.price.toString() : null,
+        }
+      : null,
+  })) as any
+
+  // --- SANITIZE registrations for client component ---
+  // Only convert subsidyAmount and discountAmount for the course registration list
+  const sanitizedRegistrations = participant.registrations.map(reg => ({
+    ...reg,
+    subsidyAmount: reg.subsidyAmount ? reg.subsidyAmount.toString() : null,
+    discountAmount: reg.discountAmount ? reg.discountAmount.toString() : null,
+    course: reg.course
+      ? {
+          ...reg.course,
+          program: reg.course.program
+            ? {
+                ...reg.course.program,
+                price: reg.course.program.price ? reg.course.program.price.toString() : null,
+              }
+            : null,
+        }
+      : null,
+    invoices: reg.invoices.map(inv => ({
+      ...inv,
+      amount: inv.amount != null ? inv.amount.toString() : null,
+      recipient: inv.recipient,
+    })),
+  }))
+
+  // Flatten all invoices for listing (sanitize amount here)
+  const allInvoices = sanitizedRegistrations.flatMap(reg =>
+    reg.invoices.map(inv => ({
+      ...inv,
+      course: reg.course,
+    }))
+  )
+
+  // Fetch all documents for this participant (not soft-deleted)
+  const registrationIds = participant?.registrations.map(r => r.id) ?? []
+  const documents = registrationIds.length
+    ? await prisma.document.findMany({
+        where: {
+          courseRegistrationId: { in: registrationIds },
+          deletedAt: null,
+        },
+        orderBy: { createdAt: 'desc' },
+        include: {
+          courseRegistration: {
+            include: {
+              course: { include: { program: true } }
+            }
+          }
+        }
+      })
+    : []
+
   // Server action to register participant in a course
   async function registerToCourse(formData: FormData) {
     'use server'
     const courseId = formData.get('courseId') as string
-    const status = formData.get('status') as RegistrationStatus
     await prisma.courseRegistration.create({
       data: {
         courseId,
         participantId: id,
-        status,
       }
     })
     revalidatePath(`/participant/${id}`)
@@ -73,37 +154,58 @@ export default async function ParticipantPage({ params, searchParams }: Particip
 
     // Get recipient fields from form
     const recipientType = formData.get('recipientType') as RecipientType
-    const recipientName = formData.get('recipientName') as string
-    const recipientEmail = formData.get('recipientEmail') as string | null
-    const recipientAddress = formData.get('recipientAddress') as string | null
+    const recipientName = formData.get('recipientName') as string | null
+    const recipientSurname = formData.get('recipientSurname') as string | null
+    const companyName = formData.get('companyName') as string | null
+    const recipientEmail = formData.get('recipientEmail') as string
+    const postalCode = formData.get('postalCode') as string
+    const recipientCity = formData.get('recipientCity') as string
+    const recipientStreet = formData.get('recipientStreet') as string
+    const recipientCountry = formData.get('recipientCountry') as string
 
-    if (!recipientType || !recipientName) {
-      throw new Error('Recipient type and name are required.')
+    if (!recipientType || !recipientEmail || !postalCode || !recipientCity || !recipientStreet || !recipientCountry) {
+      throw new Error('All recipient fields are required.')
+    }
+
+    let recipientData: any = {
+      type: recipientType,
+      recipientEmail,
+      postalCode,
+      recipientCity,
+      recipientStreet,
+      recipientCountry,
+    }
+
+    if (recipientType === RecipientType.PERSON) {
+      recipientData.recipientName = recipientName
+      recipientData.recipientSurname = recipientSurname
+      recipientData.companyName = null
+      recipientData.participantId = id
+    } else if (recipientType === RecipientType.COMPANY) {
+      recipientData.companyName = companyName
+      recipientData.recipientName = null
+      recipientData.recipientSurname = null
+      recipientData.participantId = null
     }
 
     // Create the recipient
     const recipient = await prisma.invoiceRecipient.create({
-      data: {
-        type: recipientType,
-        name: recipientName,
-        email: recipientEmail || null,
-        address: recipientAddress || null,
-        // Optionally: participantId: id if recipientType === 'PERSON'
-      }
+      data: recipientData
     })
 
-    // Generate a unique transaction number
-    const transactionNumber = `INV-${Date.now()}-${crypto.randomBytes(3).toString('hex').toUpperCase()}`
+    // Generate a unique invoice number
+  const invoiceNumber = `INV-${Date.now()}-${Math.floor(Math.random() * 1000)}`
 
-    await prisma.invoice.create({
-      data: {
-        courseRegistrationId: registrationId,
-        amount,
-        transactionNumber,
-        dueDate: dueDateString ? new Date(dueDateString) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        recipientId: recipient.id,
-      }
-    })
+  await prisma.invoice.create({
+    data: {
+      invoiceNumber,
+      courseRegistrationId: registrationId,
+      amount,
+      transactionNumber: null, // explicitly set to null for unpaid invoice
+      dueDate: dueDateString ? new Date(dueDateString) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      recipientId: recipient.id,
+    }
+  })
     revalidatePath(`/participant/${id}`)
   }
 
@@ -117,17 +219,15 @@ export default async function ParticipantPage({ params, searchParams }: Particip
     revalidatePath(`/participant/${id}`)
   }
 
-  if (!participant) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-neutral-50">
-        <div className="max-w-md w-full px-4">
-          <Link href="/" className="text-blue-500 hover:underline mb-6 block">
-            &larr; Back to Home
-          </Link>
-          <div className="text-red-600 text-lg font-semibold">Participant not found.</div>
-        </div>
-      </div>
-    )
+  // Server action to soft-delete a document
+  async function removeDocument(formData: FormData) {
+    "use server"
+    const documentId = formData.get("documentId") as string
+    await prisma.document.update({
+      where: { id: documentId },
+      data: { deletedAt: new Date() }
+    })
+    revalidatePath(`/participant/${id}`)
   }
 
   // Helper for aligned listing
@@ -189,22 +289,6 @@ export default async function ParticipantPage({ params, searchParams }: Particip
           >
             {reg.course?.program?.name ?? 'Unknown Course'}
           </Link>
-          {reg.coupon && (
-            <span
-              title={`Coupon: ${reg.coupon.code}${reg.coupon.percent ? ` (${reg.coupon.percent}% off)` : ''}${reg.coupon.amount ? ` (${reg.coupon.amount}€ off)` : ''}`}
-              className="inline-flex items-center justify-center w-5 h-5 rounded-sm bg-white border border-green-600"
-            >
-              <span className="text-xs font-bold text-green-600">G</span>
-            </span>
-          )}
-          {reg.discount && (
-            <span
-              title={`Extra Discount: €${reg.discount}`}
-              className="inline-flex items-center justify-center w-5 h-5 rounded-sm bg-white border border-violet-500"
-            >
-              <span className="text-xs font-bold text-violet-500">R</span>
-            </span>
-          )}
           {reg.course?.startDate && (
             <span className="text-xs text-neutral-400 ml-2">
               {new Date(reg.course.startDate).toLocaleDateString('de-DE')}
@@ -214,30 +298,69 @@ export default async function ParticipantPage({ params, searchParams }: Particip
       ),
       width: 'flex-[2]'
     },
-    {
-      label: 'Status',
-      render: (reg: typeof participant.registrations[0]) => (
-        <div className="flex items-center h-full text-xs text-neutral-400">{reg.status}</div>
-      ),
-      width: 'flex-1'
-    }
   ]
 
   // Invoice listing data
-  const invoiceFields = [
+const invoiceFields = [
+  {
+    label: 'Invoice',
+    render: (inv: any) => (
+      <div className="flex items-center gap-2">
+        <Link
+          href={`/invoice/${inv.id}`}
+          className="text-blue-700 hover:text-blue-900 font-medium text-sm truncate max-w-[140px]"
+          title={inv.invoiceNumber ?? inv.id}
+        >
+          #{inv.invoiceNumber ?? inv.id}
+        </Link>
+        {inv.course?.program?.name && (
+          <span className="text-xs text-neutral-400 ml-2 truncate max-w-[100px]" title={inv.course.program.name}>
+            {inv.course.program.name}
+          </span>
+        )}
+      </div>
+    ),
+    width: 'flex-[2]'
+  },
     {
-      label: 'Invoice',
+      label: 'Amount',
       render: (inv: any) => (
+        <div className="flex items-center h-full text-neutral-700 text-sm">€{inv.amount}</div>
+      ),
+      width: 'flex-1'
+    },
+    {
+      label: 'Recipient',
+      render: (inv: any) => (
+        <div className="flex flex-col text-neutral-700 text-xs">
+          {inv.recipient?.type === 'COMPANY'
+            ? inv.recipient?.companyName
+            : `${inv.recipient?.recipientName ?? ''} ${inv.recipient?.recipientSurname ?? ''}`}
+          <span className="text-neutral-400">{inv.recipient?.recipientEmail}</span>
+        </div>
+      ),
+      width: 'flex-[2]'
+    }
+  ]
+
+    // Document listing data
+  const documentFields = [
+    {
+      label: 'Document',
+      render: (doc: any) => (
         <div className="flex items-center gap-2">
-          <Link
-            href={`/invoice/${inv.id}`}
-            className="text-blue-700 hover:text-blue-900 font-medium text-sm"
+          <a
+            href={doc.file}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-700 hover:text-blue-900 font-medium text-sm truncate max-w-[140px]"
+            title={doc.file.split('/').pop()}
           >
-            #{inv.transactionNumber ?? inv.id}
-          </Link>
-          {inv.course?.program?.name && (
-            <span className="text-xs text-neutral-400 ml-2">
-              {inv.course.program.name}
+            {doc.file.split('/').pop()}
+          </a>
+          {doc.courseRegistration?.course?.program?.name && (
+            <span className="text-xs text-neutral-400 ml-2 truncate max-w-[100px]" title={doc.courseRegistration.course.program.name}>
+              {doc.courseRegistration.course.program.name}
             </span>
           )}
         </div>
@@ -245,45 +368,60 @@ export default async function ParticipantPage({ params, searchParams }: Particip
       width: 'flex-[2]'
     },
     {
-      label: 'Amount',
-      render: (inv: any) => (
-        <div className="flex items-center h-full text-neutral-700 text-sm">€{inv.amount}</div>
+      label: 'Type',
+      render: (doc: any) => (
+        <div className="flex items-center h-full text-neutral-700 text-sm">
+          {labelMap[doc.role] || doc.role}
+        </div>
       ),
       width: 'flex-1'
     }
   ]
 
-  // Flatten all invoices for listing
-  const allInvoices = participant.registrations.flatMap(reg =>
-    reg.invoices.map(inv => ({
-      ...inv,
-      course: reg.course
-    }))
-  )
-
   return (
     <div className="min-h-screen bg-neutral-50 flex items-center justify-center px-2 py-8">
       <div className="w-full max-w-2xl bg-white rounded-2xl shadow-md border border-neutral-100 p-0 overflow-hidden">
         {/* Profile Card */}
-        <section className="flex flex-col sm:flex-row items-center gap-6 px-8 py-8 border-b border-neutral-200">
-          <div className="flex-shrink-0 w-20 h-20 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center text-3xl font-bold text-blue-700 select-none">
-            {participant.name[0]}
-          </div>
-          <div className="flex-1 flex flex-col gap-1">
-            <h1 className="text-2xl font-semibold text-neutral-900">{participant.name}</h1>
-            <div className="flex flex-wrap gap-4 text-neutral-500 text-sm mt-1">
-              <span><span className="font-medium text-neutral-700">Email:</span> {participant.email}</span>
-              <span><span className="font-medium text-neutral-700">Phone:</span> {participant.phoneNumber}</span>
-              <span><span className="font-medium text-neutral-700">ID:</span> {participant.id}</span>
-            </div>
-          </div>
-        </section>
+    <section className="flex flex-col sm:flex-row items-center gap-6 px-8 py-8 border-b border-neutral-200">
+      <div className="flex-shrink-0 w-20 h-20 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center text-3xl font-bold text-blue-700 select-none">
+        {participant.name[0]}
+      </div>
+      <div className="flex-1 flex flex-col gap-1">
+        <h1 className="text-2xl font-semibold text-neutral-900">
+          {participant.salutation} {participant.title ? participant.title + ' ' : ''}
+          {participant.name} {participant.surname}
+        </h1>
+        <div className="flex flex-wrap gap-4 text-neutral-500 text-sm mt-1">
+          <span>
+            <span className="font-medium text-neutral-700">Email:</span> {participant.email}
+          </span>
+          <span>
+            <span className="font-medium text-neutral-700">Phone:</span> {participant.phoneNumber}
+          </span>
+          <span>
+            <span className="font-medium text-neutral-700">Birthday:</span> {participant.birthday ? new Date(participant.birthday).toLocaleDateString('de-DE') : 'N/A'}
+          </span>
+          <span>
+            <span className="font-medium text-neutral-700">Street:</span> {participant.street}
+          </span>
+          <span>
+            <span className="font-medium text-neutral-700">Postal Code:</span> {participant.postalCode}
+          </span>
+          <span>
+            <span className="font-medium text-neutral-700">City:</span> {participant.city}
+          </span>
+          <span>
+            <span className="font-medium text-neutral-700">Country:</span> {participant.country}
+          </span>
+        </div>
+      </div>
+    </section>
 
         {/* Courses Registered */}
         <section className="px-8 py-6 border-b border-neutral-200">
-          <AlignedList
-            items={participant.registrations}
-            fields={courseFields}
+        <AlignedList
+          items={participant.registrations}
+          fields={courseFields}
             actions={reg => (
               <form action={removeRegistration}>
                 <input type="hidden" name="registrationId" value={reg.id} />
@@ -303,7 +441,6 @@ export default async function ParticipantPage({ params, searchParams }: Particip
               <ClientCourseModalWrapper
                 registerToCourse={registerToCourse}
                 availableCourses={availableCourses}
-                RegistrationStatus={RegistrationStatus}
               />
             }
           />
@@ -332,10 +469,34 @@ export default async function ParticipantPage({ params, searchParams }: Particip
             addButton={
               <ClientInvoiceModalWrapper
                 addInvoice={addInvoice}
-                registrations={participant.registrations}
+                registrations={sanitizedRegistrations}
               />
             }
           />
+        </section>
+
+        {/* Documents Section */}
+        <section className="px-8 py-6 border-b border-neutral-200">
+          <AlignedList
+            items={documents}
+            fields={documentFields}
+            actions={doc => (
+              <form action={removeDocument}>
+                <input type="hidden" name="documentId" value={doc.id} />
+                <button
+                  type="submit"
+                  className="cursor-pointer flex items-center justify-center w-7 h-7 rounded-full bg-neutral-100 text-neutral-400 hover:text-red-500 hover:bg-red-50 border border-transparent hover:border-red-200 transition"
+                  title="Remove document"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 12h12" />
+                  </svg>
+                </button>
+              </form>
+            )}
+            emptyText="No documents found"
+          />
+
         </section>
 
         {/* Navigation */}
