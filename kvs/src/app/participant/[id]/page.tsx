@@ -55,6 +55,12 @@ export default async function ParticipantPage({ params, searchParams }: Particip
     include: { program: true }
   })
 
+  const labelMap: Record<string, string> = {
+  certificate: 'Zertifikat',
+  KursRegeln: 'Kursregeln',
+  Teilnahmebestaetigung: 'Teilnahmebestätigung',
+}
+
   // --- SANITIZE availableCourses ---
   availableCourses = availableCourses.map(course => ({
     ...course,
@@ -295,26 +301,27 @@ export default async function ParticipantPage({ params, searchParams }: Particip
   ]
 
   // Invoice listing data
-  const invoiceFields = [
-    {
-      label: 'Invoice',
-      render: (inv: any) => (
-        <div className="flex items-center gap-2">
-          <Link
-            href={`/invoice/${inv.id}`}
-            className="text-blue-700 hover:text-blue-900 font-medium text-sm"
-          >
-            #{inv.invoiceNumber ?? inv.id}
-          </Link>
-          {inv.course?.program?.name && (
-            <span className="text-xs text-neutral-400 ml-2">
-              {inv.course.program.name}
-            </span>
-          )}
-        </div>
-      ),
-      width: 'flex-[2]'
-    },
+const invoiceFields = [
+  {
+    label: 'Invoice',
+    render: (inv: any) => (
+      <div className="flex items-center gap-2">
+        <Link
+          href={`/invoice/${inv.id}`}
+          className="text-blue-700 hover:text-blue-900 font-medium text-sm truncate max-w-[140px]"
+          title={inv.invoiceNumber ?? inv.id}
+        >
+          #{inv.invoiceNumber ?? inv.id}
+        </Link>
+        {inv.course?.program?.name && (
+          <span className="text-xs text-neutral-400 ml-2 truncate max-w-[100px]" title={inv.course.program.name}>
+            {inv.course.program.name}
+          </span>
+        )}
+      </div>
+    ),
+    width: 'flex-[2]'
+  },
     {
       label: 'Amount',
       render: (inv: any) => (
@@ -336,7 +343,7 @@ export default async function ParticipantPage({ params, searchParams }: Particip
     }
   ]
 
-  // Document listing data
+    // Document listing data
   const documentFields = [
     {
       label: 'Document',
@@ -346,12 +353,13 @@ export default async function ParticipantPage({ params, searchParams }: Particip
             href={doc.file}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-700 hover:text-blue-900 font-medium text-sm"
+            className="text-blue-700 hover:text-blue-900 font-medium text-sm truncate max-w-[140px]"
+            title={doc.file.split('/').pop()}
           >
             {doc.file.split('/').pop()}
           </a>
           {doc.courseRegistration?.course?.program?.name && (
-            <span className="text-xs text-neutral-400 ml-2">
+            <span className="text-xs text-neutral-400 ml-2 truncate max-w-[100px]" title={doc.courseRegistration.course.program.name}>
               {doc.courseRegistration.course.program.name}
             </span>
           )}
@@ -360,21 +368,11 @@ export default async function ParticipantPage({ params, searchParams }: Particip
       width: 'flex-[2]'
     },
     {
-      label: 'File',
+      label: 'Type',
       render: (doc: any) => (
         <div className="flex items-center h-full text-neutral-700 text-sm">
-          {(() => {
-            const ext = doc.file.split('.').pop()?.toUpperCase() || '';
-            return ext;
-          })()}
+          {labelMap[doc.role] || doc.role}
         </div>
-      ),
-      width: 'flex-1'
-    },
-    {
-      label: 'Role',
-      render: (doc: any) => (
-        <div className="flex items-center h-full text-neutral-700 text-sm">{doc.role}</div>
       ),
       width: 'flex-1'
     }
@@ -414,9 +412,6 @@ export default async function ParticipantPage({ params, searchParams }: Particip
           </span>
           <span>
             <span className="font-medium text-neutral-700">Country:</span> {participant.country}
-          </span>
-          <span>
-            <span className="font-medium text-neutral-700">ID:</span> {participant.id}
           </span>
         </div>
       </div>

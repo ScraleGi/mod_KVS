@@ -128,13 +128,13 @@ export default async function CoursePage({ params }: CoursePageProps) {
                         <Link
 
 
-                        href={`/courseregistration/${reg?.id}`}
-                          className="font-semibold text-blue-600 underline hover:text-blue-800"
+                      //  href={`/courseregistration/${reg?.id}`}
+                      //    className="font-semibold text-blue-600 underline hover:text-blue-800"
 
 
 
-                          // href={`/course/${course.id}/participantDetails/${reg.participant?.id}`}
-                          // className="font-semibold text-blue-600 hover:text-blue-800"
+                           href={`/course/${course.id}/participantDetails/${reg.participant?.id}`}
+                           className="font-semibold text-blue-600 hover:text-blue-800"
 
 
                         >

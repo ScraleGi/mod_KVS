@@ -2,12 +2,42 @@ import { PrismaClient, RecipientType } from '../../../../../../generated/prisma'
 import Link from 'next/link'
 import { revalidatePath } from 'next/cache'
 import type { Invoice, Document } from '../../../../../../generated/prisma'
+import { DownloadPDFButton } from '@/components/DownloadButton/DownloadButton'
 
 const prisma = new PrismaClient()
 
 function formatDateGerman(date: Date | string | null | undefined) {
   if (!date) return 'N/A'
   return new Date(date).toLocaleDateString('de-DE')
+}
+
+// Helper to sanitize Decimal fields for client components
+function sanitizeRegistration(reg: any) {
+  if (!reg) return reg
+  return {
+    ...reg,
+    course: reg.course
+      ? {
+          ...reg.course,
+          program: reg.course.program
+            ? {
+                ...reg.course.program,
+                price: reg.course.program.price?.toString() ?? null,
+              }
+            : null,
+          mainTrainer: reg.course.mainTrainer
+            ? { ...reg.course.mainTrainer }
+            : null,
+        }
+      : null,
+    participant: reg.participant ? { ...reg.participant } : null,
+    invoices: reg.invoices?.map((inv: any) => ({
+      ...inv,
+      amount: inv.amount?.toString() ?? null,
+    })) ?? [],
+    subsidyAmount: reg.subsidyAmount?.toString() ?? null,
+    discountAmount: reg.discountAmount?.toString() ?? null,
+  }
 }
 
 export default async function ParticipantDetailsPage({
@@ -32,29 +62,34 @@ export default async function ParticipantDetailsPage({
   }
 
   // Fetch registration for this participant in this course
-const registration = await prisma.courseRegistration.findFirst({
-  where: {
-    courseId,
-    participantId,
-  },
-  include: {
-    participant: true,
-    course: { include: { program: true } },
-    invoices: {
-      include: {
-        recipient: true,
-      }
+  const registration = await prisma.courseRegistration.findFirst({
+    where: {
+      courseId,
+      participantId,
     },
-  }
-})
+    include: {
+      participant: true,
+      course: { 
+        include: { 
+          program: true,
+          mainTrainer: true
+        } 
+      },
+      invoices: {
+        include: {
+          recipient: true,
+        }
+      },
+    }
+  })
 
-// Sanitize invoices (convert Decimal to string)
-const sanitizedInvoices = registration
-  ? registration.invoices.map(inv => ({
-      ...inv,
-      amount: inv.amount?.toString(),
-    }))
-  : []
+  // Sanitize registration for client components
+  const sanitizedRegistration = sanitizeRegistration(registration)
+
+  // Sanitize invoices (convert Decimal to string)
+  const sanitizedInvoices = sanitizedRegistration
+    ? sanitizedRegistration.invoices
+    : []
 
   // Fetch documents for this registration (not soft-deleted)
   const documents = registration
@@ -66,6 +101,12 @@ const sanitizedInvoices = registration
         orderBy: { createdAt: 'desc' },
       })
     : []
+
+  const labelMap: Record<string, string> = {
+    certificate: 'Zertifikat',
+    KursRegeln: 'Kursregeln',
+    Teilnahmebestaetigung: 'Teilnahmebestätigung',
+  }
 
   // Server action to add an invoice for this registration
   async function addInvoice(formData: FormData) {
@@ -111,18 +152,18 @@ const sanitizedInvoices = registration
       data: recipientData
     })
 
-  const invoiceNumber = `INV-${Date.now()}-${Math.floor(Math.random() * 1000)}`
+    const invoiceNumber = `INV-${Date.now()}-${Math.floor(Math.random() * 1000)}`
 
-  await prisma.invoice.create({
-    data: {
-      invoiceNumber,
-      courseRegistrationId: registration!.id,
-      amount,
-      transactionNumber: null, // explicitly set to null for unpaid invoice
-      dueDate: dueDateString ? new Date(dueDateString) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-      recipientId: recipient.id,
-    }
-  })
+    await prisma.invoice.create({
+      data: {
+        invoiceNumber,
+        courseRegistrationId: registration!.id,
+        amount,
+        transactionNumber: null, // explicitly set to null for unpaid invoice
+        dueDate: dueDateString ? new Date(dueDateString) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        recipientId: recipient.id,
+      }
+    })
     revalidatePath(`/course/${courseId}/participantDetails?participantId=${participantId}`)
   }
 
@@ -147,7 +188,7 @@ const sanitizedInvoices = registration
     revalidatePath(`/course/${courseId}/participantDetails?participantId=${participantId}`)
   }
 
-  if (!registration || !registration.participant) {
+  if (!sanitizedRegistration || !sanitizedRegistration.participant) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-neutral-50">
         <div className="max-w-md w-full px-4">
@@ -212,12 +253,13 @@ const sanitizedInvoices = registration
     {
       label: 'Document',
       render: (doc) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 max-w-xs">
           <a
             href={doc.file}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-700 hover:text-blue-900 font-medium text-sm"
+            className="text-blue-700 hover:text-blue-900 font-medium text-sm truncate max-w-[160px]"
+            title={doc.file.split('/').pop()}
           >
             {doc.file.split('/').pop()}
           </a>
@@ -226,21 +268,11 @@ const sanitizedInvoices = registration
       width: 'flex-[2]'
     },
     {
-      label: 'File',
+      label: 'Type',
       render: (doc) => (
         <div className="flex items-center h-full text-neutral-700 text-sm">
-          {(() => {
-            const ext = doc.file.split('.').pop()?.toUpperCase() || '';
-            return ext;
-          })()}
+          {labelMap[doc.role] || doc.role}
         </div>
-      ),
-      width: 'flex-1'
-    },
-    {
-      label: 'Role',
-      render: (doc) => (
-        <div className="flex items-center h-full text-neutral-700 text-sm">{doc.role}</div>
       ),
       width: 'flex-1'
     }
@@ -298,30 +330,30 @@ const sanitizedInvoices = registration
         {/* Profile Card */}
         <section className="flex flex-col sm:flex-row items-center gap-6 px-8 py-8 border-b border-neutral-200">
           <div className="flex-shrink-0 w-20 h-20 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center text-3xl font-bold text-blue-700 select-none">
-            {registration.participant.name[0]}
+            {sanitizedRegistration.participant.name[0]}
           </div>
           <div className="flex-1 flex flex-col gap-1">
             <h1 className="text-2xl font-semibold text-neutral-900">
               <Link
-                href={`/participant/${registration.participant.id}`}
+                href={`/participant/${sanitizedRegistration.participant.id}`}
                 className="hover:underline text-blue-700"
               >
-                {registration.participant.salutation} {registration.participant.title ? registration.participant.title + ' ' : ''}
-                {registration.participant.name} {registration.participant.surname}
+                {sanitizedRegistration.participant.salutation} {sanitizedRegistration.participant.title ? sanitizedRegistration.participant.title + ' ' : ''}
+                {sanitizedRegistration.participant.name} {sanitizedRegistration.participant.surname}
               </Link>
             </h1>
             <div className="flex flex-wrap gap-4 text-neutral-500 text-sm mt-1">
               <span>
-                <span className="font-medium text-neutral-700">Email:</span> {registration.participant.email}
+                <span className="font-medium text-neutral-700">Email:</span> {sanitizedRegistration.participant.email}
               </span>
               <span>
-                <span className="font-medium text-neutral-700">Phone:</span> {registration.participant.phoneNumber}
+                <span className="font-medium text-neutral-700">Phone:</span> {sanitizedRegistration.participant.phoneNumber}
               </span>
               <span>
-                <span className="font-medium text-neutral-700">Birthday:</span> {formatDateGerman(registration.participant.birthday)}
+                <span className="font-medium text-neutral-700">Birthday:</span> {formatDateGerman(sanitizedRegistration.participant.birthday)}
               </span>
               <span>
-                <span className="font-medium text-neutral-700">Address:</span> {registration.participant.street}, {registration.participant.postalCode} {registration.participant.city}, {registration.participant.country}
+                <span className="font-medium text-neutral-700">Address:</span> {sanitizedRegistration.participant.street}, {sanitizedRegistration.participant.postalCode} {sanitizedRegistration.participant.city}, {sanitizedRegistration.participant.country}
               </span>
             </div>
           </div>
@@ -329,84 +361,90 @@ const sanitizedInvoices = registration
 
         {/* Registration Details */}
         <section className="px-8 py-6 border-b border-neutral-200">
-          <h2 className="text-base font-semibold text-neutral-800 mb-2">Details</h2>
+          <h2 className="text-sm font-semibold text-neutral-800 mb-2">Details</h2>
           <div className="flex flex-wrap gap-x-8 gap-y-2 text-[13px] text-neutral-700">
             <div className="flex items-center gap-1">
               <span className="font-medium text-neutral-600">Course:</span>
               <Link
-                href={`/course/${registration.course?.id}`}
+                href={`/course/${sanitizedRegistration.course?.id}`}
                 className="text-blue-700 hover:text-blue-900 font-medium"
               >
-                {registration.course?.program?.name ?? 'Unknown Course'}
+                {sanitizedRegistration.course?.program?.name ?? 'Unknown Course'}
               </Link>
             </div>
             <div className="flex items-center gap-1">
               <span className="font-medium text-neutral-600">Start:</span>
               <span className="text-neutral-600">
-                {formatDateGerman(registration.course?.startDate)}
+                {formatDateGerman(sanitizedRegistration.course?.startDate)}
+              </span>
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="font-medium text-neutral-600">Trainer:</span>
+              <span className="text-neutral-600">
+                {sanitizedRegistration.course?.mainTrainer?.name ?? 'N/A'}
               </span>
             </div>
             {/* Show status timestamps if present */}
-            {registration.infoSessionAt && (
+            {sanitizedRegistration.infoSessionAt && (
               <div className="flex items-center gap-1">
                 <span className="font-medium text-neutral-600">Info Session:</span>
                 <span className="text-neutral-600">
-                  {formatDateGerman(registration.infoSessionAt)}
+                  {formatDateGerman(sanitizedRegistration.infoSessionAt)}
                 </span>
               </div>
             )}
-            {registration.interestedAt && (
+            {sanitizedRegistration.interestedAt && (
               <div className="flex items-center gap-1">
                 <span className="font-medium text-neutral-600">Interested:</span>
                 <span className="text-neutral-600">
-                  {formatDateGerman(registration.interestedAt)}
+                  {formatDateGerman(sanitizedRegistration.interestedAt)}
                 </span>
               </div>
             )}
-            {registration.registeredAt && (
+            {sanitizedRegistration.registeredAt && (
               <div className="flex items-center gap-1">
                 <span className="font-medium text-neutral-600">Registered:</span>
                 <span className="text-neutral-600">
-                  {formatDateGerman(registration.registeredAt)}
+                  {formatDateGerman(sanitizedRegistration.registeredAt)}
                 </span>
               </div>
             )}
-            {registration.unregisteredAt && (
+            {sanitizedRegistration.unregisteredAt && (
               <div className="flex items-center gap-1">
                 <span className="font-medium text-neutral-600">Unregistered:</span>
                 <span className="text-neutral-600">
-                  {formatDateGerman(registration.unregisteredAt)}
+                  {formatDateGerman(sanitizedRegistration.unregisteredAt)}
                 </span>
               </div>
             )}
             {/* General Remark */}
-            {registration.generalRemark && (
+            {sanitizedRegistration.generalRemark && (
               <div className="flex items-center gap-1">
                 <span className="font-medium text-neutral-600">Remark:</span>
-                <span className="text-neutral-600">{registration.generalRemark}</span>
+                <span className="text-neutral-600">{sanitizedRegistration.generalRemark}</span>
               </div>
             )}
             {/* Subsidy info */}
-            {(registration.subsidyRemark || registration.subsidyAmount) && (
+            {(sanitizedRegistration.subsidyRemark || sanitizedRegistration.subsidyAmount) && (
               <div className="flex items-center gap-1 text-green-700">
                 <span className="font-medium">Subsidy:</span>
-                {registration.subsidyRemark && (
-                  <span>{registration.subsidyRemark}</span>
+                {sanitizedRegistration.subsidyRemark && (
+                  <span>{sanitizedRegistration.subsidyRemark}</span>
                 )}
-                {registration.subsidyAmount && (
-                  <span className="ml-1 text-xs">({registration.subsidyAmount.toString()}€)</span>
+                {sanitizedRegistration.subsidyAmount && (
+                  <span className="ml-1 text-xs">({sanitizedRegistration.subsidyAmount}€)</span>
                 )}
               </div>
             )}
             {/* Discount info */}
-            {(registration.discountRemark || registration.discountAmount) && (
+            {(sanitizedRegistration.discountRemark || sanitizedRegistration.discountAmount) && (
               <div className="flex items-center gap-1 text-blue-700">
                 <span className="font-medium">Discount:</span>
-                {registration.discountRemark && (
-                  <span>{registration.discountRemark}</span>
+                {sanitizedRegistration.discountRemark && (
+                  <span>{sanitizedRegistration.discountRemark}</span>
                 )}
-                {registration.discountAmount && (
-                  <span className="ml-1 text-xs">({registration.discountAmount.toString()}€)</span>
+                {sanitizedRegistration.discountAmount && (
+                  <span className="ml-1 text-xs">({sanitizedRegistration.discountAmount}€)</span>
                 )}
               </div>
             )}
@@ -415,8 +453,8 @@ const sanitizedInvoices = registration
 
         {/* Invoices Section */}
         <section className="px-8 py-6 border-b border-neutral-200">
-        <AlignedList<any>
-          items={sanitizedInvoices}
+          <AlignedList<any>
+            items={sanitizedInvoices}
             fields={invoiceFields}
             actions={inv => (
               <form action={removeInvoice}>
@@ -460,10 +498,44 @@ const sanitizedInvoices = registration
           <div className="flex justify-start mt-4">
             <Link
               href={`/course/${courseId}/participantDetails/deleted?participantId=${participantId}`}
-              className="text-neutral-400 hover:text-orange-600 text-sm transition"
+              className="inline-flex items-center gap-1 text-neutral-400 hover:text-orange-600 text-sm transition"
             >
               View Deleted Documents
+              <svg
+                className="w-4 h-4 ml-1"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
             </Link>
+          </div>
+        </section>
+
+        <section className="px-8 py-6">
+          <h2 className="text-sm font-semibold text-neutral-800 mb-4">Generate Documents</h2>
+          <div className="flex gap-2 flex-wrap justify-center">
+            <DownloadPDFButton
+              uuidString={sanitizedRegistration.id}
+              registration={sanitizedRegistration}
+              documentType="certificate"
+              filename={`certificate_${sanitizedRegistration.participant.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`}
+            />
+            <DownloadPDFButton
+              uuidString={sanitizedRegistration.id}
+              registration={sanitizedRegistration}
+              documentType="KursRegeln"
+              filename={`KursRegeln_${sanitizedRegistration.participant.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`}
+            />
+            <DownloadPDFButton
+              uuidString={sanitizedRegistration.id}
+              registration={sanitizedRegistration}
+              documentType="Teilnahmebestaetigung"
+              filename={`Teilnahmebestaetigung_${sanitizedRegistration.participant.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`}
+            />
           </div>
         </section>
 
