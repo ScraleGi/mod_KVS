@@ -106,6 +106,7 @@ export default async function ParticipantDetailsPage({
     certificate: 'Zertifikat',
     KursRegeln: 'Kursregeln',
     Teilnahmebestaetigung: 'Teilnahmebestätigung',
+    invoice: 'Rechnung',
   }
 
   // Server action to add an invoice for this registration
@@ -536,6 +537,12 @@ export default async function ParticipantDetailsPage({
               documentType="Teilnahmebestaetigung"
               filename={`Teilnahmebestaetigung_${sanitizedRegistration.participant.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`}
             />
+            <DownloadPDFButton
+                  uuidString={sanitizedRegistration.id}
+                  registration={sanitizedRegistration}
+                  documentType="invoice"
+                  filename={`invoice_${sanitizedRegistration.participant.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`}
+                />
           </div>
         </section>
 

@@ -54,7 +54,7 @@ export default async function CoursePage({ params }: CoursePageProps) {
       <div className="container mx-auto py-8 px-4">
         {/* Horizontal links at the top */}
         <div className="flex justify-left gap-6 mb-8">
-          <Link href="/course" className="text-blue-500 hover:underline">
+          <Link href="/course/" className="text-blue-500 hover:underline">
             &larr; Back to Courses
           </Link>
           <Link href="/" className="text-blue-500 hover:underline">
