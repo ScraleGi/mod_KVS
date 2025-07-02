@@ -1,14 +1,6 @@
 import { PrismaClient } from '../../../generated/prisma/client'
+import { CourseTable, areaColumns, AreaRow } from '@/components/overviewTable/table'
 import Link from 'next/link'
-import { redirect } from 'next/navigation'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
 
 const prisma = new PrismaClient()
 
@@ -37,61 +29,63 @@ async function getAreasWithPrograms() {
 
   // For each area, calculate total courses and total participants
   return areas.map(area => {
-    let courseCount = 0
-    let participantCount = 0
-    area.programs.forEach(program => {
-      courseCount += program.course.length
-      program.course.forEach(course => {
-        participantCount += course.registrations.length
-      })
-    })
+    const courseCount = area.programs.reduce((count, program) => count + (program.course ? program.course.length : 0), 0)
+    const participantCount = area.programs.reduce((count, program) => {
+      return count + (program.course ? program.course.reduce((cCount, course) => cCount + course.registrations.length, 0) : 0)
+    }, 0)
+
     return {
-      ...area,
+      id: area.id,
+      name: area.name,
+      programs: area.programs.map(program => ({
+        id: program.id,
+        name: program.name
+      })),
       courseCount,
       participantCount
     }
   })
 }
 
-async function deleteArea(formData: FormData) {
-  'use server'
-  const id = formData.get('id') as string
-  const now = new Date()
-
-  await prisma.program.updateMany({
-    where: { areaId: id },
-    data: { deletedAt: now }
-  })
-
-  await prisma.area.update({
-    where: { id },
-    data: { deletedAt: now }
-  })
-
-  redirect('/area')
-}
 
 export default async function AreasPage() {
-  const areas = await getAreasWithPrograms()
 
+    const areas = await getAreasWithPrograms()
+    if (!areas || areas.length === 0) {
+        return (
+            <div className="p-8">
+                <h1 className="text-3xl font-bold mb-6">No Areas Found</h1>
+                <p className="text-gray-600">There are currently no areas available.</p>
+            </div>
+        )
+    }
+    const tableData: AreaRow[] = areas.map(area => ({
+        id: area.id,
+        area: area.name, // <- dieses Feld ergänzen
+        name: area.name,
+        programs: area.programs.map(program => ({
+            id: program.id,
+            name: program.name
+        })),
+        courseCount: area.courseCount,
+        participantCount: area.participantCount
+    }))
   return (
     <div className="min-h-screen bg-gray-50 py-6 px-4">
-      <div className="max-w-[1600px] mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Areas</h1>
-          <div className="flex gap-2">
-            <Link
-              href="/area/new"
-              className="p-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition"
-              title="Add New Area"
-              aria-label="Add New Area"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 20 20" stroke="currentColor">
-                <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-              </svg>
-            </Link>
-            <Link
+      <div className="flex items-center justify-between mb-8">
+           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Areas</h1>
+           <div className="flex gap-2">
+             <Link
+               href="/area/new"
+               className="p-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition"
+               title="Add New Area"
+               aria-label="Add New Area"
+             >
+               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 20 20" stroke="currentColor">
+                 <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+               </svg>
+             </Link>
+             <Link
               href="/"
               className="p-2 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300 transition"
               title="Back to Home"
@@ -113,77 +107,11 @@ export default async function AreasPage() {
             </Link>
           </div>
         </div>
-        {/* Areas Table */}
-        <div className="shadow border border-gray-200 overflow-hidden bg-white rounded-md">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-gray-600 hover:bg-gray-600 border-b border-gray-200">
-                <TableHead className="py-4 px-3 text-gray-100 font-semibold text-base">Area</TableHead>
-                <TableHead className="py-4 px-3 text-gray-100 font-semibold text-base text-center">Programs</TableHead>
-                <TableHead className="py-4 px-3 text-gray-100 font-semibold text-base text-center">Courses</TableHead>
-                <TableHead className="py-4 px-3 text-gray-100 font-semibold text-base text-center">Participants</TableHead>
-                <TableHead className="py-4 px-3 text-gray-100 font-semibold text-base text-center">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {areas.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="h-24 text-center text-gray-400">
-                    No areas found.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                areas.map((area, idx, arr) => (
-                  <TableRow
-                    key={area.id}
-                    className={`transition-colors ${
-                      idx % 2 === 0 ? "bg-slate-50" : "bg-white"
-                    } hover:bg-blue-50 ${
-                      idx !== arr.length - 1 ? "border-b border-gray-200" : ""
-                    }`}
-                  >
-                    <TableCell className="py-3 px-3 text-gray-800 pl-2">
-                      <Link href={`/area/${area.id}`} className="text-blue-700 hover:underline">
-                        {area.name}
-                      </Link>
-                    </TableCell>
-                    <TableCell className="py-3 px-3 text-gray-800 text-center">{area.programs.length}</TableCell>
-                    <TableCell className="py-3 px-3 text-gray-800 text-center">{area.courseCount}</TableCell>
-                    <TableCell className="py-3 px-3 text-gray-800 text-center">{area.participantCount}</TableCell>
-                    <TableCell className="py-3 px-3 text-gray-800 text-center">
-                      <div className="flex justify-center gap-1">
-                        <Link
-                          href={`/area/${area.id}/edit`}
-                          className="p-2 rounded hover:bg-blue-100 text-blue-600 transition"
-                          title="Edit"
-                          aria-label="Edit"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                          </svg>
-                        </Link>
-                        <form action={deleteArea}>
-                          <input type="hidden" name="id" value={area.id} />
-                          <button
-                            type="submit"
-                            className="p-2 rounded hover:bg-red-100 text-red-600 transition"
-                            title="Delete"
-                            aria-label="Delete"
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                          </button>
-                        </form>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
-      </div>
+
+      <CourseTable
+          data={tableData}
+          columns={areaColumns}
+      />
     </div>
   )
 }

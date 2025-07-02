@@ -3,6 +3,7 @@ import { CourseParticipantsDialog } from "../participants/CourseParticipantsDial
 import { CoursesDialog } from "../participants/participantCoursesDialog"
 import { FilterHeader } from "./FilterHeader"
 import { DoubleFilterHeader } from "./DoubleFilterHeader"
+import { deleteArea } from "@/app/area/actions"
 
 
 // -------------------- Imports --------------------
@@ -58,6 +59,15 @@ export type CourseRow = {
   trainer: string
   registrations: number
   participants?: Participant[]
+}
+
+export type AreaRow = {
+    id: string
+    area: string
+    programs?: { id: string; name: string }[]
+    courseCount: number
+    participantCount: number
+    courses?: CourseRow[]
 }
 
 // -------------------- Table Columns Definition --------------------
@@ -262,6 +272,137 @@ export const participantColumns: ColumnDef<ParticipantRow>[] = [
     return a - b
   },
 },
+]
+
+export const areaColumns: ColumnDef<AreaRow>[] = [
+  {
+    accessorKey: "area",
+    header: ({ column }) => (
+      <FilterHeader
+        column={column}
+        label="Bereich"
+        placeholder="Filter Bereich..."
+      />
+    ),
+    cell: ({ row }) => (
+      <Link
+        href={`/area/${row.original.id}`}
+        className="relative text-blue-600 hover:text-blue-800 pl-2 inline-block after:content-[''] after:absolute after:left-8 after:bottom-0 after:w-0 hover:after:w-[calc(100%-2rem)] after:h-[2px] after:bg-blue-600 after:transition-all after:duration-300"
+      >
+        {row.original.area}
+      </Link>
+    ),
+  },
+  {
+    accessorKey: "programs",
+    header: ({ column }) => (
+      <FilterHeader
+        column={column}
+        label="Programme"
+        placeholder="Filter Programme..."
+      />
+    ),
+    cell: ({ row }) => (
+        <span className="block pl-2">
+            {row.original.programs?.length ?? 0}
+        </span>
+    ),
+    filterFn: (row, columnId, filterValue) => {
+        const value = row.getValue(columnId)
+        if (!value || !Array.isArray(value)) return false
+        const count = value.length
+        if (typeof filterValue === "number") {
+            return count === filterValue
+        } else if (typeof filterValue === "string") {
+            const num = parseInt(filterValue, 10)
+            return !isNaN(num) && count === num
+        }
+        return false
+    },
+  },
+    {
+        accessorKey: "courseCount",
+        header: ({ column }) => (
+        <FilterHeader
+            column={column}
+            label="Kurse"
+            placeholder="Filter Kurse..."
+        />
+        ),
+        cell: ({ row }) => (
+        <span className="block pl-2">
+            {row.getValue("courseCount")}
+        </span>
+        ),
+        filterFn: (row, columnId, filterValue) => {
+            const value = row.getValue(columnId)
+            if (typeof value !== "number") return false
+            if (typeof filterValue === "number") {
+                return value === filterValue
+            } else if (typeof filterValue === "string") {
+                const num = parseInt(filterValue, 10)
+                return !isNaN(num) && value === num
+            }
+            return false
+        },
+    },
+    {
+        accessorKey: "participantCount",
+        header: ({ column }) => (
+        <FilterHeader
+            column={column}
+            label="Teilnehmer"
+            placeholder="Filter Teilnehmer..."
+        />
+        ),
+        cell: ({ row }) => (
+        <span className="block pl-2">
+            {row.getValue("participantCount")}
+        </span>
+        ),
+        filterFn: (row, columnId, filterValue) => {
+            const value = row.getValue(columnId)
+            if (typeof value !== "number") return false
+            if (typeof filterValue === "number") {
+                return value === filterValue
+            } else if (typeof filterValue === "string") {
+                const num = parseInt(filterValue, 10)
+                return !isNaN(num) && value === num
+            }
+            return false
+        },
+    },
+  {
+    id: "actions",
+    header: "Aktionen",
+    cell: ({ row }) => (
+      <div className="flex justify-center gap-1">
+        <Link
+          href={`/area/${row.original.id}/edit`}
+          className="p-2 rounded hover:bg-blue-100 text-blue-600 transition"
+          title="Edit"
+          aria-label="Edit"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+          </svg>
+        </Link>
+        <form action={deleteArea}>
+          <input type="hidden" name="id" value={row.original.id} />
+          <button
+            type="submit"
+            className="p-2 rounded hover:bg-red-100 text-red-600 transition"
+            title="Delete"
+            aria-label="Delete"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </button>
+        </form>
+      </div>
+    ),
+  }
 ]
 
 // -------------------- Main Table Component --------------------
