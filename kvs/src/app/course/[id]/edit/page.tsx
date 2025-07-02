@@ -11,7 +11,7 @@ interface EditCoursePageProps {
 }
 
 export default async function EditCoursePage({ params }: EditCoursePageProps) {
-  const { id } = params
+  const { id } = await params
 
   const [course, trainers] = await Promise.all([
     prisma.course.findUnique({
