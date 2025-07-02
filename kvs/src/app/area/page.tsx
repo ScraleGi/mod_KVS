@@ -53,6 +53,26 @@ async function getAreasWithPrograms() {
   })
 }
 
+
+async function deleteArea(formData: FormData) {
+  'use server'
+  const id = formData.get('id') as string
+  const now = new Date()
+
+  await prisma.program.updateMany({
+    where: { areaId: id },
+    data: { deletedAt: now }
+  })
+
+  await prisma.area.update({
+    where: { id },
+    data: { deletedAt: now }
+  })
+
+  redirect('/area')
+}
+
+
 export default async function AreasPage() {
   const areas = await getAreasWithPrograms()
 
