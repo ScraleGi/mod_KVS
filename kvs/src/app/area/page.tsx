@@ -1,5 +1,14 @@
 import { PrismaClient } from '../../../generated/prisma/client'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 
 const prisma = new PrismaClient()
 
@@ -48,7 +57,7 @@ export default async function AreasPage() {
   const areas = await getAreasWithPrograms()
 
   return (
-    <div className="min-h-screen bg-gray-50 py-10 px-4">
+    <div className="min-h-screen bg-gray-50 py-6 px-4">
       <div className="max-w-[1600px] mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -86,58 +95,75 @@ export default async function AreasPage() {
             </Link>
           </div>
         </div>
-        {/* Areas Table Style List */}
-        <div className="bg-white rounded-sm shadow border border-gray-100">
-          <div className="divide-y divide-gray-100">
-            <div className="hidden md:grid grid-cols-[3fr_1fr_1fr_1fr_1fr] gap-3 px-4 py-3 text-[11px] font-semibold text-gray-100 uppercase tracking-wider bg-gray-600 rounded-t-sm w-full border-b border-gray-200">
-              <div>Area</div>
-              <div className="text-right">Programs</div>
-              <div className="text-right">Courses</div>
-              <div className="text-right">Participants</div>
-              <div className="text-right">Actions</div>
-            </div>
-            {areas.length === 0 && (
-              <div className="px-4 py-12 text-center text-gray-400 text-sm">No areas found.</div>
-            )}
-            {areas.map(area => (
-              <div
-                key={area.id}
-                className="grid grid-cols-1 md:grid-cols-[3fr_1fr_1fr_1fr_1fr] gap-3 px-4 py-4 items-center hover:bg-gray-50 transition group w-full text-[13px]"
-              >
-                {/* Area Name */}
-                <div className="font-medium text-blue-700 truncate max-w-[400px]">
-                  <Link href={`/area/${area.id}`} className="text-blue-700 hover:underline">
-                    {area.name}
-                  </Link>
-                </div>
-                {/* Programs Count */}
-                <div className="text-gray-700 whitespace-nowrap text-right">
-                  {area.programs.length}
-                </div>
-                {/* Courses Count */}
-                <div className="text-gray-700 whitespace-nowrap text-right">
-                  {area.courseCount}
-                </div>
-                {/* Participants Count */}
-                <div className="text-gray-700 whitespace-nowrap text-right">
-                  {area.participantCount}
-                </div>
-                {/* Actions */}
-                <div className="flex justify-end gap-1">
-                  <Link
-                    href={`/area/${area.id}/edit`}
-                    className="p-2 rounded hover:bg-blue-100 text-blue-600 transition"
-                    title="Edit"
-                    aria-label="Edit"
+        {/* Areas Table */}
+        <div className="shadow border border-gray-200 overflow-hidden bg-white rounded-md">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-gray-600 hover:bg-gray-600 border-b border-gray-200">
+                <TableHead className="py-4 px-3 text-gray-100 font-semibold text-base">Area</TableHead>
+                <TableHead className="py-4 px-3 text-gray-100 font-semibold text-base text-center">Programs</TableHead>
+                <TableHead className="py-4 px-3 text-gray-100 font-semibold text-base text-center">Courses</TableHead>
+                <TableHead className="py-4 px-3 text-gray-100 font-semibold text-base text-center">Participants</TableHead>
+                <TableHead className="py-4 px-3 text-gray-100 font-semibold text-base text-center">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {areas.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="h-24 text-center text-gray-400">
+                    No areas found.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                areas.map((area, idx, arr) => (
+                  <TableRow
+                    key={area.id}
+                    className={`transition-colors ${
+                      idx % 2 === 0 ? "bg-slate-50" : "bg-white"
+                    } hover:bg-blue-50 ${
+                      idx !== arr.length - 1 ? "border-b border-gray-200" : ""
+                    }`}
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                  </Link>
-                </div>
-              </div>
-            ))}
-          </div>
+                    <TableCell className="py-3 px-3 text-gray-800 pl-2">
+                      <Link href={`/area/${area.id}`} className="text-blue-700 hover:underline">
+                        {area.name}
+                      </Link>
+                    </TableCell>
+                    <TableCell className="py-3 px-3 text-gray-800 text-center">{area.programs.length}</TableCell>
+                    <TableCell className="py-3 px-3 text-gray-800 text-center">{area.courseCount}</TableCell>
+                    <TableCell className="py-3 px-3 text-gray-800 text-center">{area.participantCount}</TableCell>
+                    <TableCell className="py-3 px-3 text-gray-800 text-center">
+                      <div className="flex justify-center gap-1">
+                        <Link
+                          href={`/area/${area.id}/edit`}
+                          className="p-2 rounded hover:bg-blue-100 text-blue-600 transition"
+                          title="Edit"
+                          aria-label="Edit"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          </svg>
+                        </Link>
+                        <form action={deleteArea}>
+                          <input type="hidden" name="id" value={area.id} />
+                          <button
+                            type="submit"
+                            className="p-2 rounded hover:bg-red-100 text-red-600 transition"
+                            title="Delete"
+                            aria-label="Delete"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                        </form>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
         </div>
       </div>
     </div>
