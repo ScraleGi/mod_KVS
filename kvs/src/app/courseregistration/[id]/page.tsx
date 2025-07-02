@@ -1,128 +1,458 @@
-import React from 'react';
-import Link from 'next/link';
-import { PrismaClient } from '../../../../generated/prisma/client';
-import { DownloadPDFButton } from '../../../components/DownloadButton/DownloadButton';
+import { PrismaClient, RecipientType } from '../../../../generated/prisma'
+import Link from 'next/link'
+import { revalidatePath } from 'next/cache'
+import type { Invoice, Document } from '../../../../generated/prisma'
+import { DownloadPDFButton } from '@/components/DownloadButton/DownloadButton'
 
-interface CourseRegistrationPageProps {
-  params: {
-    id: string;
-  };
+const prisma = new PrismaClient()
+
+function formatDateGerman(date: Date | string | null | undefined) {
+  if (!date) return 'N/A'
+  return new Date(date).toLocaleDateString('de-DE')
 }
 
-const prisma = new PrismaClient();
+// Helper to sanitize Decimal fields for client components
+function sanitizeRegistration(reg: any) {
+  if (!reg) return reg
+  return {
+    ...reg,
+    course: reg.course
+      ? {
+          ...reg.course,
+          program: reg.course.program
+            ? {
+                ...reg.course.program,
+                price: reg.course.program.price?.toString() ?? null,
+              }
+            : null,
+          mainTrainer: reg.course.mainTrainer
+            ? { ...reg.course.mainTrainer }
+            : null,
+        }
+      : null,
+    participant: reg.participant ? { ...reg.participant } : null,
+    invoices: reg.invoices?.map((inv: any) => ({
+      ...inv,
+      amount: inv.amount?.toString() ?? null,
+    })) ?? [],
+    subsidyAmount: reg.subsidyAmount?.toString() ?? null,
+    discountAmount: reg.discountAmount?.toString() ?? null,
+  }
+}
 
-export default async function CourseRegistrationPage({ params }: CourseRegistrationPageProps) {
-  const { id } = await params;
+export default async function ParticipantDetailsPage({
+  params,
+}: {
+  params: { id: string } | Promise<{ id: string }>
+}) {
+  const { id } = await params
+  const participantId = id
 
-  const registration = await prisma.courseRegistration.findUnique({
-    where: { id },
-    include: {
-      course: { include: { program: { include: { area: true } }, mainTrainer: true } },
-      participant: true,
-      invoices: true,
+
+  // Fetch registration for this participant in this course
+  const registration = await prisma.courseRegistration.findFirst({
+    where: {
+      id: participantId,
     },
-  });
+    include: {
+      participant: true,
+      course: { 
+        include: { 
+          program: true,
+          mainTrainer: true
+        } 
+      },
+      invoices: {
+        include: {
+          recipient: true,
+        }
+      },
+    }
+  })
 
-  if (!registration) {
-    return (
-      <div className="container mx-auto py-8 px-4">
-        <Link href="/" className="text-blue-500 hover:underline mb-6 block">
-          &larr; Back to Home
-        </Link>
-        <div className="text-red-600 text-lg font-semibold">Registration not found.</div>
-      </div>
-    );
+  // Sanitize registration for client components
+  const sanitizedRegistration = sanitizeRegistration(registration)
+
+  // Sanitize invoices (convert Decimal to string)
+  const sanitizedInvoices = sanitizedRegistration
+    ? sanitizedRegistration.invoices
+    : []
+
+  // Fetch documents for this registration (not soft-deleted)
+  const documents = registration
+    ? await prisma.document.findMany({
+        where: {
+          courseRegistrationId: registration.id,
+          deletedAt: null,
+        },
+        orderBy: { createdAt: 'desc' },
+      })
+    : []
+
+  const labelMap: Record<string, string> = {
+    certificate: 'Zertifikat',
+    KursRegeln: 'Kursregeln',
+    Teilnahmebestaetigung: 'Teilnahmebestätigung',
   }
 
-  const participantName = registration.participant.name.replace(/\s+/g, '_');
-  const dateStr = new Date().toISOString().split('T')[0];
-  const certificateFilename = `certificate_${participantName}_${dateStr}.pdf`;
-  const kursRegelnFilename = `KursRegeln_${participantName}_${dateStr}.pdf`;
-  const teilnahmebestaetigungFilename = `Teilnahmebestaetigung_${participantName}_${dateStr}.pdf`;
-  const invoiceFilename = `invoice_${participantName}_${dateStr}.pdf`;
+  // Server action to remove a document (soft delete)
+  async function removeDocument(formData: FormData) {
+    "use server"
+    const documentId = formData.get("documentId") as string
+    await prisma.document.update({
+      where: { id: documentId },
+      data: { deletedAt: new Date() }
+    })
+    revalidatePath(`/courseregistration/${participantId}`)
+  }
 
-  return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
-      <div className="container mx-auto max-w-2xl py-8 px-4">
-        {/* Navigation */}
-        <div className="flex gap-4 mb-6">
-          <Link href="/course" className="text-blue-500 hover:underline">
-            &larr; Back to Courses
+  if (!sanitizedRegistration || !sanitizedRegistration.participant) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-neutral-50">
+        <div className="max-w-md w-full px-4">
+          <Link href={`/course/${registration?.courseId}`} className="text-blue-500 hover:underline mb-6 block">
+            &larr; Back to Course
           </Link>
-          <Link href="/" className="text-blue-500 hover:underline">
-            &larr; Back to Home
-          </Link>
-        </div>
-
-        {/* Participant Card */}
-        <div className="bg-white shadow rounded-lg p-6 mb-6">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">{registration.participant.name}</h2>
-
-          <div className="mb-4">
-            <div className="text-sm text-gray-600">
-              <span className="font-semibold">Course:</span> {registration.course?.program?.name ?? 'N/A'}
-            </div>
-            <div className="text-sm text-gray-600">
-              <span className="font-semibold">Trainer:</span> {registration.course?.mainTrainer?.name ?? 'N/A'}
-            </div>
-          </div>
-
-          {/* Button Section - Equal Row Height */}
-          <div className="space-y-3">
-            {/* Certificate Row */}
-            <div className="flex items-center justify-between bg-blue-50 rounded px-4 py-3 h-14">
-              <span className="font-medium text-blue-700 truncate">Certificate</span>
-              <div className="flex-shrink-0">
-                <DownloadPDFButton
-                  uuidString={registration.id}
-                  registration={registration}
-                  documentType="certificate"
-                  filename={certificateFilename}
-                />
-              </div>
-            </div>
-
-            {/* Kursregeln Row */}
-            <div className="flex items-center justify-between bg-emerald-50 rounded px-4 py-3 h-14">
-              <span className="font-medium text-emerald-700 truncate">Kursregeln</span>
-              <div className="flex-shrink-0">
-                <DownloadPDFButton
-                  uuidString={registration.id}
-                  registration={registration}
-                  documentType="KursRegeln"
-                  filename={kursRegelnFilename}
-                />
-              </div>
-            </div>
-
-            {/* Teilnahmebestätigung Row */}
-            <div className="flex items-center justify-between bg-yellow-50 rounded px-4 py-3 h-14">
-              <span className="font-medium text-yellow-700 truncate">Teilnahmebestätigung</span>
-              <div className="flex-shrink-0">
-                <DownloadPDFButton
-                  uuidString={registration.id}
-                  registration={registration}
-                  documentType="Teilnahmebestaetigung"
-                  filename={teilnahmebestaetigungFilename}
-                />
-              </div>
-            </div>
-
-            {/* invoice Row */}
-            <div className="flex items-center justify-between bg-yellow-50 rounded px-4 py-3 h-14">
-              <span className="font-medium text-yellow-700 truncate">Rechnung</span>
-              <div className="flex-shrink-0">
-                <DownloadPDFButton
-                  uuidString={registration.id}
-                  registration={registration}
-                  documentType="invoice"
-                  filename={invoiceFilename}
-                />
-              </div>
-            </div>
-          </div>
+          <div className="text-red-600 text-lg font-semibold">Participant not found for this course.</div>
         </div>
       </div>
+    )
+  }
+
+  // Invoice listing data for this registration
+  const invoiceFields: {
+    label: string,
+    render: (inv: any) => React.ReactNode,
+    width?: string
+  }[] = [
+    {
+      label: 'Invoice',
+      render: (inv) => (
+        <div className="flex items-center gap-2">
+          <Link
+            href={`/invoice/${inv.id}`}
+            className="text-blue-700 hover:text-blue-900 font-medium text-sm"
+          >
+            #{inv.invoiceNumber ?? inv.id}
+          </Link>
+        </div>
+      ),
+      width: 'flex-[2]'
+    },
+    {
+      label: 'Amount',
+      render: (inv) => (
+        <div className="flex items-center h-full text-neutral-700 text-sm">
+          €{inv.amount?.toString()}
+        </div>
+      ),
+      width: 'flex-1'
+    },
+    {
+      label: 'Recipient',
+      render: (inv: any) => (
+        <div className="flex flex-col text-neutral-700 text-xs">
+          {inv.recipient.type === 'COMPANY'
+            ? inv.recipient.companyName
+            : `${inv.recipient.recipientName} ${inv.recipient.recipientSurname}`}
+          <span className="text-neutral-400">{inv.recipient.recipientEmail}</span>
+        </div>
+      ),
+      width: 'flex-[2]'
+    }
+  ]
+
+  // Document listing fields
+  const documentFields: {
+    label: string,
+    render: (doc: Document) => React.ReactNode,
+    width?: string
+  }[] = [
+    {
+      label: 'Document',
+      render: (doc) => (
+        <div className="flex items-center gap-2 max-w-xs">
+          <a
+            href={doc.file}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-700 hover:text-blue-900 font-medium text-sm truncate max-w-[160px]"
+            title={doc.file.split('/').pop()}
+          >
+            {doc.file.split('/').pop()}
+          </a>
+        </div>
+      ),
+      width: 'flex-[2]'
+    },
+    {
+      label: 'Type',
+      render: (doc) => (
+        <div className="flex items-center h-full text-neutral-700 text-sm">
+          {labelMap[doc.role] || doc.role}
+        </div>
+      ),
+      width: 'flex-1'
+    }
+  ]
+
+  function AlignedList<T>({
+    items,
+    fields,
+    actions,
+    emptyText,
+    addButton,
+  }: {
+    items: T[]
+    fields: { label: string, render: (item: T) => React.ReactNode, width?: string }[]
+    actions?: (item: T) => React.ReactNode
+    emptyText?: string
+    addButton?: React.ReactNode
+  }) {
+    return (
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center border-b border-neutral-200 py-1 bg-neutral-50 rounded-t">
+          {fields.map((f, i) => (
+            <div key={i} className={`text-xs font-semibold text-neutral-500 ${f.width ?? 'flex-1'} px-1`}>
+              {f.label}
+            </div>
+          ))}
+          {actions && <div className="w-10 flex-shrink-0 text-right">{addButton}</div>}
+        </div>
+        {items.length === 0 && (
+          <div className="flex items-center px-2 py-2 text-neutral-400 italic text-sm bg-white rounded">
+            {emptyText}
+          </div>
+        )}
+        {items.map((item, idx) => (
+          <div key={idx} className="flex items-center bg-white hover:bg-sky-50 transition rounded border-b border-neutral-100 group">
+            {fields.map((f, i) => (
+              <div key={i} className={`px-1 py-2 ${f.width ?? 'flex-1'}`}>
+                {f.render(item)}
+              </div>
+            ))}
+            {actions && (
+              <div className="w-10 flex-shrink-0 text-right">
+                {actions(item)}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-neutral-50 flex items-center justify-center px-2 py-8">
+      <div className="w-full max-w-2xl bg-white rounded-2xl shadow-md border border-neutral-100 p-0 overflow-hidden">
+        {/* Profile Card */}
+        <section className="flex flex-col sm:flex-row items-center gap-6 px-8 py-8 border-b border-neutral-200">
+          <div className="flex-shrink-0 w-20 h-20 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center text-3xl font-bold text-blue-700 select-none">
+            {sanitizedRegistration.participant.name[0]}
+          </div>
+          <div className="flex-1 flex flex-col gap-1">
+            <h1 className="text-2xl font-semibold text-neutral-900">
+              <Link
+                href={`/participant/${sanitizedRegistration.participant.id}`}
+                className="hover:underline text-blue-700"
+              >
+                {sanitizedRegistration.participant.salutation} {sanitizedRegistration.participant.title ? sanitizedRegistration.participant.title + ' ' : ''}
+                {sanitizedRegistration.participant.name} {sanitizedRegistration.participant.surname}
+              </Link>
+            </h1>
+            <div className="flex flex-wrap gap-4 text-neutral-500 text-sm mt-1">
+              <span>
+                <span className="font-medium text-neutral-700">Email:</span> {sanitizedRegistration.participant.email}
+              </span>
+              <span>
+                <span className="font-medium text-neutral-700">Phone:</span> {sanitizedRegistration.participant.phoneNumber}
+              </span>
+              <span>
+                <span className="font-medium text-neutral-700">Birthday:</span> {formatDateGerman(sanitizedRegistration.participant.birthday)}
+              </span>
+              <span>
+                <span className="font-medium text-neutral-700">Address:</span> {sanitizedRegistration.participant.street}, {sanitizedRegistration.participant.postalCode} {sanitizedRegistration.participant.city}, {sanitizedRegistration.participant.country}
+              </span>
+            </div>
+          </div>
+        </section>
+
+        {/* Registration Details */}
+        <section className="px-8 py-6 border-b border-neutral-200">
+          <h2 className="text-sm font-semibold text-neutral-800 mb-2">Details</h2>
+          <div className="flex flex-wrap gap-x-8 gap-y-2 text-[13px] text-neutral-700">
+            <div className="flex items-center gap-1">
+              <span className="font-medium text-neutral-600">Course:</span>
+              <Link
+                href={`/course/${sanitizedRegistration.course?.id}`}
+                className="text-blue-700 hover:text-blue-900 font-medium"
+              >
+                {sanitizedRegistration.course?.program?.name ?? 'Unknown Course'}
+              </Link>
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="font-medium text-neutral-600">Start:</span>
+              <span className="text-neutral-600">
+                {formatDateGerman(sanitizedRegistration.course?.startDate)}
+              </span>
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="font-medium text-neutral-600">Trainer:</span>
+              <span className="text-neutral-600">
+                {sanitizedRegistration.course?.mainTrainer?.name ?? 'N/A'}
+              </span>
+            </div>
+            {/* Show status timestamps if present */}
+            {sanitizedRegistration.infoSessionAt && (
+              <div className="flex items-center gap-1">
+                <span className="font-medium text-neutral-600">Info Session:</span>
+                <span className="text-neutral-600">
+                  {formatDateGerman(sanitizedRegistration.infoSessionAt)}
+                </span>
+              </div>
+            )}
+            {sanitizedRegistration.interestedAt && (
+              <div className="flex items-center gap-1">
+                <span className="font-medium text-neutral-600">Interested:</span>
+                <span className="text-neutral-600">
+                  {formatDateGerman(sanitizedRegistration.interestedAt)}
+                </span>
+              </div>
+            )}
+            {sanitizedRegistration.registeredAt && (
+              <div className="flex items-center gap-1">
+                <span className="font-medium text-neutral-600">Registered:</span>
+                <span className="text-neutral-600">
+                  {formatDateGerman(sanitizedRegistration.registeredAt)}
+                </span>
+              </div>
+            )}
+            {sanitizedRegistration.unregisteredAt && (
+              <div className="flex items-center gap-1">
+                <span className="font-medium text-neutral-600">Unregistered:</span>
+                <span className="text-neutral-600">
+                  {formatDateGerman(sanitizedRegistration.unregisteredAt)}
+                </span>
+              </div>
+            )}
+            {/* General Remark */}
+            {sanitizedRegistration.generalRemark && (
+              <div className="flex items-center gap-1">
+                <span className="font-medium text-neutral-600">Remark:</span>
+                <span className="text-neutral-600">{sanitizedRegistration.generalRemark}</span>
+              </div>
+            )}
+            {/* Subsidy info */}
+            {(sanitizedRegistration.subsidyRemark || sanitizedRegistration.subsidyAmount) && (
+              <div className="flex items-center gap-1 text-green-700">
+                <span className="font-medium">Subsidy:</span>
+                {sanitizedRegistration.subsidyRemark && (
+                  <span>{sanitizedRegistration.subsidyRemark}</span>
+                )}
+                {sanitizedRegistration.subsidyAmount && (
+                  <span className="ml-1 text-xs">({sanitizedRegistration.subsidyAmount}€)</span>
+                )}
+              </div>
+            )}
+            {/* Discount info */}
+            {(sanitizedRegistration.discountRemark || sanitizedRegistration.discountAmount) && (
+              <div className="flex items-center gap-1 text-blue-700">
+                <span className="font-medium">Discount:</span>
+                {sanitizedRegistration.discountRemark && (
+                  <span>{sanitizedRegistration.discountRemark}</span>
+                )}
+                {sanitizedRegistration.discountAmount && (
+                  <span className="ml-1 text-xs">({sanitizedRegistration.discountAmount}€)</span>
+                )}
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* Invoices Section */}
+        <section className="px-8 py-6 border-b border-neutral-200">
+          <AlignedList<any>
+            items={sanitizedInvoices}
+            fields={invoiceFields}
+            emptyText="No invoices found"
+          />
+        </section>
+
+        {/* Documents Section */}
+        <section className="px-8 py-6 border-b border-neutral-200">
+          <AlignedList<Document>
+            items={documents}
+            fields={documentFields}
+            actions={doc => (
+              <form action={removeDocument}>
+                <input type="hidden" name="documentId" value={doc.id} />
+                <button
+                  type="submit"
+                  className="cursor-pointer flex items-center justify-center w-7 h-7 rounded-full bg-neutral-100 text-neutral-400 hover:text-red-500 hover:bg-red-50 border border-transparent hover:border-red-200 transition"
+                  title="Remove document"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 12h12" />
+                  </svg>
+                </button>
+              </form>
+            )}
+            emptyText="No documents found"
+          />
+          <div className="flex justify-start mt-4">
+            <Link
+              href={`/courseregistration/${participantId}/deletedDocuments`}
+              className="inline-flex items-center gap-1 text-neutral-400 hover:text-orange-600 text-sm transition"
+            >
+              View Deleted Documents
+              <svg
+                className="w-4 h-4 ml-1"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
+          </div>
+        </section>
+
+        <section className="px-8 py-6">
+          <h2 className="text-sm font-semibold text-neutral-800 mb-4">Generate Documents</h2>
+          <div className="flex gap-2 flex-wrap justify-center">
+            <DownloadPDFButton
+              uuidString={sanitizedRegistration.id}
+              registration={sanitizedRegistration}
+              documentType="certificate"
+              filename={`certificate_${sanitizedRegistration.participant.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`}
+            />
+            <DownloadPDFButton
+              uuidString={sanitizedRegistration.id}
+              registration={sanitizedRegistration}
+              documentType="KursRegeln"
+              filename={`KursRegeln_${sanitizedRegistration.participant.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`}
+            />
+            <DownloadPDFButton
+              uuidString={sanitizedRegistration.id}
+              registration={sanitizedRegistration}
+              documentType="Teilnahmebestaetigung"
+              filename={`Teilnahmebestaetigung_${sanitizedRegistration.participant.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`}
+            />
+          </div>
+        </section>
+
+        {/* Navigation */}
+        <nav className="flex gap-4 justify-end px-8 py-6">
+          <Link href={`/course/${registration?.courseId}`} className="text-neutral-400 hover:text-blue-600 text-sm transition">
+            &larr; Back to Course
+          </Link>
+          <Link href="/" className="text-neutral-400 hover:text-blue-600 text-sm transition">
+            Home
+          </Link>
+        </nav>
+      </div>
     </div>
-  );
+  )
 }
