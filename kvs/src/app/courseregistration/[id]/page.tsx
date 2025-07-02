@@ -173,11 +173,12 @@ export default async function ParticipantDetailsPage({
       render: (doc) => (
         <div className="flex items-center gap-2 max-w-xs">
           <a
-            href={doc.file}
+            href={`/api/download-document/${doc.id}`}
             target="_blank"
             rel="noopener noreferrer"
             className="text-blue-700 hover:text-blue-900 font-medium text-sm truncate max-w-[160px]"
             title={doc.file.split('/').pop()}
+            download
           >
             {doc.file.split('/').pop()}
           </a>
