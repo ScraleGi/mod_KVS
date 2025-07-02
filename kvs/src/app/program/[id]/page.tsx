@@ -108,7 +108,7 @@ export default async function ProgramPage({ params }: ProgramPageProps) {
                                                         </div>
                                                         <div className="text-gray-500 text-sm">
                                                             <span className="font-semibold">Main Trainer:</span>{" "}
-                                                            {course.mainTrainer?.name || "N/A"}
+                                                            {course.mainTrainer ? `${course.mainTrainer.name} ${course.mainTrainer.surname}` : "N/A"}
                                                         </div>
                                                     </div>
                                                     <div className="mt-2 md:mt-0">

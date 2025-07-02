@@ -1,13 +1,20 @@
 'use client'
 import { useState } from 'react'
 import AddCourseModal from '../../../components/forms/AddCourseModal' // Adjust the path if needed
+import type { Course, Program, Trainer } from '../../../../generated/prisma'
+
+type AvailableCourse = Course & {
+  program: Program | null
+  mainTrainer?: Trainer
+  trainers?: Trainer[]
+}
 
 export default function ClientCourseModalWrapper({
   registerToCourse,
   availableCourses,
 }: {
   registerToCourse: (formData: FormData) => void
-  availableCourses: any[]
+  availableCourses: AvailableCourse[]
 }) {
   const [open, setOpen] = useState(false)
 

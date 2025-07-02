@@ -384,19 +384,43 @@ export default async function ParticipantPage({ params, searchParams }: Particip
     <div className="min-h-screen bg-neutral-50 flex items-center justify-center px-2 py-8">
       <div className="w-full max-w-2xl bg-white rounded-2xl shadow-md border border-neutral-100 p-0 overflow-hidden">
         {/* Profile Card */}
-        <section className="flex flex-col sm:flex-row items-center gap-6 px-8 py-8 border-b border-neutral-200">
-          <div className="flex-shrink-0 w-20 h-20 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center text-3xl font-bold text-blue-700 select-none">
-            {participant.name[0]}
-          </div>
-          <div className="flex-1 flex flex-col gap-1">
-            <h1 className="text-2xl font-semibold text-neutral-900">{participant.name}</h1>
-            <div className="flex flex-wrap gap-4 text-neutral-500 text-sm mt-1">
-              <span><span className="font-medium text-neutral-700">Email:</span> {participant.email}</span>
-              <span><span className="font-medium text-neutral-700">Phone:</span> {participant.phoneNumber}</span>
-              <span><span className="font-medium text-neutral-700">ID:</span> {participant.id}</span>
-            </div>
-          </div>
-        </section>
+    <section className="flex flex-col sm:flex-row items-center gap-6 px-8 py-8 border-b border-neutral-200">
+      <div className="flex-shrink-0 w-20 h-20 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center text-3xl font-bold text-blue-700 select-none">
+        {participant.name[0]}
+      </div>
+      <div className="flex-1 flex flex-col gap-1">
+        <h1 className="text-2xl font-semibold text-neutral-900">
+          {participant.salutation} {participant.title ? participant.title + ' ' : ''}
+          {participant.name} {participant.surname}
+        </h1>
+        <div className="flex flex-wrap gap-4 text-neutral-500 text-sm mt-1">
+          <span>
+            <span className="font-medium text-neutral-700">Email:</span> {participant.email}
+          </span>
+          <span>
+            <span className="font-medium text-neutral-700">Phone:</span> {participant.phoneNumber}
+          </span>
+          <span>
+            <span className="font-medium text-neutral-700">Birthday:</span> {participant.birthday ? new Date(participant.birthday).toLocaleDateString('de-DE') : 'N/A'}
+          </span>
+          <span>
+            <span className="font-medium text-neutral-700">Street:</span> {participant.street}
+          </span>
+          <span>
+            <span className="font-medium text-neutral-700">Postal Code:</span> {participant.postalCode}
+          </span>
+          <span>
+            <span className="font-medium text-neutral-700">City:</span> {participant.city}
+          </span>
+          <span>
+            <span className="font-medium text-neutral-700">Country:</span> {participant.country}
+          </span>
+          <span>
+            <span className="font-medium text-neutral-700">ID:</span> {participant.id}
+          </span>
+        </div>
+      </div>
+    </section>
 
         {/* Courses Registered */}
         <section className="px-8 py-6 border-b border-neutral-200">
