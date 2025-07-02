@@ -243,11 +243,18 @@ export const participantColumns: ColumnDef<ParticipantRow>[] = [
     </span>
   ),
   // Filter: nach Anzahl der Kurse (als Zahl oder String im Input)
-  filterFn: (row, filterValue) => {
-    if (!filterValue) return true
-    const count = Array.isArray(row.original.courses) ? row.original.courses.length : 0
-    return count === Number(filterValue)
-  },
+    filterFn: (row, columnId, filterValue) => {
+        const value = row.getValue(columnId)
+        if (!value || !Array.isArray(value)) return false
+        const count = value.length
+        if (typeof filterValue === "number") {
+        return count === filterValue
+        } else if (typeof filterValue === "string") {
+        const num = parseInt(filterValue, 10)
+        return !isNaN(num) && count === num
+        }
+        return false
+    },
   // Sortierung nach Anzahl der Kurse
   sortingFn: (rowA, rowB) => {
     const a = Array.isArray(rowA.original.courses) ? rowA.original.courses.length : 0
