@@ -194,4 +194,12 @@ model RoomReservation {
   @@index([deletedAt])
 }
 
+model Holiday {
+  id        String @id @default(cuid())
+  title     String 
+  date      DateTime
+  
+    @@unique([title, date]) // verhindert doppelte Feiertage pro Jahr
+}
+
 
