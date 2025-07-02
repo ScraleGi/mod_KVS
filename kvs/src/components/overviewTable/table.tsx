@@ -197,7 +197,7 @@ export const participantColumns: ColumnDef<ParticipantRow>[] = [
     cell: ({ row }) => (
       <Link
         href={`/participant/${row.original.id}`}
-        className="relative text-blue-600 hover:text-blue-800 pl-8 inline-block after:content-[''] after:absolute after:left-8 after:bottom-0 after:w-0 hover:after:w-[calc(100%-2rem)] after:h-[2px] after:bg-blue-600 after:transition-all after:duration-300"
+        className="relative text-blue-600 hover:text-blue-800 pl-2 inline-block after:content-[''] after:absolute after:left-8 after:bottom-0 after:w-0 hover:after:w-[calc(100%-2rem)] after:h-[2px] after:bg-blue-600 after:transition-all after:duration-300"
       >
         {row.original.name} {row.original.surname}
       </Link>
@@ -212,7 +212,8 @@ export const participantColumns: ColumnDef<ParticipantRow>[] = [
         placeholder="Filter E-Mail..."
       />
     ),
-    cell: ({ row }) => <span>{row.getValue("email")}</span>,
+    cell: ({ row }) => 
+      <span className="block pl-2">{row.getValue("email")}</span>
   },
   {
     accessorKey: "phoneNumber",
@@ -224,7 +225,7 @@ export const participantColumns: ColumnDef<ParticipantRow>[] = [
       />
     ),
     cell: ({ row }) => (
-      <span className="block text-right pr-8">{row.getValue("phoneNumber")}</span>
+      <span className="block pl-2">{row.getValue("phoneNumber")}</span>
     ),
   },
   {
@@ -237,7 +238,9 @@ export const participantColumns: ColumnDef<ParticipantRow>[] = [
     />
   ),
   cell: ({ row }) => (
+    <span className="block pl-2">
       <CoursesDialog courses={row.original.courses ?? []} />
+    </span>
   ),
   // Filter: nach Anzahl der Kurse (als Zahl oder String im Input)
   filterFn: (row, filterValue) => {
@@ -262,7 +265,6 @@ export const participantColumns: ColumnDef<ParticipantRow>[] = [
 export function CourseTable<T>({
   data,
   columns,
-  filterColumn = "course", // default for course tables
 }: {
   data: T[]
   columns: ColumnDef<T>[]
