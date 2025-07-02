@@ -63,7 +63,7 @@ npm run dev
 Öffne [http://localhost:3000](http://localhost:3000) im Browser.
 
 ---
-### 5. lokale pdf Speicherung (server site) 
+### 6. lokale pdf Speicherung (server site) 
 
 .env:
 STORAGE_ROOT="PFAD" einfügen.
