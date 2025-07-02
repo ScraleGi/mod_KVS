@@ -2,7 +2,7 @@ import { PrismaClient, RecipientType } from '../../../../generated/prisma'
 import Link from 'next/link'
 import { revalidatePath } from 'next/cache'
 import type { Invoice, Document } from '../../../../generated/prisma'
-import { DownloadPDFButton } from '@/components/DownloadButton/DownloadButton'
+import { DownloadPDFLink, GeneratePDFButton } from '@/components/DownloadButton/DownloadButton'
 
 const prisma = new PrismaClient()
 
@@ -173,12 +173,11 @@ export default async function ParticipantDetailsPage({
       render: (doc) => (
         <div className="flex items-center gap-2 max-w-xs">
           <a
-            href={`/api/download-document/${doc.id}`}
+            href={doc.file}
             target="_blank"
             rel="noopener noreferrer"
             className="text-blue-700 hover:text-blue-900 font-medium text-sm truncate max-w-[160px]"
             title={doc.file.split('/').pop()}
-            download
           >
             {doc.file.split('/').pop()}
           </a>
@@ -381,25 +380,36 @@ export default async function ParticipantDetailsPage({
 
         {/* Documents Section */}
         <section className="px-8 py-6 border-b border-neutral-200">
-          <AlignedList<Document>
-            items={documents}
-            fields={documentFields}
-            actions={doc => (
-              <form action={removeDocument}>
-                <input type="hidden" name="documentId" value={doc.id} />
-                <button
-                  type="submit"
-                  className="cursor-pointer flex items-center justify-center w-7 h-7 rounded-full bg-neutral-100 text-neutral-400 hover:text-red-500 hover:bg-red-50 border border-transparent hover:border-red-200 transition"
-                  title="Remove document"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 12h12" />
-                  </svg>
-                </button>
-              </form>
-            )}
-            emptyText="No documents found"
-          />
+
+          <hr></hr>
+          <div className='backgrouund-blue-100 text-black'>
+          {
+            documents.map((doc) => (
+              <div key={doc.id} className="flex items-center justify-between py-2">
+                <div className="flex items-center gap-2">
+                  <DownloadPDFLink
+                    uuidString={sanitizedRegistration.id}
+                    filename={doc.file}
+                    className="text-blue-700 hover:text-blue-900 font-medium text-sm"
+                  />
+                </div>
+                <div className="text-neutral-600 text-xs">{labelMap[doc.role] || doc.role}</div>
+                <form action={removeDocument}>
+                  <input type="hidden" name="documentId" value={doc.id} />
+                  <button
+                    type="submit"
+                    className="cursor-pointer flex items-center justify-center w-7 h-7 rounded-full bg-neutral-100 text-neutral-400 hover:text-red-500 hover:bg-red-50 border border-transparent hover:border-red-200 transition"
+                    title="Remove document"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 12h12" />
+                    </svg>
+                  </button>
+                </form>
+              </div>
+            ))
+          }
+          </div>
           <div className="flex justify-start mt-4">
             <Link
               href={`/courseregistration/${participantId}/deletedDocuments`}
@@ -423,19 +433,19 @@ export default async function ParticipantDetailsPage({
         <section className="px-8 py-6">
           <h2 className="text-sm font-semibold text-neutral-800 mb-4">Generate Documents</h2>
           <div className="flex gap-2 flex-wrap justify-center">
-            <DownloadPDFButton
+            <GeneratePDFButton
               uuidString={sanitizedRegistration.id}
               registration={sanitizedRegistration}
               documentType="certificate"
               filename={`certificate_${sanitizedRegistration.participant.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`}
             />
-            <DownloadPDFButton
+            <GeneratePDFButton
               uuidString={sanitizedRegistration.id}
               registration={sanitizedRegistration}
               documentType="KursRegeln"
               filename={`KursRegeln_${sanitizedRegistration.participant.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`}
             />
-            <DownloadPDFButton
+            <GeneratePDFButton
               uuidString={sanitizedRegistration.id}
               registration={sanitizedRegistration}
               documentType="Teilnahmebestaetigung"
