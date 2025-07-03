@@ -3,7 +3,9 @@ import { CourseParticipantsDialog } from "../participants/CourseParticipantsDial
 import { CoursesDialog } from "../participants/participantCoursesDialog"
 import { FilterHeader } from "./FilterHeader"
 import { DoubleFilterHeader } from "./DoubleFilterHeader"
-import { deleteArea } from "@/app/area/actions"
+import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger,  } from "@/components/ui/dropdown-menu"
+import { Input } from "@/components/ui/input"
+import { ChevronDown } from "lucide-react"
 
 
 // -------------------- Imports --------------------
@@ -387,19 +389,6 @@ export const areaColumns: ColumnDef<AreaRow>[] = [
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
           </svg>
         </Link>
-        <form action={deleteArea}>
-          <input type="hidden" name="id" value={row.original.id} />
-          <button
-            type="submit"
-            className="p-2 rounded hover:bg-red-100 text-red-600 transition"
-            title="Delete"
-            aria-label="Delete"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-            </svg>
-          </button>
-        </form>
       </div>
     ),
   }
@@ -448,6 +437,33 @@ export function CourseTable<T>({
   // -------------------- Render --------------------
   return (
     <div className="w-full">
+        {/* Filter and column visibility controls */}
+        <div className="flex items-center py-4">
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="ml-auto cursor-pointer">
+                        Columns <ChevronDown />
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="bg-white">
+                    {table
+                        .getAllColumns()
+                        .filter(column => column.getCanHide())
+                        .map(column => (
+                            <DropdownMenuCheckboxItem
+                                key={column.id}
+                                className="capitalize cursor-pointer"
+                                checked={column.getIsVisible()}
+                                onCheckedChange={value =>
+                                    column.toggleVisibility(!!value)
+                                }
+                            >
+                                {column.id}
+                            </DropdownMenuCheckboxItem>
+                        ))}
+                </DropdownMenuContent>
+            </DropdownMenu>
+        </div>
       {/* Main table */}
       <div className="shadow border border-gray-200 overflow-hidden bg-white rounded-md">
         <Table>
