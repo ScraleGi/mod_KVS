@@ -42,6 +42,7 @@ model Program {
 
 model Course { 
   id            String    @id @default(uuid())
+  code          String    @unique
   programId     String
   program       Program   @relation(fields: [programId], references: [id])
   startDate     DateTime
