@@ -17,11 +17,12 @@ export async function savePDF(uuidString: string, filename: string, data: Buffer
   return filePath;
 }
 
-export async function loadPDF(uuidString: string, filename: string): Promise<Buffer | null> {
+export async function loadFile(uuidString: string, filename: string): Promise<Buffer | null> {
   const pdfDir = getStoragePath(uuidString);
   const filePath = path.join(pdfDir, filename);
   try {
-    return await fs.readFile(filePath);
+    const buffer = await fs.readFile(filePath);
+    return buffer;
   } catch {
     return null;
   }
