@@ -106,6 +106,9 @@ export default async function ParticipantDetailsPage({
       })
     : []
 
+  // --- Check if there are any active invoices ---  
+  const hasActiveInvoice = sanitizedInvoices.some(inv => !inv.isCancelled)
+
   // --- Label map for document roles ---
   const labelMap: Record<string, string> = {
     certificate: 'Zertifikat',
@@ -367,32 +370,52 @@ export default async function ParticipantDetailsPage({
           <div className="col-span-1 flex items-center justify-center text-neutral-700 text-sm">
             €{inv.amount?.toString()}
           </div>
-          <div className="col-span-1 flex flex-col items-center text-neutral-700 text-xs">
-            {inv.recipient.type === 'COMPANY'
-              ? inv.recipient.companyName
-              : `${inv.recipient.recipientName} ${inv.recipient.recipientSurname}`}
-          </div>
           <div className="col-span-1 flex items-center justify-center text-xs">
-            {inv.isCancelled ? (
-              <span className="text-red-500 font-semibold">Cancelled</span>
-            ) : inv.transactionNumber ? (
-              <span className="text-green-700 font-semibold">Paid</span>
-            ) : (
-              <span className="text-yellow-600 font-semibold">Unpaid</span>
-            )}
-          </div>
+          <form action={toggleInvoiceCancelled}>
+            <input type="hidden" name="invoiceId" value={inv.id} />
+            <input type="hidden" name="registrationId" value={participantId} />
+            <button
+              type="submit"
+              name="isCancelled"
+              value={inv.isCancelled ? "" : "on"}
+              className={`px-2 py-1 rounded text-xs font-semibold transition
+                ${inv.isCancelled
+                  ? "bg-red-100 text-red-600 hover:bg-red-200"
+                  : "bg-green-100 text-green-700 hover:bg-green-200"}
+              `}
+            >
+              {inv.isCancelled ? "Cancelled" : "Active"}
+            </button>
+          </form>
+          {inv.transactionNumber && !inv.isCancelled && (
+            <span className="ml-2 text-green-700 font-semibold">Paid</span>
+          )}
+          {!inv.transactionNumber && !inv.isCancelled && (
+            <span className="ml-2 text-yellow-600 font-semibold">Unpaid</span>
+          )}
+        </div>
         </div>
       ))}
     </div>
-    {/* --- Create Invoice Button --- */}
-    <div className="flex justify-end mt-4">
-      <Link
-        href={`/courseregistration/${participantId}/create-invoice`}
-        className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-xs font-medium transition"
-      >
-        Create Invoice
-      </Link>
-    </div>
+{/* --- Create Invoice Button --- */}
+<div className="flex justify-end mt-4">
+  {hasActiveInvoice ? (
+    <span
+      className="px-3 py-1 rounded text-xs font-medium bg-neutral-200 text-neutral-400 cursor-not-allowed select-none"
+      tabIndex={-1}
+      aria-disabled="true"
+    >
+      Create Invoice
+    </span>
+  ) : (
+    <Link
+      href={`/courseregistration/${participantId}/create-invoice`}
+      className="px-3 py-1 rounded text-xs font-medium bg-blue-600 text-white hover:bg-blue-700 transition"
+    >
+      Create Invoice
+    </Link>
+  )}
+</div>
   </div>
 </section>
 
