@@ -5,10 +5,11 @@ import { generateInvoice } from '@/utils/generateInvoice'
 
 const prisma = new PrismaClient()
 
-export default async function CreateInvoicePage({ params }: { params: { id: string } }) {
-  
+export default async function CreateInvoicePage({ params }: { params: { id: string } | Promise<{ id: string }> }) {
+  const { id } = await params
+
   const registration = await prisma.courseRegistration.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       participant: true,
       course: { include: { program: true } },
@@ -19,7 +20,7 @@ export default async function CreateInvoicePage({ params }: { params: { id: stri
     return (
       <div className="min-h-screen flex items-center justify-center bg-neutral-50">
         <div className="max-w-md w-full px-4">
-          <Link href={`/courseregistration/${params.id}`} className="text-blue-500 hover:text-blue-800 mb-6 block">
+          <Link href={`/courseregistration/${id}`} className="text-blue-500 hover:text-blue-800 mb-6 block">
             &larr; Back to Registration
           </Link>
           <div className="text-red-600 text-lg font-semibold">Registration or participant not found.</div>
@@ -46,7 +47,7 @@ export default async function CreateInvoicePage({ params }: { params: { id: stri
           action={async (formData) => {
             'use server'
             await generateInvoice(formData)
-            redirect(`/courseregistration/${params.id}`)
+            redirect(`/courseregistration/${id}`)
           }}
           className="space-y-6"
         >
@@ -95,15 +96,15 @@ export default async function CreateInvoicePage({ params }: { params: { id: stri
                 <input name="recipientCountry" required className="mt-1 border rounded px-2 py-1" />
               </label>
               <label className="flex flex-col text-xs font-medium text-neutral-700 sm:col-span-2">
-  Due Date
-  <input
-    name="dueDate"
-    type="date"
-    required
-    className="mt-1 border rounded px-2 py-1"
-    defaultValue={new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
-  />
-</label>
+                Due Date
+                <input
+                  name="dueDate"
+                  type="date"
+                  required
+                  className="mt-1 border rounded px-2 py-1"
+                  defaultValue={new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
+                />
+              </label>
             </div>
           </fieldset>
           {/* Course Participant Reference Section */}
@@ -123,7 +124,7 @@ export default async function CreateInvoicePage({ params }: { params: { id: stri
           </fieldset>
           <div className="flex justify-between mt-6">
             <Link
-              href={`/courseregistration/${params.id}`}
+              href={`/courseregistration/${id}`}
               className="px-4 py-2 bg-neutral-200 text-neutral-700 rounded hover:bg-neutral-300 text-xs font-medium transition"
             >
               Cancel
