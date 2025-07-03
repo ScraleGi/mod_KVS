@@ -128,7 +128,7 @@ model Invoice {
   invoiceNumber         String               @unique
   amount                Decimal              @db.Decimal(10, 2)
   courseRegistrationId  String
-  courseRegistration    CourseRegistration   @relation(fields: [courseRegistrationId], references: [id])  
+  courseRegistration    CourseRegistration   @relation(fields: [courseRegistrationId], references: [id])
   isCancelled           Boolean              @default(false)
   dueDate               DateTime
   transactionNumber     String?              @unique // <-- nullable
@@ -192,6 +192,14 @@ model RoomReservation {
   createdAt        DateTime  @default(now())
   deletedAt        DateTime? // Soft delete: null = not deleted, date = deleted 
   @@index([deletedAt])
+}
+
+model Holiday {
+  id        String @id @default(cuid())
+  title     String 
+  date      DateTime
+  
+    @@unique([title, date]) // verhindert doppelte Feiertage pro Jahr
 }
 
 

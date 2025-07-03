@@ -50,6 +50,17 @@ export default async function EditCoursePage({ params }: EditCoursePageProps) {
     redirect('/course')
   }
 
+  // Soft Delete Handler
+  async function deleteCourse(formData: FormData) {
+    'use server'
+    const id = formData.get('id') as string
+    await prisma.course.update({
+      where: { id },
+      data: { deletedAt: new Date() }
+    })
+    redirect('/course')
+  }
+
   if (!course) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -59,7 +70,7 @@ export default async function EditCoursePage({ params }: EditCoursePageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-10 px-4 flex items-center justify-center">
+    <div className="min-h-screen bg-gray-50 py-10 px-4 flex flex-col items-center justify-center">
       <div className="w-full max-w-md">
         <div className="bg-white rounded-sm shadow border border-gray-100">
           <div className="px-6 py-8">
@@ -154,10 +165,10 @@ export default async function EditCoursePage({ params }: EditCoursePageProps) {
                 </div>
               </div>
               {/* Actions */}
-              <div className="pt-2 flex items-center justify-between">
+              <div className="pt-2 mt-6 flex justify-between items-center w-full">
                 <button
                   type="submit"
-                  className="inline-flex items-center px-5 py-2 border border-transparent text-xs font-semibold rounded text-white bg-blue-600 hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  className="inline-flex items-center cursor-pointer px-5 py-2 border border-transparent text-xs font-semibold rounded text-white bg-blue-600 hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
                   Save Changes
                 </button>
@@ -174,6 +185,22 @@ export default async function EditCoursePage({ params }: EditCoursePageProps) {
             </form>
           </div>
         </div>
+        {/* Soft Delete Link außerhalb der Box, rechtsbündig */}
+        <form action={deleteCourse} className="mt-4 flex justify-end w-full">
+          <input type="hidden" name="id" value={id} />
+          <button
+            type="submit"
+            className="inline-flex items-center cursor-pointer text-sm text-red-600 hover:text-red-800 hover:bg-red-50 transition bg-transparent border-none p-0 font-normal pr-12"
+            style={{ boxShadow: 'none' }}
+            title="Soft Delete"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-4.477-10-10 0-1.657.402-3.22 1.125-4.575M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c1.657 0 3.22.402 4.575 1.125M21.542 12c-1.274 4.057-5.065 7-9.542 7-1.657 0-3.22-.402-4.575-1.125M9.88 9.88l4.24 4.24" />
+            </svg>
+            Delete
+          </button>
+        </form>
       </div>
     </div>
   )

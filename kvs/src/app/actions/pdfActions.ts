@@ -1,11 +1,18 @@
 'use server'
 
 import { generatePDF } from '@/utils/generatePDF'
-import { savePDF } from '@/utils/fileStorage'
+import { savePDF, loadFile } from '@/utils/fileStorage'
 import { PrismaClient } from '../../../generated/prisma'
 
 
 const prisma = new PrismaClient()
+
+export async function loadPDF(uuidString: string, filename: string): Promise<Buffer | null> {
+  const pdfBuffer = await loadFile(uuidString, filename)
+
+  return pdfBuffer
+}
+
 
 export async function generateAndDownloadPDF(uuidString: string, type: string, data: any, filename?: string): Promise<Buffer> {
   if (!type || !data) {
@@ -16,7 +23,7 @@ export async function generateAndDownloadPDF(uuidString: string, type: string, d
   const finalFilename = filename || `${type}_${Date.now()}.pdf`
 
   await savePDF(uuidString, finalFilename, pdfBuffer)
-  prisma.document.create({
+  await prisma.document.create({
     data: {
       role: type,
       file: finalFilename,
@@ -34,3 +41,4 @@ export async function generateAndDownloadPDF(uuidString: string, type: string, d
 
   return pdfBuffer
 }
+

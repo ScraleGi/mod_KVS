@@ -908,6 +908,68 @@ async function seedDocuments(
   })
 }
 
+//-------------------- Seed (public) Holiday ---------------------------------
+
+const fixedHolidays = [
+  {title: 'Neujahr', month: 1, day: 1},
+  {title: 'Heilige drei Könige', month: 1, day: 6},
+  {title: 'Statsfeiertag', month: 5, day: 1},
+  {title: 'Maria Himmelfahrt', month: 8, day: 15},
+  {title: 'Nationalfeiertag', month: 10, day: 26},
+  {title: 'Allerheiligen', month: 11, day: 1},
+  {title: 'Maria Empfängniss', month: 12, day: 8},
+  {title: 'Wheinachtstag', month: 12, day: 25},
+  {title: 'Stefanitag', month: 11, day: 26},
+];
+
+function calculateEaster(year: number): Date {
+  // Gaußsche Osterformel
+  const f = Math.floor,
+    G = year % 19,     // G = Golden-Number 
+    C = f(year / 100), // C = Century 
+    H = (C - f(C / 4) - f((8 * C + 13) / 25) + 19 * G + 15) % 30,   //Mond-Vollmond-Formel
+    I = H - f(H / 28) * (1 - f(29 / (H + 1)) * f((21 - G) / 11)),   // mathematische Korrektur
+    J = (year + f(year / 4) + I + 2 - C + f(C / 4)) % 7,            // Sonntag-Korrektur
+    L = I - J,      // Abstand zum Ostersonntag
+    month = 3 + f((L + 40) / 44),
+    day = L + 28 - 31 * f(month / 4);
+
+  return new Date(year, month - 1, day); // JS months = 0-based
+}
+
+function addDays(date: Date, days: number): Date {
+  const copy = new Date(date);
+  copy.setDate(copy.getDate() + days);
+  return copy;
+}
+
+async function seedHoliday() {
+  const years = [2025, 2026, 2027, 2028, 2029, 2030, 2031, 2032, 2032, 2033, 2034, 2035];
+  const holidays: { title: string; date: Date }[] = [];
+
+  for (const year of years) {
+    // Fixe Feiertage
+    fixedHolidays.forEach(({ title, month, day }) => {
+      holidays.push({ title, date: new Date(year, month - 1, day) });
+    });
+
+    // Bewegliche Feiertage
+    const easter = calculateEaster(year);
+    holidays.push({ title: 'Karfreitag', date: addDays(easter, -2) });
+    holidays.push({ title: 'Ostermontag', date: addDays(easter, 1) });
+    holidays.push({ title: 'Christi Himmelfahrt', date: addDays(easter, 39) });
+    holidays.push({ title: 'Pfingstmontag', date: addDays(easter, 50) });
+  }
+
+  await prisma.holiday.createMany({
+    data: holidays,
+    skipDuplicates: true,
+  });
+
+  console.log(`✅ Feiertage für ${years.length} Jahre gespeichert.`);
+
+}
+
 // -------------------- Main Seed Function --------------------
 
 async function seedDatabase() {
@@ -921,7 +983,9 @@ async function seedDatabase() {
   await seedDocuments(programMap, courseMap, registrationMap, participantMap)
   const recipientMap = await seedInvoiceRecipients(participantMap)
   await seedInvoices(programMap, courseMap, participantMap, registrationMap, recipientMap)
+  await seedHoliday()
 }
+
 
 seedDatabase()
   .then(() => console.log('Dummy Data seeded.'))
