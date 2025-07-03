@@ -1,57 +1,74 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Rechnung</title>
+  <title>Invoice <%= invoice.invoiceNumber %></title>
   <style>
-    h2 {
-      text-align: center;
-    }
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    .header, .footer { margin-top: 20px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-    .bold { font-weight: bold; }
-    .right { text-align: right; }
+    body { font-family: Arial, sans-serif; margin: 40px; }
+    h1 { color: #2d3748; }
+    .header, .footer { width: 100%; text-align: center; }
+    .info-table, .items-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    .info-table td { padding: 4px 8px; }
+    .items-table th, .items-table td { border: 1px solid #ddd; padding: 8px; }
+    .items-table th { background: #f7fafc; }
+    .total { font-size: 1.2em; font-weight: bold; }
+    .recipient, .sender { margin-bottom: 20px; }
   </style>
 </head>
 <body>
-
-  <!-- Logo -->
   <div class="header">
-    <h2>
-       <img src="http://localhost:3000/img/DCV_Logo-Schriftzug_pos_WEB.svg" alt="Logo" class="logo" />
-    </h2>
+    <h1>Invoice</h1>
+    <p>Invoice Number: <%= invoice.invoiceNumber %></p>
+    <p>Date: <%= new Date(invoice.createdAt || Date.now()).toLocaleDateString('de-DE') %></p>
   </div>
 
-<!-- Recipient -->
-<div>
-  <p>
-    <%= participant.salutation %><br>
-    <%= participant.name %> <%= participant.surname %><br>
-    <%= participant.street %><br>
-    <%= participant.postalCode %> <%= participant.city %><br>
-    <%= participant.country %>
-  </p>
-</div>
-
- <!-- Rechnung Header -->
-  <div>
-    <h3>Rechnung</h3>
-        <p style="text-align: right;">Datum: <%= new Date().toLocaleDateString('de-DE') %></p>
-        <p>Rechnungsnummer: <%= invoices[0].invoiceNumber %></p>
- 
+  <div class="recipient">
+    <h2>Recipient</h2>
+    <% if (recipient.type === 'COMPANY') { %>
+      <p><strong>Company:</strong> <%= recipient.companyName %></p>
+    <% } else { %>
+      <p><strong>Name:</strong> <%= recipient.recipientName %> <%= recipient.recipientSurname %></p>
+    <% } %>
+    <p><strong>Email:</strong> <%= recipient.recipientEmail %></p>
+    <p><strong>Address:</strong> <%= recipient.recipientStreet %>, <%= recipient.postalCode %> <%= recipient.recipientCity %>, <%= recipient.recipientCountry %></p>
   </div>
 
-  <!-- Invoice Table -->
-  <table>
+  <div class="sender">
+    <h2>Sender</h2>
+    <p><strong>Course Provider:</strong> [Your Company Name]</p>
+    <p><strong>Course:</strong> <%= course?.program?.name %></p>
+    <p><strong>Trainer:</strong> <%= course?.mainTrainer?.name %> <%= course?.mainTrainer?.surname %></p>
+    <p><strong>Participant:</strong> <%= participant?.salutation %> <%= participant?.name %> <%= participant?.surname %></p>
+  </div>
+
+  <table class="items-table">
     <thead>
       <tr>
-        <th>Bezeichnung</th>
-        <th>Menge</th>
-        <th>Einzelpreis</th>
-        <th>MwSt</th>
-        <th>Gesamt</th>
+        <th>Description</th>
+        <th>Amount (€)</th>
       </tr>
     </thead>
     <tbody>
+      <tr>
+        <td><%= course?.program?.name %> (<%= course?.startDate ? new Date(course.startDate).toLocaleDateString('de-DE') : '' %> - <%= course?.endDate ? new Date(course.endDate).toLocaleDateString('de-DE') : '' %>)</td>
+        <td style="text-align:right;"><%= invoice.amount %></td>
+      </tr>
+    </tbody>
+    <tfoot>
+      <tr>
+        <td class="total">Total</td>
+        <td class="total" style="text-align:right;"><%= invoice.amount %> €</td>
+      </tr>
+    </tfoot>
+  </table>
+
+  <div style="margin-top: 30px;">
+    <strong>Due Date:</strong> <%= new Date(invoice.dueDate).toLocaleDateString('de-DE') %>
+  </div>
+
+  <div class="footer" style="margin-top: 40px;">
+    <p>Thank you for your registration!</p>
+    <p>[Your Company Name] &bull; [Your Address] &bull; [Your Contact Info]</p>
+  </div>
+</body>
+</html>

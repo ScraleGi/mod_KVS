@@ -148,21 +148,21 @@ export default async function CoursePage({ params }: CoursePageProps) {
                         <span className="font-semibold">Invoice(s): </span>
                         {reg.invoices.length
                           ? reg.invoices.map((inv, idx) => (
-                              <React.Fragment key={inv.id}>
-                                <Link
-                                  href={`/invoice/${inv.id}`}
-                                  className="text-blue-600 hover:text-blue-800"
-                                >
-                                  #{inv.invoiceNumber}
-                                </Link>
-                                {inv.dueDate && (
-                                  <span className="ml-1 text-xs text-gray-500">
-                                    (Fällig: {formatDateGerman(inv.dueDate)})
-                                  </span>
-                                )}
-                                {idx < reg.invoices.length - 1 && ", "}
-                              </React.Fragment>
-                            ))
+                            <React.Fragment key={inv.id}>
+                              <Link
+                                href={`/invoice/${inv.id}`}
+                                className="text-blue-600 hover:text-blue-800"
+                              >
+                                #{inv.invoiceNumber}
+                              </Link>
+                              {inv.dueDate && (
+                                <span className="ml-1 text-xs text-gray-500">
+                                  (Fällig: {formatDateGerman(inv.dueDate)})
+                                </span>
+                              )}
+                              {idx < reg.invoices.length - 1 && ", "}
+                            </React.Fragment>
+                          ))
                           : "No invoices"}
                       </div>
                       {/* Documents */}

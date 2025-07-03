@@ -8,7 +8,7 @@ export default async function AreaDetailPage({ params }: { params: { id: string 
 const { id } = await params;
 // here await added 
   const area = await prisma.area.findUnique({
-    where: { id: await params.id, deletedAt: null },
+    where: { id, deletedAt: null },
     include: {
       programs: {
         where: { deletedAt: null },
