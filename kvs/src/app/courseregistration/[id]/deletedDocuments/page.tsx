@@ -1,4 +1,4 @@
-import { PrismaClient } from '../../../../../../generated/prisma/client'
+import { PrismaClient } from '../../../../../generated/prisma/client'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 
@@ -6,38 +6,18 @@ const prisma = new PrismaClient()
 
 export default async function DeletedItemsPage({
   params,
-  searchParams,
 }: {
   params: { id: string }
-  searchParams?: { participantId?: string }
 }) {
-  const courseId = await params.id
-  const participantId = searchParams?.participantId
+  const { id } = await params
+  const participantId = id
 
-  if (!participantId) {
-    return (
-      <div className="min-h-screen bg-gray-50 py-10 px-4 flex items-center justify-center">
-        <div className="w-full max-w-2xl">
-          <div className="bg-white rounded-xl shadow border border-gray-100 px-8 py-10">
-            <p className="text-gray-500 text-sm">No participant selected.</p>
-            <Link
-              href={`/course/${courseId}/participantDetails`}
-              className="mt-8 inline-flex items-center text-xs font-medium text-gray-500 hover:text-blue-700 transition-colors"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-              Back
-            </Link>
-          </div>
-        </div>
-      </div>
-    )
-  }
 
   // Find the registration
   const registration = await prisma.courseRegistration.findFirst({
-    where: { courseId, participantId },
+    where: { 
+      id: participantId 
+    },
   })
 
   if (!registration) {
@@ -47,7 +27,7 @@ export default async function DeletedItemsPage({
           <div className="bg-white rounded-xl shadow border border-gray-100 px-8 py-10">
             <p className="text-gray-500 text-sm">No registration found.</p>
             <Link
-              href={`/course/${courseId}/participantDetails`}
+              href={`/courseregistration/${participantId}`}
               className="mt-8 inline-flex items-center text-xs font-medium text-gray-500 hover:text-blue-700 transition-colors"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -78,7 +58,7 @@ export default async function DeletedItemsPage({
       where: { id: documentId },
       data: { deletedAt: null },
     })
-    redirect(`/course/${courseId}/participantDetails/deleted?participantId=${participantId}`)
+    redirect(`/courseregistration/${participantId}`)
   }
 
   return (
@@ -120,7 +100,7 @@ export default async function DeletedItemsPage({
             </ul>
           )}
           <Link
-            href={`/course/${courseId}/participantDetails?participantId=${participantId}`}
+            href={`/courseregistration/${participantId}`}
             className="mt-8 inline-flex items-center text-xs font-medium text-gray-500 hover:text-blue-700 transition-colors"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">

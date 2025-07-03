@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { generateAndDownloadPDF } from '@/app/actions/pdfActions'
+import { generateAndDownloadPDF, loadPDF } from '@/app/actions/pdfActions'
 
 type Props = {
   uuidString: string
@@ -11,13 +11,20 @@ type Props = {
   className?: string
 }
 
+type DownloadProps = {
+  uuidString: string
+  filename: string
+  className?: string
+}
+
+
 const labelMap: Record<string, string> = {
   certificate: 'Zertifikat',
   KursRegeln: 'Kursregeln',
   Teilnahmebestaetigung: 'Teilnahmebestätigung',
 }
 
-export function DownloadPDFButton({
+export function GeneratePDFButton({
   uuidString,
   registration,
   documentType,
@@ -63,5 +70,45 @@ export function DownloadPDFButton({
       <span className="mx-2 h-5 w-px bg-white/40 rounded-full" aria-hidden="true"></span>
       {buttonLabel}
     </button>
+  )
+}
+
+
+
+
+export function DownloadPDFLink({
+  uuidString,
+  filename,
+  className = '',
+}: DownloadProps) {
+  const handleDownload = async () => {
+    try {
+      const buffer = await loadPDF(uuidString, filename)
+      if (!buffer) {
+        throw new Error('PDF not found')
+      }
+      const blob = new Blob([buffer], { type: 'application/pdf' })
+      const link = document.createElement('a')
+      link.href = URL.createObjectURL(blob)
+      link.download = filename
+      link.click()
+      setTimeout(() => URL.revokeObjectURL(link.href), 1000)
+    } catch (error) {
+      console.error('PDF download failed:', error)
+      alert('PDF konnte nicht generiert werden!')
+    }
+  }
+
+  return (
+    <a
+      href="#"
+      className={`inline-flex items-center text-blue-600 hover:text-blue-800 focus:outline-none ${className}`}
+      onClick={(e) => {
+      e.preventDefault();
+      handleDownload();
+      }}
+    >
+      {filename}
+    </a>
   )
 }
