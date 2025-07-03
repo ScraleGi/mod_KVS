@@ -40,7 +40,6 @@ export default async function ProgramsPage({ searchParams }: { searchParams?: { 
 
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4">
-      <div className="max-w-[1600px] mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Programme</h1>
@@ -79,7 +78,6 @@ export default async function ProgramsPage({ searchParams }: { searchParams?: { 
         </div>
         {/* Programs Table Style List */}
         <CourseTable data={tableData} columns={programColumns} />
-      </div>
     </div>
   )
 }
