@@ -13,28 +13,26 @@
 
     body {
       font-family: Arial, sans-serif;
-      margin: 10px 30px 30px 30px; /* top right bottom left */         
+      margin: 10px 30px 30px 30px;
       line-height: 1.8;
       color: #000;
       background-color: #fff;
       font-size: 15px;
       display: flex;
       flex-direction: column;
-      /* removed min-height: 100vh to prevent forced page height */
     }
 
     .content {
       flex: 1 0 auto;
-      margin-bottom: 0;       /* remove bottom margin to avoid pushing footer */
-      page-break-inside: avoid; /* avoid page breaks inside content */
+      margin-bottom: 0;
+      page-break-inside: avoid;
     }
 
-  .logo-wrapper {
-  text-align: center;
-  margin-top: -20px;  /* pulls the logo closer to the top */
-  margin-bottom: 25px;
-  }
-
+    .logo-wrapper {
+      text-align: center;
+      margin-top: -20px;
+      margin-bottom: 25px;
+    }
 
     .logo {
       max-width: 220px;
@@ -63,7 +61,6 @@
 
     .date {
       text-align: right;
-      font-weight: bold;
       font-size: 14px;
       margin-top: 10px;
       margin-bottom: 40px;
@@ -106,16 +103,16 @@
       width: 100%;
     }
 
-   .signature {
-  margin-top: 70px;      /* increased from 10px */
-  margin-bottom: 25px;   /* increased from 5px */
-  font-size: 16px;
-  line-height: 1.2;
-  page-break-inside: avoid;
-}
+    .signature {
+      margin-top: 30px;        /* ✅ reduced from 70px */
+      margin-bottom: 25px;
+      font-size: 16px;
+      line-height: 1.2;
+      page-break-inside: avoid;
+    }
 
     .signature-space {
-      height: 40px;           /* reduced height */
+      height: 40px;
     }
 
     .signature .name,
@@ -128,12 +125,12 @@
     footer {
       flex-shrink: 0;
       text-align: left;
+      margin-top: 20px;         /* ✅ replaced margin-top: auto */
       font-size: 10px;
-      margin-top: auto;
-      margin-bottom: 20px;    /* small bottom margin */
+      margin-bottom: 20px;
       color: #555;
       line-height: 1.4;
-      page-break-after: avoid; /* avoid page break after footer */
+      page-break-after: avoid;
     }
 
     footer a {
@@ -141,11 +138,11 @@
       text-decoration: none;
     }
 
-    /* Print-specific tweaks */
     @media print {
       body {
-        margin: 20mm; /* smaller print margins */
+        margin: 20mm;
       }
+
       .content, .signature, footer {
         page-break-inside: avoid;
       }
@@ -175,7 +172,7 @@
 
     <p class="date">Feldkirch, <%= formattedDate %></p>
 
-    <h1>Teilnahmebestätigung</h1>
+    <h1>TEILNAHMEBESTÄTIGUNG</h1>
 
     <ul class="details">
       <li class="tight"><span class="label">Ausbildung:</span> <span class="highlight"><%= course.program.name %></span></li>
@@ -204,10 +201,11 @@
       <span class="name">Thomas Berchtold</span><br />
       <span class="role" style="font-size: 12px;">Geschäftsführer</span>
     </div>
+    <footer>
+  <%- include("_footer") %>
+</footer>
   </div>
 
-  <footer>
-    <%- include("_footer") %>
-  </footer>
+
 </body>
 </html>
