@@ -43,7 +43,7 @@ export default async function ProgramsPage({ searchParams }: { searchParams?: { 
       <div className="max-w-[1600px] mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Programs</h1>
+          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Programme</h1>
           <div className="flex gap-2">
             <Link
               href="/program/new"

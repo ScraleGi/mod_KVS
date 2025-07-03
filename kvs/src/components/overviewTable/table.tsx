@@ -581,7 +581,7 @@ export function CourseTable<T>({
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto cursor-pointer">
-              Columns <ChevronDown />
+              Filter <ChevronDown />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="bg-white">
@@ -664,7 +664,7 @@ export function CourseTable<T>({
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
         >
-          Previous
+          Zurück
         </Button>
         <Button
           variant="outline"
@@ -673,7 +673,7 @@ export function CourseTable<T>({
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
         >
-          Next
+          Vor
         </Button>
       </div>
     </div>
