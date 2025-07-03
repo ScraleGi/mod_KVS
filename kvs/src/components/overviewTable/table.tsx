@@ -3,6 +3,9 @@ import { CourseParticipantsDialog } from "../participants/CourseParticipantsDial
 import { CoursesDialog } from "../participants/participantCoursesDialog"
 import { FilterHeader } from "./FilterHeader"
 import { DoubleFilterHeader } from "./DoubleFilterHeader"
+import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger,  } from "@/components/ui/dropdown-menu"
+import { Input } from "@/components/ui/input"
+import { ChevronDown } from "lucide-react"
 
 
 // -------------------- Imports --------------------
@@ -58,6 +61,15 @@ export type CourseRow = {
   trainer: string
   registrations: number
   participants?: Participant[]
+}
+
+export type AreaRow = {
+    id: string
+    area: string
+    programs?: { id: string; name: string }[]
+    courseCount: number
+    participantCount: number
+    courses?: CourseRow[]
 }
 
 // -------------------- Table Columns Definition --------------------
@@ -243,11 +255,18 @@ export const participantColumns: ColumnDef<ParticipantRow>[] = [
     </span>
   ),
   // Filter: nach Anzahl der Kurse (als Zahl oder String im Input)
-  filterFn: (row, filterValue) => {
-    if (!filterValue) return true
-    const count = Array.isArray(row.original.courses) ? row.original.courses.length : 0
-    return count === Number(filterValue)
-  },
+    filterFn: (row, columnId, filterValue) => {
+        const value = row.getValue(columnId)
+        if (!value || !Array.isArray(value)) return false
+        const count = value.length
+        if (typeof filterValue === "number") {
+        return count === filterValue
+        } else if (typeof filterValue === "string") {
+        const num = parseInt(filterValue, 10)
+        return !isNaN(num) && count === num
+        }
+        return false
+    },
   // Sortierung nach Anzahl der Kurse
   sortingFn: (rowA, rowB) => {
     const a = Array.isArray(rowA.original.courses) ? rowA.original.courses.length : 0
@@ -255,6 +274,124 @@ export const participantColumns: ColumnDef<ParticipantRow>[] = [
     return a - b
   },
 },
+]
+
+export const areaColumns: ColumnDef<AreaRow>[] = [
+  {
+    accessorKey: "area",
+    header: ({ column }) => (
+      <FilterHeader
+        column={column}
+        label="Bereich"
+        placeholder="Filter Bereich..."
+      />
+    ),
+    cell: ({ row }) => (
+      <Link
+        href={`/area/${row.original.id}`}
+        className="relative text-blue-600 hover:text-blue-800 pl-2 inline-block after:content-[''] after:absolute after:left-8 after:bottom-0 after:w-0 hover:after:w-[calc(100%-2rem)] after:h-[2px] after:bg-blue-600 after:transition-all after:duration-300"
+      >
+        {row.original.area}
+      </Link>
+    ),
+  },
+  {
+    accessorKey: "programs",
+    header: ({ column }) => (
+      <FilterHeader
+        column={column}
+        label="Programme"
+        placeholder="Filter Programme..."
+      />
+    ),
+    cell: ({ row }) => (
+        <span className="block pl-2">
+            {row.original.programs?.length ?? 0}
+        </span>
+    ),
+    filterFn: (row, columnId, filterValue) => {
+        const value = row.getValue(columnId)
+        if (!value || !Array.isArray(value)) return false
+        const count = value.length
+        if (typeof filterValue === "number") {
+            return count === filterValue
+        } else if (typeof filterValue === "string") {
+            const num = parseInt(filterValue, 10)
+            return !isNaN(num) && count === num
+        }
+        return false
+    },
+  },
+    {
+        accessorKey: "courseCount",
+        header: ({ column }) => (
+        <FilterHeader
+            column={column}
+            label="Kurse"
+            placeholder="Filter Kurse..."
+        />
+        ),
+        cell: ({ row }) => (
+        <span className="block pl-2">
+            {row.getValue("courseCount")}
+        </span>
+        ),
+        filterFn: (row, columnId, filterValue) => {
+            const value = row.getValue(columnId)
+            if (typeof value !== "number") return false
+            if (typeof filterValue === "number") {
+                return value === filterValue
+            } else if (typeof filterValue === "string") {
+                const num = parseInt(filterValue, 10)
+                return !isNaN(num) && value === num
+            }
+            return false
+        },
+    },
+    {
+        accessorKey: "participantCount",
+        header: ({ column }) => (
+        <FilterHeader
+            column={column}
+            label="Teilnehmer"
+            placeholder="Filter Teilnehmer..."
+        />
+        ),
+        cell: ({ row }) => (
+        <span className="block pl-2">
+            {row.getValue("participantCount")}
+        </span>
+        ),
+        filterFn: (row, columnId, filterValue) => {
+            const value = row.getValue(columnId)
+            if (typeof value !== "number") return false
+            if (typeof filterValue === "number") {
+                return value === filterValue
+            } else if (typeof filterValue === "string") {
+                const num = parseInt(filterValue, 10)
+                return !isNaN(num) && value === num
+            }
+            return false
+        },
+    },
+  {
+    id: "actions",
+    header: "Aktionen",
+    cell: ({ row }) => (
+      <div className="flex justify-center gap-1">
+        <Link
+          href={`/area/${row.original.id}/edit`}
+          className="p-2 rounded hover:bg-blue-100 text-blue-600 transition"
+          title="Edit"
+          aria-label="Edit"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+          </svg>
+        </Link>
+      </div>
+    ),
+  }
 ]
 
 // -------------------- Main Table Component --------------------
@@ -300,6 +437,33 @@ export function CourseTable<T>({
   // -------------------- Render --------------------
   return (
     <div className="w-full">
+        {/* Filter and column visibility controls */}
+        <div className="flex items-center py-4">
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="ml-auto cursor-pointer">
+                        Columns <ChevronDown />
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="bg-white">
+                    {table
+                        .getAllColumns()
+                        .filter(column => column.getCanHide())
+                        .map(column => (
+                            <DropdownMenuCheckboxItem
+                                key={column.id}
+                                className="capitalize cursor-pointer"
+                                checked={column.getIsVisible()}
+                                onCheckedChange={value =>
+                                    column.toggleVisibility(!!value)
+                                }
+                            >
+                                {column.id}
+                            </DropdownMenuCheckboxItem>
+                        ))}
+                </DropdownMenuContent>
+            </DropdownMenu>
+        </div>
       {/* Main table */}
       <div className="shadow border border-gray-200 overflow-hidden bg-white rounded-md">
         <Table>

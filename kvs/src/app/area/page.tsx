@@ -1,14 +1,6 @@
 import { PrismaClient } from '../../../generated/prisma/client'
+import { CourseTable, areaColumns, AreaRow } from '@/components/overviewTable/table'
 import Link from 'next/link'
-import { redirect } from 'next/navigation'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
 
 const prisma = new PrismaClient()
 
@@ -37,16 +29,18 @@ async function getAreasWithPrograms() {
 
   // For each area, calculate total courses and total participants
   return areas.map(area => {
-    let courseCount = 0
-    let participantCount = 0
-    area.programs.forEach(program => {
-      courseCount += program.course.length
-      program.course.forEach(course => {
-        participantCount += course.registrations.length
-      })
-    })
+    const courseCount = area.programs.reduce((count, program) => count + (program.course ? program.course.length : 0), 0)
+    const participantCount = area.programs.reduce((count, program) => {
+      return count + (program.course ? program.course.reduce((cCount, course) => cCount + course.registrations.length, 0) : 0)
+    }, 0)
+
     return {
-      ...area,
+      id: area.id,
+      name: area.name,
+      programs: area.programs.map(program => ({
+        id: program.id,
+        name: program.name
+      })),
       courseCount,
       participantCount
     }
@@ -74,26 +68,43 @@ async function deleteArea(formData: FormData) {
 
 
 export default async function AreasPage() {
-  const areas = await getAreasWithPrograms()
 
+    const areas = await getAreasWithPrograms()
+    if (!areas || areas.length === 0) {
+        return (
+            <div className="p-8">
+                <h1 className="text-3xl font-bold mb-6">No Areas Found</h1>
+                <p className="text-gray-600">There are currently no areas available.</p>
+            </div>
+        )
+    }
+    const tableData: AreaRow[] = areas.map(area => ({
+        id: area.id,
+        area: area.name, // <- dieses Feld ergänzen
+        name: area.name,
+        programs: area.programs.map(program => ({
+            id: program.id,
+            name: program.name
+        })),
+        courseCount: area.courseCount,
+        participantCount: area.participantCount
+    }))
   return (
     <div className="min-h-screen bg-gray-50 py-6 px-4">
-      <div className="max-w-[1600px] mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Areas</h1>
-          <div className="flex gap-2">
-            <Link
-              href="/area/new"
-              className="p-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition"
-              title="Add New Area"
-              aria-label="Add New Area"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 20 20" stroke="currentColor">
-                <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-              </svg>
-            </Link>
-            <Link
+      <div className="flex items-center justify-between mb-8">
+           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Areas</h1>
+           <div className="flex gap-2">
+             <Link
+               href="/area/new"
+               className="p-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition"
+               title="Add New Area"
+               aria-label="Add New Area"
+             >
+               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 20 20" stroke="currentColor">
+                 <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+               </svg>
+             </Link>
+             <Link
               href="/"
               className="p-2 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300 transition"
               title="Back to Home"
