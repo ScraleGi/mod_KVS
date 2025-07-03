@@ -22,6 +22,7 @@ const labelMap: Record<string, string> = {
   certificate: 'Zertifikat',
   KursRegeln: 'Kursregeln',
   Teilnahmebestaetigung: 'Teilnahmebestätigung',
+  invoice: 'Rechnung',
 }
 
 export function GeneratePDFButton({
