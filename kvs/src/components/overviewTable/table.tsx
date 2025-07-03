@@ -215,14 +215,15 @@ export const participantColumns: ColumnDef<ParticipantRow>[] = [
         placeholder="Filter Name..."
       />
     ),
-    cell: ({ row }) => (
-      <Link
-        href={`/participant/${row.original.id}`}
-        className="relative text-blue-600 hover:text-blue-800 pl-2 inline-block after:content-[''] after:absolute after:left-8 after:bottom-0 after:w-0 hover:after:w-[calc(100%-2rem)] after:h-[2px] after:bg-blue-600 after:transition-all after:duration-300"
-      >
-        {row.original.name} {row.original.surname}
-      </Link>
-    ),
+cell: ({ row }) => (
+  <Link
+    href={`/participant/${row.original.id}`}
+    className="relative text-blue-600 hover:text-blue-800 inline-block after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-0 hover:after:w-full after:h-[2px] after:bg-blue-600 after:transition-all after:duration-300"
+    style={{ whiteSpace: "nowrap" }}
+  >
+    {row.original.name} {row.original.surname}
+  </Link>
+),
   },
   {
     accessorKey: "email",
