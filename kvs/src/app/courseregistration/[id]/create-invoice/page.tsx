@@ -45,9 +45,8 @@ export default async function CreateInvoicePage({ params }: { params: { id: stri
         <form
           action={async (formData) => {
             'use server'
-            const id = await formData.get('registrationId') as string 
             await generateInvoice(formData)
-            redirect(`/courseregistration/${id}`)
+            redirect(`/courseregistration/${params.id}`)
           }}
           className="space-y-6"
         >
