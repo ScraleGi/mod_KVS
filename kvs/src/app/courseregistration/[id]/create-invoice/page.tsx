@@ -7,7 +7,7 @@ const prisma = new PrismaClient()
 
 export default async function CreateInvoicePage({ params }: { params: { id: string } }) {
   const registration = await prisma.courseRegistration.findUnique({
-    where: { id: await params.id },
+    where: { id: params.id },
     include: {
       participant: true,
       course: { include: { program: true } },
@@ -45,7 +45,7 @@ export default async function CreateInvoicePage({ params }: { params: { id: stri
           action={async (formData) => {
             'use server'
             await generateInvoice(formData)
-            redirect(`/courseregistration/${params.id}`)
+            redirect(`/courseregistration/${await params.id}`)
           }}
           className="space-y-6"
         >
