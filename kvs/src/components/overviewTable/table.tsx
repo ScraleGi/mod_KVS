@@ -466,8 +466,8 @@ export const programColumns: ColumnDef<ProgramRow>[] = [
     header: ({ column }) => (
       <FilterHeader
         column={column}
-        label="Unterrichtseinheiten"
-        placeholder="Filter Lehrveranstaltungen..."
+        label="Einheit"
+        placeholder="Filter Einheit..."
       />
     ),
     cell: ({ row }) => (
