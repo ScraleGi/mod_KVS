@@ -8,7 +8,7 @@ export const AddParticipantButton = () => {
         className="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded font-medium text-sm transition-colors shadow-sm cursor-pointer"
       >
         <UserPlus size={16} />
-        <span>Add Participant</span>
+        <span>Teilnehmer hinzufügen</span>
       </button>
     </Link>
   )

@@ -39,7 +39,7 @@ const data: ParticipantRow[] = participants.map(p => ({
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Participants Overview</h1>
+        <h1 className="text-2xl font-bold">Teilnehmerübersicht</h1>
         <AddParticipantButton />
       </div>
       <CourseTable<ParticipantRow> data={data} columns={participantColumns} filterColumn="name" />
