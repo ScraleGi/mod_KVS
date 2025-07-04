@@ -1,6 +1,7 @@
 import { PrismaClient } from "../../../generated/prisma/client"
 import { CourseTable, participantColumns, ParticipantRow } from "@/components/overviewTable/table"
 import { AddParticipantButton } from "@/components/participants/buttonAddParticipant"
+import Link from 'next/link'
 
 const prisma = new PrismaClient()
 

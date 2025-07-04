@@ -1,20 +1,40 @@
-import { PrismaClient } from '../../../../generated/prisma/client'
+import { PrismaClient } from '../../../../../generated/prisma/client'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 
 const prisma = new PrismaClient()
 
-export default async function NewParticipantPage() {
-  // Fetch all available courses for the select dropdown
-  const courses = await prisma.course.findMany({
-    where: { deletedAt: null },
-    include: { program: true }
+export default async function EditParticipantPage({ params }: { params: { id: string } }) {
+  const { id } = await params
+
+  // Fetch participant and all available courses
+  const participant = await prisma.participant.findUnique({
+    where: { id },
+    include: {
+      registrations: {
+        include: { course: { include: { program: true } } }
+      }
+    }
   })
+
+  if (!participant) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-neutral-50">
+        <div className="max-w-md w-full px-4">
+          <Link href="/participant" className="text-blue-500 hover:underline mb-6 block">
+            &larr; Back to Participants
+          </Link>
+          <div className="text-red-600 text-lg font-semibold">Participant not found.</div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-neutral-50 px-2 py-8">
       <div className="w-full max-w-xl bg-white rounded-2xl shadow-md border border-neutral-100 p-8">
-        <h1 className="text-2xl font-bold mb-6 text-neutral-900 text-center">Add New Participant</h1>
+        
+        <h1 className="text-2xl font-bold mb-6 text-neutral-900 text-center">Edit Participant</h1>
         <form
           action={async (formData) => {
             'use server'
@@ -30,9 +50,9 @@ export default async function NewParticipantPage() {
             const city = formData.get('city') as string
             const street = formData.get('street') as string
             const country = formData.get('country') as string
-            const courseId = formData.get('courseId') as string
 
-            const participant = await prisma.participant.create({
+            await prisma.participant.update({
+              where: { id },
               data: {
                 code,
                 name,
@@ -49,14 +69,7 @@ export default async function NewParticipantPage() {
               }
             })
 
-            await prisma.courseRegistration.create({
-              data: {
-                courseId,
-                participantId: participant.id,
-              }
-            })
-
-            redirect(`/participant/${participant.id}`)
+            redirect(`/participant/${id}`)
           }}
           className="space-y-6"
         >
@@ -66,6 +79,7 @@ export default async function NewParticipantPage() {
               <input
                 name="code"
                 required
+                defaultValue={participant.code}
                 className="mt-1 border rounded px-2 py-1"
                 autoFocus
               />
@@ -75,6 +89,7 @@ export default async function NewParticipantPage() {
               <input
                 name="salutation"
                 required
+                defaultValue={participant.salutation}
                 className="mt-1 border rounded px-2 py-1"
               />
             </label>
@@ -82,6 +97,7 @@ export default async function NewParticipantPage() {
               Title
               <input
                 name="title"
+                defaultValue={participant.title ?? ''}
                 className="mt-1 border rounded px-2 py-1"
               />
             </label>
@@ -90,6 +106,7 @@ export default async function NewParticipantPage() {
               <input
                 name="name"
                 required
+                defaultValue={participant.name}
                 className="mt-1 border rounded px-2 py-1"
               />
             </label>
@@ -98,6 +115,7 @@ export default async function NewParticipantPage() {
               <input
                 name="surname"
                 required
+                defaultValue={participant.surname}
                 className="mt-1 border rounded px-2 py-1"
               />
             </label>
@@ -107,6 +125,7 @@ export default async function NewParticipantPage() {
                 name="email"
                 type="email"
                 required
+                defaultValue={participant.email}
                 className="mt-1 border rounded px-2 py-1"
               />
             </label>
@@ -115,6 +134,7 @@ export default async function NewParticipantPage() {
               <input
                 name="phoneNumber"
                 required
+                defaultValue={participant.phoneNumber}
                 className="mt-1 border rounded px-2 py-1"
               />
             </label>
@@ -124,6 +144,7 @@ export default async function NewParticipantPage() {
                 name="birthday"
                 type="date"
                 required
+                defaultValue={participant.birthday ? new Date(participant.birthday).toISOString().split('T')[0] : ''}
                 className="mt-1 border rounded px-2 py-1"
               />
             </label>
@@ -132,6 +153,7 @@ export default async function NewParticipantPage() {
               <input
                 name="postalCode"
                 required
+                defaultValue={participant.postalCode}
                 className="mt-1 border rounded px-2 py-1"
               />
             </label>
@@ -140,6 +162,7 @@ export default async function NewParticipantPage() {
               <input
                 name="city"
                 required
+                defaultValue={participant.city}
                 className="mt-1 border rounded px-2 py-1"
               />
             </label>
@@ -148,6 +171,7 @@ export default async function NewParticipantPage() {
               <input
                 name="street"
                 required
+                defaultValue={participant.street}
                 className="mt-1 border rounded px-2 py-1"
               />
             </label>
@@ -156,29 +180,14 @@ export default async function NewParticipantPage() {
               <input
                 name="country"
                 required
+                defaultValue={participant.country}
                 className="mt-1 border rounded px-2 py-1"
               />
-            </label>
-            <label className="flex flex-col text-xs font-medium text-neutral-700 sm:col-span-2">
-              Course
-              <select
-                name="courseId"
-                required
-                className="mt-1 border rounded px-2 py-1"
-                defaultValue=""
-              >
-                <option value="" disabled>-- Select a course --</option>
-                {courses.map(course => (
-                  <option key={course.id} value={course.id}>
-                    {course.program?.name ?? 'Course'} ({new Date(course.startDate).toLocaleDateString('de-DE')})
-                  </option>
-                ))}
-              </select>
             </label>
           </div>
           <div className="flex justify-between mt-6">
             <Link
-              href="/participant"
+              href={`/participant/${id}`}
               className="px-4 py-2 bg-neutral-200 text-neutral-700 rounded hover:bg-neutral-300 text-xs font-medium transition"
             >
               Cancel
@@ -187,7 +196,7 @@ export default async function NewParticipantPage() {
               type="submit"
               className="cursor-pointer px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-xs font-medium transition"
             >
-              Create Participant
+              Save Changes
             </button>
           </div>
         </form>
