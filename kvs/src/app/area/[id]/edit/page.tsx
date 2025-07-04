@@ -74,18 +74,18 @@ export default async function EditAreaPage({ params }: EditAreaPageProps) {
               <div className="pt-2 flex items-center justify-between">
                 <button
                   type="submit"
-                  className="inline-flex items-center px-5 py-2 border border-transparent text-xs font-semibold rounded text-white bg-blue-600 hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  className="inline-flex items-center px-5 py-2 border border-transparent cursor-pointer text-xs font-semibold rounded text-white bg-blue-600 hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
                   Save Changes
                 </button>
                 <Link
-                  href="/area"
+                  href={`/area/${id}`}
                   className="text-xs font-medium text-gray-500 hover:text-gray-700 transition-colors flex items-center"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                   </svg>
-                  Back to Areas
+                  Back to Details
                 </Link>
               </div>
             </form>
