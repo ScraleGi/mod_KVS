@@ -6,7 +6,7 @@ export const AddParticipantButton = () => {
     <Link
       href="/participant/new"
       className="p-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white transition flex items-center justify-center"
-      title="Add Participant"
+      title="Teilnehmer hinzufügen"
       aria-label="Add Participant"
     >
       <UserPlus size={20} />
