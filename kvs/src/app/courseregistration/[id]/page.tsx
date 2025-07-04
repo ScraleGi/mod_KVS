@@ -75,11 +75,12 @@ export default async function ParticipantDetailsPage({
 }) {
   // --- Extract participant ID ---
   const { id } = await params
-  const participantId = id
+  const registrationId = id
+  console.log(`Fetching details for participant ID: ${registrationId}`)
 
   // --- Fetch registration with relations ---
   const registration = await prisma.courseRegistration.findFirst({
-    where: { id: participantId },
+    where: { id: registrationId },
     include: {
       participant: true,
       course: { include: { program: true, mainTrainer: true } },
@@ -124,7 +125,7 @@ export default async function ParticipantDetailsPage({
       where: { id: documentId },
       data: { deletedAt: new Date() }
     })
-    revalidatePath(`/courseregistration/${participantId}`)
+    revalidatePath(`/courseregistration/${registrationId}`)
   }
 
   // --- Handle missing registration/participant ---
@@ -387,7 +388,7 @@ export default async function ParticipantDetailsPage({
       <div className="col-span-1 flex items-center justify-center text-xs">
         <form action={toggleInvoiceCancelled}>
           <input type="hidden" name="invoiceId" value={inv.id} />
-          <input type="hidden" name="registrationId" value={participantId} />
+          <input type="hidden" name="registrationId" value={registrationId} />
           <button
             type="submit"
             name="isCancelled"
@@ -423,7 +424,7 @@ export default async function ParticipantDetailsPage({
     </span>
   ) : (
     <Link
-      href={`/courseregistration/${participantId}/create-invoice`}
+      href={`/courseregistration/${registrationId}/create-invoice`}
       className="px-3 py-1 rounded text-xs font-medium bg-blue-600 text-white hover:bg-blue-700 transition"
     >
       Create Invoice
@@ -481,7 +482,7 @@ export default async function ParticipantDetailsPage({
           </div>
           <div className="flex justify-start mt-4">
             <Link
-              href={`/courseregistration/${participantId}/deletedDocuments`}
+              href={`/courseregistration/${registrationId}/deletedDocuments`}
               className="inline-flex items-center gap-1 text-neutral-400 hover:text-orange-600 text-xs transition"
             >
               View Deleted Documents
