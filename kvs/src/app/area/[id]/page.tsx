@@ -6,7 +6,7 @@ import { Info, GraduationCap, Pencil } from 'lucide-react'
 const prisma = new PrismaClient()
 
 export default async function AreaDetailPage({ params }: { params: { id: string } }) {
-  const { id } = params;
+  const { id } = await  params;
   const area = await prisma.area.findUnique({
     where: { id, deletedAt: null },
     include: {
