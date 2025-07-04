@@ -1,18 +1,45 @@
-import { PrismaClient, RecipientType } from '../../../../generated/prisma'
+import { PrismaClient, Invoice, Document } from '../../../../generated/prisma'
 import Link from 'next/link'
 import { revalidatePath } from 'next/cache'
-import type { Invoice, Document } from '../../../../generated/prisma'
 import { DownloadPDFLink, GeneratePDFButton } from '@/components/DownloadButton/DownloadButton'
+import React from 'react'
 
+// --- Prisma Client ---
+// In production, use a singleton pattern!
 const prisma = new PrismaClient()
 
-function formatDateGerman(date: Date | string | null | undefined) {
+// --- Utility Functions ---
+function formatDateGerman(date: Date | string | null | undefined): string {
   if (!date) return 'N/A'
   return new Date(date).toLocaleDateString('de-DE')
 }
 
+// --- Server action to update remark ---
+async function updateRemark(formData: FormData) {
+  "use server"
+  const registrationId = formData.get("registrationId") as string
+  const newRemark = formData.get("remark") as string
+  await prisma.courseRegistration.update({
+    where: { id: registrationId },
+    data: { generalRemark: newRemark }
+  })
+  revalidatePath(`/courseregistration/${registrationId}`)
+}
+
+// --- Server action to toggle invoice cancellation ---
+async function toggleInvoiceCancelled(formData: FormData) {
+  "use server"
+  const invoiceId = formData.get("invoiceId") as string
+  const isCancelled = formData.get("isCancelled") === "on"
+  await prisma.invoice.update({
+    where: { id: invoiceId },
+    data: { isCancelled }
+  })
+  revalidatePath(`/courseregistration/${formData.get("registrationId")}`)
+}
+
 // Helper to sanitize Decimal fields for client components
-function sanitizeRegistration(reg: any) {
+function sanitizeRegistration(reg: any): any {
   if (!reg) return reg
   return {
     ...reg,
@@ -40,46 +67,36 @@ function sanitizeRegistration(reg: any) {
   }
 }
 
+// --- Main Page Component ---
 export default async function ParticipantDetailsPage({
   params,
 }: {
   params: { id: string } | Promise<{ id: string }>
 }) {
+  // --- Extract participant ID ---
   const { id } = await params
   const participantId = id
 
-
-  // Fetch registration for this participant in this course
+  // --- Fetch registration with relations ---
   const registration = await prisma.courseRegistration.findFirst({
-    where: {
-      id: participantId,
-    },
+    where: { id: participantId },
     include: {
       participant: true,
-      course: { 
-        include: { 
-          program: true,
-          mainTrainer: true
-        } 
-      },
-      invoices: {
-        include: {
-          recipient: true,
-        }
-      },
+      course: { include: { program: true, mainTrainer: true } },
+      invoices: { include: { recipient: true } },
     }
   })
 
-  // Sanitize registration for client components
+  // --- Sanitize registration for client components ---
   const sanitizedRegistration = sanitizeRegistration(registration)
 
-  // Sanitize invoices (convert Decimal to string)
-  const sanitizedInvoices = sanitizedRegistration
+  // --- Sanitize invoices (convert Decimal to string) ---
+  const sanitizedInvoices: (Invoice & { recipient: any })[] = sanitizedRegistration
     ? sanitizedRegistration.invoices
     : []
 
-  // Fetch documents for this registration (not soft-deleted)
-  const documents = registration
+  // --- Fetch documents for this registration (not soft-deleted) ---
+  const documents: Document[] = registration
     ? await prisma.document.findMany({
         where: {
           courseRegistrationId: registration.id,
@@ -89,13 +106,17 @@ export default async function ParticipantDetailsPage({
       })
     : []
 
+  // --- Check if there are any active invoices ---  
+  const hasActiveInvoice = sanitizedInvoices.some(inv => !inv.isCancelled)
+
+  // --- Label map for document roles ---
   const labelMap: Record<string, string> = {
     certificate: 'Zertifikat',
     KursRegeln: 'Kursregeln',
     Teilnahmebestaetigung: 'Teilnahmebestätigung',
   }
 
-  // Server action to remove a document (soft delete)
+  // --- Server action to remove a document (soft delete) ---
   async function removeDocument(formData: FormData) {
     "use server"
     const documentId = formData.get("documentId") as string
@@ -106,11 +127,12 @@ export default async function ParticipantDetailsPage({
     revalidatePath(`/courseregistration/${participantId}`)
   }
 
+  // --- Handle missing registration/participant ---
   if (!sanitizedRegistration || !sanitizedRegistration.participant) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-neutral-50">
         <div className="max-w-md w-full px-4">
-          <Link href={`/course/${registration?.courseId}`} className="text-blue-500 hover:underline mb-6 block">
+          <Link href={`/course/${registration?.courseId}`} className="text-blue-500  hover:text-blue-800  mb-6 block">
             &larr; Back to Course
           </Link>
           <div className="text-red-600 text-lg font-semibold">Participant not found for this course.</div>
@@ -119,133 +141,12 @@ export default async function ParticipantDetailsPage({
     )
   }
 
-  // Invoice listing data for this registration
-  const invoiceFields: {
-    label: string,
-    render: (inv: any) => React.ReactNode,
-    width?: string
-  }[] = [
-    {
-      label: 'Invoice',
-      render: (inv) => (
-        <div className="flex items-center gap-2">
-          <Link
-            href={`/invoice/${inv.id}`}
-            className="text-blue-700 hover:text-blue-900 font-medium text-sm"
-          >
-            #{inv.invoiceNumber ?? inv.id}
-          </Link>
-        </div>
-      ),
-      width: 'flex-[2]'
-    },
-    {
-      label: 'Amount',
-      render: (inv) => (
-        <div className="flex items-center h-full text-neutral-700 text-sm">
-          €{inv.amount?.toString()}
-        </div>
-      ),
-      width: 'flex-1'
-    },
-    {
-      label: 'Recipient',
-      render: (inv: any) => (
-        <div className="flex flex-col text-neutral-700 text-xs">
-          {inv.recipient.type === 'COMPANY'
-            ? inv.recipient.companyName
-            : `${inv.recipient.recipientName} ${inv.recipient.recipientSurname}`}
-          <span className="text-neutral-400">{inv.recipient.recipientEmail}</span>
-        </div>
-      ),
-      width: 'flex-[2]'
-    }
-  ]
-
-  // Document listing fields
-  const documentFields: {
-    label: string,
-    render: (doc: Document) => React.ReactNode,
-    width?: string
-  }[] = [
-    {
-      label: 'Document',
-      render: (doc) => (
-        <div className="flex items-center gap-2 max-w-xs">
-          <a
-            href={doc.file}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-700 hover:text-blue-900 font-medium text-sm truncate max-w-[160px]"
-            title={doc.file.split('/').pop()}
-          >
-            {doc.file.split('/').pop()}
-          </a>
-        </div>
-      ),
-      width: 'flex-[2]'
-    },
-    {
-      label: 'Type',
-      render: (doc) => (
-        <div className="flex items-center h-full text-neutral-700 text-sm">
-          {labelMap[doc.role] || doc.role}
-        </div>
-      ),
-      width: 'flex-1'
-    }
-  ]
-
-  function AlignedList<T>({
-    items,
-    fields,
-    actions,
-    emptyText,
-    addButton,
-  }: {
-    items: T[]
-    fields: { label: string, render: (item: T) => React.ReactNode, width?: string }[]
-    actions?: (item: T) => React.ReactNode
-    emptyText?: string
-    addButton?: React.ReactNode
-  }) {
-    return (
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center border-b border-neutral-200 py-1 bg-neutral-50 rounded-t">
-          {fields.map((f, i) => (
-            <div key={i} className={`text-xs font-semibold text-neutral-500 ${f.width ?? 'flex-1'} px-1`}>
-              {f.label}
-            </div>
-          ))}
-          {actions && <div className="w-10 flex-shrink-0 text-right">{addButton}</div>}
-        </div>
-        {items.length === 0 && (
-          <div className="flex items-center px-2 py-2 text-neutral-400 italic text-sm bg-white rounded">
-            {emptyText}
-          </div>
-        )}
-        {items.map((item, idx) => (
-          <div key={idx} className="flex items-center bg-white hover:bg-sky-50 transition rounded border-b border-neutral-100 group">
-            {fields.map((f, i) => (
-              <div key={i} className={`px-1 py-2 ${f.width ?? 'flex-1'}`}>
-                {f.render(item)}
-              </div>
-            ))}
-            {actions && (
-              <div className="w-10 flex-shrink-0 text-right">
-                {actions(item)}
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-    )
-  }
-
+  // --- Render Page ---
   return (
     <div className="min-h-screen bg-neutral-50 flex items-center justify-center px-2 py-8">
       <div className="w-full max-w-2xl bg-white rounded-2xl shadow-md border border-neutral-100 p-0 overflow-hidden">
-        {/* Profile Card */}
+
+        {/* --- Profile Card --- */}
         <section className="flex flex-col sm:flex-row items-center gap-6 px-8 py-8 border-b border-neutral-200">
           <div className="flex-shrink-0 w-20 h-20 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center text-3xl font-bold text-blue-700 select-none">
             {sanitizedRegistration.participant.name[0]}
@@ -254,7 +155,7 @@ export default async function ParticipantDetailsPage({
             <h1 className="text-2xl font-semibold text-neutral-900">
               <Link
                 href={`/participant/${sanitizedRegistration.participant.id}`}
-                className="hover:underline text-blue-700"
+                className="text-blue-700  hover:text-blue-900 "
               >
                 {sanitizedRegistration.participant.salutation} {sanitizedRegistration.participant.title ? sanitizedRegistration.participant.title + ' ' : ''}
                 {sanitizedRegistration.participant.name} {sanitizedRegistration.participant.surname}
@@ -277,138 +178,292 @@ export default async function ParticipantDetailsPage({
           </div>
         </section>
 
-        {/* Registration Details */}
+        {/* --- Registration Details --- */}
         <section className="px-8 py-6 border-b border-neutral-200">
           <h2 className="text-sm font-semibold text-neutral-800 mb-2">Details</h2>
-          <div className="flex flex-wrap gap-x-8 gap-y-2 text-[13px] text-neutral-700">
-            <div className="flex items-center gap-1">
-              <span className="font-medium text-neutral-600">Course:</span>
-              <Link
-                href={`/course/${sanitizedRegistration.course?.id}`}
-                className="text-blue-700 hover:text-blue-900 font-medium"
-              >
-                {sanitizedRegistration.course?.program?.name ?? 'Unknown Course'}
-              </Link>
-            </div>
-            <div className="flex items-center gap-1">
-              <span className="font-medium text-neutral-600">Start:</span>
-              <span className="text-neutral-600">
-                {formatDateGerman(sanitizedRegistration.course?.startDate)}
-              </span>
-            </div>
-            <div className="flex items-center gap-1">
-              <span className="font-medium text-neutral-600">Trainer:</span>
-              <span className="text-neutral-600">
-                {sanitizedRegistration.course?.mainTrainer?.name ?? 'N/A'}
-              </span>
-            </div>
-            {/* Show status timestamps if present */}
-            {sanitizedRegistration.infoSessionAt && (
-              <div className="flex items-center gap-1">
-                <span className="font-medium text-neutral-600">Info Session:</span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-[13px] text-neutral-700">
+            {/* Left column */}
+            <div className="flex flex-col gap-2">
+              {/* 1. Course */}
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-neutral-600">Course:</span>
+                <Link
+                  href={`/course/${sanitizedRegistration.course?.id}`}
+                  className="text-blue-700 hover:text-blue-800 font-medium hover:underline"
+                >
+                  {sanitizedRegistration.course?.program?.name ?? '-'}
+                </Link>
+              </div>
+              {/* 2. Trainer */}
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-neutral-600">Trainer:</span>
                 <span className="text-neutral-600">
-                  {formatDateGerman(sanitizedRegistration.infoSessionAt)}
+                  {sanitizedRegistration.course?.mainTrainer
+                    ? `${sanitizedRegistration.course.mainTrainer.name} ${sanitizedRegistration.course.mainTrainer.surname}`
+                    : '-'}
                 </span>
               </div>
-            )}
-            {sanitizedRegistration.interestedAt && (
-              <div className="flex items-center gap-1">
-                <span className="font-medium text-neutral-600">Interested:</span>
+              {/* 3. Start */}
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-neutral-600">Start:</span>
                 <span className="text-neutral-600">
-                  {formatDateGerman(sanitizedRegistration.interestedAt)}
+                  {sanitizedRegistration.course?.startDate
+                    ? formatDateGerman(sanitizedRegistration.course.startDate)
+                    : '-'}
                 </span>
               </div>
-            )}
-            {sanitizedRegistration.registeredAt && (
-              <div className="flex items-center gap-1">
+              {/* 4. End */}
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-neutral-600">End:</span>
+                <span className="text-neutral-600">
+                  {sanitizedRegistration.course?.endDate
+                    ? formatDateGerman(sanitizedRegistration.course.endDate)
+                    : '-'}
+                </span>
+              </div>
+              {/* 5. Registered */}
+              <div className="flex items-center gap-2">
                 <span className="font-medium text-neutral-600">Registered:</span>
                 <span className="text-neutral-600">
-                  {formatDateGerman(sanitizedRegistration.registeredAt)}
+                  {sanitizedRegistration.registeredAt
+                    ? formatDateGerman(sanitizedRegistration.registeredAt)
+                    : '-'}
                 </span>
               </div>
-            )}
-            {sanitizedRegistration.unregisteredAt && (
-              <div className="flex items-center gap-1">
+            </div>
+            {/* Right column */}
+            <div className="flex flex-col gap-2">
+              {/* 6. Unregistered */}
+              <div className="flex items-center gap-2">
                 <span className="font-medium text-neutral-600">Unregistered:</span>
                 <span className="text-neutral-600">
-                  {formatDateGerman(sanitizedRegistration.unregisteredAt)}
+                  {sanitizedRegistration.unregisteredAt
+                    ? formatDateGerman(sanitizedRegistration.unregisteredAt)
+                    : '-'}
                 </span>
               </div>
-            )}
-            {/* General Remark */}
-            {sanitizedRegistration.generalRemark && (
-              <div className="flex items-center gap-1">
-                <span className="font-medium text-neutral-600">Remark:</span>
-                <span className="text-neutral-600">{sanitizedRegistration.generalRemark}</span>
+              {/* 7. Info Session */}
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-neutral-600">Info Session:</span>
+                <span className="text-neutral-600">
+                  {sanitizedRegistration.infoSessionAt
+                    ? formatDateGerman(sanitizedRegistration.infoSessionAt)
+                    : '-'}
+                </span>
               </div>
-            )}
-            {/* Subsidy info */}
-            {(sanitizedRegistration.subsidyRemark || sanitizedRegistration.subsidyAmount) && (
-              <div className="flex items-center gap-1 text-green-700">
+              {/* 8. Interested */}
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-neutral-600">Interested:</span>
+                <span className="text-neutral-600">
+                  {sanitizedRegistration.interestedAt
+                    ? formatDateGerman(sanitizedRegistration.interestedAt)
+                    : '-'}
+                </span>
+              </div>
+              {/* 9. Subsidy */}
+              <div className="flex items-center gap-2">
                 <span className="font-medium">Subsidy:</span>
-                {sanitizedRegistration.subsidyRemark && (
-                  <span>{sanitizedRegistration.subsidyRemark}</span>
-                )}
-                {sanitizedRegistration.subsidyAmount && (
-                  <span className="ml-1 text-xs">({sanitizedRegistration.subsidyAmount}€)</span>
+                {sanitizedRegistration.subsidyRemark || sanitizedRegistration.subsidyAmount ? (
+                  <>
+                    {sanitizedRegistration.subsidyRemark && (
+                      <span>{sanitizedRegistration.subsidyRemark}</span>
+                    )}
+                    {sanitizedRegistration.subsidyAmount && (
+                      <span className="text-green-700 ml-1 text-xs">({sanitizedRegistration.subsidyAmount}€)</span>
+                    )}
+                  </>
+                ) : (
+                  <span>-</span>
                 )}
               </div>
-            )}
-            {/* Discount info */}
-            {(sanitizedRegistration.discountRemark || sanitizedRegistration.discountAmount) && (
-              <div className="flex items-center gap-1 text-blue-700">
+              {/* 10. Discount */}
+              <div className="flex items-center gap-2">
                 <span className="font-medium">Discount:</span>
-                {sanitizedRegistration.discountRemark && (
-                  <span>{sanitizedRegistration.discountRemark}</span>
-                )}
-                {sanitizedRegistration.discountAmount && (
-                  <span className="ml-1 text-xs">({sanitizedRegistration.discountAmount}€)</span>
+                {sanitizedRegistration.discountRemark || sanitizedRegistration.discountAmount ? (
+                  <>
+                    {sanitizedRegistration.discountRemark && (
+                      <span>{sanitizedRegistration.discountRemark}</span>
+                    )}
+                    {sanitizedRegistration.discountAmount && (
+                      <span className="text-violet-800 ml-1 text-xs">({sanitizedRegistration.discountAmount}€)</span>
+                    )}
+                  </>
+                ) : (
+                  <span>-</span>
                 )}
               </div>
-            )}
+            </div>
+          </div>
+          {/* Remark section, always visible, below the grid */}
+          <hr className="my-6 border-t border-neutral-200" />
+          <div className="mt-6">
+            <div className="text-sm font-semibold text-neutral-800 mb-2">Remark:</div>
+            <form action={updateRemark} className="flex flex-col gap-2">
+              <input type="hidden" name="registrationId" value={sanitizedRegistration.id} />
+              <textarea
+                name="remark"
+                defaultValue={sanitizedRegistration.generalRemark || ''}
+                className="bg-neutral-50 border border-neutral-200 rounded px-3 py-2 text-[13px] text-neutral-700 min-h-[64px] whitespace-pre-line break-words resize-y focus:outline-none focus:ring-2 focus:ring-blue-200"
+                placeholder="Enter a remark..."
+              />
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  className="cursor-pointer px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-xs font-medium transition"
+                >
+                  Save
+                </button>
+              </div>
+            </form>
           </div>
         </section>
 
-        {/* Invoices Section */}
-        <section className="px-8 py-6 border-b border-neutral-200">
-          <AlignedList<any>
-            items={sanitizedInvoices}
-            fields={invoiceFields}
-            emptyText="No invoices found"
-          />
-        </section>
-
-        {/* Documents Section */}
-        <section className="px-8 py-6 border-b border-neutral-200">
-
-          <hr></hr>
-          <div className='backgrouund-blue-100 text-black'>
-          {
-            documents.map((doc) => (
-              <div key={doc.id} className="flex items-center justify-between py-2">
-                <div className="flex items-center gap-2">
-                  <DownloadPDFLink
-                    uuidString={sanitizedRegistration.id}
-                    filename={doc.file}
-                    className="text-blue-700 hover:text-blue-900 font-medium text-sm"
-                  />
+        {/* --- Invoices Section --- */}
+        <section className="px-8 py-3 border-b border-neutral-200">
+          <div>
+            {/* Header row */}
+            <div className="grid grid-cols-4 font-semibold text-neutral-700 text-xs uppercase border-b border-neutral-200 pb-2 mb-2">
+              <div className="col-span-1">Invoice</div>
+              <div className="col-span-1 text-center">Amount</div>
+              <div className="col-span-1 text-center">Recipient</div>
+              <div className="col-span-1 text-center">Status</div>
+            </div>
+            <div>
+              {sanitizedInvoices.length === 0 && (
+                <div className="flex items-center px-2 py-2 text-neutral-400 italic text-sm bg-white rounded">
+                  No invoices found
                 </div>
-                <div className="text-neutral-600 text-xs">{labelMap[doc.role] || doc.role}</div>
-                <form action={removeDocument}>
-                  <input type="hidden" name="documentId" value={doc.id} />
-                  <button
-                    type="submit"
-                    className="cursor-pointer flex items-center justify-center w-7 h-7 rounded-full bg-neutral-100 text-neutral-400 hover:text-red-500 hover:bg-red-50 border border-transparent hover:border-red-200 transition"
-                    title="Remove document"
+              )}
+              {sanitizedInvoices.map((inv) => (
+                <div
+                  key={inv.id}
+                  className="grid grid-cols-4 items-center py-2 border-b border-neutral-100 last:border-b-0 bg-white transition-colors hover:bg-blue-50"
+                >
+                <div className="col-span-1 flex items-center gap-2">
+          {/* Downloadable filename */}
+          <span className="truncate max-w-[120px] block">
+            <DownloadPDFLink
+              uuidString={sanitizedRegistration.id}
+              filename={`${inv.id}.pdf`}
+              className="text-blue-700 hover:text-blue-900 font-medium text-sm"
+            />
+          </span>
+          {/* Details icon */}
+          <Link
+            href={`/invoice/${inv.id}`}
+            className="ml-1 text-neutral-400 hover:text-blue-600 transition"
+            title="View invoice details"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-4 h-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 16v-4m0-4h.01" />
+            </svg>
+          </Link>
+        </div>
+          <div className="col-span-1 flex items-center justify-center text-neutral-700 text-sm">
+            €{inv.amount?.toString()}
+          </div>
+          <div className="col-span-1 flex items-center justify-center text-xs">
+          <form action={toggleInvoiceCancelled}>
+            <input type="hidden" name="invoiceId" value={inv.id} />
+            <input type="hidden" name="registrationId" value={participantId} />
+            <button
+              type="submit"
+              name="isCancelled"
+              value={inv.isCancelled ? "" : "on"}
+              className={`px-2 py-1 rounded text-xs font-semibold transition
+                ${inv.isCancelled
+                  ? "bg-red-100 text-red-600 hover:bg-red-200"
+                  : "bg-green-100 text-green-700 hover:bg-green-200"}
+              `}
+            >
+              {inv.isCancelled ? "Cancelled" : "Active"}
+            </button>
+          </form>
+          {inv.transactionNumber && !inv.isCancelled && (
+            <span className="ml-2 text-green-700 font-semibold">Paid</span>
+          )}
+          {!inv.transactionNumber && !inv.isCancelled && (
+            <span className="ml-2 text-yellow-600 font-semibold">Unpaid</span>
+          )}
+        </div>
+        </div>
+      ))}
+    </div>
+{/* --- Create Invoice Button --- */}
+<div className="flex justify-end mt-4">
+  {hasActiveInvoice ? (
+    <span
+      className="px-3 py-1 rounded text-xs font-medium bg-neutral-200 text-neutral-400 cursor-not-allowed select-none"
+      tabIndex={-1}
+      aria-disabled="true"
+    >
+      Create Invoice
+    </span>
+  ) : (
+    <Link
+      href={`/courseregistration/${participantId}/create-invoice`}
+      className="px-3 py-1 rounded text-xs font-medium bg-blue-600 text-white hover:bg-blue-700 transition"
+    >
+      Create Invoice
+    </Link>
+  )}
+</div>
+  </div>
+</section>
+
+        {/* --- Documents Section --- */}
+        <section className="px-8 py-3 border-b border-neutral-200">
+          <div>
+            <div className="flex items-center font-semibold text-neutral-700 text-xs uppercase border-b border-neutral-200 pb-2 mb-2">
+              <div className="flex-1">Document</div>
+              <div className="w-40">Type</div>
+              <div className="w-10"></div>
+            </div>
+            <div className="text-black">
+              {documents.length === 0 ? (
+                <div className="flex items-center px-2 py-2 text-neutral-400 italic text-sm bg-white rounded">
+                  No documents found
+                </div>
+              ) : (
+                documents.map((doc) => (
+                  <div
+                    key={doc.id}
+                    className="flex items-center justify-between py-2 border-b border-neutral-100 last:border-b-0 bg-white transition-colors hover:bg-blue-50"
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 12h12" />
-                    </svg>
-                  </button>
-                </form>
-              </div>
-            ))
-          }
+                    <div className="flex-1 flex items-center gap-2">
+                      <DownloadPDFLink
+                        uuidString={sanitizedRegistration.id}
+                        filename={doc.file}
+                        className="text-blue-700 hover:text-blue-900 font-medium text-sm"
+                      />
+                    </div>
+                    <div className="w-40 text-neutral-600 text-xs">{labelMap[doc.role] || doc.role}</div>
+                    <div className="w-10 flex justify-end">
+                      <form action={removeDocument}>
+                        <input type="hidden" name="documentId" value={doc.id} />
+                        <button
+                          type="submit"
+                          className="cursor-pointer flex items-center justify-center w-7 h-7 rounded-full bg-neutral-100 text-neutral-400 hover:text-red-500 hover:bg-red-50 border border-transparent hover:border-red-200 transition"
+                          title="Remove document"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 12h12" />
+                          </svg>
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
           <div className="flex justify-start mt-4">
             <Link
@@ -430,9 +485,10 @@ export default async function ParticipantDetailsPage({
           </div>
         </section>
 
-        <section className="px-8 py-6">
+        {/* --- Generate Documents Section --- */}
+        <section className="px-6 py-6 border-b border-neutral-200">
           <h2 className="text-sm font-semibold text-neutral-800 mb-4">Generate Documents</h2>
-          <div className="flex gap-2 flex-wrap justify-center">
+          <div className="flex gap-4 flex-wrap justify-center">
             <GeneratePDFButton
               uuidString={sanitizedRegistration.id}
               registration={sanitizedRegistration}
@@ -454,7 +510,7 @@ export default async function ParticipantDetailsPage({
           </div>
         </section>
 
-        {/* Navigation */}
+        {/* --- Navigation --- */}
         <nav className="flex gap-4 justify-end px-8 py-6">
           <Link href={`/course/${registration?.courseId}`} className="text-neutral-400 hover:text-blue-600 text-sm transition">
             &larr; Back to Course

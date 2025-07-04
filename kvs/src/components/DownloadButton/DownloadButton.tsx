@@ -22,6 +22,7 @@ const labelMap: Record<string, string> = {
   certificate: 'Zertifikat',
   KursRegeln: 'Kursregeln',
   Teilnahmebestaetigung: 'Teilnahmebestätigung',
+  invoice: 'Rechnung',
 }
 
 export function GeneratePDFButton({
@@ -102,7 +103,7 @@ export function DownloadPDFLink({
   return (
     <a
       href="#"
-      className={`inline-flex items-center text-blue-600 hover:text-blue-800 hover:underline focus:outline-none ${className}`}
+      className={`inline-flex items-center text-blue-600 hover:text-blue-800 focus:outline-none ${className}`}
       onClick={(e) => {
       e.preventDefault();
       handleDownload();
