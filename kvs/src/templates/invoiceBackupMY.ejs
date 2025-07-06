@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invoice <%= invoice.invoiceNumber%></title>
+</head>
+<body>
+  <p><strong>Email:</strong> <%= recipient.recipientEmail %></p>
+
+  <!-- anrede teil -->
+  <ul class="recipient">
+    <% if (recipient.type === 'COMPANY') { %>
+      <li><strong>Company:</strong> <%= recipient.companyName %></li>
+    <% } else { %>
+      <li><%= participant?.salutation %></li>
+      <li><%= participant?.name %> <%= participant?.surname %></li>
+    <% } %>
+    <li><%= recipient.recipientStreet %></li>
+    <li><%= recipient.postalCode %> <%= recipient.recipientCity %> <%= recipient.recipientCountry %></li>
+  </ul>
+
+  <h1>RECHNUNG</h1>
+  <p>Date: <%= new Date(invoice.createdAt || Date.now()).toLocaleDateString('de-DE') %></p>
+  <p><strong>Rechnungsnummer:</strong> <%= invoice.invoiceNumber %></p> 
+
+ <table>
+    <thead>
+      <tr>
+        <th>Bezeichnung</th>
+        <th>Menge</th>
+        <th>Einzelpreis (€)</th>
+        <th>Mwst (%)</th>
+        <th>Gesamt (€)</th>
+      </tr>
+    </thead>
+    <tbody>
+        <% const Menge = 1; %>
+        <% const Gesamt = Menge * invoice.amount; %>
+        <% const discountTotal = Menge * invoice.courseRegistration?.discountAmount %>
+        <tr>
+          <td><%= course?.program?.name %></td>
+          <td class="text-right"><%= Menge %></td> 
+          <td class="text-right"><%= invoice.amount.toFixed(2) %></td>
+          <td class="text-right">0%</td>
+          <td class="text-right"><%= Gesamt.toFixed(2) %></td>
+        </tr>
+
+        <tr>
+          <td><%= invoice.courseRegistration?.discountRemark %></td>
+          <td class="text-right"><%= Menge %></td> 
+          <td class="text-right"><%= invoice.courseRegistration?.discountAmount %></td>
+          <td class="text-right">0%</td>
+          <td class="text-right"><%=discountTotal.toFixed(2) %></td>
+        </tr>
+
+    </tbody>
+    <tfoot>
+      <tr class="total-row">
+        <td colspan="4" class="text-right">Gesamt</td>
+        <td class="text-right"><%= Gesamt.toFixed(2) %> €</td>
+      </tr>
+    </tfoot>
+  </table>
+
+
+  <div style="margin-top: 30px;">
+    <strong>Due Date:</strong> <%= new Date(invoice.dueDate).toLocaleDateString('de-DE') %>
+  </div>
+
+  <%= include('_footer') %>
+</body>
+</html>
