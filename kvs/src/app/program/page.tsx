@@ -7,6 +7,7 @@ const prisma = new PrismaClient()
 
 async function getProgramsWithArea() {
   const programs = await prisma.program.findMany({
+    where: { deletedAt: null }, // <-- Only non-deleted programs
     include: {
       area: true,
       course: {
@@ -29,10 +30,8 @@ async function getProgramsWithArea() {
     courses: program.course.length,
     teachingUnits: program.teachingUnits,
     price: program.price ? Number(program.price) : null,
-
   }))
 }
-
 
 
 export default async function ProgramsPage({ searchParams }: { searchParams?: { open?: string } }) {
