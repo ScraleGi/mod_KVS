@@ -1,4 +1,4 @@
-export function sanitize<T>(input: T): T {
+export function sanitize<T, R = T>(input: T): R {
   // Convert Prisma Decimal.js objects to string
   if (
     input &&
@@ -6,17 +6,17 @@ export function sanitize<T>(input: T): T {
     input !== null &&
     typeof (input as any).toJSON === 'function'
   ) {
-    return (input as any).toString() as unknown as T
+    return (input as any).toString() as unknown as R
   }
   if (Array.isArray(input)) {
-    return input.map(sanitize) as unknown as T
+    return input.map(sanitize) as unknown as R
   }
   if (input && typeof input === 'object') {
     const result: any = {}
     for (const key in input) {
       result[key] = sanitize((input as any)[key])
     }
-    return result
+    return result as R
   }
-  return input
+  return input as unknown as R
 }

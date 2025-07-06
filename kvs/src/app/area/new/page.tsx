@@ -1,25 +1,35 @@
-import { PrismaClient } from '../../../../generated/prisma/client'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { db } from '@/lib/db'
 
-const prisma = new PrismaClient()
-
+/**
+ * Server action to create a new area
+ */
 async function createArea(formData: FormData) {
   'use server'
-  const code = formData.get('code') as string
-  const name = formData.get('name') as string
-  const description = formData.get('description') as string | null
+  try {
+    const code = formData.get('code') as string
+    const name = formData.get('name') as string
+    const description = formData.get('description') as string | null
 
-  if (!code || code.trim() === '') {
-    throw new Error('Code is required')
-  }
-  if (!name || name.trim() === '') {
-    throw new Error('Name is required')
-  }
+    // Validate required fields
+    if (!code || code.trim() === '') {
+      throw new Error('Code is required')
+    }
+    if (!name || name.trim() === '') {
+      throw new Error('Name is required')
+    }
 
-  await prisma.area.create({
-    data: { code, name, description: description || null },
-  })
+    // Create new area in database
+    await db.area.create({
+      data: { code, name, description: description || null },
+    })
+  } catch (error) {
+    console.error('Failed to create area:', error)
+    throw error
+  }
+  
+  // Redirect to areas list after successful creation
   redirect('/area')
 }
 
@@ -33,6 +43,7 @@ export default function NewAreaPage() {
               Add New Area
             </h1>
             <form action={createArea} className="space-y-6">
+              {/* Area Code Field */}
               <div className="space-y-1">
                 <label htmlFor="code" className="block text-xs font-medium text-gray-600">
                   Code
@@ -46,6 +57,8 @@ export default function NewAreaPage() {
                   required
                 />
               </div>
+              
+              {/* Area Name Field */}
               <div className="space-y-1">
                 <label htmlFor="name" className="block text-xs font-medium text-gray-600">
                   Name
@@ -59,6 +72,8 @@ export default function NewAreaPage() {
                   required
                 />
               </div>
+              
+              {/* Area Description Field (Optional) */}
               <div className="space-y-1">
                 <label htmlFor="description" className="block text-xs font-medium text-gray-600">
                   Description (optional)
@@ -71,6 +86,8 @@ export default function NewAreaPage() {
                   rows={2}
                 />
               </div>
+              
+              {/* Action Buttons */}
               <div className="pt-2 flex items-center justify-between">
                 <button
                   type="submit"

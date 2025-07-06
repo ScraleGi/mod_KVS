@@ -1,10 +1,30 @@
-import { PrismaClient } from '../../../generated/prisma/client';
-import Calendar from '../../components/calendar/calendar';
+import Calendar from '@/components/calendar/calendar';
+import { db } from '@/lib/db';
+import { sanitize } from '@/lib/sanitize';
+import { Course, Holiday } from '@/types/models';
 
-const prisma = new PrismaClient();
+// Define interface for the course query result shape
+interface CourseWithRelations {
+  id: string;
+  startDate: Date;
+  program: { name: string } | null;
+  mainTrainer: { name: string } | null;
+  trainers: { name: string }[];
+}
+
+// Define interface for calendar events
+interface CalendarEvent {
+  id: string;
+  title: string;
+  start: string;
+  allDay: boolean;
+  mainTrainer: string;
+  coTrainers: string[];
+}
 
 export default async function CalendarPage() {
-  const courses = await prisma.course.findMany({
+  // Fetch courses and their related data
+  const courses = await db.course.findMany({
     where: { deletedAt: null },
     select: {
       id: true,
@@ -15,9 +35,15 @@ export default async function CalendarPage() {
     }
   });
 
-  const holidays = await prisma.holiday.findMany();
-  //Coures-Events 
-  const CourseEvents = courses.map(course => ({
+  // Fetch holidays
+  const holidays = await db.holiday.findMany();
+  
+  // Sanitize data to handle any Decimal values
+  const sanitizedCourses = sanitize<typeof courses, CourseWithRelations[]>(courses);
+  const sanitizedHolidays = sanitize<typeof holidays, Holiday[]>(holidays);
+
+  // Convert courses to calendar events
+  const courseEvents: CalendarEvent[] = sanitizedCourses.map(course => ({
     id: course.id,
     title: course.program?.name ?? 'Kurs',
     start: course.startDate.toISOString(),
@@ -25,15 +51,17 @@ export default async function CalendarPage() {
     mainTrainer: course.mainTrainer?.name ?? '',
     coTrainers: course.trainers?.map(t => t.name) ?? []
   }));
-  //Holiday-Events
-  const holidayEvents = holidays.map(holiday => ({
+
+  // Convert holidays to calendar events
+  const holidayEvents: CalendarEvent[] = sanitizedHolidays.map(holiday => ({
     id: `holiday-${holiday.id}`,
-    title: holiday.title + '(Feiertag)',
+    title: `${holiday.title} (Feiertag)`,
     start: holiday.date.toISOString(),
     allDay: true,
     mainTrainer: '',
-    coTrainers:[]
+    coTrainers: []
   }));
 
-  return <Calendar events={[...CourseEvents, ...holidayEvents]} />;
+  // Combine all events and render the calendar
+  return <Calendar events={[...courseEvents, ...holidayEvents]} />;
 }

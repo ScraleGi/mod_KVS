@@ -1,8 +1,8 @@
-import { PrismaClient } from '../../../../../generated/prisma';
-import { redirect } from 'next/navigation';
+import { redirect, notFound } from 'next/navigation';
 import Link from 'next/link';
-
-const prisma = new PrismaClient();
+import { db } from '@/lib/db';
+import { Area } from '@/types/models';
+import { sanitize } from '@/lib/sanitize';
 
 interface EditAreaPageProps {
   params: {
@@ -19,7 +19,7 @@ export default async function EditAreaPage({ params }: EditAreaPageProps) {
     const name = formData.get('name') as string;
     const description = formData.get('description') as string | null;
 
-    await prisma.area.update({
+    await db.area.update({
       where: { id },
       data: { code, name, description: description || null },
     });
@@ -32,12 +32,12 @@ export default async function EditAreaPage({ params }: EditAreaPageProps) {
     const id = formData.get('id') as string
     const now = new Date()
   
-    await prisma.program.updateMany({
+    await db.program.updateMany({
       where: { areaId: id },
       data: { deletedAt: now }
     })
   
-    await prisma.area.update({
+    await db.area.update({
       where: { id },
       data: { deletedAt: now }
     })
@@ -46,9 +46,14 @@ export default async function EditAreaPage({ params }: EditAreaPageProps) {
   }
 
   const { id } = await params;
-  const area = await prisma.area.findUnique({
+  const area = await db.area.findUnique({
     where: { id },
   });
+
+  if (!area) return notFound();
+
+  // Sanitize area data to handle any Decimal types
+  const sanitizedArea = sanitize<typeof area, Area>(area);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-10 px-4">
@@ -68,7 +73,7 @@ export default async function EditAreaPage({ params }: EditAreaPageProps) {
                   id="code"
                   name="code"
                   type="text"
-                  defaultValue={area?.code || ''}
+                  defaultValue={sanitizedArea?.code || ''}
                   className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                   placeholder="Enter unique area code"
                   required
@@ -82,7 +87,7 @@ export default async function EditAreaPage({ params }: EditAreaPageProps) {
                   id="name"
                   name="name"
                   type="text"
-                  defaultValue={area?.name || ''}
+                  defaultValue={sanitizedArea?.name || ''}
                   className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                   placeholder="Enter area name"
                   required
@@ -95,7 +100,7 @@ export default async function EditAreaPage({ params }: EditAreaPageProps) {
                 <textarea
                   id="description"
                   name="description"
-                  defaultValue={area?.description || ''}
+                  defaultValue={sanitizedArea?.description || ''}
                   className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                   placeholder="Enter area description"
                   rows={2}

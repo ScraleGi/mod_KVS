@@ -1,26 +1,48 @@
-import { PrismaClient } from '../../../../generated/prisma/client'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { db } from '@/lib/db'
+import { sanitize } from '@/lib/sanitize'
+import { Area } from '@/types/models'
 
-const prisma = new PrismaClient()
+interface DeletedAreaWithPrograms extends Omit<Area, 'programs'> {
+  programs: {
+    id: string;
+    name: string;
+  }[];
+}
 
 // Server action to restore an area and its courses
 async function restoreArea(formData: FormData) {
   'use server'
-  const id = formData.get('id') as string
-  await prisma.area.update({
-    where: { id },
-    data: { deletedAt: null }
-  })
-  await prisma.program.updateMany({
-    where: { areaId: id },
-    data: { deletedAt: null }
-  })
+  try {
+    const id = formData.get('id') as string
+    
+    if (!id) {
+      throw new Error('Area ID is required')
+    }
+    
+    // Restore the area by setting deletedAt to null
+    await db.area.update({
+      where: { id },
+      data: { deletedAt: null }
+    })
+    
+    // Restore all programs associated with this area
+    await db.program.updateMany({
+      where: { areaId: id },
+      data: { deletedAt: null }
+    })
+  } catch (error) {
+    console.error('Failed to restore area:', error)
+    throw error
+  }
+  
   redirect('/area/deleted')
 }
 
 export default async function DeletedAreasPage() {
-  const deletedAreas = await prisma.area.findMany({
+  // Fetch all soft-deleted areas with their associated programs
+  const deletedAreas = await db.area.findMany({
     where: { deletedAt: { not: null } },
     orderBy: { deletedAt: 'desc' },
     include: {
@@ -31,16 +53,19 @@ export default async function DeletedAreasPage() {
     }
   })
 
+  // Sanitize data to handle any Decimal values
+  const sanitizedAreas = sanitize<typeof deletedAreas, DeletedAreaWithPrograms[]>(deletedAreas)
+
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4 flex items-center justify-center">
       <div className="w-full max-w-2xl">
         <div className="bg-white rounded-xl shadow border border-gray-100 px-8 py-10">
           <h1 className="text-2xl font-bold text-gray-900 mb-8 tracking-tight">Deleted Areas</h1>
-          {deletedAreas.length === 0 ? (
+          {sanitizedAreas.length === 0 ? (
             <p className="text-gray-500 text-sm">No deleted areas found.</p>
           ) : (
             <ul className="space-y-4">
-              {deletedAreas.map(area => (
+              {sanitizedAreas.map(area => (
                 <li
                   key={area.id}
                   className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 bg-gray-50 rounded-lg border border-gray-100"
