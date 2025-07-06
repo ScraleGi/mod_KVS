@@ -1,77 +1,165 @@
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Invoice <%= invoice.invoiceNumber%></title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rechnung <%= invoice.invoiceNumber %></title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 50px;
+      line-height: 1.6;
+      color: #000;
+      background-color: #fff;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 30px;
+    }
+
+    .recipient-info ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      font-size: 14px;
+    }
+
+    .recipient-info ul li {
+      margin-bottom: 5px;
+    }
+
+    .date {
+      text-align: right;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    h1 {
+      font-size: 20px;
+      margin: 30px 0 15px;
+      text-transform: uppercase;
+      border-bottom: 1px solid #000;
+      padding-bottom: 5px;
+    }
+
+    ul.details {
+      list-style: none;
+      padding: 0;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+
+    ul.details li {
+      margin-bottom: 8px;
+    }
+
+    ul.details li span.label {
+      display: inline-block;
+      width: 140px;
+      font-weight: bold;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      font-size: 14px;
+    }
+
+    table, th, td {
+      border: 1px solid #000;
+    }
+
+    th, td {
+      padding: 8px;
+      text-align: left;
+    }
+
+    .text-right {
+      text-align: right;
+    }
+
+    .total-row td {
+      font-weight: bold;
+    }
+
+    .footer {
+      margin-top: 30px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+  </style>
 </head>
 <body>
-  <p><strong>Email:</strong> <%= recipient.recipientEmail %></p>
 
-  <!-- anrede teil -->
-  <ul class="recipient">
-    <% if (recipient.type === 'COMPANY') { %>
-      <li><strong>Company:</strong> <%= recipient.companyName %></li>
-    <% } else { %>
-      <li><%= participant?.salutation %></li>
+<% const formattedDate = new Date(invoice.createdAt || Date.now()).toLocaleDateString('de-DE'); %>
+
+<header>
+  <div class="recipient-info">
+    <ul>
+      <% if (participant?.salutation) { %>
+        <li><%= participant.salutation %></li>
+      <% } %>
       <li><%= participant?.name %> <%= participant?.surname %></li>
-    <% } %>
-    <li><%= recipient.recipientStreet %></li>
-    <li><%= recipient.postalCode %> <%= recipient.recipientCity %> <%= recipient.recipientCountry %></li>
-  </ul>
-
-  <h1>RECHNUNG</h1>
-  <p>Date: <%= new Date(invoice.createdAt || Date.now()).toLocaleDateString('de-DE') %></p>
-  <p><strong>Rechnungsnummer:</strong> <%= invoice.invoiceNumber %></p> 
-
- <table>
-    <thead>
-      <tr>
-        <th>Bezeichnung</th>
-        <th>Menge</th>
-        <th>Einzelpreis (€)</th>
-        <th>Mwst (%)</th>
-        <th>Gesamt (€)</th>
-      </tr>
-    </thead>
-    <tbody>
-        <% const Menge = 1; %>
-        <% const Gesamt = Menge * invoice.amount; %>
-        <% const discountTotal = Menge * invoice.courseRegistration?.discountAmount %>
-        <tr>
-          <td><%= course?.program?.name %></td>
-          <td class="text-right"><%= Menge %></td> 
-          <td class="text-right"><%= invoice.amount.toFixed(2) %></td>
-          <td class="text-right">0%</td>
-          <td class="text-right"><%= Gesamt.toFixed(2) %></td>
-        </tr>
-
-        <tr>
-          <td><%= invoice.courseRegistration?.discountRemark %></td>
-          <td class="text-right"><%= Menge %></td> 
-          <td class="text-right"><%= invoice.courseRegistration?.discountAmount %></td>
-          <td class="text-right">0%</td>
-          <td class="text-right"><%=discountTotal.toFixed(2) %></td>
-        </tr>
-
-    </tbody>
-    <tfoot>
-      <tr class="total-row">
-        <td colspan="4" class="text-right">Gesamt</td>
-        <td class="text-right"><%= Gesamt.toFixed(2) %> €</td>
-      </tr>
-    </tfoot>
-  </table>
-
-
-  <div style="margin-top: 30px;">
-    <strong>Due Date:</strong> <%= new Date(invoice.dueDate).toLocaleDateString('de-DE') %>
+      <li><%= recipient.recipientStreet %></li>
+      <li><%= recipient.postalCode %> <%= recipient.recipientCity %>, <%= recipient.recipientCountry %></li>
+      <li>Email: <%= recipient.recipientEmail %></li>
+    </ul>
   </div>
+  <div>
+    <p class="date">Datum: <%= formattedDate %></p>
+  </div>
+</header>
 
-  <%= include('_footer') %>
+<h1>Rechnung</h1>
+
+<ul class="details">
+  <li><span class="label">Rechnungsnummer:</span> <%= invoice.invoiceNumber %></li>
+  <li><span class="label">Kurs:</span> <%= course?.program?.name %></li>
+  <li><span class="label">Kusteilnehmer:</span> <%= participant?.name %> <%= participant?.surname %></li>
+</ul>
+
+<table>
+  <thead>
+    <tr>
+      <th>Bezeichnung</th>
+      <th>Menge</th>
+      <th>Einzelpreis (€)</th>
+      <th>Mwst (%)</th>
+      <th>Gesamt (€)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% const menge = 1; %>
+    <% const gesamt = menge * invoice.amount; %>
+    <tr>
+      <td><%= course?.program?.name %></td>
+      <td class="text-right"><%= menge %></td>
+      <td class="text-right"><%= invoice.amount.toFixed(2) %></td>
+      <td class="text-right">0%</td>
+      <td class="text-right"><%= gesamt.toFixed(2) %></td>
+    </tr>
+  </tbody>
+  <tfoot>
+    <tr class="total-row">
+      <td colspan="4" class="text-right">Gesamt</td>
+      <td class="text-right"><%= gesamt.toFixed(2) %> €</td>
+    </tr>
+  </tfoot>
+</table>
+
+<div class="details" style="margin-top: 20px;">
+  <p><strong>Fälligkeitsdatum:</strong> <%= new Date(invoice.dueDate).toLocaleDateString('de-DE') %></p>
+  <p>Zahlung ohne Abzug, spätestens 10 Tage nach Erhalt der Rechnung.</p>
+</div>
+
+<%- include("_footer") %>
+
 </body>
 </html>
-
 
 
 <!DOCTYPE html>
