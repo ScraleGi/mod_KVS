@@ -71,3 +71,124 @@
   <%= include('_footer') %>
 </body>
 </html>
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Invoice <%= invoice.invoiceNumber %></title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; }
+    h1 { color: #2d3748; }
+    .header, .footer { width: 100%; text-align: center; }
+    .info-table, .items-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    .info-table td { padding: 4px 8px; }
+    .items-table th, .items-table td { border: 1px solid #ddd; padding: 8px; }
+    .items-table th { background: #f7fafc; }
+    .total { font-size: 1.2em; font-weight: bold; }
+    .recipient, .sender { margin-bottom: 20px; }
+  </style>
+</head>
+<body>
+
+ <!-- anrede teil -->
+  <ul class="recipient">
+    <% if (recipient.type === 'COMPANY') { %>
+      <li><strong>Company:</strong> <%= recipient.companyName %></li>
+    <% } else { %>
+      <li><%= participant?.salutation %></li>
+      <li><%= recipient.recipientName %> <%= recipient.recipientSurname %></li>
+    <% } %>
+    <li><%= recipient.recipientStreet %></li>
+    <li><%= recipient.postalCode %> <%= recipient.recipientCity %> <%= recipient.recipientCountry %></li>
+    <li><strong>Email:</strong> <%= recipient.recipientEmail %></li>
+  </ul>
+
+  <div class="header">
+
+    <p>Datum: <%= new Date(invoice.createdAt || Date.now()).toLocaleDateString('de-DE') %></p>
+    <p>Rechnungsnummer: <%= invoice.invoiceNumber %> </p>
+
+  </div>
+  <h1>RECHNUNG</h1>
+  <table class="items-table">
+  <thead>
+    <tr>
+      <th>Bezeichnung</th>
+      <th>Menge</th>
+      <th>Einzelpreis (€)</th>
+      <th>Mwst (%)</th>
+      <th>Gesamt (€)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% 
+      const menge = 1;
+      const baseAmount = invoice.amount;
+      const courseTitle = course?.program?.name || 'Kurs';
+      const discounts = invoice.courseRegistration?.discounts || [];
+      const discountTotal = discounts.reduce((sum, d) => sum + Number(d.amount || 0), 0);
+      const nettoGesamt = baseAmount - discountTotal;
+    %>
+
+    <!-- Hauptkurszeile -->
+    <tr>
+      <td><%= courseTitle %></td>
+      <td class="text-right"><%= menge %></td> 
+      <td class="text-right"><%= baseAmount.toFixed(2) %></td>
+      <td class="text-right">0%</td>
+      <td class="text-right"><%= (menge * baseAmount).toFixed(2) %></td>
+    </tr>
+
+    <!-- Rabattzeilen -->
+    <% if (discounts.length > 0) { %>
+        <tr>
+          <td><%= discount.remark || 'Rabatt' %></td>
+          <td class="text-right"><%= menge %></td>
+          <td class="text-right">-<%= Number(discount.amount).toFixed(2) %></td>
+          <td class="text-right">0%</td>
+          <td class="text-right">-<%= (menge * Number(discount.amount)).toFixed(2) %></td>
+        </tr>
+      <% } %>
+    <%  else if (invoice.courseRegistration?.discountAmount) { %>
+      <!-- Fallback: 1 Rabattfeld -->
+      <tr>
+        <td><%= invoice.courseRegistration.discountRemark || 'Rabatt' %></td>
+        <td class="text-right"><%= menge %></td>
+        <td class="text-right">-<%= Number(invoice.courseRegistration.discountAmount).toFixed(2) %></td>
+        <td class="text-right">0%</td>
+        <td class="text-right">-<%= (menge * Number(invoice.courseRegistration.discountAmount)).toFixed(2) %></td>
+      </tr>
+    <% } %>
+  </tbody>
+
+  <tfoot>
+    <tr class="total-row">
+      <td colspan="4" class="text-right">Gesamt</td>
+      <td class="text-right"><%= nettoGesamt.toFixed(2) %> €</td>
+    </tr>
+  </tfoot>
+</table>
+  
+  <div style="margin-top: 30px;">
+    <strong>Due Date:</strong> <%= new Date(invoice.dueDate).toLocaleDateString('de-DE') %>
+  </div>
+
+  <p>Kusteilnehmer: <%= participant?.name%> <%= participant?.surname %></p>
+
+
+<p>Zahlung ohne Abzug, spätestens 10 Tage nach Erhalt der Rechnung.</p>
+<p>Die Kursgebühren sind ausschließlich in Nettobeträgen angegeben und sind von der Umsatzsteuer befreit. Auslandsüberweisungsspesen dürfen nicht zu Lasten des Digital Campus Vorarlberg verrechnet werden.
+Bei Online-Überweisung bitte im Feld Zahlungsreferenz die Rechnungsnummer angeben.</p>
+
+<p><strong>Bankverbindung:</strong>
+Sparkasse Feldkirch, IBAN: AT23 2060 40310231 4238, BIC: SPFKAT2BXXX
+Es gelten unsere Allgemeinen Geschäftsbedingungen.</p>
+
+
+
+  <%- include("_footer") %>
+</body>
+</html>
