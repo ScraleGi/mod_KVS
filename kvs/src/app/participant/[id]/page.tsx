@@ -1,20 +1,34 @@
+//---------------------------------------------------
+// IMPORTS AND DEPENDENCIES
+//---------------------------------------------------
 import { PrismaClient, RecipientType } from '../../../../generated/prisma'
 import Link from 'next/link'
 import { redirect } from "next/navigation"
 import { revalidatePath } from 'next/cache'
 import ClientCourseModalWrapper from './ClientCourseModalWrapper'
+import { sanitize } from '@/lib/sanitize'
 
+// Initialize Prisma client
 const prisma = new PrismaClient()
 
+//---------------------------------------------------
+// TYPE DEFINITIONS
+//---------------------------------------------------
 interface ParticipantPageProps {
   params: { id: string }
   searchParams?: { showAdd?: string, showAddInvoice?: string }
 }
 
+//---------------------------------------------------
+// MAIN COMPONENT
+//---------------------------------------------------
 export default async function ParticipantPage({ params, searchParams }: ParticipantPageProps) {
   const { id } = await params
 
-  // Fetch participant and their registrations
+  //---------------------------------------------------
+  // DATA FETCHING
+  //---------------------------------------------------
+  // 1. Fetch participant and their registrations
   const participant = await prisma.participant.findUnique({
     where: { id },
     include: {
@@ -32,6 +46,7 @@ export default async function ParticipantPage({ params, searchParams }: Particip
     }
   })
 
+  // Early return if participant not found
   if (!participant) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-neutral-50">
@@ -45,7 +60,7 @@ export default async function ParticipantPage({ params, searchParams }: Particip
     )
   }
 
-  // Fetch courses where participant is NOT registered
+  // 2. Fetch courses where participant is NOT registered
   const registeredCourseIds = participant?.registrations.map(r => r.courseId) ?? []
   let availableCourses = await prisma.course.findMany({
     where: {
@@ -54,68 +69,8 @@ export default async function ParticipantPage({ params, searchParams }: Particip
     },
     include: { program: true }
   })
-
-  const labelMap: Record<string, string> = {
-    certificate: 'Zertifikat',
-    KursRegeln: 'Kursregeln',
-    Teilnahmebestaetigung: 'Teilnahmebestätigung',
-  }
-
-  // --- SANITIZE availableCourses ---
-  availableCourses = availableCourses.map(course => ({
-    ...course,
-    program: course.program
-      ? {
-          ...course.program,
-          price: course.program.price ? course.program.price.toString() : null,
-        }
-      : null,
-  })) as any
-
-  // --- SANITIZE registrations for client component ---
-  // Only convert subsidyAmount and discountAmount for the course registration list
-  const sanitizedRegistrations = participant.registrations.map(reg => ({
-    ...reg,
-    subsidyAmount: reg.subsidyAmount ? reg.subsidyAmount.toString() : null,
-    discountAmount: reg.discountAmount ? reg.discountAmount.toString() : null,
-    course: reg.course
-      ? {
-          ...reg.course,
-          program: reg.course.program
-            ? {
-                ...reg.course.program,
-                price: reg.course.program.price ? reg.course.program.price.toString() : null,
-              }
-            : null,
-        }
-      : null,
-    invoices: reg.invoices.map(inv => ({
-      ...inv,
-      amount: inv.amount != null ? inv.amount.toString() : null,
-      recipient: inv.recipient,
-    })),
-  }))
-
-  // Server action to soft delete a participant (like area)
-  async function deleteParticipant(formData: FormData) {
-    'use server'
-    const id = formData.get('id') as string
-    await prisma.participant.update({
-      where: { id },
-      data: { deletedAt: new Date() }
-    })
-    redirect('/participant')
-  }
-
-  // Flatten all invoices for listing (sanitize amount here)
-  const allInvoices = sanitizedRegistrations.flatMap(reg =>
-    reg.invoices.map(inv => ({
-      ...inv,
-      course: reg.course,
-    }))
-  )
-
-  // Fetch all documents for this participant (not soft-deleted)
+  
+  // 3. Fetch all documents for this participant (not soft-deleted)
   const registrationIds = participant?.registrations.map(r => r.id) ?? []
   const documents = registrationIds.length
     ? await prisma.document.findMany({
@@ -134,7 +89,52 @@ export default async function ParticipantPage({ params, searchParams }: Particip
       })
     : []
 
-  // Server action to register participant in a course
+  //---------------------------------------------------
+  // DATA PROCESSING
+  //---------------------------------------------------
+  // Translation mapping for document types
+  const labelMap: Record<string, string> = {
+    certificate: 'Zertifikat',
+    KursRegeln: 'Kursregeln',
+    Teilnahmebestaetigung: 'Teilnahmebestätigung',
+  }
+
+  // Sanitize and serialize data for client components
+  
+  // 1. Process available courses
+  availableCourses = sanitize(availableCourses)
+  // Complete serialization of Decimal objects to handle pricing data
+  availableCourses = JSON.parse(JSON.stringify(availableCourses))
+
+  // 2. Process participant data
+  const sanitizedParticipant = sanitize(participant)
+
+  // 3. Flatten all invoices for listing
+  const allInvoices = sanitizedParticipant.registrations.flatMap(reg =>
+    reg.invoices.map(inv => ({
+      ...inv,
+      course: reg.course, // Attach course info to each invoice for display
+    }))
+  )
+
+  // 4. Process documents
+  const sanitizedDocuments = sanitize(documents)
+
+  //---------------------------------------------------
+  // SERVER ACTIONS
+  //---------------------------------------------------
+  // 1. Soft delete a participant
+  async function deleteParticipant(formData: FormData) {
+    'use server'
+    const id = formData.get('id') as string
+    await prisma.participant.update({
+      where: { id },
+      data: { deletedAt: new Date() }
+    })
+    redirect('/participant')
+  }
+
+  // 2. Register participant in a course
   async function registerToCourse(formData: FormData) {
     'use server'
     const courseId = formData.get('courseId') as string
@@ -147,6 +147,7 @@ export default async function ParticipantPage({ params, searchParams }: Particip
     revalidatePath(`/participant/${id}`)
   }
 
+  // 3. Remove a course registration
   async function removeRegistration(formData: FormData) {
     "use server"
     const registrationId = formData.get("registrationId") as string
@@ -156,7 +157,7 @@ export default async function ParticipantPage({ params, searchParams }: Particip
     revalidatePath(`/participant/${id}`)
   }
 
-  // Server action to soft-delete a document
+  // 4. Soft-delete a document
   async function removeDocument(formData: FormData) {
     "use server"
     const documentId = formData.get("documentId") as string
@@ -167,49 +168,53 @@ export default async function ParticipantPage({ params, searchParams }: Particip
     revalidatePath(`/participant/${id}`)
   }
 
+  //---------------------------------------------------
+  // RENDER UI
+  //---------------------------------------------------
   return (
     <div className="min-h-screen bg-neutral-50 flex items-center justify-center px-2 py-8">
       <div className="w-full max-w-2xl bg-white rounded-2xl shadow-md border border-neutral-100 p-0 overflow-hidden">
         {/* Profile Card */}
         <section className="flex flex-col sm:flex-row items-center gap-6 px-8 py-8 border-b border-neutral-200 relative">
           <div className="flex-shrink-0 w-20 h-20 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center text-3xl font-bold text-blue-700 select-none">
-            {participant.name[0]}
+            {sanitizedParticipant.name[0]}
           </div>
           <div className="flex-1 flex flex-col gap-1">
             <h1 className="text-2xl font-semibold text-neutral-900">
-              {participant.salutation} {participant.title ? participant.title + ' ' : ''}
-              {participant.name} {participant.surname}
+              {sanitizedParticipant.salutation} {sanitizedParticipant.title ? sanitizedParticipant.title + ' ' : ''}
+              {sanitizedParticipant.name} {sanitizedParticipant.surname}
             </h1>
             <div className="flex flex-wrap gap-4 text-neutral-500 text-sm mt-1">
               <span>
-                <span className="font-medium text-neutral-700">Email:</span> {participant.email}
+                <span className="font-medium text-neutral-700">Email:</span> {sanitizedParticipant.email}
               </span>
               <span>
-                <span className="font-medium text-neutral-700">Phone:</span> {participant.phoneNumber}
+                <span className="font-medium text-neutral-700">Phone:</span> {sanitizedParticipant.phoneNumber}
               </span>
               <span>
-                <span className="font-medium text-neutral-700">Birthday:</span> {participant.birthday ? new Date(participant.birthday).toLocaleDateString('de-DE') : 'N/A'}
+                <span className="font-medium text-neutral-700">Birthday:</span> {sanitizedParticipant.birthday ? new Date(sanitizedParticipant.birthday).toLocaleDateString('de-DE') : 'N/A'}
               </span>
               <span>
-                <span className="font-medium text-neutral-700">Street:</span> {participant.street}
+                <span className="font-medium text-neutral-700">Street:</span> {sanitizedParticipant.street}
               </span>
               <span>
-                <span className="font-medium text-neutral-700">Postal Code:</span> {participant.postalCode}
+                <span className="font-medium text-neutral-700">Postal Code:</span> {sanitizedParticipant.postalCode}
               </span>
               <span>
-                <span className="font-medium text-neutral-700">City:</span> {participant.city}
+                <span className="font-medium text-neutral-700">City:</span> {sanitizedParticipant.city}
               </span>
               <span>
-                <span className="font-medium text-neutral-700">Country:</span> {participant.country}
+                <span className="font-medium text-neutral-700">Country:</span> {sanitizedParticipant.country}
               </span>
               <span>
-                <span className="font-medium text-neutral-700">Participant Code:</span> {participant.code}
+                <span className="font-medium text-neutral-700">Participant Code:</span> {sanitizedParticipant.code}
               </span>
             </div>
           </div>
-          {/* Edit icon button */}
+          
+          {/* Action buttons */}
           <Link
-            href={`/participant/${participant.id}/edit`}
+            href={`/participant/${sanitizedParticipant.id}/edit`}
             className="absolute top-6 right-16 text-neutral-400 hover:text-blue-600 transition"
             title="Edit participant"
           >
@@ -228,104 +233,105 @@ export default async function ParticipantPage({ params, searchParams }: Particip
               />
             </svg>
           </Link>
-          {/* Delete icon button */}
-<form action={deleteParticipant} className="absolute top-6 right-8">
-  <input type="hidden" name="id" value={participant.id} />
-  <button
-    type="submit"
-    className="cursor-pointer text-neutral-400 hover:text-amber-500 transition-all duration-200 hover:scale-110"
-    title="Archive participant"
-    aria-label="Archive participant"
-  >
-    {/* Modern archive/box icon */}
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      className="w-6 h-6"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      strokeWidth={2}
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M20 7H4a1 1 0 00-1 1v11a2 2 0 002 2h14a2 2 0 002-2V8a1 1 0 00-1-1zM10 12h4M3 7l1-4h16l1 4"
-      />
-    </svg>
-  </button>
-</form>
-        </section>
-        
-{/* Courses Registered */}
-<section className="px-8 py-6 border-b border-neutral-200">
-  <div className="flex flex-col gap-2">
-    <div className="grid grid-cols-6 border-b border-neutral-200 py-1 bg-neutral-50 rounded-t">
-      <div className="col-span-2 text-xs font-semibold text-neutral-500 flex items-center px-1">Course</div>
-      <div className="col-span-1 text-xs font-semibold text-neutral-500 flex items-center justify-center">Code</div>
-      {/* Spacer column for more space between Code and Start */}
-      <div className="col-span-1"></div>
-      <div className="col-span-1 text-xs font-semibold text-neutral-500 flex items-center justify-center">Start</div>
-      <div className="col-span-1 text-xs font-semibold text-neutral-500 flex items-center justify-end">
-        <ClientCourseModalWrapper
-          registerToCourse={registerToCourse}
-          availableCourses={availableCourses}
-        />
-      </div>
-    </div>
-    {participant.registrations.length === 0 && (
-      <div className="flex items-center px-2 py-2 text-neutral-400 italic text-sm bg-white rounded">
-        No courses registered
-      </div>
-    )}
-    {participant.registrations.map((reg, idx) => (
-      <div
-        key={idx}
-        className="grid grid-cols-6 items-center bg-white hover:bg-sky-50 transition rounded border-b border-neutral-100 group"
-      >
-        <div className="col-span-2 flex items-center px-1 py-2">
-          <Link
-            href={`/course/${reg.course?.id}`}
-            className="text-blue-700 hover:text-blue-900 font-medium text-sm"
-          >
-            {reg.course?.program?.name ?? 'Unknown Course'}
-          </Link>
-        </div>
-        <div className="col-span-1 flex items-center justify-center text-xs text-neutral-600">
-          {reg.course?.code ? (
-            <span title={reg.course.code}>{reg.course.code}</span>
-          ) : (
-            <span className="text-neutral-300">—</span>
-          )}
-        </div>
-        {/* Spacer column */}
-        <div className="col-span-1"></div>
-        <div className="col-span-1 flex items-center justify-center text-xs text-neutral-600">
-          {reg.course?.startDate ? (
-            <span>{new Date(reg.course.startDate).toLocaleDateString('de-DE')}</span>
-          ) : (
-            <span className="text-neutral-300">—</span>
-          )}
-        </div>
-        <div className="col-span-1 flex items-center justify-end h-full">
-          <form action={removeRegistration} className="h-full flex items-center">
-            <input type="hidden" name="registrationId" value={reg.id} />
+          
+          <form action={deleteParticipant} className="absolute top-6 right-8">
+            <input type="hidden" name="id" value={sanitizedParticipant.id} />
             <button
               type="submit"
-              className="cursor-pointer flex items-center justify-center w-7 h-7 rounded-full bg-neutral-100 text-neutral-400 hover:text-red-500 hover:bg-red-50 border border-transparent hover:border-red-200 transition"
-              title="Remove registration"
+              className="cursor-pointer text-neutral-400 hover:text-amber-500 transition-all duration-200 hover:scale-110"
+              title="Archive participant"
+              aria-label="Archive participant"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 12h12" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-6 h-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M20 7H4a1 1 0 00-1 1v11a2 2 0 002 2h14a2 2 0 002-2V8a1 1 0 00-1-1zM10 12h4M3 7l1-4h16l1 4"
+                />
               </svg>
             </button>
           </form>
-        </div>
-      </div>
-    ))}
-  </div>
-</section>
+        </section>
+        
+        {/* Courses Registered Section */}
+        <section className="px-8 py-6 border-b border-neutral-200">
+          <div className="flex flex-col gap-2">
+            <div className="grid grid-cols-6 border-b border-neutral-200 py-1 bg-neutral-50 rounded-t">
+              <div className="col-span-2 text-xs font-semibold text-neutral-500 flex items-center px-1">Course</div>
+              <div className="col-span-1 text-xs font-semibold text-neutral-500 flex items-center justify-center">Code</div>
+              <div className="col-span-1"></div> {/* Spacer column */}
+              <div className="col-span-1 text-xs font-semibold text-neutral-500 flex items-center justify-center">Start</div>
+              <div className="col-span-1 text-xs font-semibold text-neutral-500 flex items-center justify-end">
+                <ClientCourseModalWrapper
+                  registerToCourse={registerToCourse}
+                  availableCourses={availableCourses}
+                />
+              </div>
+            </div>
+            
+            {/* Course list or empty state */}
+            {sanitizedParticipant.registrations.length === 0 && (
+              <div className="flex items-center px-2 py-2 text-neutral-400 italic text-sm bg-white rounded">
+                No courses registered
+              </div>
+            )}
+            
+            {/* Registered courses */}
+            {sanitizedParticipant.registrations.map((reg, idx) => (
+              <div
+                key={idx}
+                className="grid grid-cols-6 items-center bg-white hover:bg-sky-50 transition rounded border-b border-neutral-100 group"
+              >
+                <div className="col-span-2 flex items-center px-1 py-2">
+                  <Link
+                    href={`/course/${reg.course?.id}`}
+                    className="text-blue-700 hover:text-blue-900 font-medium text-sm"
+                  >
+                    {reg.course?.program?.name ?? 'Unknown Course'}
+                  </Link>
+                </div>
+                <div className="col-span-1 flex items-center justify-center text-xs text-neutral-600">
+                  {reg.course?.code ? (
+                    <span title={reg.course.code}>{reg.course.code}</span>
+                  ) : (
+                    <span className="text-neutral-300">—</span>
+                  )}
+                </div>
+                <div className="col-span-1"></div> {/* Spacer column */}
+                <div className="col-span-1 flex items-center justify-center text-xs text-neutral-600">
+                  {reg.course?.startDate ? (
+                    <span>{new Date(reg.course.startDate).toLocaleDateString('de-DE')}</span>
+                  ) : (
+                    <span className="text-neutral-300">—</span>
+                  )}
+                </div>
+                <div className="col-span-1 flex items-center justify-end h-full">
+                  <form action={removeRegistration} className="h-full flex items-center">
+                    <input type="hidden" name="registrationId" value={reg.id} />
+                    <button
+                      type="submit"
+                      className="cursor-pointer flex items-center justify-center w-7 h-7 rounded-full bg-neutral-100 text-neutral-400 hover:text-red-500 hover:bg-red-50 border border-transparent hover:border-red-200 transition"
+                      title="Remove registration"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 12h12" />
+                      </svg>
+                    </button>
+                  </form>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
 
-       {/* Invoices Section */}
+        {/* Invoices Section */}
         <section className="px-8 py-6 border-b border-neutral-200">
           <div>
             <div className="grid grid-cols-4 font-semibold text-neutral-700 text-xs uppercase border-b border-neutral-200 pb-2 mb-2">
@@ -334,12 +340,16 @@ export default async function ParticipantPage({ params, searchParams }: Particip
               <div className="col-span-1 text-center">Recipient</div>
               <div className="col-span-1 text-center">Status</div>
             </div>
+            
+            {/* Invoice list or empty state */}
             <div>
               {allInvoices.length === 0 && (
                 <div className="flex items-center px-2 py-2 text-neutral-400 italic text-xs bg-white rounded">
                   No invoices found
                 </div>
               )}
+              
+              {/* Invoice items */}
               {allInvoices.map((inv) => (
                 <div
                   key={inv.id}
@@ -390,13 +400,15 @@ export default async function ParticipantPage({ params, searchParams }: Particip
               <div className="col-span-1 text-center">Type</div>
               <div className="col-span-1"></div>
             </div>
+            
+            {/* Document list or empty state */}
             <div className="text-black">
-              {documents.length === 0 ? (
+              {sanitizedDocuments.length === 0 ? (
                 <div className="flex items-center px-2 py-2 text-neutral-400 italic text-xs bg-white rounded">
                   No documents found
                 </div>
               ) : (
-                documents.map((doc) => (
+                sanitizedDocuments.map((doc) => (
                   <div
                     key={doc.id}
                     className="grid grid-cols-4 items-center py-2 border-b border-neutral-100 last:border-b-0 bg-white transition-colors hover:bg-blue-50"
@@ -443,7 +455,7 @@ export default async function ParticipantPage({ params, searchParams }: Particip
           </div>
         </section>
 
-        {/* Navigation */}
+        {/* Navigation Footer */}
         <nav className="flex gap-4 justify-end px-8 py-6">
           <Link href="/participant" className="text-neutral-400 hover:text-blue-600 text-sm transition">
             &larr; Participants

@@ -24,6 +24,7 @@ export default async function EditProgramPage({ params }: EditProgramPageProps) 
   const changeProgram = async (formData: FormData) => {
     'use server'
     const id = formData.get('id') as string
+    const code = formData.get('code') as string
     const name = formData.get('name') as string
     const description = formData.get('description') as string
     const teachingUnits = formData.get('teachingUnits')
@@ -33,10 +34,11 @@ export default async function EditProgramPage({ params }: EditProgramPageProps) 
     await prisma.program.update({
       where: { id },
       data: {
+        code,
         name,
         description: description || null,
         teachingUnits: teachingUnits ? Number(teachingUnits) : null,
-        price: price ? Number(price) : null,
+        price: price ? price.toString() : null, // Pass as string for Decimal
         areaId,
       },
     })
@@ -72,6 +74,20 @@ export default async function EditProgramPage({ params }: EditProgramPageProps) 
             </h1>
             <form action={changeProgram} className="space-y-6">
               <input type="hidden" name="id" value={id} />
+              <div className="space-y-1">
+                <label htmlFor="code" className="block text-xs font-medium text-gray-600">
+                  Code
+                </label>
+                <input
+                  id="code"
+                  name="code"
+                  type="text"
+                  defaultValue={program.code}
+                  required
+                  className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                  placeholder="Enter unique program code"
+                />
+              </div>
               <div className="space-y-1">
                 <label htmlFor="name" className="block text-xs font-medium text-gray-600">
                   Name
@@ -139,7 +155,7 @@ export default async function EditProgramPage({ params }: EditProgramPageProps) 
                 <input
                   id="price"
                   name="price"
-                  type="decimal"
+                  type="number"
                   min={0}
                   step="0.01"
                   defaultValue={program.price ? program.price.toString() : ''}
@@ -162,6 +178,15 @@ export default async function EditProgramPage({ params }: EditProgramPageProps) 
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                   </svg>
                   Back to Details
+                </Link>
+                <Link
+                  href={`/program/`}
+                  className="text-xs font-medium text-gray-500 hover:text-gray-700 transition-colors flex items-center"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                  </svg>
+                  Back to Programs
                 </Link>
               </div>
             </form>

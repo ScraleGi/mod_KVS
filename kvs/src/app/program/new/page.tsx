@@ -7,25 +7,27 @@ const prisma = new PrismaClient()
 // Server action to create a new program
 async function createProgram(formData: FormData) {
   'use server'
+  const code = formData.get('code') as string
   const name = formData.get('name') as string
   const description = formData.get('description') as string
   const teachingUnits = formData.get('teachingUnits')
   const price = formData.get('price')
   const areaId = formData.get('areaId') as string
 
-  if (!name || !areaId) {
-    throw new Error('Name and Area are required')
+  if (!code || !name || !areaId) {
+    throw new Error('Code, Name, and Area are required')
   }
 
-  await prisma.program.create({
-    data: {
-      name,
-      description: description || null,
-      teachingUnits: teachingUnits ? Number(teachingUnits) : null,
-      price: price ? Number(price) : null,
-      areaId,
-    },
-  })
+await prisma.program.create({
+  data: {
+    code,
+    name,
+    description: description || null,
+    teachingUnits: teachingUnits ? Number(teachingUnits) : null,
+    price: price ? price.toString() : null, // <-- Pass as string for Decimal
+    areaId,
+  },
+})
   redirect('/program')
 }
 
@@ -42,6 +44,19 @@ export default async function NewProgramPage() {
               Add New Program
             </h1>
             <form action={createProgram} className="space-y-6">
+              <div className="space-y-1">
+                <label htmlFor="code" className="block text-xs font-medium text-gray-600">
+                  Code
+                </label>
+                <input
+                  id="code"
+                  name="code"
+                  type="text"
+                  required
+                  className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                  placeholder="Enter unique program code"
+                />
+              </div>
               <div className="space-y-1">
                 <label htmlFor="name" className="block text-xs font-medium text-gray-600">
                   Name
@@ -108,7 +123,7 @@ export default async function NewProgramPage() {
                 <input
                   id="price"
                   name="price"
-                  type="decimal"
+                  type="number"
                   min={0}
                   step="0.01"
                   className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"

@@ -1,5 +1,6 @@
 "use client"
 import { useState } from "react"
+import Link from "next/link"
 
 export default function EditCourseForm({ 
   id, 
@@ -14,12 +15,35 @@ export default function EditCourseForm({
 }) {
   const [mainTrainerId, setMainTrainerId] = useState(course?.mainTrainer?.id || "")
 
+  // Helper to get YYYY-MM-DD from string or Date
+  const getDateValue = (val: any) => {
+    if (!val) return ""
+    if (typeof val === "string") return val.slice(0, 10)
+    if (val instanceof Date) return val.toISOString().slice(0, 10)
+    return ""
+  }
+
   return (
-    <form action={onSubmit} className="space-y-8" id="edit-course-form">
+    <form action={onSubmit} className="space-y-6" id="edit-course-form">
       <input type="hidden" name="id" value={id} />
+      {/* Course Code */}
+      <div className="space-y-1">
+        <label htmlFor="code" className="block text-xs font-medium text-gray-600">
+          Course Code
+        </label>
+        <input
+          id="code"
+          name="code"
+          type="text"
+          required
+          defaultValue={course?.code || ""}
+          placeholder="Enter course code"
+          className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+        />
+      </div>
       {/* Program (readonly) */}
-      <div className="space-y-2">
-        <label htmlFor="program" className="block text-sm font-medium text-gray-600">
+      <div className="space-y-1">
+        <label htmlFor="program" className="block text-xs font-medium text-gray-600">
           Program
         </label>
         <input
@@ -28,40 +52,40 @@ export default function EditCourseForm({
           type="text"
           value={course?.program?.name || ''}
           disabled
-          className="w-full px-5 py-3 bg-gray-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition-all duration-200"
+          className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
         />
       </div>
       {/* Start Date */}
-      <div className="space-y-2">
-        <label htmlFor="startDate" className="block text-sm font-medium text-gray-600">
+      <div className="space-y-1">
+        <label htmlFor="startDate" className="block text-xs font-medium text-gray-600">
           Start Date
         </label>
         <input
           id="startDate"
           name="startDate"
           type="date"
-          defaultValue={course?.startDate?.toISOString().slice(0, 10)}
-          className="w-full px-5 py-3 bg-gray-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition-all duration-200"
+          defaultValue={getDateValue(course?.startDate)}
+          className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
           required
         />
       </div>
       {/* End Date */}
-      <div className="space-y-2">
-        <label htmlFor="endDate" className="block text-sm font-medium text-gray-600">
+      <div className="space-y-1">
+        <label htmlFor="endDate" className="block text-xs font-medium text-gray-600">
           End Date
         </label>
         <input
           id="endDate"
           name="endDate"
           type="date"
-          defaultValue={course?.endDate ? course.endDate.toISOString().slice(0, 10) : ''}
-          className="w-full px-5 py-3 bg-gray-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition-all duration-200"
+          defaultValue={getDateValue(course?.endDate)}
+          className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
           required
         />
       </div>
       {/* Main Trainer */}
-      <div className="space-y-2">
-        <label htmlFor="mainTrainerId" className="block text-sm font-medium text-gray-600">
+      <div className="space-y-1">
+        <label htmlFor="mainTrainerId" className="block text-xs font-medium text-gray-600">
           Main Trainer
         </label>
         <select
@@ -69,20 +93,20 @@ export default function EditCourseForm({
           name="mainTrainerId"
           value={mainTrainerId}
           onChange={e => setMainTrainerId(e.target.value)}
-          className="w-full px-5 py-3 bg-gray-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition-all duration-200"
           required
+          className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
         >
           <option value="" disabled>Select main trainer</option>
           {trainers.map(trainer => (
             <option key={trainer.id} value={trainer.id}>
-              {trainer.name}
+              {trainer.name} {trainer.surname}
             </option>
           ))}
         </select>
       </div>
       {/* Additional Trainers */}
-      <div className="space-y-2">
-        <label className="block text-sm font-medium text-gray-600">
+      <div className="space-y-1">
+        <label className="block text-xs font-medium text-gray-600">
           Additional Trainers
         </label>
         <div className="flex flex-wrap gap-2" id="trainer-checkboxes">
@@ -94,10 +118,10 @@ export default function EditCourseForm({
                   type="checkbox"
                   name="trainerIds"
                   value={trainer.id}
-                  defaultChecked={course?.trainers.some((t: any) => t.id === trainer.id)}
+                  defaultChecked={course?.trainers?.some((t: any) => t.id === trainer.id)}
                   className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 trainer-checkbox"
                 />
-                <span className="text-sm">{trainer.name}</span>
+                <span className="text-xs">{trainer.name} {trainer.surname}</span>
               </label>
             ))}
         </div>
@@ -106,10 +130,19 @@ export default function EditCourseForm({
       <div className="pt-2 flex items-center justify-between">
         <button
           type="submit"
-          className="cursor-pointer inline-flex items-center px-6 py-3 border border-transparent text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-md hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          className="inline-flex items-center px-5 py-2 border border-transparent text-xs font-semibold rounded text-white bg-blue-600 hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
         >
           Save Changes
         </button>
+        <Link
+          href="/course"
+          className="text-xs font-medium text-gray-500 hover:text-gray-700 transition-colors flex items-center"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          Back to Courses
+        </Link>
       </div>
     </form>
   )

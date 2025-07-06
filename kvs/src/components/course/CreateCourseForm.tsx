@@ -20,6 +20,22 @@ export default function CreateCourseForm({
 
   return (
     <form action={onSubmit} className="space-y-6">
+      {/* Course Code */}
+      <div className="space-y-1">
+        <label htmlFor="code" className="block text-xs font-medium text-gray-600">
+          Course Code
+        </label>
+        <input
+          id="code"
+          name="code"
+          type="text"
+          required
+          defaultValue={course?.code || ""}
+          placeholder="Enter course code"
+          className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+        />
+      </div>
+      {/* Program */}
       <div className="space-y-1">
         <label htmlFor="programId" className="block text-xs font-medium text-gray-600">
           Program
@@ -46,7 +62,7 @@ export default function CreateCourseForm({
           id="startDate"
           name="startDate"
           type="date"
-          defaultValue={course?.startDate?.toISOString().slice(0, 10)}
+          defaultValue={course?.startDate?.toISOString?.slice(0, 10)}
           className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
           required
         />
@@ -59,7 +75,7 @@ export default function CreateCourseForm({
           id="endDate"
           name="endDate"
           type="date"
-          defaultValue={course?.endDate ? course.endDate.toISOString().slice(0, 10) : ''}
+          defaultValue={course?.endDate ? course.endDate.toISOString?.slice(0, 10) : ''}
           className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
           required
         />
@@ -79,7 +95,7 @@ export default function CreateCourseForm({
           <option value="" disabled>Select main trainer</option>
           {trainers.map(trainer => (
             <option key={trainer.id} value={trainer.id}>
-              {trainer.name}
+              {trainer.name} {trainer.surname}
             </option>
           ))}
         </select>
@@ -100,7 +116,7 @@ export default function CreateCourseForm({
                   defaultChecked={course?.trainers?.some((t: any) => t.id === trainer.id)}
                   className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 trainer-checkbox"
                 />
-                <span className="text-xs">{trainer.name}</span>
+                <span className="text-xs">{trainer.name} {trainer.surname}</span>
               </label>
             ))}
         </div>
