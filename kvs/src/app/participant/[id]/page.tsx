@@ -19,7 +19,7 @@ interface ParticipantPageProps {
 //---------------------------------------------------
 // MAIN COMPONENT
 //---------------------------------------------------
-export default async function ParticipantPage({ params, searchParams }: ParticipantPageProps) {
+export default async function ParticipantPage({ params }: ParticipantPageProps) {
   try {
     const { id } = await params
 

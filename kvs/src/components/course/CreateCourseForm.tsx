@@ -1,6 +1,8 @@
 "use client"
 import { useState } from "react"
 import Link from "next/link"
+import { CreateCourseFormProps } from "@/types/query-models"
+import { formatDateISO } from "@/lib/utils" 
 
 export default function CreateCourseForm({
   id,
@@ -8,15 +10,13 @@ export default function CreateCourseForm({
   trainers,
   programs,
   onSubmit,
-}: {
-  id?: string,
-  course: any,
-  trainers: any[],
-  programs: any[],
-  onSubmit: (formData: FormData) => void
-}) {
+}: CreateCourseFormProps) {
   const [mainTrainerId, setMainTrainerId] = useState(course?.mainTrainer?.id || "")
   const [programId, setProgramId] = useState(course?.program?.id || "")
+
+  // Determine if this is a new course or an edit
+  const isEditing = Boolean(id);
+  const buttonText = isEditing ? "Update Course" : "Create Course";
 
   return (
     <form action={onSubmit} className="space-y-6">
@@ -49,8 +49,8 @@ export default function CreateCourseForm({
           className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
         >
           <option value="" disabled>Programm wählen</option>
-          {programs.map((p: any) => (
-            <option key={p.id} value={p.id}>{p.name}</option>
+          {programs.map((program) => (
+            <option key={program.id} value={program.id}>{program.name}</option>
           ))}
         </select>
       </div>
@@ -62,7 +62,7 @@ export default function CreateCourseForm({
           id="startDate"
           name="startDate"
           type="date"
-          defaultValue={course?.startDate?.toISOString?.slice(0, 10)}
+          defaultValue={formatDateISO(course?.startDate)}
           className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
           required
         />
@@ -75,7 +75,7 @@ export default function CreateCourseForm({
           id="endDate"
           name="endDate"
           type="date"
-          defaultValue={course?.endDate ? course.endDate.toISOString?.slice(0, 10) : ''}
+          defaultValue={formatDateISO(course?.endDate)}
           className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
           required
         />
@@ -93,7 +93,7 @@ export default function CreateCourseForm({
           className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
         >
           <option value="" disabled>Select main trainer</option>
-          {trainers.map(trainer => (
+          {trainers.map((trainer) => (
             <option key={trainer.id} value={trainer.id}>
               {trainer.name} {trainer.surname}
             </option>
@@ -113,7 +113,7 @@ export default function CreateCourseForm({
                   type="checkbox"
                   name="trainerIds"
                   value={trainer.id}
-                  defaultChecked={course?.trainers?.some((t: any) => t.id === trainer.id)}
+                  defaultChecked={course?.trainers?.some((t) => t.id === trainer.id)}
                   className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 trainer-checkbox"
                 />
                 <span className="text-xs">{trainer.name} {trainer.surname}</span>
@@ -126,7 +126,7 @@ export default function CreateCourseForm({
           type="submit"
           className="inline-flex items-center px-5 py-2 border border-transparent text-xs font-semibold rounded text-white bg-blue-600 hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
         >
-          Create Course
+          {buttonText}
         </button>
         <Link
           href="/course"

@@ -38,7 +38,8 @@ export default function RootLayout({
           setUser(null);
           router.push('/auth/login')
         }
-      } catch (_error) {
+      } catch (error) {
+        console.error("Authentication check failed:", error);
         setUser(null);
         router.push('/auth/login')
       }

@@ -1,27 +1,17 @@
 "use client"
 import { useState } from "react"
 import Link from "next/link"
+import { EditCourseFormProps } from "@/types/query-models"
+import { formatDateISO } from "@/lib/utils" 
 
 export default function EditCourseForm({ 
   id, 
   course, 
   trainers, 
   onSubmit 
-}: { 
-  id: string, 
-  course: any, 
-  trainers: any[], 
-  onSubmit: (formData: FormData) => void 
-}) {
+}: EditCourseFormProps) {
   const [mainTrainerId, setMainTrainerId] = useState(course?.mainTrainer?.id || "")
 
-  // Helper to get YYYY-MM-DD from string or Date
-  const getDateValue = (val: any) => {
-    if (!val) return ""
-    if (typeof val === "string") return val.slice(0, 10)
-    if (val instanceof Date) return val.toISOString().slice(0, 10)
-    return ""
-  }
 
   return (
     <form action={onSubmit} className="space-y-6" id="edit-course-form">
@@ -64,7 +54,7 @@ export default function EditCourseForm({
           id="startDate"
           name="startDate"
           type="date"
-          defaultValue={getDateValue(course?.startDate)}
+          defaultValue={formatDateISO(course?.startDate)}
           className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
           required
         />
@@ -78,7 +68,7 @@ export default function EditCourseForm({
           id="endDate"
           name="endDate"
           type="date"
-          defaultValue={getDateValue(course?.endDate)}
+          defaultValue={formatDateISO(course?.endDate)}
           className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
           required
         />
@@ -118,7 +108,7 @@ export default function EditCourseForm({
                   type="checkbox"
                   name="trainerIds"
                   value={trainer.id}
-                  defaultChecked={course?.trainers?.some((t: any) => t.id === trainer.id)}
+                  defaultChecked={course?.trainers?.some((t) => t.id === trainer.id)}
                   className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 trainer-checkbox"
                 />
                 <span className="text-xs">{trainer.name} {trainer.surname}</span>

@@ -120,6 +120,35 @@ export interface DeletedCourseWithProgram {
   } | null;
 }
 
+/**
+ * Course with relations for calendar view
+ * Contains minimal data needed for calendar display
+ */
+export interface CourseWithCalendarRelations {
+  id: string;
+  startDate: Date | string;
+  program: { name: string } | null;
+  mainTrainer: { name: string } | null;
+  trainers: { name: string }[];
+}
+
+// Add under "SANITIZED TYPES FOR UI RENDERING" section:
+
+/**
+ * Calendar event for UI rendering
+ * Compatible with FullCalendar component
+ */
+export interface CalendarEvent {
+  id: string;
+  title: string;
+  start: string;
+  allDay: boolean;
+  mainTrainer: string;
+  coTrainers: string[];
+  display?: string;
+  color?: string;
+}
+
 //---------------------------------------------------
 // SANITIZED TYPES FOR UI RENDERING
 //---------------------------------------------------
@@ -278,4 +307,49 @@ export interface SanitizedProgram {
     id: string;
     code?: string;
   }[];
+}
+
+//---------------------------------------------------
+// FORM COMPONENT TYPES
+//---------------------------------------------------
+
+/**
+ * Program selection option for forms
+ */
+export interface ProgramOption {
+  id: string;
+  name: string;
+}
+
+/**
+ * Trainer with essential data for form display
+ */
+export interface TrainerOption extends PersonBase {
+  id: string;
+  name: string;
+  surname: string;
+}
+
+/**
+ * Props for the course creation form
+ */
+export interface CreateCourseFormProps {
+  id?: string;
+  course?: Partial<CourseWithEditRelations>;
+  trainers: TrainerOption[];
+  programs: ProgramOption[];
+  onSubmit: (formData: FormData) => void;
+}
+
+/**
+ * Props for the course editing form
+ */
+export interface EditCourseFormProps {
+  id: string;
+  course: Omit<CourseWithEditRelations, 'startDate' | 'endDate'> & {
+    startDate: Date | string;
+    endDate: Date | string;
+  };
+  trainers: TrainerOption[];
+  onSubmit: (formData: FormData) => void;
 }

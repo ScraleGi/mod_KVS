@@ -12,7 +12,6 @@ import {
   SanitizedRegistration,
   SanitizedInvoice,
   SanitizedDocument,
-  SerializedDecimal
 } from '@/types/query-models'
 
 
