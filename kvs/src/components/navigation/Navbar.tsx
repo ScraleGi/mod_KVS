@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { FaBars, FaSearch, FaBell, FaUserCircle } from 'react-icons/fa';
@@ -8,14 +8,28 @@ import { FaBars, FaSearch, FaBell, FaUserCircle } from 'react-icons/fa';
 type NavbarProps = {
   isOpen: boolean;
   setOpen: (b: boolean) => void;
-  user: string | null;
+  user: string | null;
 };
 
 const Navbar = ({ isOpen, setOpen, user }: NavbarProps) => {
   const [searchValue, setSearchValue] = useState('');
+  const [results, setResults] = useState<any[]>([]);
+  const [showDropdown, setShowDropdown] = useState(false);
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchValue(e.target.value);
+  const handleSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchValue(value);
+
+    if (value.length === 0) {
+      setResults([]);
+      setShowDropdown(false);
+      return;
+    }
+
+    const res = await fetch(`/api/participants/search?query=${encodeURIComponent(value)}`);
+    const data = await res.json();
+    setResults(data);
+    setShowDropdown(true);
   };
 
   return (
@@ -50,7 +64,18 @@ const Navbar = ({ isOpen, setOpen, user }: NavbarProps) => {
             className='w-full bg-white text-gray-900 rounded px-4 py-1 pl-10 shadow outline-none transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white focus:shadow-lg'
             placeholder='Suche...'
             aria-label='Suche Kurse'
+            onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
+            onFocus={() => { if (results.length > 0) setShowDropdown(true); }}
           />
+          {showDropdown && results.length > 0 && (
+            <ul className="absolute z-10 bg-white border w-full mt-1 rounded shadow max-h-60 overflow-auto">
+              {results.map((p) => (
+                <li key={p.id} className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                  {p.name} <span className="text-xs text-gray-400">{p.email}</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
         <div className='text-white'>
