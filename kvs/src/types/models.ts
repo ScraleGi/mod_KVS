@@ -1,18 +1,32 @@
-// Enum definitions
+//---------------------------------------------------
+// ENUMS AND BASE MODELS
+//---------------------------------------------------
+
+/**
+ * Types of invoice recipients
+ */
 export enum RecipientType {
   PERSON = 'PERSON',
   COMPANY = 'COMPANY'
 }
 
-// Base interfaces
+/**
+ * Base model with common fields for most entities
+ */
 export interface BaseModel {
   id: string
   createdAt: Date
   updatedAt?: Date
-  deletedAt: Date | null
+  deletedAt: Date | null   // null if active
 }
 
-// Area
+//---------------------------------------------------
+// CORE EDUCATION MODELS
+//---------------------------------------------------
+
+/**
+ * Educational area/department
+ */
 export interface Area extends BaseModel {
   code: string
   name: string
@@ -20,19 +34,23 @@ export interface Area extends BaseModel {
   programs?: Program[]
 }
 
-// Program
+/**
+ * Educational program
+ */
 export interface Program extends BaseModel {
   code: string
   name: string
   description: string | null
   teachingUnits: number | null
-  price: string | null  // Will be string after sanitize
+  price: string | null     // String after sanitize from Decimal
   areaId: string
   area?: Area
   courses?: Course[]
 }
 
-// Course
+/**
+ * Course instance
+ */
 export interface Course extends BaseModel {
   code: string
   programId: string
@@ -45,32 +63,19 @@ export interface Course extends BaseModel {
   registrations?: CourseRegistration[]
 }
 
-// CourseRegistration
-export interface CourseRegistration extends BaseModel {
-  courseId: string
-  course?: Course
-  participantId: string
-  participant?: Participant
-  infoSessionAt: Date | null
-  registeredAt: Date | null
-  unregisteredAt: Date | null
-  interestedAt: Date | null
-  generalRemark: string | null
-  subsidyRemark: string | null
-  subsidyAmount: string | null  // Will be string after sanitize
-  discountRemark: string | null
-  discountAmount: string | null  // Will be string after sanitize
-  invoices?: Invoice[]
-  generatedDocuments?: Document[]
-}
+//---------------------------------------------------
+// PEOPLE MODELS
+//---------------------------------------------------
 
-// Trainer
+/**
+ * Trainer/Instructor
+ */
 export interface Trainer extends BaseModel {
   code: string
   name: string
   surname: string
-  salutation: string
-  title: string | null
+  salutation: string       // Title of address (Mr., Ms., Dr., etc.)
+  title: string | null     // Academic or professional title
   email: string
   phoneNumber: string
   birthday: Date
@@ -78,17 +83,19 @@ export interface Trainer extends BaseModel {
   city: string
   street: string
   country: string
-  mainCourses?: Course[]
-  courses?: Course[]
+  mainCourses?: Course[]   // Courses where this trainer is the main instructor
+  courses?: Course[]       // All courses this trainer is involved with
 }
 
-// Participant
+/**
+ * Participant/Student
+ */
 export interface Participant extends BaseModel {
   code: string
   name: string
   surname: string
-  salutation: string
-  title: string | null
+  salutation: string       // Title of address (Mr., Ms., Dr., etc.)
+  title: string | null     // Academic or professional title
   email: string
   phoneNumber: string
   birthday: Date
@@ -100,11 +107,43 @@ export interface Participant extends BaseModel {
   invoiceRecipients?: InvoiceRecipient[]
 }
 
-// Invoice
+//---------------------------------------------------
+// REGISTRATION AND FINANCIAL MODELS
+//---------------------------------------------------
+
+/**
+ * Course Registration
+ */
+export interface CourseRegistration extends BaseModel {
+  courseId: string
+  course?: Course
+  participantId: string
+  participant?: Participant
+  
+  // Registration timeline
+  infoSessionAt: Date | null
+  registeredAt: Date | null
+  unregisteredAt: Date | null
+  interestedAt: Date | null
+  
+  // Financial details
+  generalRemark: string | null
+  subsidyRemark: string | null
+  subsidyAmount: string | null   // String after sanitize from Decimal
+  discountRemark: string | null
+  discountAmount: string | null  // String after sanitize from Decimal
+  
+  invoices?: Invoice[]
+  generatedDocuments?: Document[]
+}
+
+/**
+ * Invoice
+ */
 export interface Invoice {
   id: string
   invoiceNumber: string
-  amount: string  // Will be string after sanitize
+  amount: string           // String after sanitize from Decimal
   courseRegistrationId: string
   courseRegistration?: CourseRegistration
   isCancelled: boolean
@@ -114,12 +153,19 @@ export interface Invoice {
   recipient?: InvoiceRecipient
 }
 
-// InvoiceRecipient
+/**
+ * Invoice Recipient
+ */
 export interface InvoiceRecipient extends BaseModel {
-  type: RecipientType
+  type: RecipientType      // PERSON or COMPANY
+  
+  // Person details (when type is PERSON)
   recipientName: string | null
   recipientSurname: string | null
+  
+  // Company details (when type is COMPANY)
   companyName: string | null
+  
   recipientEmail: string
   postalCode: string
   recipientCity: string
@@ -130,15 +176,23 @@ export interface InvoiceRecipient extends BaseModel {
   invoices?: Invoice[]
 }
 
-// Document
+//---------------------------------------------------
+// RESOURCE MODELS
+//---------------------------------------------------
+
+/**
+ * Document
+ */
 export interface Document extends BaseModel {
-  role: string
-  file: string
+  role: string             // Purpose/type of document
+  file: string             // File path or identifier
   courseRegistrationId: string
   courseRegistration?: CourseRegistration
 }
 
-// Room
+/**
+ * Room
+ */
 export interface Room extends BaseModel {
   name: string
   capacity: number | null
@@ -146,37 +200,27 @@ export interface Room extends BaseModel {
   reservations?: RoomReservation[]
 }
 
-// RoomReservation
+/**
+ * Room Reservation
+ */
 export interface RoomReservation extends BaseModel {
-  name: string
+  name: string             // Purpose or event name
   startTime: Date
-  duration: number
+  duration: number         // Length in minutes
   endTime: Date
   roomId: string
   room?: Room
 }
 
-// Holiday
+//---------------------------------------------------
+// OTHER MODELS
+//---------------------------------------------------
+
+/**
+ * Holiday
+ */
 export interface Holiday {
   id: string
-  title: string
+  title: string            // Holiday name
   date: Date
-}
-
-// Utility functions for working with model data
-export function formatFullName(person: { name: string, surname: string, title?: string | null }): string {
-  return [person.title, person.name, person.surname]
-    .filter(Boolean)
-    .join(' ')
-}
-
-export function formatDate(date: Date | string | null): string {
-  if (!date) return ''
-  const d = typeof date === 'string' ? new Date(date) : date
-  return d.toISOString().split('T')[0]  // YYYY-MM-DD
-}
-
-export function formatCurrency(amount: string | null): string {
-  if (!amount) return '€0.00'
-  return `€${parseFloat(amount).toFixed(2)}`
 }

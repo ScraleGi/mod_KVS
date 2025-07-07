@@ -1,109 +1,20 @@
 //---------------------------------------------------
 // IMPORTS AND DEPENDENCIES
 //---------------------------------------------------
-import { PrismaClient, Invoice, Document, CourseRegistration } from '../../../../generated/prisma'
 import Link from 'next/link'
 import { revalidatePath } from 'next/cache'
 import { DownloadPDFLink, GeneratePDFButton } from '@/components/DownloadButton/DownloadButton'
-import React from 'react'
+import { db } from '@/lib/db'
 import { sanitize } from '@/lib/sanitize'
+import { formatDateGerman } from '@/lib/utils'
+import { Document } from '@/types/models'
+import { 
+  SanitizedRegistration,
+  SanitizedInvoice,
+  SanitizedDocument,
+  SerializedDecimal
+} from '@/types/query-models'
 
-//---------------------------------------------------
-// TYPE DEFINITIONS
-//---------------------------------------------------
-// Define specific types for serialized data
-type SerializedDecimal = unknown;
-
-// Sanitized Participant type
-interface SanitizedParticipant {
-  id: string;
-  name: string;
-  surname: string;
-  salutation?: string;
-  title?: string | null;
-  email?: string;
-  phoneNumber?: string | null;
-  birthday?: string | Date | null;
-  street?: string | null;
-  postalCode?: string | null;
-  city?: string | null;
-  country?: string | null;
-  [key: string]: unknown; // For other properties
-}
-
-// Sanitized Course type
-interface SanitizedCourse {
-  id: string;
-  code?: string | null;
-  startDate?: string | Date | null;
-  endDate?: string | Date | null;
-  program?: {
-    id: string;
-    name: string;
-    [key: string]: unknown;
-  } | null;
-  mainTrainer?: {
-    id: string;
-    name: string;
-    surname: string;
-    [key: string]: unknown;
-  } | null;
-  [key: string]: unknown;
-}
-
-// Sanitized Invoice Recipient type
-interface SanitizedInvoiceRecipient {
-  id: string;
-  type: 'PERSON' | 'COMPANY';
-  recipientName?: string | null;
-  recipientSurname?: string | null;
-  companyName?: string | null;
-  [key: string]: unknown;
-}
-
-// Sanitized Invoice type
-interface SanitizedInvoice {
-  id: string;
-  amount?: SerializedDecimal;
-  isCancelled: boolean;
-  transactionNumber?: string | null;
-  recipient?: SanitizedInvoiceRecipient | null;
-  [key: string]: unknown;
-}
-
-// Sanitized Document type
-interface SanitizedDocument {
-  id: string;
-  file: string;
-  role: string;
-  createdAt?: string | Date;
-  updatedAt?: string | Date;
-  deletedAt?: string | Date | null;
-  [key: string]: unknown;
-}
-
-// Main registration type without any
-type SanitizedRegistration = Omit<CourseRegistration, 'subsidyAmount' | 'discountAmount' | 'generalRemark'> & {
-  subsidyAmount?: SerializedDecimal;
-  discountAmount?: SerializedDecimal;
-  subsidyAmountDisplay?: string;
-  discountAmountDisplay?: string;
-  participant: SanitizedParticipant;
-  course?: SanitizedCourse;
-  invoices: SanitizedInvoice[];
-  generalRemark?: string | null;
-};
-
-// Initialize Prisma client (in production, use a singleton pattern)
-const prisma = new PrismaClient()
-
-//---------------------------------------------------
-// UTILITY FUNCTIONS
-//---------------------------------------------------
-function formatDateGerman(date: Date | string | null | undefined): string {
-  if (!date) return 'N/A'
-  return new Date(date).toLocaleDateString('de-DE')
-}
 
 //---------------------------------------------------
 // SERVER ACTIONS
@@ -113,7 +24,7 @@ async function updateRemark(formData: FormData) {
   "use server"
   const registrationId = formData.get("registrationId") as string
   const newRemark = formData.get("remark") as string
-  await prisma.courseRegistration.update({
+  await db.courseRegistration.update({
     where: { id: registrationId },
     data: { generalRemark: newRemark }
   })
@@ -125,7 +36,7 @@ async function toggleInvoiceCancelled(formData: FormData) {
   "use server"
   const invoiceId = formData.get("invoiceId") as string
   const isCancelled = formData.get("isCancelled") === "on"
-  await prisma.invoice.update({
+  await db.invoice.update({
     where: { id: invoiceId },
     data: { isCancelled }
   })
@@ -137,7 +48,7 @@ async function removeDocument(formData: FormData) {
   "use server"
   const documentId = formData.get("documentId") as string
   const registrationId = formData.get("registrationId") as string
-  await prisma.document.update({
+  await db.document.update({
     where: { id: documentId },
     data: { deletedAt: new Date() }
   })
@@ -161,7 +72,7 @@ export default async function ParticipantDetailsPage({
   console.log(`Fetching details for participant ID: ${registrationId}`)
 
   // Fetch registration with related data
-  const registration = await prisma.courseRegistration.findFirst({
+  const registration = await db.courseRegistration.findFirst({
     where: { id: registrationId },
     include: {
       participant: true,
@@ -172,7 +83,7 @@ export default async function ParticipantDetailsPage({
 
   // Fetch documents for this registration (not soft-deleted)
   const documents: Document[] = registration
-    ? await prisma.document.findMany({
+    ? await db.document.findMany({
         where: {
           courseRegistrationId: registration.id,
           deletedAt: null,

@@ -1,10 +1,13 @@
-import { PrismaClient } from '../../../../generated/prisma/client'
-import React from 'react'
+
 import { redirect } from 'next/navigation'
 import CreateCourseForm from '@/components/course/CreateCourseForm'
+import { db } from '@/lib/db'
+import { sanitize } from '@/lib/sanitize'
+import { Program, Trainer } from '@/types/models'
 
-const prisma = new PrismaClient()
-
+/**
+ * Server action to create a new course
+ */
 async function createCourse(formData: FormData) {
   'use server'
 
@@ -13,13 +16,15 @@ async function createCourse(formData: FormData) {
   const startDate = formData.get('startDate') as string
   const endDate = formData.get('endDate') as string
   const mainTrainerId = formData.get('mainTrainerId') as string
-  const filteredTrainerIds = formData.getAll('trainerIds') as string[]
-
+  const trainerIds = formData.getAll('trainerIds') as string[]
+  
+  // Validate required fields
   if (!code || !programId || !startDate || !endDate || !mainTrainerId) {
     throw new Error('All required fields must be filled')
   }
 
-  await prisma.course.create({
+  // Create the course
+  await db.course.create({
     data: {
       code,
       program: { connect: { id: programId } },
@@ -27,24 +32,31 @@ async function createCourse(formData: FormData) {
       endDate: new Date(endDate),
       mainTrainer: { connect: { id: mainTrainerId } },
       trainers: {
-        connect: filteredTrainerIds.map(id => ({ id })),
+        connect: trainerIds.map(id => ({ id })),
       },
     },
   })
+  
   redirect('/course')
 }
 
+/**
+ * New Course Page - Provides form to create a new course
+ */
 export default async function NewCoursePage() {
-  const trainers = await prisma.trainer.findMany({
-    orderBy: { name: 'asc' },
-  })
-  // Serialize Decimal fields in programmes
-  const programmes = (await prisma.program.findMany({
-    orderBy: { name: 'asc' },
-  })).map(p => ({
-    ...p,
-    price: p.price ? p.price.toString() : null,
-  }))
+  // Fetch trainers and programs in parallel for better performance
+  const [trainersData, programsData] = await Promise.all([
+    db.trainer.findMany({
+      orderBy: { name: 'asc' },
+    }),
+    db.program.findMany({
+      orderBy: { name: 'asc' },
+    })
+  ]);
+  
+  // Sanitize data to handle any Decimal values
+  const trainers = sanitize<typeof trainersData, Trainer[]>(trainersData);
+  const programs = sanitize<typeof programsData, Program[]>(programsData);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-blue-50 flex items-center justify-center p-4 sm:p-6 lg:p-8">
@@ -57,7 +69,7 @@ export default async function NewCoursePage() {
             <CreateCourseForm
               course={null}
               trainers={trainers}
-              programs={programmes}
+              programs={programs}
               onSubmit={createCourse}
             />
           </div>

@@ -2,7 +2,8 @@ import { CourseTable, home, CourseRow } from '../components/overviewTable/table'
 import Dashboard from '@/components/navigation/Dashboard'
 import { db } from '@/lib/db'
 import { sanitize } from '@/lib/sanitize'
-import { Course, formatFullName } from '@/types/models'
+import { Course } from '@/types/models'
+import { formatFullName} from '@/lib/utils'
 
 export default async function Home() {
   // Fetch courses with related data

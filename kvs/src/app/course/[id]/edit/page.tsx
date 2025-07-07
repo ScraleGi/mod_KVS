@@ -1,21 +1,28 @@
-import { PrismaClient } from '../../../../../generated/prisma'
 import { redirect } from 'next/navigation'
 import EditCourseForm from '@/components/course/EditCourseForm'
+import { db } from '@/lib/db'
 import { sanitize } from '@/lib/sanitize'
+import { CourseWithEditRelations } from '@/types/query-models'
+import { formatDateISO } from '@/lib/utils'
 
-const prisma = new PrismaClient()
-
+/**
+ * Props interface for the edit course page
+ */
 interface EditCoursePageProps {
   params: {
     id: string
   }
 }
 
+/**
+ * Course Edit Page - Allows editing of course details
+ */
 export default async function EditCoursePage({ params }: EditCoursePageProps) {
   const { id } = await params
 
+  // Fetch course and all available trainers in parallel
   const [course, trainers] = await Promise.all([
-    prisma.course.findUnique({
+    db.course.findUnique({
       where: { id },
       include: {
         program: true,
@@ -23,25 +30,24 @@ export default async function EditCoursePage({ params }: EditCoursePageProps) {
         trainers: true,
       },
     }),
-    prisma.trainer.findMany({
+    db.trainer.findMany({
       orderBy: { name: 'asc' },
     }),
   ])
 
   // Sanitize course to remove Decimal objects
-  const sanitizedCourse = course ? sanitize(course) : null
+  const sanitizedCourse = course ? sanitize<typeof course, CourseWithEditRelations>(course) : null
 
   // Create a new object with properly formatted dates for the form
   const formattedCourse = sanitizedCourse ? {
     ...sanitizedCourse,
-    startDate: sanitizedCourse.startDate 
-      ? new Date(sanitizedCourse.startDate).toISOString().split('T')[0] 
-      : '',
-    endDate: sanitizedCourse.endDate 
-      ? new Date(sanitizedCourse.endDate).toISOString().split('T')[0] 
-      : ''
+    startDate: formatDateISO(sanitizedCourse.startDate),
+    endDate: formatDateISO(sanitizedCourse.endDate)
   } : null;
 
+  /**
+   * Server action to update course details
+   */
   const changeCourse = async (formData: FormData) => {
     'use server'
     const id = formData.get('id') as string
@@ -50,9 +56,11 @@ export default async function EditCoursePage({ params }: EditCoursePageProps) {
     const endDate = formData.get('endDate') as string 
     const mainTrainerId = formData.get('mainTrainerId') as string
     const trainerIds = formData.getAll('trainerIds') as string[]
+    
+    // Exclude main trainer from additional trainers list
     const filteredTrainerIds = trainerIds.filter(tid => tid !== mainTrainerId)
 
-    await prisma.course.update({
+    await db.course.update({
       where: { id },
       data: {
         code,
@@ -67,17 +75,20 @@ export default async function EditCoursePage({ params }: EditCoursePageProps) {
     redirect('/course')
   }
 
-  // Soft Delete Handler
+  /**
+   * Server action to soft delete a course
+   */
   async function deleteCourse(formData: FormData) {
     'use server'
     const id = formData.get('id') as string
-    await prisma.course.update({
+    await db.course.update({
       where: { id },
       data: { deletedAt: new Date() }
     })
     redirect('/course')
   }
 
+  // Show error if course not found
   if (!formattedCourse) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -102,14 +113,15 @@ export default async function EditCoursePage({ params }: EditCoursePageProps) {
             />
           </div>
         </div>
-        {/* Soft Delete Link */}
+        {/* Soft Delete Form */}
         <form action={deleteCourse} className="mt-4 flex justify-end w-full">
           <input type="hidden" name="id" value={id} />
           <button
             type="submit"
             className="inline-flex items-center cursor-pointer text-sm text-red-600 hover:text-red-800 hover:bg-red-50 transition bg-transparent border-none p-0 font-normal pr-12"
             style={{ boxShadow: 'none' }}
-            title="Soft Delete"
+            title="Soft delete this course"
+            aria-label="Delete course"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-4.477-10-10 0-1.657.402-3.22 1.125-4.575M15 12a3 3 0 11-6 0 3 3 0 016 0z" />

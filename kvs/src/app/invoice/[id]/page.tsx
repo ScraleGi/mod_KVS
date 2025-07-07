@@ -1,46 +1,56 @@
-import { PrismaClient, RecipientType } from '../../../../generated/prisma'
 import Link from 'next/link'
+import { db } from '@/lib/db'
+import { sanitize } from '@/lib/sanitize'
+import { SanitizedInvoiceWithRelations, SanitizedInvoiceRecipient } from '@/types/query-models'
 
-const prisma = new PrismaClient()
-
-interface InvoicePageProps {
-  params: {
-    id: string
-  }
-}
-
-function formatRecipient(recipient: any) {
+//---------------------------------------------------
+// HELPER FUNCTIONS
+//---------------------------------------------------
+function formatRecipient(recipient: SanitizedInvoiceRecipient | null) {
   if (!recipient) return 'N/A'
-  if (recipient.type === RecipientType.COMPANY) {
-    return (
-      <>
-        {recipient.companyName}
-        <span className="text-gray-400 text-xs ml-1">
-          ({recipient.recipientEmail || "No email"})
-        </span>
-        <div className="text-xs text-gray-400">
-          {recipient.recipientStreet}, {recipient.postalCode} {recipient.recipientCity}, {recipient.recipientCountry}
-        </div>
-      </>
-    )
-  }
+  
+  const name = recipient.type === 'COMPANY' 
+    ? recipient.companyName 
+    : `${recipient.recipientName || ''} ${recipient.recipientSurname || ''}`.trim()
+  
   return (
-    <>
-      {recipient.recipientName} {recipient.recipientSurname}
-      <span className="text-gray-400 text-xs ml-1">
-        ({recipient.recipientEmail || "No email"})
-      </span>
-      <div className="text-xs text-gray-400">
-        {recipient.recipientStreet}, {recipient.postalCode} {recipient.recipientCity}, {recipient.recipientCountry}
+    <div>
+      <div className="font-medium text-gray-800">{name || 'Unknown'}</div>
+      
+      {/* Email field */}
+      <div className="flex items-center mt-2">
+        <span className="text-xs text-gray-500 w-16 flex-shrink-0">Email:</span>
+        <span className="text-xs text-gray-700">{recipient.recipientEmail || "No email"}</span>
       </div>
-    </>
+      
+      {/* Address field */}
+      <div className="flex items-center mt-1">
+        <span className="text-xs text-gray-500 w-16 flex-shrink-0">Address:</span>
+        <span className="text-xs text-gray-700">
+          {recipient.recipientStreet && recipient.postalCode && recipient.recipientCity && recipient.recipientCountry ? 
+            `${recipient.recipientStreet}, ${recipient.postalCode} ${recipient.recipientCity}, ${recipient.recipientCountry}` :
+            'No address provided'
+          }
+        </span>
+      </div>
+    </div>
   )
 }
 
-export default async function InvoicePage({ params }: InvoicePageProps) {
+//---------------------------------------------------
+// MAIN COMPONENT
+//---------------------------------------------------
+export default async function InvoicePage({ 
+  params 
+}: { 
+  params: { id: string } | Promise<{ id: string }> 
+}) {
+  //---------------------------------------------------
+  // DATA FETCHING
+  //---------------------------------------------------
   const { id } = await params
 
-  const invoiceRaw = await prisma.invoice.findUnique({
+  const invoiceData = await db.invoice.findUnique({
     where: { id },
     include: {
       recipient: true,
@@ -57,11 +67,14 @@ export default async function InvoicePage({ params }: InvoicePageProps) {
     },
   })
 
-  if (!invoiceRaw) {
+  //---------------------------------------------------
+  // EARLY RETURN FOR MISSING DATA
+  //---------------------------------------------------
+  if (!invoiceData) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="max-w-md w-full px-4">
-          <Link href="/" className="text-blue-500 hover:underline mb-6 block">
+          <Link href="/" className="text-blue-500 hover:text-blue-700 mb-6 block">
             &larr; Back to Home
           </Link>
           <div className="text-red-600 text-lg font-semibold">Invoice not found.</div>
@@ -70,13 +83,21 @@ export default async function InvoicePage({ params }: InvoicePageProps) {
     )
   }
 
-  // Convert Decimal to string for serialization
-  const invoice = {
-    ...invoiceRaw,
-    amount: invoiceRaw.amount.toString(),
-  }
+  // Sanitize data and cast to the correct type
+  const invoice = sanitize(invoiceData) as SanitizedInvoiceWithRelations;
 
+  //---------------------------------------------------
+  // INVOICE FIELD DEFINITIONS
+  //---------------------------------------------------
   const invoiceFields = [
+    {
+      label: 'Course',
+      value: invoice.courseRegistration?.course?.program?.name || 'N/A',
+    },
+    {
+      label: 'Code',
+      value: invoice.courseRegistration?.course?.code || 'N/A',
+    },
     {
       label: 'Amount',
       value: <>€{invoice.amount}</>,
@@ -90,12 +111,12 @@ export default async function InvoicePage({ params }: InvoicePageProps) {
       value: invoice.isCancelled
         ? "Cancelled"
         : invoice.transactionNumber
-          ? <>Paid <span className="text-xs text-neutral-400">({invoice.transactionNumber})</span></>
+          ? <>Paid <span className="text-xs text-gray-400">({invoice.transactionNumber})</span></>
           : "Unpaid",
     },
     {
       label: 'Recipient',
-      value: formatRecipient(invoice.recipient),
+      value: formatRecipient(invoice.recipient || null),
     },
     {
       label: 'Participant',
@@ -103,18 +124,19 @@ export default async function InvoicePage({ params }: InvoicePageProps) {
         ? `${invoice.courseRegistration.participant.salutation} ${invoice.courseRegistration.participant.title ? invoice.courseRegistration.participant.title + ' ' : ''}${invoice.courseRegistration.participant.name} ${invoice.courseRegistration.participant.surname}`
         : 'N/A',
     },
-    {
-      label: 'Course',
-      value: invoice.courseRegistration?.course?.program?.name,
-    }
   ]
 
+  //---------------------------------------------------
+  // RENDER UI
+  //---------------------------------------------------
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="bg-white rounded-sm shadow border border-gray-100 p-8 max-w-xl w-full">
-        <h1 className="text-xl font-bold text-gray-900 mb-8 tracking-tight">
+      <div className="bg-white rounded-xl shadow border border-gray-100 p-8 max-w-xl w-full">
+        <h1 className="text-2xl font-bold text-gray-900 mb-8 tracking-tight">
           Invoice #{invoice.invoiceNumber}
         </h1>
+        
+        {/* Invoice Details Table */}
         <div className="flex flex-col gap-2 mb-8">
           <div className="flex items-center border-b border-gray-200 py-1 bg-gray-50 rounded-t">
             <div className="text-xs font-semibold text-gray-500 flex-1 px-1">Field</div>
@@ -130,20 +152,19 @@ export default async function InvoicePage({ params }: InvoicePageProps) {
             </div>
           ))}
         </div>
-        <div className="flex flex-row gap-6 mt-8">
-          <Link
-            href={`/participant/${invoice.courseRegistration?.participant?.id}`}
-            className="text-blue-500 hover:underline text-sm"
-          >
-            &larr; Back to Participant
-          </Link>
-          <Link
-            href={`/course/${invoice.courseRegistration?.course?.id}`}
-            className="text-blue-500 hover:underline text-sm"
-          >
-            &larr; Back to Course
-          </Link>
-          <Link href="/" className="text-blue-500 hover:underline text-sm">
+        
+        {/* Navigation Links */}
+        <div className="flex flex-wrap gap-6 mt-8 justify-end">
+          {invoice.courseRegistration?.id && (
+            <Link
+              href={`/courseregistration/${invoice.courseRegistration.id}`}
+              className="text-blue-500 hover:text-blue-700 text-sm"
+            >
+              &larr; Back to Registration
+            </Link>
+          )}
+          
+          <Link href="/" className="text-blue-500 hover:text-blue-700 text-sm">
             &larr; Back to Home
           </Link>
         </div>
