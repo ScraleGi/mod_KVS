@@ -1,64 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VVV DCV Freifahrt Ticket</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VVV DCV Freifahrt Ticket</title>
+  <style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    td {
+      padding: 5px;
+      vertical-align: top;
+    }
+  </style>
 </head>
 <body>
-    
-    <div class="logo-wrapper">
-      <img src="http://localhost:3000/img/DCV_Logo-Schriftzug_pos_WEB.svg" alt="Logo" class="logo" />
-    </div>
-    <p>6800 Feldkirch, Widnau 10</p>
-    <p>info@digitalcampusvorarlberg.at</p>
 
-    <p>Feldkirch <%= new Date().toLocaleDateString() %></p>
-    <h1>DCV-Freifahrt</h1>
-    <p><strong><%= course.program.name %></strong></p>
-    <p>Kurs Nr: <%= course.program.code%></p>
-    <p>Kursort: prisma ort</p>
+  <!-- Header Section -->
+  <div class="logo-wrapper">
+    <img src="http://localhost:3000/img/DCV_Logo-Schriftzug_pos_WEB.svg" alt="Logo" class="logo" />
+  </div>
+  <p>6800 Feldkirch, Widnau 10</p>
+  <p>info@digitalcampusvorarlberg.at</p>
+  <p>Feldkirch <%= new Date().toLocaleDateString() %></p>
 
-    <h2>Liebe Kursteilneherinnen,</h2>
-    <p>
-        mit untenstehendem DCV-Freifahrt-Ticket bist du am Kurstag mit Bus und Bahn in ganz Vorarlberg mobil. Du fährst morgens zu deinem Kurs und schließlich wieder zurück nach Hause.
-        Dein personalisierter Fahrschein ist nur gültig, wenn du vor Antritt der Fahrt dein Geburtsdatum händisch einträgst und das Ticket bei Fahrscheinkontrollen auf Verlangen in Verbindung mit einem Lichtbildausweis oder Führerschein vorzeigst.
-        Wir freuen uns auf dein Kommen und wünschen dir einen guten Start.
-        Freundliche Grüße
+  <h1>DCV-Freifahrt</h1>
+  <p><strong><%= course.program.name %></strong></p>
+  <p>Kurs Nr: <%= course.program.code %></p>
+  <p>Kursort: prisma ort</p>
+
+  <h2>Liebe Kursteilnehmerinnen,</h2>
+  <p>
+    Mit untenstehendem DCV-Freifahrt-Ticket bist du am Kurstag mit Bus und Bahn in ganz Vorarlberg mobil.
+    Dein personalisierter Fahrschein ist nur gültig, wenn du vor Antritt der Fahrt dein Geburtsdatum händisch einträgst und das Ticket mit Ausweis vorzeigst.
   </p>
 
-    <p>Thomas Berchtold </p>
-    <p>Geschäftsführung</p>
+  <p>Thomas Berchtold</p>
+  <p>Geschäftsführung</p>
 
-    <hr>
-    VVV/DCV-Freifahrt-Ticket
-    Kursteilneherinnen: <%= participant.name %> <%= participant.surname %> 
-    Geburtsdatum: <%-participant.birthday %> 
-Kursdauer: 
-    <p>Gültig für den Kurstag: <%= new Date(course.startDate).toLocaleDateString() %></p>
-    <p>Gültig für die Rückfahrt: <%= new Date(course.endDate).toLocaleDateString() %></p>
+  <hr/>
 
-    <hr>
+  <!-- Ticket Info -->
+  <h3>VVV/DCV-Freifahrt-Ticket</h3>
+  <p>Kursteilnehmerin: <%= participant.name %> <%= participant.surname %></p>
+  <p>Geburtsdatum: <%= participant.birthday %></p>
+  <p>Gültig für den Kurstag: <%= new Date(course.startDate).toLocaleDateString() %></p>
+  <p>Gültig für die Rückfahrt: <%= new Date(course.endDate).toLocaleDateString() %></p>
 
+  <hr/>
 
-
-
-
-maximo, Tageskarte, Vollpreis gültig am:
-<table>
+  <!-- Dynamic Table -->
+  <h4>maximo, Tageskarte, Vollpreis gültig am:</h4>
+  <table border="1">
     <tr>
-    </tr>
-</table>
-05.05.2025
-12.05.2025
-06.05.2025
-13.05.2025
-07.05.2025
-14.05.2025
-08.05.2025
-15.05.2025
-09.05.2025
-16.05.2025
-                    <p>LOGO</p>
+      <% 
+        const maxRows = 5;
+        let allDates = [];
+        const start = new Date(course.startDate);
+        const end = new Date(course.endDate);
+        for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+          allDates.push(new Date(d)); // clone date
+        }
+
+        const totalCols = Math.ceil(allDates.length / maxRows);
+
+        for (let row = 0; row < maxRows; row++) { 
+      %>
+      <tr>
+        <% for (let col = 0; col < totalCols; col++) {
+             const idx = col * maxRows + row;
+             if (idx < allDates.length) {
+        %>
+          <td><%= allDates[idx].toLocaleDateString() %></td>
+        <% } else { %>
+          <td></td>
+        <% } } %>
+      </tr>
+      <% } %>
+  </table>
+
+  <p>LOGO</p>
+
 </body>
 </html>
