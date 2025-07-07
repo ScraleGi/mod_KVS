@@ -100,18 +100,24 @@ const Navbar = ({ isOpen, setOpen, user }: NavbarProps) => {
                   {searchType === 'participants'
                     ? results.map((p: any) => (
                         <li key={p.id} className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                          {p.name} <span className="text-xs text-gray-400">{p.email}</span>
+                          <Link href={`/participant/${p.id}`} onClick={() => setShowDropdown(false)}>
+                            {p.name} <span className="text-xs text-gray-400">{p.email}</span>
+                          </Link>
                         </li>
                       ))
                     : searchType === 'courses'
                     ? results.map((c: any) => (
                         <li key={c.id} className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                          {c.programName} <span className="text-xs text-gray-400">{new Date(c.startDate).toLocaleDateString()}</span>
+                          <Link href={`/course/${c.id}`} onClick={() => setShowDropdown(false)}>
+                            {c.programName} <span className="text-xs text-gray-400">{new Date(c.startDate).toLocaleDateString()}</span>
+                          </Link>
                         </li>
                       ))
                     : results.map((a: any) => (
                         <li key={a.id} className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                          {a.name}
+                          <Link href={`/area/${a.id}`} onClick={() => setShowDropdown(false)}>
+                            {a.name}
+                          </Link>
                         </li>
                       ))}
                 </ul>
