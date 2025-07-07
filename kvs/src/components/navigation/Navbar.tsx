@@ -12,6 +12,7 @@ type NavbarProps = {
 };
 
 const Navbar = ({ isOpen, setOpen, user }: NavbarProps) => {
+  const [searchType, setSearchType] = useState<'participants' | 'courses' | 'areas'>('participants');
   const [searchValue, setSearchValue] = useState('');
   const [results, setResults] = useState<any[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -26,7 +27,14 @@ const Navbar = ({ isOpen, setOpen, user }: NavbarProps) => {
       return;
     }
 
-    const res = await fetch(`/api/participants/search?query=${encodeURIComponent(value)}`);
+    const endpoint =
+      searchType === 'participants'
+        ? '/api/participants/search'
+        : searchType === 'courses'
+        ? '/api/courses/search'
+        : '/api/areas/search';
+
+    const res = await fetch(`${endpoint}?query=${encodeURIComponent(value)}`);
     const data = await res.json();
     setResults(data);
     setShowDropdown(true);
@@ -53,29 +61,63 @@ const Navbar = ({ isOpen, setOpen, user }: NavbarProps) => {
       </div>
 
       <div className='flex items-center gap-x-5'>
-        <div className='relative w-64'>
-          <span className='absolute inset-y-0 left-0 flex items-center pl-3'>
-            <FaSearch className='text-gray-400' />
-          </span>
-          <input
-            type='text'
-            value={searchValue}
-            onChange={handleSearch}
-            className='w-full bg-white text-gray-900 rounded px-4 py-1 pl-10 shadow outline-none transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white focus:shadow-lg'
-            placeholder='Suche...'
-            aria-label='Suche Kurse'
-            onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
-            onFocus={() => { if (results.length > 0) setShowDropdown(true); }}
-          />
-          {showDropdown && results.length > 0 && (
-            <ul className="absolute z-10 bg-white border w-full mt-1 rounded shadow max-h-60 overflow-auto">
-              {results.map((p) => (
-                <li key={p.id} className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                  {p.name} <span className="text-xs text-gray-400">{p.email}</span>
-                </li>
-              ))}
-            </ul>
-          )}
+        {/* Suchfeld mit Dropdown im Input, beide wachsen gemeinsam */}
+        <div className="relative w-80 group">
+          <div className="flex items-center w-full transition-all duration-200 group-focus-within:scale-105 group-hover:scale-105">
+            <select
+              value={searchType}
+              onChange={e => setSearchType(e.target.value as 'participants' | 'courses' | 'areas')}
+              className='bg-gray-100 border-r border-gray-300 text-gray-900 rounded-l px-2 py-1 text-xs h-9 focus:outline-none transition-all duration-200'
+              style={{ minWidth: '100px', maxWidth: '120px' }}
+            >
+              <option value="participants">Teilnehmer</option>
+              <option value="courses">Kurse</option>
+              <option value="areas">Areas</option>
+            </select>
+            <div className="relative flex-1">
+              <span className='absolute inset-y-0 left-0 flex items-center pl-3'>
+                <FaSearch className='text-gray-400' />
+              </span>
+              <input
+                type='text'
+                value={searchValue}
+                onChange={handleSearch}
+                className='w-full bg-white text-gray-900 rounded-r px-4 py-1 pl-10 shadow outline-none transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white focus:shadow-lg h-9'
+                placeholder={
+                  searchType === 'participants'
+                    ? 'Suche Teilnehmer...'
+                    : searchType === 'courses'
+                    ? 'Suche Kurs...'
+                    : 'Suche Area...'
+                }
+                aria-label='Suche'
+                onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
+                onFocus={() => { if (results.length > 0) setShowDropdown(true); }}
+                style={{ marginTop: '0px' }}
+              />
+              {showDropdown && results.length > 0 && (
+                <ul className="absolute z-10 bg-white border w-full mt-1 rounded shadow max-h-60 overflow-auto">
+                  {searchType === 'participants'
+                    ? results.map((p: any) => (
+                        <li key={p.id} className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                          {p.name} <span className="text-xs text-gray-400">{p.email}</span>
+                        </li>
+                      ))
+                    : searchType === 'courses'
+                    ? results.map((c: any) => (
+                        <li key={c.id} className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                          {c.programName} <span className="text-xs text-gray-400">{new Date(c.startDate).toLocaleDateString()}</span>
+                        </li>
+                      ))
+                    : results.map((a: any) => (
+                        <li key={a.id} className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                          {a.name}
+                        </li>
+                      ))}
+                </ul>
+              )}
+            </div>
+          </div>
         </div>
 
         <div className='text-white'>
