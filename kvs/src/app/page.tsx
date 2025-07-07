@@ -7,20 +7,22 @@ import { formatFullName} from '@/lib/utils'
 
 export default async function Home() {
   // Fetch courses with related data
-  const courses = await db.course.findMany({
-    where: { deletedAt: null }, // Only show active courses
-    include: {
-      program: { include: { area: true } },
-      mainTrainer: true,
-      trainers: true,
-      registrations: {
-        include: {
-          participant: true,
-          invoices: true,
-        },
+// Fetch courses with related data
+const courses = await db.course.findMany({
+  where: { deletedAt: null }, // Only show active courses
+  include: {
+    program: { include: { area: true } },
+    mainTrainer: true,
+    trainers: true,
+    registrations: {
+      where: { deletedAt: null }, // Only include active registrations
+      include: {
+        participant: true,
+        invoices: true,
       },
     },
-  })
+  },
+})
 
   // Sanitize data to handle Decimal values
   const sanitizedCourses = sanitize(courses) as unknown as Course[]

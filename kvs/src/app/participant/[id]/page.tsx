@@ -7,6 +7,7 @@ import { redirect } from "next/navigation"
 import { revalidatePath } from 'next/cache'
 import ClientCourseModalWrapper from './ClientCourseModalWrapper'
 import { sanitize } from '@/lib/sanitize'
+import RegistrationRemoveButton from './RegistrationRemoveButton'
 
 //---------------------------------------------------
 // TYPE DEFINITIONS
@@ -31,6 +32,7 @@ export default async function ParticipantPage({ params }: ParticipantPageProps) 
       where: { id },
       include: {
         registrations: {
+          where: { deletedAt: null }, // Only include active registrations
           include: {
             course: { include: { program: true } },
             invoices: {
@@ -59,7 +61,9 @@ export default async function ParticipantPage({ params }: ParticipantPageProps) 
     }
 
     // 2. Fetch courses where participant is NOT registered
-    const registeredCourseIds = participant?.registrations.map(r => r.courseId) ?? []
+    const registeredCourseIds = participant?.registrations
+      .map(r => r.courseId) ?? []  // Already filtered to deletedAt: null
+
     let availableCourses = await db.course.findMany({
       where: {
         id: { notIn: registeredCourseIds },
@@ -69,7 +73,9 @@ export default async function ParticipantPage({ params }: ParticipantPageProps) 
     })
     
     // 3. Fetch all documents for this participant (not soft-deleted)
-    const registrationIds = participant?.registrations.map(r => r.id) ?? []
+    const registrationIds = participant?.registrations
+      .map(r => r.id) ?? []  // Already filtered to deletedAt: null
+
     const documents = registrationIds.length
       ? await db.document.findMany({
           where: {
@@ -156,14 +162,17 @@ export default async function ParticipantPage({ params }: ParticipantPageProps) 
       }
     }
 
-    // 3. Remove a course registration
     async function removeRegistration(formData: FormData) {
       "use server"
       try {
         const registrationId = formData.get("registrationId") as string
-        await db.courseRegistration.delete({
-          where: { id: registrationId }
+        
+        // Change from delete to update with deletedAt timestamp
+        await db.courseRegistration.update({
+          where: { id: registrationId },
+          data: { deletedAt: new Date() }
         })
+        
         revalidatePath(`/participant/${id}`)
       } catch (error) {
         console.error('Failed to remove registration:', error)
@@ -332,18 +341,10 @@ export default async function ParticipantPage({ params }: ParticipantPageProps) 
                     )}
                   </div>
                   <div className="col-span-1 flex items-center justify-end h-full">
-                    <form action={removeRegistration} className="h-full flex items-center">
-                      <input type="hidden" name="registrationId" value={reg.id} />
-                      <button
-                        type="submit"
-                        className="cursor-pointer flex items-center justify-center w-7 h-7 rounded-full bg-neutral-100 text-neutral-400 hover:text-red-500 hover:bg-red-50 border border-transparent hover:border-red-200 transition"
-                        title="Remove registration"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 12h12" />
-                        </svg>
-                      </button>
-                    </form>
+                    <RegistrationRemoveButton 
+                      registrationId={reg.id} 
+                      removeRegistration={removeRegistration} 
+                    />
                   </div>
                 </div>
               ))}

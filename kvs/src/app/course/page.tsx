@@ -25,17 +25,20 @@ interface CourseWithRelations extends Omit<Course, 'program' | 'mainTrainer' | '
 }
 
 export default async function CourseListPage() {
-  // Fetch courses with related data
-  const courses = await db.course.findMany({
-    where: { deletedAt: null },
-    include: {
-      program: { include: { area: true } },
-      mainTrainer: true,
-      trainers: true,
-      registrations: true,
+// Fetch courses with related data
+const courses = await db.course.findMany({
+  where: { deletedAt: null },
+  orderBy: { createdAt: 'desc' }, // This should be at the top level
+  include: {
+    program: { include: { area: true } },
+    mainTrainer: true,
+    trainers: true,
+    registrations: {
+      where: { deletedAt: null }, // Only include active registrations
+      orderBy: { registeredAt: 'desc' }, 
     },
-    orderBy: { createdAt: 'desc' },
-  })
+  },
+})
 
   // Sanitize data to handle any Decimal values
   const sanitizedCourses = sanitize<typeof courses, CourseWithRelations[]>(courses);

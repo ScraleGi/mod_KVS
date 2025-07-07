@@ -19,6 +19,7 @@ export default async function ParticipantOverviewPage() {
       },
       include: {
         registrations: {
+          where: { deletedAt: null }, // Only include active registrations
           include: {
             course: {
               include: {

@@ -62,24 +62,25 @@ export default async function CoursePage({ params }: CoursePageProps) {
   const { id } = await params
 
   // Fetch course with related data, including generatedDocuments for each registration
-  const courseData = await db.course.findUnique({
-    where: { id },
-    include: {
-      program: { include: { area: true } },
-      mainTrainer: true,
-      trainers: true,
-      registrations: {
-        include: {
-          participant: true,
-          invoices: true,
-          generatedDocuments: {
-            where: { deletedAt: null },
-            orderBy: { createdAt: 'desc' }
-          }
-        },
+const courseData = await db.course.findUnique({
+  where: { id },
+  include: {
+    program: { include: { area: true } },
+    mainTrainer: true,
+    trainers: true,
+    registrations: {
+      where: { deletedAt: null }, // Only include active registrations
+      include: {
+        participant: true,
+        invoices: true,
+        generatedDocuments: {
+          where: { deletedAt: null },
+          orderBy: { createdAt: 'desc' }
+        }
       },
     },
-  })
+  },
+})
 
   // Sanitize data to handle any Decimal values
   const course = sanitize<typeof courseData, CourseWithRelations>(courseData)

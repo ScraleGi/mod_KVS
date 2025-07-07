@@ -1,17 +1,30 @@
 'use client'
 import React, { useRef } from 'react'
+import { formatDate } from '@/lib/utils'
+import { SanitizedCourse } from '@/types/query-models'
+
+// Interface for available courses in the dropdown
+interface AvailableCourse {
+  id: string;
+  startDate: Date | string;
+  program?: {
+    name: string;
+  } | null;
+}
+
+interface AddCourseModalProps {
+  open: boolean;
+  onClose: () => void;
+  onSubmit: (formData: FormData) => Promise<void>;
+  availableCourses: AvailableCourse[];
+}
 
 export default function AddCourseModal({
   open,
   onClose,
   onSubmit,
   availableCourses,
-}: {
-  open: boolean
-  onClose: () => void
-  onSubmit: (formData: FormData) => Promise<void>
-  availableCourses: any[]
-}) {
+}: AddCourseModalProps) {
   const dialogRef = useRef<HTMLDivElement>(null)
 
   function handleBackdropClick(e: React.MouseEvent) {
@@ -58,7 +71,7 @@ export default function AddCourseModal({
               <option value="" disabled>Select course</option>
               {availableCourses.map(course => (
                 <option key={course.id} value={course.id}>
-                  {course.program?.name ?? 'Course'} ({new Date(course.startDate).toLocaleDateString()})
+                  {course.program?.name ?? 'Course'} ({formatDate(course.startDate)})
                 </option>
               ))}
             </select>
