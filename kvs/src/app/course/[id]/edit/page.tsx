@@ -4,6 +4,7 @@ import { db } from '@/lib/db'
 import { sanitize } from '@/lib/sanitize'
 import { CourseWithEditRelations } from '@/types/query-models'
 import { formatDateISO } from '@/lib/utils'
+import RemoveButton from '@/components/RemoveButton/removeButton';
 
 /**
  * Props interface for the edit course page
@@ -112,24 +113,38 @@ export default async function EditCoursePage({ params }: EditCoursePageProps) {
               onSubmit={changeCourse}
             />
           </div>
+          
+          {/* Danger Zone Section */}
+          <div className="border-t border-gray-200 mt-2"></div>
+          <div className="px-6 py-4 bg-gray-50 rounded-b-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-medium text-gray-700">Danger Zone</h3>
+                <p className="text-xs text-gray-500 mt-1">This will soft-delete the course.</p>
+              </div>
+              <RemoveButton
+                itemId={id}
+                onRemove={deleteCourse}
+                title="Delete Course"
+                message="Are you sure you want to soft delete this course? This will also remove all associated registrations."
+                fieldName="id"
+                customButton={
+                  <button
+                    type="submit"
+                    className="px-3 py-1.5 bg-white border border-red-300 rounded text-sm text-red-600 hover:bg-red-50 hover:border-red-400 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-30"
+                  >
+                    <div className="flex items-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                      </svg>
+                      Delete
+                    </div>
+                  </button>
+                }
+              />
+            </div>
+          </div>
         </div>
-        {/* Soft Delete Form */}
-        <form action={deleteCourse} className="mt-4 flex justify-end w-full">
-          <input type="hidden" name="id" value={id} />
-          <button
-            type="submit"
-            className="inline-flex items-center cursor-pointer text-sm text-red-600 hover:text-red-800 hover:bg-red-50 transition bg-transparent border-none p-0 font-normal pr-12"
-            style={{ boxShadow: 'none' }}
-            title="Soft delete this course"
-            aria-label="Delete course"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-4.477-10-10 0-1.657.402-3.22 1.125-4.575M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c1.657 0 3.22.402 4.575 1.125M21.542 12c-1.274 4.057-5.065 7-9.542 7-1.657 0-3.22-.402-4.575-1.125M9.88 9.88l4.24 4.24" />
-            </svg>
-            Delete
-          </button>
-        </form>
       </div>
     </div>
   )

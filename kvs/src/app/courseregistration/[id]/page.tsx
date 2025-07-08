@@ -13,6 +13,7 @@ import {
   SanitizedInvoice,
   SanitizedDocument,
 } from '@/types/query-models'
+import RemoveButton from '@/components/RemoveButton/removeButton'
 
 
 //---------------------------------------------------
@@ -331,10 +332,9 @@ export default async function ParticipantDetailsPage({
         {/* Invoices Section */}
         <section className="px-8 py-3 border-b border-neutral-200">
           <div>
-            {/* Header row */}
-            <div className="grid grid-cols-4 font-semibold text-neutral-700 text-xs uppercase border-b border-neutral-200 pb-2">
+            {/* Header row - Changed from grid-cols-4 to grid-cols-3 to match the data rows */}
+            <div className="grid grid-cols-3 font-semibold text-neutral-700 text-xs uppercase border-b border-neutral-200 pb-2">
               <div className="col-span-1">Invoice</div>
-              <div className="col-span-1 text-center">Amount</div>
               <div className="col-span-1 text-center">Recipient</div>
               <div className="col-span-1 text-center">Status</div>
             </div>
@@ -349,21 +349,25 @@ export default async function ParticipantDetailsPage({
               {sanitizedInvoices.map((inv) => (
                 <div
                   key={inv.id}
-                  className="grid grid-cols-4 items-center py-2 border-b border-neutral-100 last:border-b-0 bg-white transition-colors hover:bg-blue-50"
+                  className="grid grid-cols-3 items-center py-2 border-b border-neutral-100 last:border-b-0 bg-white transition-colors hover:bg-blue-50"
                 >
                   <div className="col-span-1 flex items-center gap-2">
-                    {/* Downloadable invoice link */}
-                    <span className="truncate max-w-[120px] block">
+                    {/* Downloadable invoice link with tooltip */}
+                    <span 
+                      className="truncate max-w-[120px] block" 
+                      title={`Invoice #${inv.id || inv.id || ''} - €${inv.amount?.toString() || ''}`}
+                    >
                       <DownloadPDFLink
                         uuidString={sanitizedRegistration.id}
                         filename={`${inv.id}.pdf`}
                         className="text-blue-700 hover:text-blue-900 font-medium text-sm"
                       />
                     </span>
-                    {/* Invoice details icon */}
+                    
+                    {/* View invoice details icon */}
                     <Link
                       href={`/invoice/${inv.id}`}
-                      className="ml-1 text-neutral-400 hover:text-blue-600 transition"
+                      className="text-neutral-400 hover:text-blue-600 transition"
                       title="View invoice details"
                     >
                       <svg
@@ -378,11 +382,28 @@ export default async function ParticipantDetailsPage({
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 16v-4m0-4h.01" />
                       </svg>
                     </Link>
-                  </div>
-                  
-                  {/* Invoice amount */}
-                  <div className="col-span-1 flex items-center justify-center text-neutral-700 text-sm">
-                    €{inv.amount?.toString()}
+                    
+                    {/* Add Edit link */}
+                    <Link
+                      href={`/invoice/${inv.id}/edit`}
+                      className="text-neutral-400 hover:text-blue-600 transition"
+                      title="Edit invoice"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="w-4 h-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                        />
+                      </svg>
+                    </Link>
                   </div>
                   
                   {/* Invoice recipient */}
@@ -475,20 +496,14 @@ export default async function ParticipantDetailsPage({
                       />
                     </div>
                     <div className="w-40 text-neutral-600 text-xs">{labelMap[doc.role] || doc.role}</div>
-                    <div className="w-10 flex justify-end">
-                      <form action={removeDocument}>
-                        <input type="hidden" name="documentId" value={doc.id} />
-                        <input type="hidden" name="registrationId" value={registrationId} />
-                        <button
-                          type="submit"
-                          className="cursor-pointer flex items-center justify-center w-7 h-7 rounded-full bg-neutral-100 text-neutral-400 hover:text-red-500 hover:bg-red-50 border border-transparent hover:border-red-200 transition"
-                          title="Remove document"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 12h12" />
-                          </svg>
-                        </button>
-                      </form>
+                    <div className="col-span-1 flex justify-end pl-2">
+                      <RemoveButton 
+                        itemId={doc.id} 
+                        onRemove={removeDocument}
+                        title="Remove Document"
+                        message="Are you sure you want to remove this document? You will no longer have access to it."
+                        fieldName="documentId"
+                      />
                     </div>
                   </div>
                 ))

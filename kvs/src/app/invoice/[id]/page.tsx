@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { db } from '@/lib/db'
 import { sanitize } from '@/lib/sanitize'
 import { SanitizedInvoiceWithRelations, SanitizedInvoiceRecipient } from '@/types/query-models'
+import { Pencil } from 'lucide-react' // Import the pencil icon (or use SVG if you prefer)
 
 //---------------------------------------------------
 // HELPER FUNCTIONS
@@ -132,9 +133,20 @@ export default async function InvoicePage({
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="bg-white rounded-xl shadow border border-gray-100 p-8 max-w-xl w-full">
-        <h1 className="text-2xl font-bold text-gray-900 mb-8 tracking-tight">
-          Invoice #{invoice.invoiceNumber}
-        </h1>
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+            Invoice #{invoice.invoiceNumber}
+          </h1>
+          
+          {/* Add Edit button */}
+          <Link
+            href={`/invoice/${id}/edit`}
+            className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-700 rounded border border-blue-200 hover:bg-blue-100 transition text-sm font-medium"
+          >
+            <Pencil size={14} />
+            Edit Invoice
+          </Link>
+        </div>
         
         {/* Invoice Details Table */}
         <div className="flex flex-col gap-2 mb-8">

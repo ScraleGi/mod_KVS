@@ -34,7 +34,12 @@ const courses = await db.course.findMany({
     mainTrainer: true,
     trainers: true,
     registrations: {
-      where: { deletedAt: null }, // Only include active registrations
+      where: { 
+        deletedAt: null, // Only include active registrations
+        participant: {
+        deletedAt: null // Also filter out registrations of soft-deleted participants
+        }
+      }, 
       orderBy: { registeredAt: 'desc' }, 
     },
   },

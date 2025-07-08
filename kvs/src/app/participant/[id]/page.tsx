@@ -7,8 +7,7 @@ import { redirect } from "next/navigation"
 import { revalidatePath } from 'next/cache'
 import ClientCourseModalWrapper from './ClientCourseModalWrapper'
 import { sanitize } from '@/lib/sanitize'
-import RegistrationRemoveButton from './RegistrationRemoveButton'
-
+import RemoveButton from '@/components/RemoveButton/removeButton'
 //---------------------------------------------------
 // TYPE DEFINITIONS
 //---------------------------------------------------
@@ -32,7 +31,12 @@ export default async function ParticipantPage({ params }: ParticipantPageProps) 
       where: { id },
       include: {
         registrations: {
-          where: { deletedAt: null }, // Only include active registrations
+          where: { 
+            deletedAt: null,
+            course: {
+              deletedAt: null  // Only include registrations for active courses
+            }
+          }, 
           include: {
             course: { include: { program: true } },
             invoices: {
@@ -240,10 +244,10 @@ export default async function ParticipantPage({ params }: ParticipantPageProps) 
               </div>
             </div>
             
-            {/* Action buttons */}
+            {/* Action buttons - Edit only */}
             <Link
               href={`/participant/${sanitizedParticipant.id}/edit`}
-              className="absolute top-6 right-16 text-neutral-400 hover:text-blue-600 transition"
+              className="absolute top-6 right-8 text-neutral-400 hover:text-blue-600 transition"
               title="Edit participant"
             >
               <svg
@@ -261,39 +265,14 @@ export default async function ParticipantPage({ params }: ParticipantPageProps) 
                 />
               </svg>
             </Link>
-            
-            <form action={deleteParticipant} className="absolute top-6 right-8">
-              <input type="hidden" name="id" value={sanitizedParticipant.id} />
-              <button
-                type="submit"
-                className="cursor-pointer text-neutral-400 hover:text-amber-500 transition-all duration-200 hover:scale-110"
-                title="Archive participant"
-                aria-label="Archive participant"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="w-6 h-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M20 7H4a1 1 0 00-1 1v11a2 2 0 002 2h14a2 2 0 002-2V8a1 1 0 00-1-1zM10 12h4M3 7l1-4h16l1 4"
-                  />
-                </svg>
-              </button>
-            </form>
           </section>
           
           {/* Courses Registered Section */}
           <section className="px-8 py-6 border-b border-neutral-200">
             <div className="flex flex-col gap-2">
               <div className="grid grid-cols-6 border-b border-neutral-200 py-1 bg-neutral-50 rounded-t">
-                <div className="col-span-2 text-xs font-semibold text-neutral-500 flex items-center px-1">Course</div>
-                <div className="col-span-1 text-xs font-semibold text-neutral-500 flex items-center justify-center">Code</div>
+                <div className="col-span-2 text-xs font-semibold text-neutral-500 flex items-center px-1">Course Registration</div>
+                <div className="col-span-1 text-xs font-semibold text-neutral-500 flex items-center justify-center">Course Code</div>
                 <div className="col-span-1"></div> {/* Spacer column */}
                 <div className="col-span-1 text-xs font-semibold text-neutral-500 flex items-center justify-center">Start</div>
                 <div className="col-span-1 text-xs font-semibold text-neutral-500 flex items-center justify-end">
@@ -341,9 +320,12 @@ export default async function ParticipantPage({ params }: ParticipantPageProps) 
                     )}
                   </div>
                   <div className="col-span-1 flex items-center justify-end h-full">
-                    <RegistrationRemoveButton 
-                      registrationId={reg.id} 
-                      removeRegistration={removeRegistration} 
+                    <RemoveButton 
+                      itemId={reg.id} 
+                      onRemove={removeRegistration} 
+                      title="Remove Course Registration"
+                      message="Are you sure you want to remove this course registration? This action cannot be undone."
+                      fieldName="registrationId"
                     />
                   </div>
                 </div>
@@ -455,18 +437,13 @@ export default async function ParticipantPage({ params }: ParticipantPageProps) 
                         {labelMap[doc.role] || doc.role}
                       </div>
                       <div className="col-span-1 flex justify-end pl-2">
-                        <form action={removeDocument}>
-                          <input type="hidden" name="documentId" value={doc.id} />
-                          <button
-                            type="submit"
-                            className="cursor-pointer flex items-center justify-center w-7 h-7 rounded-full bg-neutral-100 text-neutral-400 hover:text-red-500 hover:bg-red-50 border border-transparent hover:border-red-200 transition"
-                            title="Remove document"
-                          >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M6 12h12" />
-                            </svg>
-                          </button>
-                        </form>
+                        <RemoveButton 
+                          itemId={doc.id} 
+                          onRemove={removeDocument}
+                          title="Remove Document"
+                          message="Are you sure you want to remove this document? You will no longer have access to it."
+                          fieldName="documentId"
+                        />
                       </div>
                     </div>
                   ))
@@ -476,7 +453,7 @@ export default async function ParticipantPage({ params }: ParticipantPageProps) 
           </section>
 
           {/* Navigation Footer */}
-          <nav className="flex gap-4 justify-end px-8 py-6">
+          <nav className="flex gap-4 justify-end px-8 py-6 border-b border-neutral-200">
             <Link href="/participant" className="text-neutral-400 hover:text-blue-600 text-sm transition">
               &larr; Participants
             </Link>
@@ -484,6 +461,36 @@ export default async function ParticipantPage({ params }: ParticipantPageProps) 
               Home
             </Link>
           </nav>
+          
+          {/* Danger Zone Section */}
+          <div className="px-6 py-4 bg-gray-50 rounded-b-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-medium text-gray-700">Danger Zone</h3>
+                <p className="text-xs text-gray-500 mt-1">This action will soft delete Participant</p>
+              </div>
+              <RemoveButton
+                itemId={sanitizedParticipant.id}
+                onRemove={deleteParticipant}
+                title="Delete Participant"
+                message="Are you sure you want to soft delete this participant? This will also remove all associated registrations and documents."
+                fieldName="id"
+                customButton={
+                  <button
+                    type="submit"
+                    className="px-3 py-1.5 bg-white border border-red-300 rounded text-sm text-red-600 hover:bg-red-50 hover:border-red-400 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-30"
+                  >
+                    <div className="flex items-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                      </svg>
+                      Delete
+                    </div>
+                  </button>
+                }
+              />
+            </div>
+          </div>
         </div>
       </div>
     )

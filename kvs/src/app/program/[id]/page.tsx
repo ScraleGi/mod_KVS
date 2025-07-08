@@ -4,6 +4,7 @@ import { Info, GraduationCap, Pencil } from 'lucide-react';
 import { db } from '@/lib/db';
 import { sanitize } from '@/lib/sanitize';
 
+
 interface ProgramPageProps {
   params: { id: string; }
 }
@@ -20,7 +21,15 @@ export default async function ProgramPage({ params }: ProgramPageProps) {
           where: { deletedAt: null },
           include: {
             mainTrainer: true,
-            registrations: { include: { participant: true } }
+            registrations: { 
+              where: { 
+                deletedAt: null,
+                participant: {
+                  deletedAt: null // Filter out registrations with soft-deleted participants
+                }
+              },
+              include: { participant: true } 
+            }
           },
           orderBy: { startDate: 'asc' }
         }
@@ -116,7 +125,7 @@ export default async function ProgramPage({ params }: ProgramPageProps) {
                     </div>
                   </div>
                   <span className="inline-block mt-14 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">
-                    Participants: {course.registrations.filter(r => r.participant).length || 0}
+                    Participants: {course.registrations.length || 0}
                   </span>
                 </li>
               ))}
