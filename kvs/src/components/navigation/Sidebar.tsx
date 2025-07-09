@@ -3,13 +3,13 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const navItems = [
-  { href: '/', label: 'Home', icon: FaHome },
+  { href: '/', label: 'Startseite', icon: FaHome },
   { href: '/program', label: 'Programme', icon: FaLayerGroup },
-  { href: '/area', label: 'Areas', icon: FaThLarge },
-  { href: '/participant', label: 'Participants', icon: FaUsers },
+  { href: '/area', label: 'Bereiche', icon: FaThLarge },
+  { href: '/participant', label: 'Teilnehmer', icon: FaUsers },
   { href: '/calendar', label: 'Termine', icon: FaCalendarAlt },
-  { href: '/reports', label: 'Reports', icon: FaChartBar },
-  { href: '/inbox', label: 'Inbox', icon: FaRegEnvelope },
+  { href: '/reports', label: 'Berichte', icon: FaChartBar },
+  { href: '/inbox', label: 'Posteingang', icon: FaRegEnvelope },
   { href: '/settings', label: 'Einstellungen', icon: FaCog },
 ];
 
@@ -68,9 +68,9 @@ const Sidebar = ({ isOpen }: SidebarProps) => {
           className="flex items-center px-3 py-2 text-red-400 hover:text-red-600 transition-colors"
         >
           <FaSignOutAlt className="w-6 h-6 mr-2" />
-          {isOpen && <span>Logout</span>}
+          {isOpen && <span>Abmelden</span>}
         </a>
-        {!isOpen && <Tooltip>Logout</Tooltip>}
+        {!isOpen && <Tooltip>Abmelden</Tooltip>}
       </div>
     </div>
     </nav>

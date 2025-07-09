@@ -153,12 +153,25 @@ export const home: ColumnDef<CourseRow>[] = [
       const value = row.getValue(columnId)
       if (!value) return false
       const date = new Date(value as string)
+      if (isNaN(date.getTime())) return false
       const [from, to] = filterValue
       if (from && date < new Date(from)) return false
       if (to && date > new Date(to)) return false
       return true
     },
-    // ...restlicher Code...
+
+    sortingFn:(rowA, rowB, columnId) => {
+      const a = rowA.getValue(columnId)
+      const b = rowB.getValue(columnId)
+      const dateA = a ? new Date(a as string) : null
+      const dateB = b ? new Date(b as string) : null
+      
+      if ((!dateA || isNaN(dateA.getTime())) && (!dateB || isNaN(dateB.getTime()))) return 0
+      if (!dateA || isNaN(dateA.getTime())) return 1
+      if (!dateB || isNaN(dateB.getTime())) return -1
+
+      return dateA.getTime() - dateB.getTime()
+    },
   },
   // Trainer column (left-aligned)
   {
@@ -233,14 +246,15 @@ export const participantColumns: ColumnDef<ParticipantRow>[] = [
         placeholder="Filter Name..."
       />
     ),
-    cell: ({ row }) => (
-      <Link
-        href={`/participant/${row.original.id}`}
-        className="relative text-blue-600 hover:text-blue-800 pl-2 inline-block after:content-[''] after:absolute after:left-8 after:bottom-0 after:w-0 hover:after:w-[calc(100%-2rem)] after:h-[2px] after:bg-blue-600 after:transition-all after:duration-300"
-      >
-        {row.original.name} {row.original.surname}
-      </Link>
-    ),
+cell: ({ row }) => (
+  <Link
+    href={`/participant/${row.original.id}`}
+    className="relative text-blue-600 hover:text-blue-800 inline-block after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-0 hover:after:w-full after:h-[2px] after:bg-blue-600 after:transition-all after:duration-300"
+    style={{ whiteSpace: "nowrap" }}
+  >
+    {row.original.name} {row.original.surname}
+  </Link>
+),
   },
   {
     accessorKey: "email",
@@ -484,8 +498,8 @@ export const programColumns: ColumnDef<ProgramRow>[] = [
     header: ({ column }) => (
       <FilterHeader
         column={column}
-        label="Unterrichtseinheiten"
-        placeholder="Filter Lehrveranstaltungen..."
+        label="Einheit"
+        placeholder="Filter Einheit..."
       />
     ),
     cell: ({ row }) => (

@@ -75,11 +75,12 @@ export default async function ParticipantDetailsPage({
 }) {
   // --- Extract participant ID ---
   const { id } = await params
-  const participantId = id
+  const registrationId = id
+  console.log(`Fetching details for participant ID: ${registrationId}`)
 
   // --- Fetch registration with relations ---
   const registration = await prisma.courseRegistration.findFirst({
-    where: { id: participantId },
+    where: { id: registrationId },
     include: {
       participant: true,
       course: { include: { program: true, mainTrainer: true } },
@@ -106,6 +107,9 @@ export default async function ParticipantDetailsPage({
       })
     : []
 
+  // --- Check if there are any active invoices ---  
+  const hasActiveInvoice = sanitizedInvoices.some(inv => !inv.isCancelled)
+
   // --- Label map for document roles ---
   const labelMap: Record<string, string> = {
     certificate: 'Zertifikat',
@@ -121,7 +125,7 @@ export default async function ParticipantDetailsPage({
       where: { id: documentId },
       data: { deletedAt: new Date() }
     })
-    revalidatePath(`/courseregistration/${participantId}`)
+    revalidatePath(`/courseregistration/${registrationId}`)
   }
 
   // --- Handle missing registration/participant ---
@@ -177,19 +181,24 @@ export default async function ParticipantDetailsPage({
 
         {/* --- Registration Details --- */}
         <section className="px-8 py-6 border-b border-neutral-200">
-          <h2 className="text-sm font-semibold text-neutral-800 mb-2">Details</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-[13px] text-neutral-700">
+          <h2 className="text-sm font-semibold text-neutral-800 mb-4">
+            Course:&nbsp;
+            <Link
+              href={`/course/${sanitizedRegistration.course?.id}`}
+              className="text-blue-700 hover:text-blue-800 font-medium hover:underline"
+            >
+              {sanitizedRegistration.course?.program?.name ?? '-'}
+            </Link>
+          </h2>
+          <div
+            className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-[13px] text-neutral-700 border-l-4 border-neutral-200 pl-6 mt-2"
+          >
             {/* Left column */}
             <div className="flex flex-col gap-2">
-              {/* 1. Course */}
+              {/* 1. Code */}
               <div className="flex items-center gap-2">
-                <span className="font-medium text-neutral-600">Course:</span>
-                <Link
-                  href={`/course/${sanitizedRegistration.course?.id}`}
-                  className="text-blue-700 hover:text-blue-800 font-medium hover:underline"
-                >
-                  {sanitizedRegistration.course?.program?.name ?? '-'}
-                </Link>
+                <span className="font-medium text-neutral-600">Code:</span>
+                {sanitizedRegistration.course?.code ?? '-'}
               </div>
               {/* 2. Trainer */}
               <div className="flex items-center gap-2">
@@ -319,94 +328,123 @@ export default async function ParticipantDetailsPage({
         <section className="px-8 py-3 border-b border-neutral-200">
           <div>
             {/* Header row */}
-            <div className="grid grid-cols-4 font-semibold text-neutral-700 text-xs uppercase border-b border-neutral-200 pb-2 mb-2">
-              <div className="col-span-1">Invoice</div>
-              <div className="col-span-1 text-center">Amount</div>
-              <div className="col-span-1 text-center">Recipient</div>
-              <div className="col-span-1 text-center">Status</div>
-            </div>
-            <div>
-              {sanitizedInvoices.length === 0 && (
-                <div className="flex items-center px-2 py-2 text-neutral-400 italic text-sm bg-white rounded">
-                  No invoices found
-                </div>
-              )}
-              {sanitizedInvoices.map((inv) => (
-                <div
-                  key={inv.id}
-                  className="grid grid-cols-4 items-center py-2 border-b border-neutral-100 last:border-b-0 bg-white transition-colors hover:bg-blue-50"
-                >
-                <div className="col-span-1 flex items-center gap-2">
-          {/* Downloadable filename */}
-          <span className="truncate max-w-[120px] block">
-            <DownloadPDFLink
-              uuidString={sanitizedRegistration.id}
-              filename={`${inv.id}.pdf`}
-              className="text-blue-700 hover:text-blue-900 font-medium text-sm"
-            />
-          </span>
-          {/* Details icon */}
-          <Link
-            href={`/invoice/${inv.id}`}
-            className="ml-1 text-neutral-400 hover:text-blue-600 transition"
-            title="View invoice details"
+           <div className="grid grid-cols-4 font-semibold text-neutral-700 text-xs uppercase border-b border-neutral-200 pb-2">
+  <div className="col-span-1">Invoice</div>
+  <div className="col-span-1 text-center">Amount</div>
+  <div className="col-span-1 text-center">Recipient</div>
+  <div className="col-span-1 text-center">Status</div>
+</div>
+<div className="border-b border-neutral-200 mb-2">
+  {sanitizedInvoices.length === 0 && (
+    <div className="flex items-center px-2 py-2 text-neutral-400 italic text-xs bg-white rounded">
+      No invoices found
+    </div>
+  )}
+  {sanitizedInvoices.map((inv) => (
+    <div
+      key={inv.id}
+      className="grid grid-cols-4 items-center py-2 border-b border-neutral-100 last:border-b-0 bg-white transition-colors hover:bg-blue-50"
+    >
+      <div className="col-span-1 flex items-center gap-2">
+        {/* Downloadable filename */}
+        <span className="truncate max-w-[120px] block">
+          <DownloadPDFLink
+            uuidString={sanitizedRegistration.id}
+            filename={`${inv.id}.pdf`}
+            className="text-blue-700 hover:text-blue-900 font-medium text-sm"
+          />
+        </span>
+        {/* Details icon */}
+        <Link
+          href={`/invoice/${inv.id}`}
+          className="ml-1 text-neutral-400 hover:text-blue-600 transition"
+          title="View invoice details"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-4 h-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="w-4 h-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 16v-4m0-4h.01" />
-            </svg>
-          </Link>
-        </div>
-          <div className="col-span-1 flex items-center justify-center text-neutral-700 text-sm">
-            €{inv.amount?.toString()}
-          </div>
-          <div className="col-span-1 flex flex-col items-center text-neutral-700 text-xs">
-            {inv.recipient.type === 'COMPANY'
-              ? inv.recipient.companyName
-              : `${inv.recipient.recipientName} ${inv.recipient.recipientSurname}`}
-          </div>
-          <div className="col-span-1 flex items-center justify-center text-xs">
-            {inv.isCancelled ? (
-              <span className="text-red-500 font-semibold">Cancelled</span>
-            ) : inv.transactionNumber ? (
-              <span className="text-green-700 font-semibold">Paid</span>
-            ) : (
-              <span className="text-yellow-600 font-semibold">Unpaid</span>
-            )}
-          </div>
-        </div>
-      ))}
+            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 16v-4m0-4h.01" />
+          </svg>
+        </Link>
+      </div>
+      <div className="col-span-1 flex items-center justify-center text-neutral-700 text-sm">
+        €{inv.amount?.toString()}
+      </div>
+      {/* Recipient column: show recipient info */}
+      <div className="col-span-1 flex items-center justify-center text-xs">
+        {inv.recipient?.type === 'PERSON'
+          ? `${inv.recipient.recipientName ?? ''} ${inv.recipient.recipientSurname ?? ''}`.trim() || '-'
+          : inv.recipient?.type === 'COMPANY'
+            ? inv.recipient.companyName ?? '-'
+            : '-'}
+      </div>
+      {/* Status column: show status logic (Active/Cancelled, Paid/Unpaid) */}
+      <div className="col-span-1 flex items-center justify-center text-xs">
+        <form action={toggleInvoiceCancelled}>
+          <input type="hidden" name="invoiceId" value={inv.id} />
+          <input type="hidden" name="registrationId" value={registrationId} />
+          <button
+            type="submit"
+            name="isCancelled"
+            value={inv.isCancelled ? "" : "on"}
+            className={`px-2 py-1 rounded text-xs font-semibold transition
+              ${inv.isCancelled
+                ? "bg-red-100 text-red-600 hover:bg-red-200"
+                : "bg-green-100 text-green-700 hover:bg-green-200"}
+            `}
+          >
+            {inv.isCancelled ? "Cancelled" : "Active"}
+          </button>
+        </form>
+        {inv.transactionNumber && !inv.isCancelled && (
+          <span className="ml-2 text-green-700 font-semibold">Paid</span>
+        )}
+        {!inv.transactionNumber && !inv.isCancelled && (
+          <span className="ml-2 text-yellow-600 font-semibold">Unpaid</span>
+        )}
+      </div>
     </div>
-    {/* --- Create Invoice Button --- */}
-    <div className="flex justify-end mt-4">
-      <Link
-        href={`/courseregistration/${participantId}/create-invoice`}
-        className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-xs font-medium transition"
-      >
-        Create Invoice
-      </Link>
-    </div>
+  ))}
+</div>
+{/* --- Create Invoice Button --- */}
+<div className="flex justify-end mt-4">
+  {hasActiveInvoice ? (
+    <span
+      className="px-3 py-1 rounded text-xs font-medium bg-neutral-200 text-neutral-400 cursor-not-allowed select-none"
+      tabIndex={-1}
+      aria-disabled="true"
+    >
+      Create Invoice
+    </span>
+  ) : (
+    <Link
+      href={`/courseregistration/${registrationId}/create-invoice`}
+      className="px-3 py-1 rounded text-xs font-medium bg-blue-600 text-white hover:bg-blue-700 transition"
+    >
+      Create Invoice
+    </Link>
+  )}
+</div>
   </div>
 </section>
 
         {/* --- Documents Section --- */}
         <section className="px-8 py-3 border-b border-neutral-200">
           <div>
-            <div className="flex items-center font-semibold text-neutral-700 text-xs uppercase border-b border-neutral-200 pb-2 mb-2">
+            <div className="flex items-center font-semibold text-neutral-700 text-xs uppercase border-b border-neutral-200 pb-2">
               <div className="flex-1">Document</div>
               <div className="w-40">Type</div>
               <div className="w-10"></div>
             </div>
-            <div className="text-black">
+            <div className="border-b border-neutral-200 mb-2">
               {documents.length === 0 ? (
-                <div className="flex items-center px-2 py-2 text-neutral-400 italic text-sm bg-white rounded">
+                <div className="flex items-center px-2 py-2 text-neutral-400 italic text-xs bg-white rounded">
                   No documents found
                 </div>
               ) : (
@@ -444,8 +482,8 @@ export default async function ParticipantDetailsPage({
           </div>
           <div className="flex justify-start mt-4">
             <Link
-              href={`/courseregistration/${participantId}/deletedDocuments`}
-              className="inline-flex items-center gap-1 text-neutral-400 hover:text-orange-600 text-sm transition"
+              href={`/courseregistration/${registrationId}/deletedDocuments`}
+              className="inline-flex items-center gap-1 text-neutral-400 hover:text-orange-600 text-xs transition"
             >
               View Deleted Documents
               <svg

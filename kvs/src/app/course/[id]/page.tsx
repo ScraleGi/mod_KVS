@@ -42,9 +42,9 @@ export default async function CoursePage({ params }: CoursePageProps) {
     return (
       <div className="container mx-auto py-8 px-4">
         <Link href="/" className="text-blue-500 hover:underline mb-6 block">
-          &larr; Back to Home
+          &larr; Zurück zur Startseite
         </Link>
-        <div className="text-red-600 text-lg font-semibold">Course not found.</div>
+        <div className="text-red-600 text-lg font-semibold">Kurse nicht gefunden.</div>
       </div>
     )
   }
@@ -55,10 +55,10 @@ export default async function CoursePage({ params }: CoursePageProps) {
         {/* Horizontal links at the top */}
         <div className="flex justify-left gap-6 mb-8">
           <Link href="/course" className="text-blue-500 hover:underline">
-            &larr; Back to Courses
+            &larr; Zurück zu Kurse
           </Link>
           <Link href="/" className="text-blue-500 hover:underline">
-            &larr; Back to Home
+            &larr; Zurück zur Startseite
           </Link>
         </div>
 
@@ -70,7 +70,7 @@ export default async function CoursePage({ params }: CoursePageProps) {
             <div className="bg-white shadow rounded-lg p-6 mb-6 flex flex-col md:flex-row md:gap-8">
               <div className="flex-1">
                 <div className="flex items-center mb-4">
-                  <span className="font-semibold mr-2">Area:</span>
+                  <span className="font-semibold mr-2">Bereich:</span>
                   <span>{course.program?.area?.name ?? 'Unknown'}</span>
                 </div>
                 <div className="flex items-center mb-4">
@@ -82,16 +82,16 @@ export default async function CoursePage({ params }: CoursePageProps) {
                   </span>
                   {course.trainers && course.trainers.length > 0 && (
                     <span className="ml-2 text-xs text-gray-600 bg-gray-100 rounded px-2 py-1">
-                      Additional: {course.trainers.map(t => `${t.name} ${t.surname ?? ''}`).join(', ')}
+                      Co-Trainer: {course.trainers.map(t => `${t.name} ${t.surname ?? ''}`).join(', ')}
                     </span>
                   )}
                 </div>
                 <div className="flex items-center mb-4">
-                  <span className="font-semibold mr-2">Start Date:</span>
+                  <span className="font-semibold mr-2">Start Datum:</span>
                   <span>{formatDateGerman(course.startDate)}</span>
                 </div>
                 <div className="flex items-center mb-4">
-                  <span className="font-semibold mr-2">Registrations:</span>
+                  <span className="font-semibold mr-2">Registrationen:</span>
                   <span>{course.registrations.length}</span>
                 </div>
               </div>
@@ -101,21 +101,21 @@ export default async function CoursePage({ params }: CoursePageProps) {
                   type="button"
                   className="cursor-pointer w-full px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium rounded border border-blue-200 shadow-sm transition text-sm"
                 >
-                  Generate Diplom
+                  Diplom generieren
                 </button>
                 <button
                   type="button"
                   className="cursor-pointer w-full px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-medium rounded border border-emerald-200 shadow-sm transition text-sm"
                 >
-                  Generate Invoice
+                  Rechnung generieren
                 </button>
               </div>
             </div>
 
             <div className="bg-white shadow rounded-lg p-6 mb-6">
-              <h2 className="text-xl font-bold mb-4">Participants</h2>
+              <h2 className="text-xl font-bold mb-4">Teilnehmer</h2>
               {course.registrations.length === 0 ? (
-                <p className="text-gray-500">No participants registered.</p>
+                <p className="text-gray-500">Keine Teilnehmer registriert.</p>
               ) : (
                 <ul className="divide-y divide-gray-200">
                   {course.registrations.map(reg => (
@@ -136,7 +136,7 @@ export default async function CoursePage({ params }: CoursePageProps) {
                       </div>
                       {/* Invoices */}
                       <div className="md:w-1/3 w-full mb-2 md:mb-0 text-sm text-gray-600">
-                        <span className="font-semibold">Invoice(s): </span>
+                        <span className="font-semibold">Rechnungen: </span>
                         {reg.invoices.length
                           ? reg.invoices.map((inv, idx) => (
                               <React.Fragment key={inv.id}>
@@ -154,11 +154,11 @@ export default async function CoursePage({ params }: CoursePageProps) {
                                 {idx < reg.invoices.length - 1 && ", "}
                               </React.Fragment>
                             ))
-                          : "No invoices"}
+                          : "keine Rechnungen"}
                       </div>
                       {/* Documents */}
                       <div className="md:w-1/3 w-full text-sm text-gray-600">
-                        <span className="font-semibold">Document(s): </span>
+                        <span className="font-semibold">Dokumente: </span>
                         {reg.generatedDocuments && reg.generatedDocuments.length > 0 ? (
                           reg.generatedDocuments.map((doc, idx) => (
                             <React.Fragment key={doc.id}>
@@ -180,7 +180,7 @@ export default async function CoursePage({ params }: CoursePageProps) {
                             </React.Fragment>
                           ))
                         ) : (
-                          "No documents"
+                          "keine Dokumente"
                         )}
                       </div>
                     </li>

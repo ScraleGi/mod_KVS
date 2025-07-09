@@ -53,8 +53,8 @@ export default async function AreasPage() {
     if (!areas || areas.length === 0) {
         return (
             <div className="p-8">
-                <h1 className="text-3xl font-bold mb-6">No Areas Found</h1>
-                <p className="text-gray-600">There are currently no areas available.</p>
+                <h1 className="text-3xl font-bold mb-6">Keine Bereiche gefunden.</h1>
+                <p className="text-gray-600">Derzeit sind keine Bereiche verfügbar.</p>
             </div>
         )
     }
@@ -73,7 +73,7 @@ export default async function AreasPage() {
     <div className="min-h-screen bg-gray-50 py-6 px-4">
         {/* Header */}
       <div className="flex items-center justify-between mb-8">
-           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Areas</h1>
+           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Bereiche</h1>
            <div className="flex gap-2">
              <Link
                href="/area/new"

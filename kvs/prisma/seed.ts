@@ -5,13 +5,13 @@ const prisma = new PrismaClient()
 // -------------------- Area Seeding --------------------
 async function seedAreas() {
   const areaData = [
-    { name: 'KI Campus', description: 'Artificial Intelligence and Machine Learning programs' },
-    { name: 'It & Coding Campus', description: 'IT and software development courses' },
-    { name: 'Digital Markeing Academy', description: 'Digital marketing and online business' },
-    { name: 'Green Campus', description: 'Sustainability and green technology education' },
-    { name: 'Business & Management Academy', description: 'Business, management, and leadership' },
-    { name: 'E-Learning Lehrgänge', description: 'Online learning and remote education' },
-    { name: 'Digital Studies', description: 'Digital transformation and modern studies' },
+    { code: 'KI', name: 'KI Campus', description: 'Artificial Intelligence and Machine Learning programs' },
+    { code: 'IT', name: 'It & Coding Campus', description: 'IT and software development courses' },
+    { code: 'DMA', name: 'Digital Markeing Academy', description: 'Digital marketing and online business' },
+    { code: 'GREEN', name: 'Green Campus', description: 'Sustainability and green technology education' },
+    { code: 'BMA', name: 'Business & Management Academy', description: 'Business, management, and leadership' },
+    { code: 'ELEARN', name: 'E-Learning Lehrgänge', description: 'Online learning and remote education' },
+    { code: 'DS', name: 'Digital Studies', description: 'Digital transformation and modern studies' },
   ]
   await prisma.area.createMany({
     data: areaData,
@@ -25,20 +25,20 @@ async function seedAreas() {
 async function seedPrograms(areaMap: Record<string, string>) {
   await prisma.program.createMany({
     data: [
-      { name: 'AI Fundamentals', description: 'Introduction to Artificial Intelligence.', teachingUnits: 8, price: new Prisma.Decimal('299.99'), areaId: areaMap['KI Campus'] },
-      { name: 'Machine Learning Basics', teachingUnits: 10, price: new Prisma.Decimal('349.99'), areaId: areaMap['KI Campus'] },
-      { name: 'Web Development Bootcamp', description: 'Full stack web development.', teachingUnits: 12, price: new Prisma.Decimal('399.99'), areaId: areaMap['It & Coding Campus'] },
-      { name: 'Python for Beginners', teachingUnits: 6, price: new Prisma.Decimal('149.99'), areaId: areaMap['It & Coding Campus'] },
-      { name: 'Digital Marketing 101', description: 'Basics of digital marketing.', teachingUnits: 7, areaId: areaMap['Digital Markeing Academy'] },
-      { name: 'Sustainability in Business', description: 'Green business practices.', teachingUnits: 5, areaId: areaMap['Green Campus'] },
-      { name: 'Business Strategy', teachingUnits: 9, price: new Prisma.Decimal('299.99'), areaId: areaMap['Business & Management Academy'] },
-      { name: 'E-Learning Essentials', description: 'How to create effective e-learning courses.', areaId: areaMap['E-Learning Lehrgänge'] },
-      { name: 'Digital Transformation', teachingUnits: 8, price: new Prisma.Decimal('199.99'), areaId: areaMap['Digital Studies'] },
-      { name: 'Cloud Computing Basics', teachingUnits: 8, price: new Prisma.Decimal('249.99'), areaId: areaMap['It & Coding Campus'] },
-      { name: 'Project Management', teachingUnits: 10, price: new Prisma.Decimal('299.99'), areaId: areaMap['Business & Management Academy'] },
-      { name: 'Data Visualization', teachingUnits: 7, price: new Prisma.Decimal('199.99'), areaId: areaMap['Digital Studies'] },
-      { name: 'Agile Methodologies', teachingUnits: 6, price: new Prisma.Decimal('179.99'), areaId: areaMap['Business & Management Academy'] },
-      { name: 'UI/UX Design', teachingUnits: 8, price: new Prisma.Decimal('259.99'), areaId: areaMap['It & Coding Campus'] },
+      { code: 'AIF', name: 'AI Fundamentals', description: 'Introduction to Artificial Intelligence.', teachingUnits: 8, price: new Prisma.Decimal('299.99'), areaId: areaMap['KI Campus'] },
+      { code: 'MLB', name: 'Machine Learning Basics', teachingUnits: 10, price: new Prisma.Decimal('349.99'), areaId: areaMap['KI Campus'] },
+      { code: 'WEBDEV', name: 'Web Development Bootcamp', description: 'Full stack web development.', teachingUnits: 12, price: new Prisma.Decimal('399.99'), areaId: areaMap['It & Coding Campus'] },
+      { code: 'PYB', name: 'Python for Beginners', teachingUnits: 6, price: new Prisma.Decimal('149.99'), areaId: areaMap['It & Coding Campus'] },
+      { code: 'DM101', name: 'Digital Marketing 101', description: 'Basics of digital marketing.', teachingUnits: 7, areaId: areaMap['Digital Markeing Academy'] },
+      { code: 'SIB', name: 'Sustainability in Business', description: 'Green business practices.', teachingUnits: 5, areaId: areaMap['Green Campus'] },
+      { code: 'BS', name: 'Business Strategy', teachingUnits: 9, price: new Prisma.Decimal('299.99'), areaId: areaMap['Business & Management Academy'] },
+      { code: 'ELE', name: 'E-Learning Essentials', description: 'How to create effective e-learning courses.', areaId: areaMap['E-Learning Lehrgänge'] },
+      { code: 'DT', name: 'Digital Transformation', teachingUnits: 8, price: new Prisma.Decimal('199.99'), areaId: areaMap['Digital Studies'] },
+      { code: 'CCB', name: 'Cloud Computing Basics', teachingUnits: 8, price: new Prisma.Decimal('249.99'), areaId: areaMap['It & Coding Campus'] },
+      { code: 'PM', name: 'Project Management', teachingUnits: 10, price: new Prisma.Decimal('299.99'), areaId: areaMap['Business & Management Academy'] },
+      { code: 'DV', name: 'Data Visualization', teachingUnits: 7, price: new Prisma.Decimal('199.99'), areaId: areaMap['Digital Studies'] },
+      { code: 'AGILE', name: 'Agile Methodologies', teachingUnits: 6, price: new Prisma.Decimal('179.99'), areaId: areaMap['Business & Management Academy'] },
+      { code: 'UIUX', name: 'UI/UX Design', teachingUnits: 8, price: new Prisma.Decimal('259.99'), areaId: areaMap['It & Coding Campus'] },
     ],
     skipDuplicates: true,
   })
@@ -51,6 +51,7 @@ async function seedTrainers() {
   await prisma.trainer.createMany({
     data: [
       {
+        code: 'TR-ANNA',
         name: 'Anna',
         surname: 'Müller',
         salutation: 'Frau',
@@ -64,6 +65,7 @@ async function seedTrainers() {
         country: 'DE',
       },
       {
+        code: 'TR-BERND',
         name: 'Bernd',
         surname: 'Schmidt',
         salutation: 'Herr',
@@ -77,6 +79,7 @@ async function seedTrainers() {
         country: 'DE',
       },
       {
+        code: 'TR-CLAUDIA',
         name: 'Claudia',
         surname: 'Fischer',
         salutation: 'Frau',
@@ -90,6 +93,7 @@ async function seedTrainers() {
         country: 'DE',
       },
       {
+        code: 'TR-DIETER',
         name: 'Dieter',
         surname: 'Weber',
         salutation: 'Herr',
@@ -103,6 +107,7 @@ async function seedTrainers() {
         country: 'DE',
       },
       {
+        code: 'TR-EVA',
         name: 'Eva',
         surname: 'Schneider',
         salutation: 'Frau',
@@ -126,6 +131,7 @@ async function seedTrainers() {
 async function seedCourses(programMap: Record<string, string>, trainerMap: Record<string, string>) {
   const courseData = [
     {
+      code: 'AIF-2024-09',
       program: 'AI Fundamentals',
       startDate: new Date('2024-09-01'),
       endDate: new Date('2024-09-15'),
@@ -133,6 +139,7 @@ async function seedCourses(programMap: Record<string, string>, trainerMap: Recor
       trainers: ['Bernd Schmidt', 'Claudia Fischer'],
     },
     {
+      code: 'WEBDEV-2024-10',
       program: 'Web Development Bootcamp',
       startDate: new Date('2024-10-01'),
       endDate: new Date('2024-10-21'),
@@ -140,6 +147,7 @@ async function seedCourses(programMap: Record<string, string>, trainerMap: Recor
       trainers: ['Anna Müller'],
     },
     {
+      code: 'PYB-2024-11',
       program: 'Python for Beginners',
       startDate: new Date('2024-11-01'),
       endDate: new Date('2024-11-10'),
@@ -147,6 +155,7 @@ async function seedCourses(programMap: Record<string, string>, trainerMap: Recor
       trainers: [],
     },
     {
+      code: 'DM101-2024-12',
       program: 'Digital Marketing 101',
       startDate: new Date('2024-12-01'),
       endDate: new Date('2024-12-14'),
@@ -154,6 +163,7 @@ async function seedCourses(programMap: Record<string, string>, trainerMap: Recor
       trainers: ['Eva Schneider'],
     },
     {
+      code: 'CCB-2025-01',
       program: 'Cloud Computing Basics',
       startDate: new Date('2025-01-15'),
       endDate: new Date('2025-01-29'),
@@ -161,6 +171,7 @@ async function seedCourses(programMap: Record<string, string>, trainerMap: Recor
       trainers: ['Dieter Weber'],
     },
     {
+      code: 'PM-2025-02',
       program: 'Project Management',
       startDate: new Date('2025-02-10'),
       endDate: new Date('2025-02-24'),
@@ -168,6 +179,7 @@ async function seedCourses(programMap: Record<string, string>, trainerMap: Recor
       trainers: [],
     },
     {
+      code: 'DV-2025-03',
       program: 'Data Visualization',
       startDate: new Date('2025-03-05'),
       endDate: new Date('2025-03-19'),
@@ -175,6 +187,7 @@ async function seedCourses(programMap: Record<string, string>, trainerMap: Recor
       trainers: [],
     },
     {
+      code: 'AGILE-2025-04',
       program: 'Agile Methodologies',
       startDate: new Date('2025-04-01'),
       endDate: new Date('2025-04-10'),
@@ -182,6 +195,7 @@ async function seedCourses(programMap: Record<string, string>, trainerMap: Recor
       trainers: ['Claudia Fischer'],
     },
     {
+      code: 'UIUX-2025-05',
       program: 'UI/UX Design',
       startDate: new Date('2025-05-10'),
       endDate: new Date('2025-05-24'),
@@ -194,6 +208,7 @@ async function seedCourses(programMap: Record<string, string>, trainerMap: Recor
   for (const c of courseData) {
     const course = await prisma.course.create({
       data: {
+        code: c.code,
         programId: programMap[c.program],
         startDate: c.startDate,
         endDate: c.endDate,
@@ -213,6 +228,7 @@ async function seedParticipants() {
   await prisma.participant.createMany({
     data: [
       {
+        code: 'P-0001',
         name: 'Charlie',
         surname: 'Brown',
         salutation: 'Herr',
@@ -226,6 +242,7 @@ async function seedParticipants() {
         country: 'DE',
       },
       {
+        code: 'P-0002',
         name: 'Dana',
         surname: 'White',
         salutation: 'Frau',
@@ -239,6 +256,7 @@ async function seedParticipants() {
         country: 'DE',
       },
       {
+        code: 'P-0003',
         name: 'Eve',
         surname: 'Adams',
         salutation: 'Frau',
@@ -252,6 +270,7 @@ async function seedParticipants() {
         country: 'DE',
       },
       {
+        code: 'P-0004',
         name: 'Frank',
         surname: 'Miller',
         salutation: 'Herr',
@@ -265,6 +284,7 @@ async function seedParticipants() {
         country: 'DE',
       },
       {
+        code: 'P-0005',
         name: 'Grace',
         surname: 'Lee',
         salutation: 'Frau',
@@ -278,6 +298,7 @@ async function seedParticipants() {
         country: 'DE',
       },
       {
+        code: 'P-0006',
         name: 'Henry',
         surname: 'Ford',
         salutation: 'Herr',
@@ -291,6 +312,7 @@ async function seedParticipants() {
         country: 'DE',
       },
       {
+        code: 'P-0007',
         name: 'Isabel',
         surname: 'Turner',
         salutation: 'Frau',
@@ -304,6 +326,7 @@ async function seedParticipants() {
         country: 'DE',
       },
       {
+        code: 'P-0008',
         name: 'Jack',
         surname: 'Black',
         salutation: 'Herr',
@@ -317,6 +340,7 @@ async function seedParticipants() {
         country: 'DE',
       },
       {
+        code: 'P-0009',
         name: 'Karen',
         surname: 'Green',
         salutation: 'Frau',
@@ -330,6 +354,7 @@ async function seedParticipants() {
         country: 'DE',
       },
       {
+        code: 'P-0010',
         name: 'Liam',
         surname: 'Young',
         salutation: 'Herr',
@@ -343,6 +368,7 @@ async function seedParticipants() {
         country: 'DE',
       },
       {
+        code: 'P-0011',
         name: 'Mona',
         surname: 'Patel',
         salutation: 'Frau',
@@ -356,6 +382,7 @@ async function seedParticipants() {
         country: 'DE',
       },
       {
+        code: 'P-0012',
         name: 'Nina',
         surname: 'Rossi',
         salutation: 'Frau',
@@ -369,6 +396,7 @@ async function seedParticipants() {
         country: 'DE',
       },
       {
+        code: 'P-0013',
         name: 'Olga',
         surname: 'Schmidt',
         salutation: 'Frau',
@@ -382,6 +410,7 @@ async function seedParticipants() {
         country: 'DE',
       },
       {
+        code: 'P-0014',
         name: 'Paul',
         surname: 'Weber',
         salutation: 'Herr',
@@ -395,6 +424,7 @@ async function seedParticipants() {
         country: 'DE',
       },
       {
+        code: 'P-0015',
         name: 'Quentin',
         surname: 'Bauer',
         salutation: 'Herr',
@@ -408,6 +438,7 @@ async function seedParticipants() {
         country: 'DE',
       },
       {
+        code: 'P-0016',
         name: 'Rita',
         surname: 'Hoffmann',
         salutation: 'Frau',
@@ -421,6 +452,7 @@ async function seedParticipants() {
         country: 'DE',
       },
       {
+        code: 'P-0017',
         name: 'Stefan',
         surname: 'König',
         salutation: 'Herr',
@@ -434,6 +466,7 @@ async function seedParticipants() {
         country: 'DE',
       },
       {
+        code: 'P-0018',
         name: 'Tina',
         surname: 'Schulz',
         salutation: 'Frau',
