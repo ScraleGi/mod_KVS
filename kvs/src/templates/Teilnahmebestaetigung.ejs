@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Teilnahmebestätigung</title>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 10px 30px 30px 30px;
+      line-height: 1.8;
+      color: #000;
+      background-color: #fff;
+      font-size: 15px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .content {
+      flex: 1 0 auto;
+      margin-bottom: 0;
+      page-break-inside: avoid;
+    }
+
+    .logo-wrapper {
+      text-align: center;
+      margin-top: -20px;
+      margin-bottom: 25px;
+    }
+
+    .logo {
+      max-width: 220px;
+      height: auto;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0;
+    }
+
+    .recipient-info ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .recipient-info ul li {
+      margin: 0;
+      padding: 0;
+      line-height: 1;
+      font-size: 15px;
+    }
+
+    .date {
+      text-align: right;
+      font-size: 14px;
+      margin-top: 10px;
+      margin-bottom: 40px;
+    }
+
+    h1 {
+      text-align: left;
+      font-size: 28px;
+      margin-top: 0;
+      margin-bottom: 32px;
+      font-weight: bold;
+    }
+
+    ul.details {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 35px 0;
+    }
+
+    ul.details li {
+      margin-bottom: 8px;
+    }
+
+    .tight {
+      margin-bottom: 3px !important;
+    }
+
+    ul.details li span.label {
+      font-weight: bold;
+      display: inline-block;
+      width: 160px;
+    }
+
+    .highlight {
+      font-weight: bold;
+    }
+
+    p {
+      margin-top: 25px;
+      width: 100%;
+    }
+
+    .signature {
+      margin-top: 30px;        /* ✅ reduced from 70px */
+      margin-bottom: 25px;
+      font-size: 16px;
+      line-height: 1.2;
+      page-break-inside: avoid;
+    }
+
+    .signature-space {
+      height: 40px;
+    }
+
+    .signature .name,
+    .signature .role {
+      margin: 0;
+      padding: 0;
+      line-height: 1.1;
+    }
+
+    footer {
+      flex-shrink: 0;
+      text-align: left;
+      margin-top: 20px;         /* ✅ replaced margin-top: auto */
+      font-size: 10px;
+      margin-bottom: 20px;
+      color: #555;
+      line-height: 1.4;
+      page-break-after: avoid;
+    }
+
+    footer a {
+      color: #555;
+      text-decoration: none;
+    }
+
+    @media print {
+      body {
+        margin: 20mm;
+      }
+
+      .content, .signature, footer {
+        page-break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="content">
+    <% const ao = { day: 'numeric', month: 'numeric', year: 'numeric', timeZone: 'Europe/Berlin' }; %>
+    <% const options = { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/Berlin' }; %>
+    <% const formattedDate = new Date().toLocaleDateString('de-DE', options); %>
+
+    <div class="logo-wrapper">
+      <img src="http://localhost:3000/img/DCV_Logo-Schriftzug_pos_WEB.svg" alt="Logo" class="logo" />
+    </div>
+
+    <header>
+      <div class="recipient-info">
+        <ul>
+          <li><%= participant.salutation %></li>
+          <li><%= participant.name %> <%= participant.surname %></li>
+          <li><%= participant.street %></li>
+          <li><%= participant.country %> <%= participant.postalCode %> <%= participant.city %></li>
+        </ul>
+      </div>
+    </header>
+
+    <p class="date">Feldkirch, <%= formattedDate %></p>
+
+    <h1>TEILNAHMEBESTÄTIGUNG</h1>
+
+    <ul class="details">
+      <li class="tight"><span class="label">Ausbildung:</span> <span class="highlight"><%= course.program.name %></span></li>
+      <li class="tight"><span class="label">Ort:</span> <!-- kursort aus Prisma hier --></li>
+      <li class="tight"><span class="label">Nummer:</span> <%= course.programId %></li>
+
+      <li><span class="label">Unterricht:</span> <%= course.program.teachingUnits %> + Trainingseinheiten von a !prismakurstunden! Wochenstunden</li>
+      <li><span class="label">Beginn/Ende:</span> <%= new Date(course.startDate).toLocaleDateString('de-DE', ao) %> - <%= new Date(course.endDate).toLocaleDateString('de-DE', ao) %></li>
+
+      <li class="tight"><span class="label">Praktikum/Projekt:</span> !kurstage von bis! (wie viele ECTS für Projekt vorgesehen sind)</li>
+      <li class="tight"><span class="label">Beginn/Ende:</span> !projekt start date - projekt end date!</li>
+    </ul>
+
+    <p>
+      Wir bestätigen hiermit, dass <%= participant.salutation %> <%= participant.name %> <%= participant.surname %> am oben genannten <span class="highlight"><%= course.program.name %></span> teilnimmt und dieser Kurs
+      im Rahmen von <%= course.program.teachingUnits %> Unterrichtseinheiten vom <%= new Date(course.startDate).toLocaleDateString('de-DE', ao) %> bis <%= new Date(course.endDate).toLocaleDateString('de-DE', ao) %> stattfinden wird.
+    </p>
+
+    <p>
+      Für Fragen oder Auskünfte stehen wir Ihnen unter der Telefonnummer +43 (0)50 258 8614 bzw. per E-Mail an info@digitalcampusvorarlberg.at gerne zur Verfügung.
+    </p>
+
+    <div class="signature">
+      Freundliche Grüße<br />
+      <div class="signature-space"></div>
+      <span class="name">Thomas Berchtold</span><br />
+      <span class="role" style="font-size: 12px;">Geschäftsführer</span>
+    </div>
+    <footer>
+  <%- include("_footer") %>
+</footer>
+  </div>
+
+
+</body>
+</html>

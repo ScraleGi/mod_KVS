@@ -1,6 +1,7 @@
 import { PrismaClient } from "../../../generated/prisma/client"
 import { CourseTable, participantColumns, ParticipantRow } from "@/components/overviewTable/table"
 import { AddParticipantButton } from "@/components/participants/buttonAddParticipant"
+import Link from 'next/link'
 
 const prisma = new PrismaClient()
 
@@ -24,6 +25,7 @@ export default async function ParticipantOverviewPage() {
 const data: ParticipantRow[] = participants.map(p => ({
   id: p.id,
   name: p.name,
+  surname: p.surname,
   email: p.email,
   phoneNumber: p.phoneNumber,
   courses: p.registrations
@@ -38,7 +40,7 @@ const data: ParticipantRow[] = participants.map(p => ({
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Participants Overview</h1>
+        <h1 className="text-2xl font-bold">Teilnehmerübersicht</h1>
         <AddParticipantButton />
       </div>
       <CourseTable<ParticipantRow> data={data} columns={participantColumns} filterColumn="name" />

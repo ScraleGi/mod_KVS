@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Rechnung</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .header, .footer { margin-top: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    .bold { font-weight: bold; }
+    .right { text-align: right; }
+  </style>
+</head>
+<body>
+
+  <!-- Logo -->
+  <div class="header">
+    <h2>HIER LOGO</h2>
+  </div>
+
+<!-- Recipient -->
+<div>
+  <p>
+    <%= invoiceRecipient.type === 'PERSON' ? participant.salutation : '' %><br>
+    <%= invoiceRecipient.type === 'PERSON' ? participant.name + ' ' + participant.surname : invoiceRecipient.companyName %><br>
+    <%= invoiceRecipient.recipientStreet %><br>
+    <%= invoiceRecipient.postalCode %> <%= invoiceRecipient.recipientCity %><br>
+    <%= invoiceRecipient.recipientCountry %>
+  </p>
+</div>
+
+  <!-- Rechnung Header -->
+  <div>
+    <h3>Rechnung</h3>
+    <p>Datum: <%= new Date().toLocaleDateString('de-DE') %></p>
+    <p>Invoicenumber: <%= invoice.invoiceNumber %></p>
+  </div>
+
+  <!-- Invoice Table -->
+  <table>
+    <thead>
+      <tr>
+        <th>Bezeichnung</th>
+        <th>Menge</th>
+        <th>Einzelpreis</th>
+        <th>MwSt</th>
+        <th>Gesamt</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Single Course Invoice -->
+      <tr>
+        <td><%= course.name %></td>
+        <td class="right"><%= quantity || 1 %></td>
+        <td class="right"><%= course.program.price.toFixed(2) %> €</td>
+        <td class="right">0%</td>
+        <td class="right"><%= ((quantity || 1) * course.program.price).toFixed(2) %> €</td>
+      </tr>
+
+      <!-- Multiple Invoices (optional block for multiple courses/invoices) -->
+      <% if (invoices && invoices.length > 1) { %>
+        <% invoices.forEach(inv => { %>
+          <tr>
+            <td><%= inv.courseName %></td>
+            <td class="right"><%= inv.quantity %></td>
+            <td class="right"><%= inv.unitPrice.toFixed(2) %> €</td>
+            <td class="right">0%</td>
+            <td class="right"><%= (inv.quantity * inv.unitPrice).toFixed(2) %> €</td>
+          </tr>
+        <% }) %>
+      <% } %>
+    </tbody>
+  </table>
+
+  <!-- Kursteilnehmer -->
+  <p>
+    Kursteilnehmer: 
+    <%= recipientType === 'PERSON' ? participant.name + ' ' + participant.surname : invoiceRecipient.companyName %>
+  </p>
+
+  <!-- Payment Notes -->
+  <div>
+    <p>Zahlung ohne Abzug, spätestens 10 Tage nach Erhalt der Rechnung.</p>
+    <p>Die Kursgebühren sind ausschließlich in Nettobeträgen angegeben und sind von der Umsatzsteuer befreit.</p>
+    <p>Auslandsüberweisungsspesen dürfen nicht zu Lasten des Digital Campus Vorarlberg verrechnet werden.</p>
+    <p>Bei Online-Überweisung bitte im Feld Zahlungsreferenz die Rechnungsnummer angeben.</p>
+  </div>
+
+  <!-- Bankverbindung -->
+  <div>
+    <p>
+      Bankverbindung:<br>
+      Sparkasse Feldkirch<br>
+      IBAN: AT23 2060 40310231 4238<br>
+      BIC: SPFKATZBXXX
+    </p>
+  </div>
+
+  <!-- Footer Include -->
+  <div class="footer">
+    <%- include('_footer.ejs') %>
+  </div>
+
+</body>
+</html>
+
+
+

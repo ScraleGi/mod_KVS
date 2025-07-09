@@ -1,23 +1,140 @@
-<!-- IMPORTANT -->
-<!-- Zertifikat wird doppelseitug bedrcukt einmal vorderseite das Zertifikat name unterschrift etc und auf der Rückseite die Kursinhalte -->
 <!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <title>Zertifikat</title>
+  <title>Zertifikat - <%= participant.name %></title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    h1 { color: #2a9d8f; }
-    p { margin: 8px 0; }
-    img { width: 150px; margin-top: 10px; }
+    body {
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      color: #000;
+      text-align: center;
+      line-height: 1.5;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      font-size: 12px; /* kleiner gemacht */
+    }
+    h1 {
+      font-size: 24px; /* kleiner gemacht */
+      margin-bottom: 20px;
+    }
+    h2 {
+      font-size: 16px; /* kleiner gemacht */
+      margin-bottom: 15px;
+    }
+    p {
+      margin: 8px 0;
+      font-size: 12px; /* kleiner gemacht */
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 20px auto;
+      text-align: left;
+      display: inline-block;
+    }
+    li {
+      margin-bottom: 8px;
+      font-size: 12px; /* kleiner gemacht */
+    }
+    li span.label {
+      font-weight: bold;
+    }
+    .spacer {
+      flex-grow: 1;
+    }
+    .signature-section {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 60px;
+      text-align: center;
+      align-items: flex-start; /* Wichtig: obenbündig für Linie */
+    }
+    .signature {
+      width: 45%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 11px; /* kleiner gemacht */
+    }
+    .signature-line {
+      border-top: 1px solid #000;
+      width: 80%;
+      margin-bottom: 8px;
+      margin-top: 0;
+    }
+    .page-break {
+      page-break-after: always;
+    }
   </style>
 </head>
 <body>
-  <h1>Zertifikat für <%= user %></h1>
-  <p>Kurs: <%= courseName %></p>
-  <p>Trainer: <%= trainerName %></p>
-  <p>Startdatum: <%= startDate %></p>
-  <p>Ausstellungsdatum: <%= date %></p>
-  <img src="<%= imageUrl %>" alt="Logo" />
+
+  <!-- Vorderseite: Zertifikat -->
+  <h1>ZERTIFIKAT</h1>
+  <h1><%= course.program.name %></h1>
+
+  <h2><%= participant.name %> <%= participant.surename %></h2>
+  <p>hat den <%= course.program.name %> erfolgreich abgeschlossen.</p>
+
+  <%
+  const kursStartDate = new Date(course.startDate); 
+  const options = { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/Berlin' };
+  const formattedDate = kursStartDate.toLocaleDateString('de-DE', options);
+%>
+
+  
+
+  <ul>
+    <li><span class="label">Ausbildung:</span> <%= formattedDate %> bis course.endDate</li>
+    <li><span class="label">Dauer:</span> <%= course.program.teachingUnits %> Trainingseinheiten</li>
+    <li><span class="label">Kursort:</span> kursort prisma</li>
+  
+    <% if (course.mainTrainer) { %>
+      <li><span class="label">Trainer:</span> <%= course.mainTrainer.name %></li>
+    <% } %>
+    
+  </ul>
+
+  <div class="spacer"></div>
+
+  <p>Kursort: kursort prisma, <%= formattedDate%></p>
+
+  <div class="signature-section">
+    <div class="signature">
+      <div class="signature-line"></div>
+      <div>
+        <p>Thomas Berchtold<br>Titel: MSc MBA</p>
+        <p>Geschäftsführer Digital Campus Vorarlberg</p>
+      </div>
+    </div>
+
+    <div class="signature">
+      <div class="signature-line"></div>
+      <div>
+        <p><%= course.mainTrainer.name %></p>
+        <p>Kursleiter der Digital Campus !!!</p>
+      </div>
+    </div>
+  </div>
+
+  <%- include('_footer') %>
+  <!-- Hinweise für Datenmodell -->
+  <!-- course.endDate needed in Prisma Schema -->
+  <!-- !!! Hier auch Prisma-Schema: Wer ist wer bei den Trainern -->
+
+  <!-- Seitenumbruch für Rückseite falls für PDF -->
+  <div class="page-break"></div>
+
+  <!-- Rückseite: Kursinhalte -->
+  <h1>Kursinhalte</h1>
+
+  <ul>
+    <p>course.program.contents.forEachfunction(content) </p> 
+    <li>content </li>
+  </ul>
+
+  
 </body>
 </html>

@@ -43,6 +43,17 @@ export default async function EditProgramPage({ params }: EditProgramPageProps) 
     redirect('/program')
   }
 
+  // Soft Delete Handler
+  async function deleteProgram(formData: FormData) {
+    'use server'
+    const id = formData.get('id') as string
+    await prisma.program.update({
+      where: { id },
+      data: { deletedAt: new Date()}
+    })
+    redirect('/program')
+  }
+
   if (!program) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -128,10 +139,10 @@ export default async function EditProgramPage({ params }: EditProgramPageProps) 
                 <input
                   id="price"
                   name="price"
-                  type="number"
+                  type="decimal"
                   min={0}
                   step="0.01"
-                  defaultValue={program.price ?? ''}
+                  defaultValue={program.price ? program.price.toString() : ''}
                   className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                   placeholder="Enter price"
                 />
@@ -144,18 +155,34 @@ export default async function EditProgramPage({ params }: EditProgramPageProps) 
                   Save Changes
                 </button>
                 <Link
-                  href="/program"
+                  href={`/program/${id}`}
                   className="text-xs font-medium text-gray-500 hover:text-gray-700 transition-colors flex items-center"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                   </svg>
-                  Back to Programs
+                  Back to Details
                 </Link>
               </div>
             </form>
           </div>
         </div>
+        {/* Soft Delete Link außerhalb der Box, rechtsbündig */}
+        <form action={deleteProgram} className="mt-4 flex justify-end w-full">
+          <input type="hidden" name="id" value={id} />
+          <button
+            type="submit"
+            className="inline-flex items-center cursor-pointer text-sm text-red-600 hover:text-red-800 hover:bg-red-50 transition bg-transparent border-none p-0 font-normal pr-12"
+            style={{ boxShadow: 'none' }}
+            title="Soft Delete"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-4.477-10-10 0-1.657.402-3.22 1.125-4.575M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c1.657 0 3.22.402 4.575 1.125M21.542 12c-1.274 4.057-5.065 7-9.542 7-1.657 0-3.22-.402-4.575-1.125M9.88 9.88l4.24 4.24" />
+            </svg>
+            Delete
+          </button>
+        </form>
       </div>
     </div>
   )

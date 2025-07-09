@@ -45,6 +45,20 @@ export default function EditCourseForm({
           required
         />
       </div>
+      {/* End Date */}
+      <div className="space-y-2">
+        <label htmlFor="endDate" className="block text-sm font-medium text-gray-600">
+          End Date
+        </label>
+        <input
+          id="endDate"
+          name="endDate"
+          type="date"
+          defaultValue={course?.endDate ? course.endDate.toISOString().slice(0, 10) : ''}
+          className="w-full px-5 py-3 bg-gray-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition-all duration-200"
+          required
+        />
+      </div>
       {/* Main Trainer */}
       <div className="space-y-2">
         <label htmlFor="mainTrainerId" className="block text-sm font-medium text-gray-600">
