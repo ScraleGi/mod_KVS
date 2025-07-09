@@ -115,6 +115,7 @@ export default async function ParticipantDetailsPage({
     certificate: 'Zertifikat',
     KursRegeln: 'Kursregeln',
     Teilnahmebestaetigung: 'Teilnahmebestätigung',
+    vvvTicket: 'VVV Ticket',
   }
 
   // --- Server action to remove a document (soft delete) ---
@@ -522,6 +523,12 @@ export default async function ParticipantDetailsPage({
               documentType="Teilnahmebestaetigung"
               filename={`Teilnahmebestaetigung_${sanitizedRegistration.participant.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`}
             />
+            <GeneratePDFButton
+              uuidString={sanitizedRegistration.id}
+              registration={sanitizedRegistration}
+              documentType="vvvTicket"
+              filename={`VVV_Ticket_${sanitizedRegistration.participant.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`}
+            /> 
           </div>
         </section>
 
