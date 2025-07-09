@@ -105,7 +105,7 @@ const Navbar = ({ isOpen, setOpen, user }: NavbarProps) => {
                     ? results.map((c: any) => (
                         <li key={c.id} className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
                           <Link href={`/course/${c.id}`} onClick={() => setShowDropdown(false)}>
-                            {c.name} <span className="text-xs text-gray-400">{c.startDate ? new Date(c.startDate).toLocaleDateString() : ''}</span>
+                            {c.program.name} <span className="text-xs text-gray-400">{c.startDate ? new Date(c.startDate).toLocaleDateString() : ''}</span>
                           </Link>
                         </li>
                       ))

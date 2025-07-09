@@ -13,9 +13,19 @@ export async function searchEntities(query: string, searchType: 'participants' |
       take: 10,
     });
   } else if (searchType === 'courses') {
-    return await prisma.program.findMany({
-      where: { name: { contains: query } },
-      take: 10,
+    return await prisma.course.findMany({
+       where: {
+        deletedAt: null,
+        program: {
+          // Filter auf das verknüpfte Programm
+          deletedAt: null,
+          name: { contains: query }
+        }
+      },
+      include: {
+        program: true, // Nur Daten laden, kein Filter!
+      },
+      take: 100
     });
   } else if (searchType === 'areas') {
     return await prisma.area.findMany({

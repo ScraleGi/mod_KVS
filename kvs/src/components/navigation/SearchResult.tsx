@@ -26,7 +26,7 @@ export default async function SearchResult({ query, searchType }: Props) {
     results = await prisma.participant.findMany({ take: 100 });
     results = results.filter(p => startsWithInsensitive(p.name, trimmedQuery));
   } else if (searchType === 'courses') {
-    results = await prisma.program.findMany({ take: 100 });
+    results = await prisma.course.findMany({ take: 100 });
     results = results.filter(c => startsWithInsensitive(c.name, trimmedQuery));
   } else if (searchType === 'areas') {
     results = await prisma.area.findMany({ take: 100 });
