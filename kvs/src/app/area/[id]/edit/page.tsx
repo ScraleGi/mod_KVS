@@ -1,4 +1,4 @@
-import { redirect, notFound } from 'next/navigation';
+import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { db } from '@/lib/db';
 import { Area } from '@/types/models';
@@ -12,6 +12,25 @@ interface EditAreaPageProps {
 }
 
 export default async function EditAreaPage({ params }: EditAreaPageProps) {
+  const { id } = await params;
+
+  // Fetch area data
+  const area = await db.area.findUnique({
+    where: { id },
+  });
+
+  // Show error if area not found
+  if (!area) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-lg text-red-500">Area not found.</div>
+      </div>
+    );
+  }
+
+  // Sanitize area data to handle any Decimal types
+  const sanitizedArea = sanitize<typeof area, Area>(area);
+
   // Server action to update the area in the database
   const changeArea = async (formData: FormData) => {
     'use server';
@@ -27,34 +46,24 @@ export default async function EditAreaPage({ params }: EditAreaPageProps) {
     redirect('/area');
   };
 
-  // Server action soft-delete the area
+  // Server action to soft-delete the area
   async function deleteArea(formData: FormData) {
-    'use server'
-    const id = formData.get('id') as string
-    const now = new Date()
-  
+    'use server';
+    const id = formData.get('id') as string;
+    const now = new Date();
+
     await db.program.updateMany({
       where: { areaId: id },
       data: { deletedAt: now }
-    })
-  
+    });
+
     await db.area.update({
       where: { id },
       data: { deletedAt: now }
-    })
-  
-    redirect('/area')
+    });
+
+    redirect('/area');
   }
-
-  const { id } = await params;
-  const area = await db.area.findUnique({
-    where: { id },
-  });
-
-  if (!area) return notFound();
-
-  // Sanitize area data to handle any Decimal types
-  const sanitizedArea = sanitize<typeof area, Area>(area);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-10 px-4">
@@ -135,7 +144,6 @@ export default async function EditAreaPage({ params }: EditAreaPageProps) {
               </div>
             </form>
           </div>
-          
           {/* Danger Zone Section */}
           <div className="border-t border-gray-200 mt-2"></div>
           <div className="px-6 py-4 bg-gray-50 rounded-b-sm">
@@ -156,9 +164,9 @@ export default async function EditAreaPage({ params }: EditAreaPageProps) {
                     className="px-3 py-1.5 bg-white border border-red-300 rounded text-sm text-red-600 hover:bg-red-50 hover:border-red-400 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-30"
                   >
                     <div className="flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                    </svg>
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                      </svg>
                       Delete
                     </div>
                   </button>

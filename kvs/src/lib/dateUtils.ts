@@ -28,9 +28,8 @@ export function formatDateToISO(dateValue: Date | string | number | null | undef
   try {
     const date = new Date(dateValue);
     return !isNaN(date.getTime()) ? date.toISOString() : new Date().toISOString();
-  } catch (_error) {
+  } catch {
     console.error('Invalid date value:', dateValue);
-    // Return current date as fallback
     return new Date().toISOString();
   }
 }
