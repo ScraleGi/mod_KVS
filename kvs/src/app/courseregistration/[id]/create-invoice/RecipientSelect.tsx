@@ -17,13 +17,16 @@ type Recipient = {
 }
 
 export default function RecipientSelect({ recipients }: { recipients: Recipient[] }) {
-  // Autofill inputs on selection
+  const [selectedRecipient, setSelectedRecipient] = React.useState<Recipient | null>(null)
+
   function handleSelect(e: React.ChangeEvent<HTMLSelectElement>) {
     const recipientId = e.target.value
     if (!recipientId) return
 
     const recipient = recipients.find((r) => r.id === recipientId)
     if (!recipient) return
+
+    setSelectedRecipient(recipient)
 
     const form = document.getElementById('invoice-form') as HTMLFormElement | null
     if (!form) return
@@ -37,6 +40,7 @@ export default function RecipientSelect({ recipients }: { recipients: Recipient[
         input.value = value
       }
     }
+
     setInput('recipientSalutation', recipient.recipientSalutation || '')
     setInput('recipientName', recipient.recipientName || '')
     setInput('recipientSurname', recipient.recipientSurname || '')
@@ -53,6 +57,7 @@ export default function RecipientSelect({ recipients }: { recipients: Recipient[
       <legend className="text-base font-semibold text-blue-700 px-2">
         Select Previous Recipient to Autofill
       </legend>
+
       <select
         onChange={handleSelect}
         defaultValue=""
@@ -62,11 +67,12 @@ export default function RecipientSelect({ recipients }: { recipients: Recipient[
           -- Select saved recipient --
         </option>
         {recipients.map((r) => (
-          <option key={r.id} value={r.id}>
-            {r.type === 'COMPANY'
-              ? r.companyName || '(No company name)'
-              : `${r.recipientName || ''} ${r.recipientSurname || ''}`}
-          </option> // HERE IS THE DATA IN THE DROPDOWN LISTE add here adresse etc anschrift halt in grau
+  <option key={r.id} value={r.id}>
+    {r.type === 'COMPANY'
+      ? r.companyName
+      : `${r.recipientName || ''} ${r.recipientSurname || ''}`} 
+    — {r.recipientStreet}, {r.postalCode} {r.recipientCity}
+  </option>
         ))}
       </select>
     </fieldset>

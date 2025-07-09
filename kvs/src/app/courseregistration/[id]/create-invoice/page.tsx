@@ -94,8 +94,8 @@ export default async function CreateInvoicePage({ params }: { params: { id: stri
                 </select>
               </label>
               <label className="flex flex-col text-xs font-medium text-neutral-700">
-                Salutation (Recipient)
-                <input name="recipientName" className="mt-1 border rounded px-2 py-1" />
+              Salutation (Recipient)
+              <input name="recipientSalutation" className="mt-1 border rounded px-2 py-1" />
               </label>
               <label className="flex flex-col text-xs font-medium text-neutral-700">
                 First Name (Recipient)

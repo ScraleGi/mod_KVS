@@ -98,7 +98,7 @@
       <% if (recipient.type === 'COMPANY') { %>
       <p><strong>Firma:</strong><%= recipient.companyName %></p>
       <% } else { %>
-        <p><%= participant?.salutation %></p>
+        <p><%= recipient?.recipientSalutation %></p>
       <p> <%= recipient.recipientName %> <%= recipient.recipientSurname %></p>
       <% } %>
       <li><%= recipient.recipientStreet %></li>
