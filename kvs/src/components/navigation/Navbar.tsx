@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useTransition } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { FaBars, FaSearch, FaBell, FaUserCircle } from 'react-icons/fa';
+import { searchEntities } from './searchActions';
 
 type NavbarProps = {
   isOpen: boolean;
@@ -16,8 +17,9 @@ const Navbar = ({ isOpen, setOpen, user }: NavbarProps) => {
   const [searchValue, setSearchValue] = useState('');
   const [results, setResults] = useState<any[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
-  const handleSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchValue(value);
 
@@ -27,17 +29,11 @@ const Navbar = ({ isOpen, setOpen, user }: NavbarProps) => {
       return;
     }
 
-    const endpoint =
-      searchType === 'participants'
-        ? '/api/participants/search'
-        : searchType === 'courses'
-        ? '/api/courses/search'
-        : '/api/areas/search';
-
-    const res = await fetch(`${endpoint}?query=${encodeURIComponent(value)}`);
-    const data = await res.json();
-    setResults(data);
-    setShowDropdown(true);
+    startTransition(async () => {
+      const data = await searchEntities(value, searchType);
+      setResults(data);
+      setShowDropdown(true);
+    });
   };
 
   return (
@@ -109,7 +105,7 @@ const Navbar = ({ isOpen, setOpen, user }: NavbarProps) => {
                     ? results.map((c: any) => (
                         <li key={c.id} className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
                           <Link href={`/course/${c.id}`} onClick={() => setShowDropdown(false)}>
-                            {c.programName} <span className="text-xs text-gray-400">{new Date(c.startDate).toLocaleDateString()}</span>
+                            {c.name} <span className="text-xs text-gray-400">{c.startDate ? new Date(c.startDate).toLocaleDateString() : ''}</span>
                           </Link>
                         </li>
                       ))
@@ -141,10 +137,13 @@ const Navbar = ({ isOpen, setOpen, user }: NavbarProps) => {
             <div className='z-10 hidden absolute bg-white rounded-lg shadow w-32 group-focus-within:block top-full right-0'>
               <ul className='py-2 text-sm text-gray-950'>
                 <li>
-                  <Link href="/profile" className="block px-4 py-2 hover:bg-gray-100">Profile</Link>
+                  <Link href="/profile" className='block px-4 py-2 hover:bg-gray-100'>Profil</Link>
                 </li>
                 <li>
-                  <Link href="/settings" className="block px-4 py-2 hover:bg-gray-100">Setting</Link>
+                  <Link href="/settings" className='block px-4 py-2 hover:bg-gray-100'>Einstellungen</Link>
+                </li>
+                <li>
+                  <Link href="/logout" className='block px-4 py-2 hover:bg-gray-100'>Logout</Link>
                 </li>
               </ul>
             </div>
