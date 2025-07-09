@@ -78,8 +78,8 @@ model CourseRegistration {
   // Subsidy and discount fields (amounts are nullable)
   subsidyRemark       String?
   subsidyAmount       Decimal?    @db.Decimal(10, 2)
-  discountRemark      String?
-  discountAmount      Decimal?    @db.Decimal(10, 2)
+  discountRemark      String?                                                                             
+  discountAmount      Decimal?    @db.Decimal(10, 2)                                                      //!!!!!!!CHECK 
 
   @@index([deletedAt])
   @@index([courseId])
@@ -132,7 +132,7 @@ model Invoice {
   id                    String               @id @default(uuid())
   invoiceNumber         String               @unique
   amount                Decimal              @db.Decimal(10, 2)
-  discountAmount        Decimal              @db.Decimal(10, 2) // if participant has a Coupon this will be the End Amount that he pays else it is amount
+  discountAmount        Decimal              @db.Decimal(10, 2) // if participant has a Coupon this will be the End Amount that he pays else it is amount //!!!!!!!CHECK 
   courseRegistrationId  String
   courseRegistration    CourseRegistration   @relation(fields: [courseRegistrationId], references: [id])
   isCancelled           Boolean              @default(false)
@@ -145,10 +145,10 @@ model Invoice {
 model InvoiceRecipient {
   id                      String       @id @default(uuid())
   type                    RecipientType
-  recipientSalutation     String?     // optional, only for Person required
-  recipientName           String?      // Optional, only for PERSON required
-  recipientSurname        String?     // Optional, only for PERSON required
-  companyName             String?      // Optional, only for COMPANY required
+  recipientSalutation     String?          // Optional, only for Person required
+  recipientName           String?         // Optional, only for PERSON required
+  recipientSurname        String?        // Optional, only for PERSON required
+  companyName             String?       // Optional, only for COMPANY required
   recipientEmail          String
   postalCode              String
   recipientCity           String

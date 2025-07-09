@@ -5,6 +5,7 @@ import React from 'react'
 type Recipient = {
   id: string
   type: string
+  recipientSalutation?: string
   recipientName?: string
   recipientSurname?: string
   companyName?: string
@@ -36,7 +37,7 @@ export default function RecipientSelect({ recipients }: { recipients: Recipient[
         input.value = value
       }
     }
-
+    setInput('recipientSalutation', recipient.recipientSalutation || '')
     setInput('recipientName', recipient.recipientName || '')
     setInput('recipientSurname', recipient.recipientSurname || '')
     setInput('companyName', recipient.companyName || '')
@@ -65,7 +66,7 @@ export default function RecipientSelect({ recipients }: { recipients: Recipient[
             {r.type === 'COMPANY'
               ? r.companyName || '(No company name)'
               : `${r.recipientName || ''} ${r.recipientSurname || ''}`}
-          </option>
+          </option> // HERE IS THE DATA IN THE DROPDOWN LISTE add here adresse etc anschrift halt in grau
         ))}
       </select>
     </fieldset>

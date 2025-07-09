@@ -69,6 +69,7 @@ export default async function CreateInvoicePage({ params }: { params: { id: stri
           <RecipientSelect
             recipients={recipients.map(r => ({
               ...r,
+              recipientSalutation: r.recipientSalutation ?? undefined,
               recipientName: r.recipientName ?? undefined,
               recipientSurname: r.recipientSurname ?? undefined,
               companyName: r.companyName ?? undefined,
@@ -91,6 +92,10 @@ export default async function CreateInvoicePage({ params }: { params: { id: stri
                   <option value="PERSON">Person</option>
                   <option value="COMPANY">Company</option>
                 </select>
+              </label>
+              <label className="flex flex-col text-xs font-medium text-neutral-700">
+                Salutation (Recipient)
+                <input name="recipientName" className="mt-1 border rounded px-2 py-1" />
               </label>
               <label className="flex flex-col text-xs font-medium text-neutral-700">
                 First Name (Recipient)
