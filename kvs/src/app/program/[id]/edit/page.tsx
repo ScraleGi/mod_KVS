@@ -4,13 +4,11 @@ import { db } from '@/lib/db'
 import { sanitize } from '@/lib/sanitize'
 import RemoveButton from '@/components/RemoveButton/RemoveButton';
 
-interface EditProgramPageProps {
-  params: {
-    id: string
-  }
-}
-
-export default async function EditProgramPage({ params }: EditProgramPageProps) {
+export default async function EditProgramPage({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
   try {
     const { id } = await params
 

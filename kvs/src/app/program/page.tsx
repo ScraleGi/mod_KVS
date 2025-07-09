@@ -52,23 +52,22 @@ return programs.map((program) => ({
 //---------------------------------------------------
 // MAIN COMPONENT
 //---------------------------------------------------
-export default async function ProgramsPage({ 
-  searchParams 
-}: { 
-  searchParams?: { 
-    open?: string,
-    q?: string,
-    area?: string
-  }
+export default async function ProgramsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ open?: string; q?: string; area?: string }>
 }) {
+  const resolvedSearchParams = searchParams ? await searchParams : undefined
+
   try {
     const tableData = await getProgramsWithArea()
 
-    // If no programs are found and not filtering, redirect to create new
-    if (tableData.length === 0 && 
-        !searchParams?.q && 
-        !searchParams?.area && 
-        !searchParams?.open) {
+    if (
+      tableData.length === 0 &&
+      !resolvedSearchParams?.q &&
+      !resolvedSearchParams?.area &&
+      !resolvedSearchParams?.open
+    ) {
       redirect('/program/new')
     }
 

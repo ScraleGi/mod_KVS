@@ -4,12 +4,11 @@ import { Info, GraduationCap, Pencil } from 'lucide-react';
 import { db } from '@/lib/db';
 import { sanitize } from '@/lib/sanitize';
 
-
-interface ProgramPageProps {
-  params: { id: string; }
-}
-
-export default async function ProgramPage({ params }: ProgramPageProps) {
+export default async function ProgramPage({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
   try {
     const { id } = await params;
 

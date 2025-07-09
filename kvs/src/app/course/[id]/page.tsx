@@ -6,15 +6,6 @@ import { Course } from '@/types/models'
 import { formatFullName, formatDateGerman } from '@/lib/utils'
 
 /**
- * Props interface for the course detail page
- */
-interface CoursePageProps {
-  params: {
-    id: string
-  }
-}
-
-/**
  * Extended Course type with nested relations for the detailed view
  */
 interface CourseWithRelations extends Omit<Course, 'program' | 'mainTrainer' | 'trainers' | 'registrations'> {
@@ -58,7 +49,7 @@ interface CourseWithRelations extends Omit<Course, 'program' | 'mainTrainer' | '
  * Format date to German locale format (DD.MM.YYYY)
  */
 
-export default async function CoursePage({ params }: CoursePageProps) {
+export default async function CoursePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
 
   // Fetch course with related data, including generatedDocuments for each registration

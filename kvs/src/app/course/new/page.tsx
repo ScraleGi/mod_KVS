@@ -66,12 +66,12 @@ export default async function NewCoursePage() {
             <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-700 mb-8 tracking-tight">
               Kurs anlegen
             </h1>
-            <CreateCourseForm
-              course={null}
-              trainers={trainers}
-              programs={programs}
-              onSubmit={createCourse}
-            />
+              <CreateCourseForm
+                course={undefined}
+                trainers={trainers}
+                programs={programs}
+                onSubmit={createCourse}
+              />
           </div>
         </div>
       </div>

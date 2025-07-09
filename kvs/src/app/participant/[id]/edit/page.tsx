@@ -7,16 +7,13 @@ import { redirect } from 'next/navigation'
 import { sanitize } from '@/lib/sanitize'
 
 //---------------------------------------------------
-// TYPE DEFINITIONS
-//---------------------------------------------------
-interface EditParticipantPageProps {
-  params: { id: string }
-}
-
-//---------------------------------------------------
 // MAIN COMPONENT
 //---------------------------------------------------
-export default async function EditParticipantPage({ params }: EditParticipantPageProps) {
+export default async function EditParticipantPage({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
   try {
     const { id } = await params
 

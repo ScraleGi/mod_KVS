@@ -41,10 +41,10 @@ function formatRecipient(recipient: SanitizedInvoiceRecipient | null) {
 //---------------------------------------------------
 // MAIN COMPONENT
 //---------------------------------------------------
-export default async function InvoicePage({ 
-  params 
-}: { 
-  params: { id: string } | Promise<{ id: string }> 
+export default async function InvoicePage({
+  params,
+}: {
+  params: Promise<{ id: string }>
 }) {
   //---------------------------------------------------
   // DATA FETCHING

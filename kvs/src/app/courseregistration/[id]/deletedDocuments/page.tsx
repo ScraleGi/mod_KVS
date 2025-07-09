@@ -28,11 +28,8 @@ async function restoreDocument(formData: FormData) {
 export default async function DeletedDocumentsPage({
   params,
 }: {
-  params: { id: string } | Promise<{ id: string }>
+  params: Promise<{ id: string }>
 }) {
-  //---------------------------------------------------
-  // DATA FETCHING
-  //---------------------------------------------------
   const { id } = await params
   const registrationId = id
 

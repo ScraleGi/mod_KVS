@@ -5,7 +5,11 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { InvoiceUpdateData } from '@/types/query-models' 
 
-export default async function EditInvoicePage({ params }: { params: { id: string } }) {
+export default async function EditInvoicePage({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
   const { id } = await params
   
   const invoice = await db.invoice.findUnique({

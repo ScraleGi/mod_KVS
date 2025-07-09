@@ -6,19 +6,15 @@ import { CourseWithEditRelations } from '@/types/query-models'
 import { formatDateISO } from '@/lib/utils'
 import RemoveButton from '@/components/RemoveButton/RemoveButton';
 
-/**
- * Props interface for the edit course page
- */
-interface EditCoursePageProps {
-  params: {
-    id: string
-  }
-}
 
 /**
  * Course Edit Page - Allows editing of course details
  */
-export default async function EditCoursePage({ params }: EditCoursePageProps) {
+  export default async function EditCoursePage({
+    params,
+  }: {
+    params: Promise<{ id: string }>
+  }) {
   const { id } = await params
 
   // Fetch course and all available trainers in parallel

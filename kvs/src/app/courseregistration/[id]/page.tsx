@@ -61,7 +61,7 @@ async function removeDocument(formData: FormData) {
 export default async function ParticipantDetailsPage({
   params,
 }: {
-  params: { id: string } | Promise<{ id: string }>
+  params: Promise<{ id: string }>
 }) {
   //---------------------------------------------------
   // DATA FETCHING

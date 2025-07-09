@@ -5,14 +5,12 @@ import { Area } from '@/types/models';
 import { sanitize } from '@/lib/sanitize';
 import RemoveButton from '@/components/RemoveButton/RemoveButton';
 
-interface EditAreaPageProps {
-  params: {
-    id: string;
-  };
-}
-
-export default async function EditAreaPage({ params }: EditAreaPageProps) {
-  const { id } = await params;
+export default async function EditAreaPage({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
+  const { id } = await params; // Await the promise
 
   // Fetch area and its programs in parallel
   const [area] = await Promise.all([

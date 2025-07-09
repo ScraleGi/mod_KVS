@@ -8,18 +8,15 @@ import { revalidatePath } from 'next/cache'
 import ClientCourseModalWrapper from './ClientCourseModalWrapper'
 import { sanitize } from '@/lib/sanitize'
 import RemoveButton from '@/components/RemoveButton/RemoveButton'
-//---------------------------------------------------
-// TYPE DEFINITIONS
-//---------------------------------------------------
-interface ParticipantPageProps {
-  params: { id: string }
-  searchParams?: { showAdd?: string, showAddInvoice?: string }
-}
 
 //---------------------------------------------------
 // MAIN COMPONENT
 //---------------------------------------------------
-export default async function ParticipantPage({ params }: ParticipantPageProps) {
+export default async function ParticipantPage({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
   try {
     const { id } = await params
 

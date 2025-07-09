@@ -14,7 +14,11 @@ interface AreaWithPrograms extends Omit<Area, 'programs'> {
   }[]
 }
 
-export default async function AreaDetailPage({ params }: { params: { id: string } }) {
+export default async function AreaDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
   const { id } = await params;
   
   const area = await db.area.findUnique({

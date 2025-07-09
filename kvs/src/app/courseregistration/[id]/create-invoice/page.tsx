@@ -15,10 +15,11 @@ async function createInvoiceAction(formData: FormData) {
 //---------------------------------------------------
 // MAIN COMPONENT
 //---------------------------------------------------
-export default async function CreateInvoicePage({ params }: { params: { id: string } | Promise<{ id: string }> }) {
-  //---------------------------------------------------
-  // DATA FETCHING
-  //---------------------------------------------------
+export default async function CreateInvoicePage({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
   const { id } = await params
 
   const registration = await db.courseRegistration.findUnique({
