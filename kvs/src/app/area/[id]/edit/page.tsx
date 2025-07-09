@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { db } from '@/lib/db';
 import { Area } from '@/types/models';
 import { sanitize } from '@/lib/sanitize';
-import RemoveButton from '@/components/RemoveButton/removeButton';
+import RemoveButton from '@/components/RemoveButton/RemoveButton';
 
 interface EditAreaPageProps {
   params: {
