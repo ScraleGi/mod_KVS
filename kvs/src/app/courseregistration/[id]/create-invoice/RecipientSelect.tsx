@@ -30,7 +30,6 @@ export default function RecipientSelect({ recipients }: { recipients: Recipient[
       return
     }
 
-    // Fix here: removed 'string' declaration error, use const with type inference
     const filteredRecipients = recipients.filter((r) => {
       const name =
         r.type === 'COMPANY'
@@ -38,7 +37,9 @@ export default function RecipientSelect({ recipients }: { recipients: Recipient[
           : `${r.recipientName ?? ''} ${r.recipientSurname ?? ''}`
       return name.toLowerCase().includes(value.toLowerCase())
     })
-    setFiltered(filteredRecipients)
+
+    const uniqueFiltered = uniqueRecipients(filteredRecipients)
+    setFiltered(uniqueFiltered)
     setShowSuggestions(true)
   }
 
@@ -46,7 +47,7 @@ export default function RecipientSelect({ recipients }: { recipients: Recipient[
     setSearch(
       recipient.type === 'COMPANY'
         ? recipient.companyName ?? ''
-        : `${recipient.recipientName ?? ''} ${recipient.recipientSurname ?? ''}`
+        : `${recipient.recipientSalutation ? recipient.recipientSalutation + ' ' : ''}${recipient.recipientName ?? ''} ${recipient.recipientSurname ?? ''}`
     )
     setShowSuggestions(false)
 
@@ -72,6 +73,30 @@ export default function RecipientSelect({ recipients }: { recipients: Recipient[
     setInput('postalCode', recipient.postalCode)
     setInput('recipientCity', recipient.recipientCity)
     setInput('recipientCountry', recipient.recipientCountry)
+  }
+
+  function uniqueRecipients(recipients: Recipient[]): Recipient[] {
+    const seen = new Set<string>()
+    return recipients.filter((r) => {
+      const key = [
+        r.type,
+        r.recipientSalutation ?? '',
+        r.recipientName ?? '',
+        r.recipientSurname ?? '',
+        r.companyName ?? '',
+        r.recipientEmail,
+        r.recipientStreet,
+        r.postalCode,
+        r.recipientCity,
+        r.recipientCountry,
+      ].join('|').toLowerCase()
+
+      if (seen.has(key)) {
+        return false
+      }
+      seen.add(key)
+      return true
+    })
   }
 
   return (
@@ -110,15 +135,6 @@ export default function RecipientSelect({ recipients }: { recipients: Recipient[
     </fieldset>
   )
 }
-
-
-
-
-
-
-
-
-
 
 
 
