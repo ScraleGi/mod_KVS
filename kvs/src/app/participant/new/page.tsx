@@ -14,7 +14,7 @@ export default async function NewParticipantPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-neutral-50 px-2 py-8">
       <div className="w-full max-w-xl bg-white rounded-2xl shadow-md border border-neutral-100 p-8">
-        <h1 className="text-2xl font-bold mb-6 text-neutral-900 text-center">Add New Participant</h1>
+        <h1 className="text-2xl font-bold mb-6 text-neutral-900 text-center">Teilnehmer hinzufügen</h1>
         <form
           action={async (formData) => {
             'use server'
@@ -71,7 +71,7 @@ export default async function NewParticipantPage() {
               />
             </label>
             <label className="flex flex-col text-xs font-medium text-neutral-700">
-              Salutation
+              Anrede
               <input
                 name="salutation"
                 required
@@ -79,7 +79,7 @@ export default async function NewParticipantPage() {
               />
             </label>
             <label className="flex flex-col text-xs font-medium text-neutral-700">
-              Title
+              Titel
               <input
                 name="title"
                 className="mt-1 border rounded px-2 py-1"
@@ -94,7 +94,7 @@ export default async function NewParticipantPage() {
               />
             </label>
             <label className="flex flex-col text-xs font-medium text-neutral-700">
-              Surname
+              Nachname
               <input
                 name="surname"
                 required
@@ -111,7 +111,7 @@ export default async function NewParticipantPage() {
               />
             </label>
             <label className="flex flex-col text-xs font-medium text-neutral-700">
-              Phone Number
+              Rufnummer
               <input
                 name="phoneNumber"
                 required
@@ -119,7 +119,7 @@ export default async function NewParticipantPage() {
               />
             </label>
             <label className="flex flex-col text-xs font-medium text-neutral-700">
-              Birthday
+              Geburtstag
               <input
                 name="birthday"
                 type="date"
@@ -128,7 +128,7 @@ export default async function NewParticipantPage() {
               />
             </label>
             <label className="flex flex-col text-xs font-medium text-neutral-700">
-              Postal Code
+              PLZ
               <input
                 name="postalCode"
                 required
@@ -136,7 +136,7 @@ export default async function NewParticipantPage() {
               />
             </label>
             <label className="flex flex-col text-xs font-medium text-neutral-700">
-              City
+              Ort
               <input
                 name="city"
                 required
@@ -144,7 +144,7 @@ export default async function NewParticipantPage() {
               />
             </label>
             <label className="flex flex-col text-xs font-medium text-neutral-700">
-              Street
+              Straße
               <input
                 name="street"
                 required
@@ -152,7 +152,7 @@ export default async function NewParticipantPage() {
               />
             </label>
             <label className="flex flex-col text-xs font-medium text-neutral-700">
-              Country
+              Land
               <input
                 name="country"
                 required
@@ -160,14 +160,14 @@ export default async function NewParticipantPage() {
               />
             </label>
             <label className="flex flex-col text-xs font-medium text-neutral-700 sm:col-span-2">
-              Course
+              Kurs
               <select
                 name="courseId"
                 required
                 className="mt-1 border rounded px-2 py-1"
                 defaultValue=""
               >
-                <option value="" disabled>-- Select a course --</option>
+                <option value="" disabled>-- Kurs Auswahl --</option>
                 {courses.map(course => (
                   <option key={course.id} value={course.id}>
                     {course.program?.name ?? 'Course'} ({new Date(course.startDate).toLocaleDateString('de-DE')})
@@ -181,13 +181,13 @@ export default async function NewParticipantPage() {
               href="/participant"
               className="px-4 py-2 bg-neutral-200 text-neutral-700 rounded hover:bg-neutral-300 text-xs font-medium transition"
             >
-              Cancel
+              Abbrechen
             </Link>
             <button
               type="submit"
               className="cursor-pointer px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-xs font-medium transition"
             >
-              Create Participant
+              Teilnehmer hinzufügen
             </button>
           </div>
         </form>
