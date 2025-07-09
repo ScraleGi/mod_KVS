@@ -95,10 +95,12 @@
 <header>
   <div class="recipient-info">
     <ul>
-      <% if (participant?.salutation) { %>
-        <li><%= participant.salutation %></li>
+      <% if (recipient.type === 'COMPANY') { %>
+      <p><strong>Firma:</strong><%= recipient.companyName %></p>
+      <% } else { %>
+        <p><%= participant?.salutation %></p>
+      <p> <%= recipient.recipientName %> <%= recipient.recipientSurname %></p>
       <% } %>
-      <li><%= participant?.name %> <%= participant?.surname %></li>
       <li><%= recipient.recipientStreet %></li>
       <li><%= recipient.postalCode %> <%= recipient.recipientCity %>, <%= recipient.recipientCountry %></li>
       <li>Email: <%= recipient.recipientEmail %></li>
