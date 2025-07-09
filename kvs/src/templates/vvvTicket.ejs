@@ -19,7 +19,8 @@
     }
 
     .logo-wrapper,
-    .logo-wrapper-end {
+    .logo-wrapper-end,
+    .logo-wrapper-Vend {
       text-align: right;
     }
 
@@ -43,6 +44,11 @@
 
     .logo-wrapper-end img {
       width: 130px;
+    }
+
+     .logo-wrapper-Vend img {
+      margin-top: 10px;
+      width: 200px;
     }
 
     h1, h2, h3, h4 {
@@ -80,10 +86,38 @@
       gap: 2px;
     }
 
-    hr {
-      margin: 30px 0;
-      border-top: 2px dotted #000;
-    }
+.cut-line {
+  display: flex;
+  align-items: center;
+  margin: 30px 0;
+}
+
+.cut-line .scissor {
+  font-size: 14px;
+  margin-right: 8px;
+}
+
+.cut-line .line-wrapper {
+  position: relative;
+  flex: 1;
+}
+
+.cut-line .line-wrapper hr {
+  border: none;
+  border-top: 2px dotted #000;
+  margin: 0;
+}
+
+.cut-line .label {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  padding: 0 8px;
+  font-weight: bold;
+  font-size: 12px;
+}
   </style>
 </head>
 <body>
@@ -126,7 +160,14 @@
     <p style="margin-bottom: 0;">Thomas Berchtold</p>
     <p style="margin-top: 0;">Geschäftsführung</p>
 
-    <hr/>
+
+ <div class="cut-line">
+  <span class="scissor">✂️</span>
+  <div class="line-wrapper">
+    <hr />
+    <span class="label">Schneide mich hieraus</span>
+  </div>
+</div>
 
     <!-- Ticket Info -->
     <h3>VVV / DCV-Freifahrt-Ticket</h3>
@@ -168,7 +209,7 @@
     <div class="logo-wrapper-end" style="margin-top: 60px;">
       <img src="http://localhost:3000/img/DCV_Logo-Schriftzug_pos_WEB.svg" alt="Logo" />
     </div>
-    <div class="logo-wrapper-end">
+    <div class="logo-wrapper-Vend">
       <img src="http://localhost:3000/img/Verkehrsverbund_Vorarlberg_logo.png" alt="VVV Logo" />
     </div>
 
