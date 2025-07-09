@@ -2,37 +2,46 @@ import * as React from "react"
 import { ArrowUpDown } from "lucide-react"
 import type { Column } from "@tanstack/react-table"
 
-type DoubleFilterHeaderProps = {
-  column: Column<any, any>
+// Use generic type parameters instead of any
+type DoubleFilterHeaderProps<TData extends Record<string, unknown>, TValue> = {
+  column: Column<TData, TValue>
   label: string
   placeholderFrom?: string
   placeholderTo?: string
   typeDefinition: "date" | "datetime-local" | "time" | "month" | "week" | "number" | "text"
 }
 
-export function DoubleFilterHeader({ column, label, placeholderFrom, placeholderTo, typeDefinition }: DoubleFilterHeaderProps){
+// Make the component generic
+export function DoubleFilterHeader<TData extends Record<string, unknown>, TValue>({ 
+  column, 
+  label, 
+  placeholderFrom, 
+  placeholderTo, 
+  typeDefinition 
+}: DoubleFilterHeaderProps<TData, TValue>){
 
     const [showFilter, setShowFilter] = React.useState(false)
-    // Hole die aktuellen Filterwerte (als Array: [von, bis])
+    // Get current filter values (as array: [from, to])
     const filterValue = (column.getFilterValue() as [string, string]) ?? ["", ""]
     const filterRef = React.useRef<HTMLDivElement>(null)
+    
     React.useEffect(() => {
-    if (!showFilter) return
-    function handleClick(e: MouseEvent) {
-      if (filterRef.current && !filterRef.current.contains(e.target as Node)) {
-        setShowFilter(false)
+      if (!showFilter) return
+      function handleClick(e: MouseEvent) {
+        if (filterRef.current && !filterRef.current.contains(e.target as Node)) {
+          setShowFilter(false)
+        }
       }
-    }
-    document.addEventListener("mousedown", handleClick)
-    return () => document.removeEventListener("mousedown", handleClick)
-  }, [showFilter])
+      document.addEventListener("mousedown", handleClick)
+      return () => document.removeEventListener("mousedown", handleClick)
+    }, [showFilter])
 
-  React.useEffect(() => {
-    if (showFilter && filterRef.current) {
-      const input = filterRef.current.querySelector("input[type='date']") as HTMLInputElement | null
-      input?.focus()
-    }
-  }, [showFilter])
+    React.useEffect(() => {
+      if (showFilter && filterRef.current) {
+        const input = filterRef.current.querySelector("input[type='date']") as HTMLInputElement | null
+        input?.focus()
+      }
+    }, [showFilter])
 
     return (
       <span className="flex flex-col w-28 min-w-[5rem] pr-2 relative">
@@ -77,14 +86,14 @@ export function DoubleFilterHeader({ column, label, placeholderFrom, placeholder
               value={filterValue[0]}
               onChange={e => column.setFilterValue([e.target.value, filterValue[1]])}
               className="block rounded border px-1 py-0.5 text-xs bg-white shadow text-black w-23"
-              placeholder= {placeholderFrom}
+              placeholder={placeholderFrom}
             />
             <input
               type={typeDefinition}
               value={filterValue[1]}
               onChange={e => column.setFilterValue([filterValue[0], e.target.value])}
               className="block rounded border px-1 py-0.5 text-xs bg-white shadow text-black w-23"
-              placeholder= {placeholderTo}
+              placeholder={placeholderTo}
             />
           </div>
         )}

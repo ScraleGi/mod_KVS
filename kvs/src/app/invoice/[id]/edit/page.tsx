@@ -3,6 +3,7 @@ import { sanitize } from '@/lib/sanitize'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { InvoiceUpdateData } from '@/types/query-models' 
 
 export default async function EditInvoicePage({ params }: { params: { id: string } }) {
   const { id } = await params
@@ -37,45 +38,42 @@ export default async function EditInvoicePage({ params }: { params: { id: string
   
     // Server action to update invoice
     async function updateInvoice(formData: FormData) {
-    'use server'
+      'use server'
 
     const transactionNumber = formData.get('transactionNumber') as string
     const isCancelled = formData.get('isCancelled') === 'on'
     const dueDateStr = formData.get('dueDate') as string
 
-    // Create the update data object
-    const updateData: any = {
-        transactionNumber: transactionNumber || null,
-        isCancelled,
+    // Create the update data object with proper typing
+    const updateData: InvoiceUpdateData = {
+      transactionNumber: transactionNumber || null,
+      isCancelled,
     }
 
     // Don't include amount in updates - amount is read-only
 
     // Handle due date properly
     if (dueDateStr) {
-        updateData.dueDate = new Date(dueDateStr)
-    } else {
-        // Use undefined instead of null to avoid type errors
-        updateData.dueDate = undefined
+      updateData.dueDate = new Date(dueDateStr)
     }
 
     // Update the invoice
     await db.invoice.update({
-        where: { id },
-        data: updateData
+      where: { id },
+      data: updateData
     })
     // Redirect back to course registration
     const registrationId = invoice?.courseRegistrationId
     revalidatePath(`/invoice/${id}`)
 
     if (registrationId) {
-        revalidatePath(`/courseregistration/${registrationId}`)
-        redirect(`/courseregistration/${registrationId}`)
+      revalidatePath(`/courseregistration/${registrationId}`)
+      redirect(`/courseregistration/${registrationId}`)
     } else {
-        // Fallback if registrationId is somehow missing
-        redirect('/') // Or redirect to another appropriate page
+      // Fallback if registrationId is somehow missing
+      redirect('/') // Or redirect to another appropriate page
     }
-}
+  }
   
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-2 py-8">

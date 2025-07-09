@@ -2,7 +2,12 @@
  * Helper function to safely convert any date value to ISO string
  * Handles various date formats and provides fallback for invalid dates
  */
-export function formatDateToISO(dateValue: any): string {
+export function formatDateToISO(dateValue: Date | string | number | null | undefined): string {
+  // Handle null or undefined
+  if (dateValue === null || dateValue === undefined) {
+    return new Date().toISOString();
+  }
+  
   // Handle Date objects
   if (dateValue instanceof Date) {
     return dateValue.toISOString();
@@ -23,7 +28,7 @@ export function formatDateToISO(dateValue: any): string {
   try {
     const date = new Date(dateValue);
     return !isNaN(date.getTime()) ? date.toISOString() : new Date().toISOString();
-  } catch (e) {
+  } catch (_error) {
     console.error('Invalid date value:', dateValue);
     // Return current date as fallback
     return new Date().toISOString();

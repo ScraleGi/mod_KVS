@@ -1,7 +1,6 @@
 'use client'
 import React, { useRef } from 'react'
 import { formatDate } from '@/lib/utils'
-import { SanitizedCourse } from '@/types/query-models'
 
 // Interface for available courses in the dropdown
 interface AvailableCourse {

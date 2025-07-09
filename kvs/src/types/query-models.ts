@@ -353,3 +353,12 @@ export interface EditCourseFormProps {
   trainers: TrainerOption[];
   onSubmit: (formData: FormData) => void;
 }
+
+/**
+ * Interface for invoice updates
+ */
+export interface InvoiceUpdateData {
+  transactionNumber: string | null;
+  isCancelled: boolean;
+  dueDate?: Date;
+}
