@@ -30,8 +30,12 @@ export default function RecipientSelect({ recipients }: { recipients: Recipient[
       return
     }
 
+    // Fix here: removed 'string' declaration error, use const with type inference
     const filteredRecipients = recipients.filter((r) => {
-      const name: String = r.type === 'COMPANY' ? r.companyName : `${r.recipientName || ''} ${r.recipientSurname || ''}`
+      const name =
+        r.type === 'COMPANY'
+          ? r.companyName ?? ''
+          : `${r.recipientName ?? ''} ${r.recipientSurname ?? ''}`
       return name.toLowerCase().includes(value.toLowerCase())
     })
     setFiltered(filteredRecipients)
@@ -41,8 +45,8 @@ export default function RecipientSelect({ recipients }: { recipients: Recipient[
   function handleSelect(recipient: Recipient) {
     setSearch(
       recipient.type === 'COMPANY'
-        ? recipient.companyName || ''
-        : `${recipient.recipientName || ''} ${recipient.recipientSurname || ''}`
+        ? recipient.companyName ?? ''
+        : `${recipient.recipientName ?? ''} ${recipient.recipientSurname ?? ''}`
     )
     setShowSuggestions(false)
 
@@ -59,10 +63,10 @@ export default function RecipientSelect({ recipients }: { recipients: Recipient[
       }
     }
 
-    setInput('recipientSalutation', recipient.recipientSalutation || '')
-    setInput('recipientName', recipient.recipientName || '')
-    setInput('recipientSurname', recipient.recipientSurname || '')
-    setInput('companyName', recipient.companyName || '')
+    setInput('recipientSalutation', recipient.recipientSalutation ?? '')
+    setInput('recipientName', recipient.recipientName ?? '')
+    setInput('recipientSurname', recipient.recipientSurname ?? '')
+    setInput('companyName', recipient.companyName ?? '')
     setInput('recipientEmail', recipient.recipientEmail)
     setInput('recipientStreet', recipient.recipientStreet)
     setInput('postalCode', recipient.postalCode)
@@ -97,7 +101,8 @@ export default function RecipientSelect({ recipients }: { recipients: Recipient[
             >
               {r.type === 'COMPANY'
                 ? r.companyName
-                : `${r.recipientSalutation ? r.recipientSalutation + ' ' : ''}${r.recipientName || ''} ${r.recipientSurname || ''}`} — {r.recipientStreet}, {r.postalCode} {r.recipientCity}
+                : `${r.recipientSalutation ? r.recipientSalutation + ' ' : ''}${r.recipientName ?? ''} ${r.recipientSurname ?? ''}`} —{' '}
+              {r.recipientStreet}, {r.postalCode} {r.recipientCity}
             </li>
           ))}
         </ul>
@@ -105,6 +110,7 @@ export default function RecipientSelect({ recipients }: { recipients: Recipient[
     </fieldset>
   )
 }
+
 
 
 
