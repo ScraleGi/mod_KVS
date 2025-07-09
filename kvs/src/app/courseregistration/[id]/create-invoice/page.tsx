@@ -66,7 +66,20 @@ export default async function CreateInvoicePage({ params }: { params: { id: stri
           <input type="hidden" name="registrationId" value={registration.id} />
 
           {/* NEW: Dropdown autofill component */}
-          <RecipientSelect recipients={recipients} />
+          <RecipientSelect
+            recipients={recipients.map(r => ({
+              ...r,
+              recipientName: r.recipientName ?? undefined,
+              recipientSurname: r.recipientSurname ?? undefined,
+              companyName: r.companyName ?? undefined,
+              recipientEmail: r.recipientEmail ?? undefined,
+              postalCode: r.postalCode ?? undefined,
+              recipientStreet: r.recipientStreet ?? undefined,
+              recipientCity: r.recipientCity ?? undefined,
+              recipientCountry: r.recipientCountry ?? undefined,
+              participantId: r.participantId ?? undefined,
+            }))}
+          />
 
           {/* Invoice Recipient Section (UNCHANGED) */}
           <fieldset className="border border-neutral-200 rounded-lg p-5">
