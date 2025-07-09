@@ -10,7 +10,7 @@ interface ProgramPageProps {
 const prisma = new PrismaClient();
 
 export default async function ProgramPage({ params }: ProgramPageProps) {
-  const { id } = params;
+  const { id } = await params;
 
   const program = await prisma.program.findUnique({
     where: { id },

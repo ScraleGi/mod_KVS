@@ -1,7 +1,10 @@
+// page.tsx
 import { PrismaClient } from '../../../../../generated/prisma'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { generateInvoice } from '@/utils/generateInvoice'
+
+import RecipientSelect from './RecipientSelect' // <-- import client component
 
 const prisma = new PrismaClient()
 
@@ -16,8 +19,6 @@ export default async function CreateInvoicePage({ params }: { params: { id: stri
     },
   })
 
-  console.log('Registration:', registration)
-
   if (!registration || !registration.participant) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-neutral-50">
@@ -30,7 +31,13 @@ export default async function CreateInvoicePage({ params }: { params: { id: stri
       </div>
     )
   }
- 
+
+  // NEW: Fetch saved recipients to pass to client component
+  const recipients = await prisma.invoiceRecipient.findMany({
+    where: { deletedAt: null },
+    orderBy: { createdAt: 'desc' },
+  })
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-neutral-50 px-2 py-8">
       <div className="w-full max-w-xl bg-white rounded-2xl shadow-md border border-neutral-100 p-8">
@@ -45,7 +52,10 @@ export default async function CreateInvoicePage({ params }: { params: { id: stri
             </div>
           </div>
         </div>
+
+        {/* Add id here for client component to target */}
         <form
+          id="invoice-form"
           action={async (formData) => {
             'use server'
             await generateInvoice(formData)
@@ -54,7 +64,11 @@ export default async function CreateInvoicePage({ params }: { params: { id: stri
           className="space-y-6"
         >
           <input type="hidden" name="registrationId" value={registration.id} />
-          {/* Invoice Recipient Section */}
+
+          {/* NEW: Dropdown autofill component */}
+          <RecipientSelect recipients={recipients} />
+
+          {/* Invoice Recipient Section (UNCHANGED) */}
           <fieldset className="border border-neutral-200 rounded-lg p-5">
             <legend className="text-base font-semibold text-blue-700 px-2">Invoice Recipient</legend>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
@@ -109,7 +123,8 @@ export default async function CreateInvoicePage({ params }: { params: { id: stri
               </label>
             </div>
           </fieldset>
-          {/* Course Participant Reference Section */}
+
+          {/* Course Participant Reference Section (UNCHANGED) */}
           <fieldset className="border border-neutral-200 rounded-lg p-5">
             <legend className="text-base font-semibold text-blue-700 px-2">Course Participant (Reference)</legend>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 text-xs text-neutral-600">
@@ -124,6 +139,7 @@ export default async function CreateInvoicePage({ params }: { params: { id: stri
               </div>
             </div>
           </fieldset>
+
           <div className="flex justify-between mt-6">
             <Link
               href={`/courseregistration/${id}`}
