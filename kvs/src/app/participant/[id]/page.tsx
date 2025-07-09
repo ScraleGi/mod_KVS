@@ -7,7 +7,7 @@ import { redirect } from "next/navigation"
 import { revalidatePath } from 'next/cache'
 import ClientCourseModalWrapper from './ClientCourseModalWrapper'
 import { sanitize } from '@/lib/sanitize'
-import RemoveButton from '@/components/RemoveButton/removeButton'
+import RemoveButton from '@/components/RemoveButton/RemoveButton'
 //---------------------------------------------------
 // TYPE DEFINITIONS
 //---------------------------------------------------

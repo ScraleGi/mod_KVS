@@ -13,7 +13,7 @@ import {
   SanitizedInvoice,
   SanitizedDocument,
 } from '@/types/query-models'
-import RemoveButton from '@/components/RemoveButton/removeButton'
+import RemoveButton from '@/components/RemoveButton/RemoveButton'
 
 
 //---------------------------------------------------

@@ -4,7 +4,7 @@ import { db } from '@/lib/db'
 import { sanitize } from '@/lib/sanitize'
 import { CourseWithEditRelations } from '@/types/query-models'
 import { formatDateISO } from '@/lib/utils'
-import RemoveButton from '@/components/RemoveButton/removeButton';
+import RemoveButton from '@/components/RemoveButton/RemoveButton';
 
 /**
  * Props interface for the edit course page

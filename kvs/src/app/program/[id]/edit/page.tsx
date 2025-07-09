@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { db } from '@/lib/db'
 import { sanitize } from '@/lib/sanitize'
-import RemoveButton from '@/components/RemoveButton/removeButton';
+import RemoveButton from '@/components/RemoveButton/RemoveButton';
 
 interface EditProgramPageProps {
   params: {
