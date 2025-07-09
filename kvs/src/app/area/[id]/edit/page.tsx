@@ -14,10 +14,16 @@ interface EditAreaPageProps {
 export default async function EditAreaPage({ params }: EditAreaPageProps) {
   const { id } = await params;
 
-  // Fetch area data
-  const area = await db.area.findUnique({
-    where: { id },
-  });
+  // Fetch area and its programs in parallel
+  const [area] = await Promise.all([
+    db.area.findUnique({
+      where: { id },
+    }),
+    db.program.findMany({
+      where: { areaId: id },
+      orderBy: { name: 'asc' },
+    }),
+  ]);
 
   // Show error if area not found
   if (!area) {
