@@ -4,7 +4,6 @@ import { CoursesDialog } from "../participants/participantCoursesDialog"
 import { FilterHeader } from "./FilterHeader"
 import { DoubleFilterHeader } from "./DoubleFilterHeader"
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger, } from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
 import { ChevronDown } from "lucide-react"
 
 
@@ -154,12 +153,25 @@ export const home: ColumnDef<CourseRow>[] = [
       const value = row.getValue(columnId)
       if (!value) return false
       const date = new Date(value as string)
+      if (isNaN(date.getTime())) return false
       const [from, to] = filterValue
       if (from && date < new Date(from)) return false
       if (to && date > new Date(to)) return false
       return true
     },
-    // ...restlicher Code...
+
+    sortingFn:(rowA, rowB, columnId) => {
+      const a = rowA.getValue(columnId)
+      const b = rowB.getValue(columnId)
+      const dateA = a ? new Date(a as string) : null
+      const dateB = b ? new Date(b as string) : null
+      
+      if ((!dateA || isNaN(dateA.getTime())) && (!dateB || isNaN(dateB.getTime()))) return 0
+      if (!dateA || isNaN(dateA.getTime())) return 1
+      if (!dateB || isNaN(dateB.getTime())) return -1
+
+      return dateA.getTime() - dateB.getTime()
+    },
   },
   // Trainer column (left-aligned)
   {
