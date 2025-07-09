@@ -2,13 +2,14 @@ import * as React from "react"
 import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react"
 import type { Column } from "@tanstack/react-table"
 
-type FilterHeaderProps = {
-  column: Column<any, any>
+
+type FilterHeaderProps<T> = {
+  column: Column<T, unknown>
   label: string
   placeholder?: string
 }
 
-export function FilterHeader({ column, label, placeholder = "Filter..." }: FilterHeaderProps) {
+export function FilterHeader<T>({ column, label, placeholder = "Filter..." }: FilterHeaderProps<T>) {
   const [showFilter, setShowFilter] = React.useState(false)
 
   const toggleFilter = React.useCallback(() => {

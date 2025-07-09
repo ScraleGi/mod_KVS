@@ -1,22 +1,22 @@
 import * as React from "react"
-import { ArrowUpDown } from "lucide-react"
+import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react"
 import type { Column } from "@tanstack/react-table"
 
-type DoubleFilterHeaderProps = {
-  column: Column<any, any>
+type DoubleFilterHeaderProps<T> = {
+  column: Column<T, unknown>
   label: string
   placeholderFrom?: string
   placeholderTo?: string
   typeDefinition: "date" | "datetime-local" | "time" | "month" | "week" | "number" | "text"
 }
 
-export function DoubleFilterHeader({
+export function DoubleFilterHeader<T>({
   column,
   label,
   placeholderFrom,
   placeholderTo,
   typeDefinition,
-}: DoubleFilterHeaderProps) {
+}: DoubleFilterHeaderProps<T>) {
   const [showFilter, setShowFilter] = React.useState(false)
   const filterValue = (column.getFilterValue() as [string, string]) ?? ["", ""]
   const filterRef = React.useRef<HTMLDivElement>(null)
@@ -55,24 +55,28 @@ export function DoubleFilterHeader({
         </span>
         <span
           className="ml-1 h-4 w-4 cursor-pointer flex"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          onClick={() => column.toggleSorting()}
           role="button"
           tabIndex={0}
+          aria-label={
+            column.getIsSorted() === "asc"
+              ? "Sort descending"
+              : column.getIsSorted() === "desc"
+              ? "Clear sort"
+              : "Sort ascending"
+          }
+          aria-pressed={!!column.getIsSorted()}
           onKeyDown={e => {
-            if (e.key === "Enter" || e.key === " ") {
-              column.toggleSorting(column.getIsSorted() === "asc")
-            }
+            if (e.key === "Enter" || e.key === " ") column.toggleSorting()
           }}
         >
-          <ArrowUpDown
-            className={`h-4 w-4 transition-transform ${
-              column.getIsSorted()
-                ? column.getIsSorted() === "asc"
-                  ? "text-yellow-100"
-                  : "text-yellow-100"
-                : "text-gray-400"
-            }`}
-          />
+          {column.getIsSorted() === "asc" ? (
+            <ArrowDown className="h-4 w-4 text-yellow-100" />
+          ) : column.getIsSorted() === "desc" ? (
+            <ArrowUp className="h-4 w-4 text-yellow-100" />
+          ) : (
+            <ArrowUpDown className="h-4 w-4 text-gray-400" />
+          )}
         </span>
       </span>
       {showFilter && (
