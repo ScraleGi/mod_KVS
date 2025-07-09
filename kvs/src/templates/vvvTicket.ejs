@@ -1,86 +1,179 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>VVV DCV Freifahrt Ticket</title>
   <style>
-    table {
-      width: 100%;
-      border-collapse: collapse;
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 13px;
+      margin: 0;
+      padding: 0;
     }
-    td {
-      padding: 5px;
-      vertical-align: top;
+
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 40px;
+    }
+
+    .logo-wrapper,
+    .logo-wrapper-end {
+      text-align: right;
+    }
+
+    .contact-info {
+      text-align: right;
+      margin-top: 10px;
+      margin-bottom: 30px;
+    }
+
+    .contact-info p {
+      margin: 2px 0;
+    }
+
+    .contact-info .address {
+      font-weight: bold;
+    }
+
+    .contact-info .city-date {
+      margin-top: 8px;
+    }
+
+    .logo-wrapper-end img {
+      width: 130px;
+    }
+
+    h1, h2, h3, h4 {
+      font-weight: bold;
+      margin: 25px 0 10px;
+      font-size: 16px;
+      text-align: left;
+    }
+
+    h1 { font-size: 20px; margin-top: 30px; }
+    h2 { font-size: 16px; }
+    h3 { font-size: 15px; }
+    h4 { font-size: 14px; }
+
+    p {
+      font-size: 13px;
+      text-align: left;
+      margin-bottom: 10px;
+    }
+
+    .tight-paragraphs p {
+      margin: 1px 0;
+    }
+
+    .date-columns {
+      display: flex;
+      gap: 40px;
+      margin-top: 10px;
+      justify-content: flex-start;
+    }
+
+    .date-column {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    hr {
+      margin: 30px 0;
+      border-top: 2px dotted #000;
     }
   </style>
 </head>
 <body>
 
-  <!-- Header Section -->
-  <div class="logo-wrapper">
-    <img src="http://localhost:3000/img/DCV_Logo-Schriftzug_pos_WEB.svg" alt="Logo" class="logo" />
-  </div>
-  <p>6800 Feldkirch, Widnau 10</p>
-  <p>info@digitalcampusvorarlberg.at</p>
-  <p>Feldkirch <%= new Date().toLocaleDateString() %></p>
+   <% const options = { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/Berlin' }; %>
 
-  <h1>DCV-Freifahrt</h1>
-  <p><strong><%= course.program.name %></strong></p>
-  <p>Kurs Nr: <%= course.program.code %></p>
-  <p>Kursort: prisma ort</p>
+  <div class="container">
 
-  <h2>Liebe Kursteilnehmerinnen,</h2>
-  <p>
-    Mit untenstehendem DCV-Freifahrt-Ticket bist du am Kurstag mit Bus und Bahn in ganz Vorarlberg mobil.
-    Dein personalisierter Fahrschein ist nur gültig, wenn du vor Antritt der Fahrt dein Geburtsdatum händisch einträgst und das Ticket mit Ausweis vorzeigst.
-  </p>
+    <!-- Header Section -->
+    <div class="logo-wrapper">
+      <img src="http://localhost:3000/img/DCV_Logo-Schriftzug_pos_WEB.svg" alt="Logo" width="150" />
+    </div>
 
-  <p>Thomas Berchtold</p>
-  <p>Geschäftsführung</p>
+    <div class="contact-info">
+      <p class="address">6800 Feldkirch, Widnau 10</p>
+      <p>info@digitalcampusvorarlberg.at</p>
+      <p class="city-date">Feldkirch <%= new Date().toLocaleDateString() %></p>
+    </div>
 
-  <hr/>
+    <h1>DCV-Freifahrt</h1>
+    <p><strong><%= course.program.name %></strong></p>
+    <p>Kurs Nr: <%= course.program.code %></p>
+    <p>Kursort: prisma ort</p>
 
-  <!-- Ticket Info -->
-  <h3>VVV/DCV-Freifahrt-Ticket</h3>
-  <p>Kursteilnehmerin: <%= participant.name %> <%= participant.surname %></p>
-  <p>Geburtsdatum: <%= participant.birthday %></p>
-  <p>Gültig für den Kurstag: <%= new Date(course.startDate).toLocaleDateString() %></p>
-  <p>Gültig für die Rückfahrt: <%= new Date(course.endDate).toLocaleDateString() %></p>
+    <h2>Liebe Kursteilnehmerinnen,</h2>
 
-  <hr/>
+    <!-- 5 Paragraphs tightly grouped -->
+    <div class="tight-paragraphs">
+      <p>Mit untenstehendem DCV-Freifahrt-Ticket bist du am Kurstag mit Bus und Bahn in ganz Vorarlberg</p>
+      <p>mobil. Du fährst morgens zu deinem Kurs und schließlich wieder zurück nach Hause</p>
+      <p>Dein personalisierter Fahrschein ist nur gültig, wenn du vor Antritt der Fahrt dein Geburtsdatum</p>
+      <p>händisch einträgst und das Ticket bei Fahrscheinkontrollen auf Verlangen in Verbindung mit einem</p>
+      <p>Lichtbildausweiß oder Führerschein vorzeigst.</p>
+    </div>
 
-  <!-- Dynamic Table -->
-  <h4>maximo, Tageskarte, Vollpreis gültig am:</h4>
-  <table border="1">
-    <tr>
+    <!-- Extra space before farewell -->
+    <p style="margin-top: 15px;">Wir freuen uns auf dein Kommen und wünschen dir einen guten Start.</p>
+
+    <!-- Signature block -->
+    <p style="margin-bottom: 0;">Thomas Berchtold</p>
+    <p style="margin-top: 0;">Geschäftsführung</p>
+
+    <hr/>
+
+    <!-- Ticket Info -->
+    <h3>VVV / DCV-Freifahrt-Ticket</h3>
+    <div>
+      <p>Kurstitel: <strong><%= course.program.name %></strong></p>
+      <p>Kursteilnehmerin: <%= participant.name %> <%= participant.surname %></p>
+      <p>Geburtsdatum: <%= new Date(participant.birthday).toLocaleDateString("de-DE", options) %></p>
+      <p>Kursdauer: <%= new Date(course.startDate).toLocaleDateString() %> - <%= new Date(course.endDate).toLocaleDateString() %></p>
+    </div>
+
+    <!-- Dynamic Dates -->
+    <h4>maximo, Tageskarte, Vollpreis gültig am:</h4>
+    <div class="date-columns">
       <% 
-        const maxRows = 5;
-        let allDates = [];
+        const allDates = [];
         const start = new Date(course.startDate);
         const end = new Date(course.endDate);
         for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-          allDates.push(new Date(d)); // clone date
+          allDates.push(new Date(d));
         }
 
+        const maxRows = 5;
         const totalCols = Math.ceil(allDates.length / maxRows);
 
-        for (let row = 0; row < maxRows; row++) { 
+        for (let col = 0; col < totalCols; col++) {
       %>
-      <tr>
-        <% for (let col = 0; col < totalCols; col++) {
-             const idx = col * maxRows + row;
-             if (idx < allDates.length) {
-        %>
-          <td><%= allDates[idx].toLocaleDateString() %></td>
-        <% } else { %>
-          <td></td>
-        <% } } %>
-      </tr>
+        <div class="date-column">
+          <% for (let row = 0; row < maxRows; row++) {
+               const idx = col * maxRows + row;
+               if (idx < allDates.length) {
+          %>
+            <span><%= allDates[idx].toLocaleDateString() %></span>
+          <% } } %>
+        </div>
       <% } %>
-  </table>
+    </div>
 
-  <p>LOGO</p>
+    <!-- Logos at the end -->
+    <div class="logo-wrapper-end" style="margin-top: 60px;">
+      <img src="http://localhost:3000/img/DCV_Logo-Schriftzug_pos_WEB.svg" alt="Logo" />
+    </div>
+    <div class="logo-wrapper-end">
+      <img src="http://localhost:3000/img/Verkehrsverbund_Vorarlberg_logo.png" alt="VVV Logo" />
+    </div>
 
+
+
+  </div>
 </body>
 </html>
