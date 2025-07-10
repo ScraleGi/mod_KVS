@@ -2,6 +2,8 @@ import { PrismaClient } from "../../../../generated/prisma";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Info, GraduationCap, Pencil } from "lucide-react";
+import { redirect } from "next/navigation";
+import RemoveButton from "@/components/RemoveButton/RemoveButton";
 
 const prisma = new PrismaClient();
 
@@ -39,6 +41,21 @@ export default async function TrainerDetailsPage({ params }: { params: { id: str
             day: '2-digit',
         });
     };
+
+    // Server action soft-delete the trainer
+    async function deleteTrainer(formData: FormData) {
+        'use server'
+        const id = formData.get('id') as string
+        const now = new Date()
+
+        await prisma.trainer.update({
+            where: { id },
+            data: { deletedAt: now }
+        })
+
+        redirect('/trainer')
+    }
+
 
     if (!trainer) return notFound();
 
@@ -95,7 +112,7 @@ export default async function TrainerDetailsPage({ params }: { params: { id: str
                             ))}
                         </ul>
                     ) : (
-                        <p className="text-gray-500">No main courses assigned.</p>
+                        <p className="text-gray-500">Keine Hauptkurse zugeteilt.</p>
                     )}
                 </div>
                 <div className="mt-8">
@@ -112,7 +129,7 @@ export default async function TrainerDetailsPage({ params }: { params: { id: str
                             ))}
                         </ul>
                     ) : (
-                        <p className="text-gray-500">No courses assigned.</p>
+                        <p className="text-gray-500">Keine Nebenkurse zugeteilt.</p>
                     )}
                 </div>
                 <div className="mt-10 flex justify-end">
@@ -124,6 +141,35 @@ export default async function TrainerDetailsPage({ params }: { params: { id: str
                         Zurück zu Trainer
                     </Link>
                 </div>
+                {/* Danger Zone Section */}
+                    <div className="px-6 py-4 bg-gray-50 rounded-b-sm">
+                                <div className="flex items-center justify-between">
+                                  <div>
+                                    <h3 className="text-sm font-medium text-gray-700">Danger Zone</h3>
+                                    <p className="text-xs text-gray-500 mt-1">Diese Aktion wird den Trainer SoftDeleten</p>
+                                  </div>
+                                  <RemoveButton
+                                    itemId={trainer.id}
+                                    onRemove={deleteTrainer}
+                                    title="Lösche Trainer"
+                                    message="Bist du dir sicher, dass du diesen Trainer SoftDeleten möchtest?"
+                                    fieldName="id"
+                                    customButton={
+                                      <button
+                                        type="submit"
+                                        className="px-3 py-1.5 bg-white border border-red-300 rounded text-sm text-red-600 hover:bg-red-50 hover:border-red-400 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-30"
+                                      >
+                                        <div className="flex items-center">
+                                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                                          </svg>
+                                          Löschen
+                                        </div>
+                                      </button>
+                                    }
+                                  />
+                                </div>
+                              </div>
             </div>
         </div>
     );

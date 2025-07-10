@@ -653,6 +653,18 @@ export const trainerColumns: ColumnDef<TrainerRow>[] = [
       </TrainerCourseDialog>
       </span>
     ),
+    filterFn: (row, columnId, filterValue) => {
+      const value = row.getValue(columnId)
+      if (!value || !Array.isArray(value)) return false
+      const count = value.length
+      if (typeof filterValue === "number") {
+        return count === filterValue
+      } else if (typeof filterValue === "string") {
+        const num = parseInt(filterValue, 10)
+        return !isNaN(num) && count === num
+      }
+      return false
+    },
   },
 ]
 
