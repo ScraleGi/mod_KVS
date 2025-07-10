@@ -153,12 +153,25 @@ export const home: ColumnDef<CourseRow>[] = [
       const value = row.getValue(columnId)
       if (!value) return false
       const date = new Date(value as string)
+      if (isNaN(date.getTime())) return false
       const [from, to] = filterValue
       if (from && date < new Date(from)) return false
       if (to && date > new Date(to)) return false
       return true
     },
-    // ...restlicher Code...
+
+    sortingFn:(rowA, rowB, columnId) => {
+      const a = rowA.getValue(columnId)
+      const b = rowB.getValue(columnId)
+      const dateA = a ? new Date(a as string) : null
+      const dateB = b ? new Date(b as string) : null
+      
+      if ((!dateA || isNaN(dateA.getTime())) && (!dateB || isNaN(dateB.getTime()))) return 0
+      if (!dateA || isNaN(dateA.getTime())) return 1
+      if (!dateB || isNaN(dateB.getTime())) return -1
+
+      return dateA.getTime() - dateB.getTime()
+    },
   },
   // Trainer column (left-aligned)
   {
@@ -201,6 +214,25 @@ export const home: ColumnDef<CourseRow>[] = [
       </span>
     ),
   },
+    {
+        id: "actions",
+        size: 80,
+        header: "Aktionen",
+        cell: ({ row }) => (
+        <div className="flex justify-center gap-1">
+            <Link
+            href={`/course/${row.original.id}/edit`}
+            className="p-2 rounded hover:bg-blue-100 text-blue-600 transition"
+            title="Edit"
+            aria-label="Edit"
+            >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            </Link>
+        </div>
+        ),
+    },
 
 ]
 
@@ -466,8 +498,8 @@ export const programColumns: ColumnDef<ProgramRow>[] = [
     header: ({ column }) => (
       <FilterHeader
         column={column}
-        label="Unterrichtseinheiten"
-        placeholder="Filter Lehrveranstaltungen..."
+        label="Einheit"
+        placeholder="Filter Einheit..."
       />
     ),
     cell: ({ row }) => (
@@ -532,6 +564,8 @@ export const programColumns: ColumnDef<ProgramRow>[] = [
     ),
   },
 ]
+
+
 
 // -------------------- Main Table Component --------------------
 /**

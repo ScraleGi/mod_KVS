@@ -53,7 +53,7 @@ const courses = await db.course.findMany({
       <div className="max-w-[1600px] mx-auto">
         {/* Dashboard Header */}
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Courses</h1>
+          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Kurse</h1>
           <div className="flex gap-2">
             <Link
               href="/course/new"
@@ -91,16 +91,21 @@ const courses = await db.course.findMany({
         <div className="bg-white rounded-sm shadow border border-gray-100">
           <div className="divide-y divide-gray-100">
             <div className="hidden md:grid grid-cols-[2.2fr_2.5fr_1fr_1fr_1.5fr_1fr_0.7fr] gap-3 px-4 py-3 text-[11px] font-semibold text-gray-100 uppercase tracking-wider bg-gray-600 rounded-t-sm w-full border-b border-gray-200">
-              <div>Course</div>
-              <div>Area</div>
+              <div>Kurs</div>
+              <div>Bereich</div>
               <div>Start</div>
               <div>Trainer</div>
-              <div>Additional</div>
-              <div>Registrations</div>
-              <div className="text-right">Actions</div>
+              <div>Co-Trainer</div>
+              <div>Anmeldungen</div>
+              <div className="text-right">Bearbeiten</div>
             </div>
+<<<<<<< HEAD
             {sanitizedCourses.length === 0 && (
               <div className="px-4 py-12 text-center text-gray-400 text-sm">No courses found.</div>
+=======
+            {courses.length === 0 && (
+              <div className="px-4 py-12 text-center text-gray-400 text-sm">Keine Kurse gefunden.</div>
+>>>>>>> origin/main
             )}
             {sanitizedCourses.map(course => (
               <div

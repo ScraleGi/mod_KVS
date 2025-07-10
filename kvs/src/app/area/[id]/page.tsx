@@ -41,7 +41,7 @@ export default async function AreaDetailPage({
     <div className="min-h-screen bg-[#f8fafd] py-14 px-4">
       {/* Breadcrumb navigation */}
       <nav className="max-w-xl mx-auto mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
-        <Link href="/area" className="hover:underline text-gray-700">Back to Areas</Link>
+        <Link href="/area" className="hover:underline text-gray-700">zurück zu Bereiche</Link>
         <span>&gt;</span>
         <span className="text-gray-700 font-semibold">{sanitizedArea.name}</span>
       </nav>
@@ -67,10 +67,14 @@ export default async function AreaDetailPage({
         <div className="mb-10">
           <h2 className="text-xl font-bold mb-2 text-gray-600 flex items-center gap-2">
             <Info className="w-5 h-5 text-gray-400" />
-            Area Description
+            Bereichsbeschreibung 
           </h2>
           <div className="text-gray-700 text-base ml-7">
+<<<<<<< HEAD
             {sanitizedArea.description || <span className="text-gray-400">No description.</span>}
+=======
+            {area.description || <span className="text-gray-400">Keine Beschreibung.</span>}
+>>>>>>> origin/main
           </div>
         </div>
 
@@ -78,11 +82,16 @@ export default async function AreaDetailPage({
         <div>
           <h2 className="text-xl font-bold mb-4 text-gray-600 flex items-center gap-2">
             <GraduationCap className="w-5 h-5 text-gray-400" />
-            Programs
+            Programm
           </h2>
           <ul className="space-y-3 ml-2">
+<<<<<<< HEAD
             {sanitizedArea.programs.length === 0 ? (
               <li className="text-gray-400 italic ml-5 list-none">No programs in this area.</li>
+=======
+            {area.programs.length === 0 ? (
+              <li className="text-gray-400 italic ml-5 list-none">Keine Programme in diesem Bereich.</li>
+>>>>>>> origin/main
             ) : (
               sanitizedArea.programs.map(program => (
                 <li key={program.id} className="flex flex-col md:flex-row md:items-center md:justify-between px-4 py-3 rounded-lg border border-gray-100 hover:bg-blue-50 transition">
@@ -112,7 +121,7 @@ export default async function AreaDetailPage({
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
-            Back to Areas
+            zurück zu Bereiche
           </Link>
         </div>
       </div>

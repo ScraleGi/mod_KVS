@@ -131,6 +131,7 @@ export default async function ParticipantDetailsPage({
     certificate: 'Zertifikat',
     KursRegeln: 'Kursregeln',
     Teilnahmebestaetigung: 'Teilnahmebestätigung',
+    vvvTicket: 'VVV Ticket',
   }
 
   //---------------------------------------------------
@@ -536,6 +537,7 @@ export default async function ParticipantDetailsPage({
         <section className="px-6 py-6 border-b border-neutral-200">
           <h2 className="text-sm font-semibold text-neutral-800 mb-4">Generate Documents</h2>
           <div className="flex gap-4 flex-wrap justify-center">
+<<<<<<< HEAD
             {/* Create a fully serialized version of the registration */}
             {(() => {
               // This immediately-invoked function ensures we only do this once
@@ -563,6 +565,32 @@ export default async function ParticipantDetailsPage({
                 </>
               )
             })()}
+=======
+            <GeneratePDFButton
+              uuidString={sanitizedRegistration.id}
+              registration={sanitizedRegistration}
+              documentType="certificate"
+              filename={`certificate_${sanitizedRegistration.participant.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`}
+            />
+            <GeneratePDFButton
+              uuidString={sanitizedRegistration.id}
+              registration={sanitizedRegistration}
+              documentType="KursRegeln"
+              filename={`KursRegeln_${sanitizedRegistration.participant.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`}
+            />
+            <GeneratePDFButton
+              uuidString={sanitizedRegistration.id}
+              registration={sanitizedRegistration}
+              documentType="Teilnahmebestaetigung"
+              filename={`Teilnahmebestaetigung_${sanitizedRegistration.participant.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`}
+            />
+            <GeneratePDFButton
+              uuidString={sanitizedRegistration.id}
+              registration={sanitizedRegistration}
+              documentType="vvvTicket"
+              filename={`VVV_Ticket_${sanitizedRegistration.participant.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`}
+            /> 
+>>>>>>> origin/main
           </div>
         </section>
 

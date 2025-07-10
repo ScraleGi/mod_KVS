@@ -44,6 +44,7 @@ const labelMap: Record<string, string> = {
   KursRegeln: 'Kursregeln',
   Teilnahmebestaetigung: 'Teilnahmebestätigung',
   invoice: 'Rechnung',
+  vvvTicket: 'VVV Ticket',
 }
 
 //---------------------------------------------------
