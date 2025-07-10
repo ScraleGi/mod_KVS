@@ -1,13 +1,27 @@
-import { PrismaClient } from '../../../../generated/prisma/client'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { Info, GraduationCap, Pencil } from 'lucide-react'
+import { db } from '@/lib/db'
+import { Area } from '@/types/models'
+import { sanitize } from '@/lib/sanitize'
 
-const prisma = new PrismaClient()
+// Define interface for the area with programs that match the query select
+interface AreaWithPrograms extends Omit<Area, 'programs'> {
+  programs: {
+    id: string
+    name: string
+    description: string | null
+  }[]
+}
 
-export default async function AreaDetailPage({ params }: { params: { id: string } }) {
-  const { id } = await  params;
-  const area = await prisma.area.findUnique({
+export default async function AreaDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
+  const { id } = await params;
+  
+  const area = await db.area.findUnique({
     where: { id, deletedAt: null },
     include: {
       programs: {
@@ -20,54 +34,59 @@ export default async function AreaDetailPage({ params }: { params: { id: string 
 
   if (!area) return notFound();
 
+  // Sanitize data to handle any Decimal values
+  const sanitizedArea = sanitize<typeof area, AreaWithPrograms>(area);
+
   return (
     <div className="min-h-screen bg-[#f8fafd] py-14 px-4">
-      {/* Breadcrumb jetzt außerhalb des Card-Containers */}
+      {/* Breadcrumb navigation */}
       <nav className="max-w-xl mx-auto mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
         <Link href="/area" className="hover:underline text-gray-700">zurück zu Bereiche</Link>
         <span>&gt;</span>
-        <span className="text-gray-700 font-semibold">{area.name}</span>
+        <span className="text-gray-700 font-semibold">{sanitizedArea.name}</span>
       </nav>
       <div className="max-w-xl mx-auto bg-white rounded-2xl shadow-lg px-6 py-8 relative">
-        {/* Edit-Link oben rechts IM Container */}
+        {/* Edit button */}
         <Link
-          href={`/area/${area.id}/edit`}
+          href={`/area/${sanitizedArea.id}/edit`}
           className="absolute top-6 right-6 text-gray-400 hover:text-blue-600 transition"
           title="Edit Area"
         >
           <Pencil className="w-5 h-5 cursor-pointer" />
         </Link>
 
-        {/* Überschrift zentriert */}
-        <h1 className="text-3xl font-bold mb-6 text-center text-gray-900 drop-shadow-sm">{area.name}</h1>
+        {/* Area title */}
+        <h1 className="text-3xl font-bold mb-6 text-center text-gray-900 drop-shadow-sm">{sanitizedArea.name}</h1>
 
-        {/* Optional: Image Placeholder */}
+        {/* Image placeholder */}
         <div className="w-full h-48 bg-gray-100 rounded flex items-center justify-center mb-8">
           <span className="text-gray-400">[Image Placeholder]</span>
         </div>
 
-        {/* Beschreibung */}
+        {/* Area description */}
         <div className="mb-10">
           <h2 className="text-xl font-bold mb-2 text-gray-600 flex items-center gap-2">
             <Info className="w-5 h-5 text-gray-400" />
             Bereichsbeschreibung 
           </h2>
           <div className="text-gray-700 text-base ml-7">
-            {area.description || <span className="text-gray-400">Keine Beschreibung.</span>}
+
+            {sanitizedArea.description || <span className="text-gray-400">Keine Beschreibung.</span>}
           </div>
         </div>
 
-        {/* Programme-Liste */}
+        {/* Programs list */}
         <div>
           <h2 className="text-xl font-bold mb-4 text-gray-600 flex items-center gap-2">
             <GraduationCap className="w-5 h-5 text-gray-400" />
             Programm
           </h2>
           <ul className="space-y-3 ml-2">
-            {area.programs.length === 0 ? (
+
+            {sanitizedArea.programs.length === 0 ? (
               <li className="text-gray-400 italic ml-5 list-none">Keine Programme in diesem Bereich.</li>
             ) : (
-              area.programs.map(program => (
+              sanitizedArea.programs.map(program => (
                 <li key={program.id} className="flex flex-col md:flex-row md:items-center md:justify-between px-4 py-3 rounded-lg border border-gray-100 hover:bg-blue-50 transition">
                   <div>
                     <Link
@@ -86,7 +105,7 @@ export default async function AreaDetailPage({ params }: { params: { id: string 
           </ul>
         </div>
 
-        {/* Back-Button jetzt innerhalb der Card */}
+        {/* Back button */}
         <div className="mt-10 flex justify-end">
           <Link
             href="/area"
