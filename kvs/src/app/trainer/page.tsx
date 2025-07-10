@@ -1,6 +1,5 @@
 import { PrismaClient } from "../../../generated/prisma";
 import { CourseTable, TrainerRow, trainerColumns } from "@/components/overviewTable/table";
-import Dashboard from "@/components/navigation/Dashboard";
 import Link from "next/link";
 
 

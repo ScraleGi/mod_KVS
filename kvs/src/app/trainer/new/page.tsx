@@ -1,5 +1,4 @@
 import { PrismaClient } from "../../../../generated/prisma";
-import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { EditLabel } from "../../../components/trainer/EditLabel";
 
