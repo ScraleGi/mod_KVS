@@ -70,11 +70,8 @@ export default async function AreaDetailPage({
             Bereichsbeschreibung 
           </h2>
           <div className="text-gray-700 text-base ml-7">
-<<<<<<< HEAD
-            {sanitizedArea.description || <span className="text-gray-400">No description.</span>}
-=======
-            {area.description || <span className="text-gray-400">Keine Beschreibung.</span>}
->>>>>>> origin/main
+
+            {sanitizedArea.description || <span className="text-gray-400">Keine Beschreibung.</span>}
           </div>
         </div>
 
@@ -85,13 +82,9 @@ export default async function AreaDetailPage({
             Programm
           </h2>
           <ul className="space-y-3 ml-2">
-<<<<<<< HEAD
+
             {sanitizedArea.programs.length === 0 ? (
-              <li className="text-gray-400 italic ml-5 list-none">No programs in this area.</li>
-=======
-            {area.programs.length === 0 ? (
               <li className="text-gray-400 italic ml-5 list-none">Keine Programme in diesem Bereich.</li>
->>>>>>> origin/main
             ) : (
               sanitizedArea.programs.map(program => (
                 <li key={program.id} className="flex flex-col md:flex-row md:items-center md:justify-between px-4 py-3 rounded-lg border border-gray-100 hover:bg-blue-50 transition">

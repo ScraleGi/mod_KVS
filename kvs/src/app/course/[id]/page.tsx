@@ -135,11 +135,8 @@ export default async function CoursePage({ params }: { params: Promise<{ id: str
                   </span>
                   {course.trainers && course.trainers.length > 0 && (
                     <span className="ml-2 text-xs text-gray-600 bg-gray-100 rounded px-2 py-1">
-<<<<<<< HEAD
-                      Additional: {course.trainers.map(t => formatFullName(t)).join(', ')}
-=======
-                      Co-Trainer: {course.trainers.map(t => `${t.name} ${t.surname ?? ''}`).join(', ')}
->>>>>>> origin/main
+
+                      Co-Trainer: {course.trainers.map(t => formatFullName(t)).join(', ')}
                     </span>
                   )}
                 </div>
@@ -150,17 +147,14 @@ export default async function CoursePage({ params }: { params: Promise<{ id: str
                   <span>{formatDateGerman(course.startDate)}</span>
                 </div>
                 <div className="flex items-center mb-4">
-<<<<<<< HEAD
-                  <span className="font-semibold mr-2">End Date:</span>
+
+                  <span className="font-semibold mr-2">End Datum:</span>
                   <span>{formatDateGerman(course.endDate)}</span>
                 </div>
                 
                 {/* Registration count */}
                 <div className="flex items-center mb-4">
-                  <span className="font-semibold mr-2">Registrations:</span>
-=======
                   <span className="font-semibold mr-2">Registrationen:</span>
->>>>>>> origin/main
                   <span>{course.registrations.length}</span>
                 </div>
               </div>

@@ -99,13 +99,9 @@ const courses = await db.course.findMany({
               <div>Anmeldungen</div>
               <div className="text-right">Bearbeiten</div>
             </div>
-<<<<<<< HEAD
+
             {sanitizedCourses.length === 0 && (
-              <div className="px-4 py-12 text-center text-gray-400 text-sm">No courses found.</div>
-=======
-            {courses.length === 0 && (
               <div className="px-4 py-12 text-center text-gray-400 text-sm">Keine Kurse gefunden.</div>
->>>>>>> origin/main
             )}
             {sanitizedCourses.map(course => (
               <div

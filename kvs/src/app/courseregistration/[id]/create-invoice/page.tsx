@@ -30,14 +30,9 @@ export default async function CreateInvoicePage({
     },
   })
 
-<<<<<<< HEAD
   //---------------------------------------------------
   // EARLY RETURN FOR MISSING DATA
   //---------------------------------------------------
-=======
-  console.log('Registration:', registration)
-
->>>>>>> origin/main
   if (!registration || !registration.participant) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-neutral-50">
@@ -50,14 +45,11 @@ export default async function CreateInvoicePage({
       </div>
     )
   }
-<<<<<<< HEAD
 
-  //---------------------------------------------------
+   //---------------------------------------------------
   // RENDER UI
   //---------------------------------------------------
-=======
- 
->>>>>>> origin/main
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-neutral-50 px-2 py-8">
       <div className="w-full max-w-xl bg-white rounded-2xl shadow-md border border-neutral-100 p-8">
