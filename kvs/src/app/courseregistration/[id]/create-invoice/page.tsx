@@ -1,17 +1,30 @@
-// page.tsx
-import { PrismaClient } from '../../../../../generated/prisma'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
+import { db } from '@/lib/db'
 import { generateInvoice } from '@/utils/generateInvoice'
 
 import RecipientSelect from './RecipientSelect' // <-- import client component
 
-const prisma = new PrismaClient()
+//---------------------------------------------------
+// SERVER ACTIONS
+//---------------------------------------------------
+async function createInvoiceAction(formData: FormData) {
+  'use server'
+  await generateInvoice(formData)
+  redirect(`/courseregistration/${formData.get('registrationId')}`)
+}
 
-export default async function CreateInvoicePage({ params }: { params: { id: string } | Promise<{ id: string }> }) {
+//---------------------------------------------------
+// MAIN COMPONENT
+//---------------------------------------------------
+export default async function CreateInvoicePage({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
   const { id } = await params
 
-  const registration = await prisma.courseRegistration.findUnique({
+  const registration = await db.courseRegistration.findUnique({
     where: { id },
     include: {
       participant: true,
@@ -19,8 +32,9 @@ export default async function CreateInvoicePage({ params }: { params: { id: stri
     },
   })
 
-  console.log("Registration", registration )
-  
+  //---------------------------------------------------
+  // EARLY RETURN FOR MISSING DATA
+  //---------------------------------------------------
   if (!registration || !registration.participant) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-neutral-50">
@@ -35,7 +49,7 @@ export default async function CreateInvoicePage({ params }: { params: { id: stri
   }
 
   // NEW: Fetch saved recipients to pass to client component
-  const recipients = await prisma.invoiceRecipient.findMany({
+  const recipients = await db.invoiceRecipient.findMany({
     where: { deletedAt: null },
     orderBy: { createdAt: 'desc' },
   })
@@ -44,6 +58,8 @@ export default async function CreateInvoicePage({ params }: { params: { id: stri
     <div className="min-h-screen flex items-center justify-center bg-neutral-50 px-2 py-8">
       <div className="w-full max-w-xl bg-white rounded-2xl shadow-md border border-neutral-100 p-8">
         <h1 className="text-2xl font-bold mb-6 text-neutral-900 text-center">Create Invoice</h1>
+        
+        {/* Participant and Course Info */}
         <div className="mb-8">
           <div className="flex flex-col sm:flex-row sm:justify-between gap-2 text-sm text-neutral-700">
             <div>
@@ -58,11 +74,7 @@ export default async function CreateInvoicePage({ params }: { params: { id: stri
         {/* Add id here for client component to target */}
         <form
           id="invoice-form"
-          action={async (formData) => {
-            'use server'
-            await generateInvoice(formData)
-            redirect(`/courseregistration/${id}`)
-          }}
+          action={createInvoiceAction}
           className="space-y-6"
         >
           <input type="hidden" name="registrationId" value={registration.id} />
@@ -143,8 +155,8 @@ export default async function CreateInvoicePage({ params }: { params: { id: stri
               </label>
             </div>
           </fieldset>
-
-          {/* Course Participant Reference Section (UNCHANGED) */}
+          
+          {/* Course Participant Reference Section */}
           <fieldset className="border border-neutral-200 rounded-lg p-5">
             <legend className="text-base font-semibold text-blue-700 px-2">Course Participant (Reference)</legend>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 text-xs text-neutral-600">
@@ -159,7 +171,8 @@ export default async function CreateInvoicePage({ params }: { params: { id: stri
               </div>
             </div>
           </fieldset>
-
+          
+          {/* Action Buttons */}
           <div className="flex justify-between mt-6">
             <Link
               href={`/courseregistration/${id}`}

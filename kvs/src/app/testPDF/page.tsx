@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 export default function TestPDF() {
   const [type, setType] = useState('invoice');
-  const [id, setId] = useState('1'); // Optional: id per Input ändern, hier statisch
+  const [id] = useState('1'); // Optional: id per Input ändern, hier statisch
 
   const handleDownload = async () => {
     const res = await fetch(`/api/pdf?type=${type}&id=${id}`);

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { FaBars, FaSearch, FaBell, FaUserCircle } from 'react-icons/fa';
@@ -8,7 +8,7 @@ import { FaBars, FaSearch, FaBell, FaUserCircle } from 'react-icons/fa';
 type NavbarProps = {
   isOpen: boolean;
   setOpen: (b: boolean) => void;
-  user: string | null;
+  user: string | null;
 };
 
 const Navbar = ({ isOpen, setOpen, user }: NavbarProps) => {
@@ -38,7 +38,7 @@ const Navbar = ({ isOpen, setOpen, user }: NavbarProps) => {
         </div>
       </div>
 
-      <div className='flex items-center gap-x-5'>
+      <div className='flex items-center gap-x-4'>
         <div className='relative w-64'>
           <span className='absolute inset-y-0 left-0 flex items-center pl-3'>
             <FaSearch className='text-gray-400' />
@@ -53,14 +53,7 @@ const Navbar = ({ isOpen, setOpen, user }: NavbarProps) => {
           />
         </div>
 
-        <div className='text-white'>
-          <FaBell
-            className='w-6 h-6 cursor-pointer transition-transform duration-150 hover:scale-110 focus:scale-110'
-            tabIndex={0}
-          />
-        </div>
-
-        <div className='text-white'>{user}</div>
+        <div className='text-white italic skew-x-1'>{user}</div>
 
         <div className='relative'>
           <button className='text-white group focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-white'>
@@ -73,9 +66,27 @@ const Navbar = ({ isOpen, setOpen, user }: NavbarProps) => {
                 <li>
                   <Link href="/settings" className="block px-4 py-2 hover:bg-gray-100">Setting</Link>
                 </li>
+                <li>
+                  {user ? (
+                    <Link href="/auth/logout" className="block px-4 py-2 text-red-500 hover:bg-gray-100 hover:text-red-600">
+                      Abmelden
+                    </Link>
+                  ) : (
+                    <Link href="/auth/login" className="block px-4 py-2 text-green-500 hover:bg-gray-100 hover:text-green-600">
+                      Anmelden
+                    </Link>
+                  )}
+                </li>
               </ul>
             </div>
           </button>
+        </div>
+
+        <div className='text-white'>
+          <FaBell
+            className='w-6 h-6 cursor-pointer transition-transform duration-150 hover:scale-110 focus:scale-110'
+            tabIndex={0}
+          />
         </div>
       </div>
     </div>
