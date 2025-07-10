@@ -3,6 +3,8 @@ import { redirect } from 'next/navigation'
 import { db } from '@/lib/db'
 import { generateInvoice } from '@/utils/generateInvoice'
 
+import RecipientSelect from './RecipientSelect' // <-- import client component
+
 //---------------------------------------------------
 // SERVER ACTIONS
 //---------------------------------------------------
@@ -46,9 +48,11 @@ export default async function CreateInvoicePage({
     )
   }
 
-   //---------------------------------------------------
-  // RENDER UI
-  //---------------------------------------------------
+  // NEW: Fetch saved recipients to pass to client component
+  const recipients = await db.invoiceRecipient.findMany({
+    where: { deletedAt: null },
+    orderBy: { createdAt: 'desc' },
+  })
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-neutral-50 px-2 py-8">
@@ -66,15 +70,33 @@ export default async function CreateInvoicePage({
             </div>
           </div>
         </div>
-        
-        {/* Invoice Form */}
+
+        {/* Add id here for client component to target */}
         <form
+          id="invoice-form"
           action={createInvoiceAction}
           className="space-y-6"
         >
           <input type="hidden" name="registrationId" value={registration.id} />
-          
-          {/* Invoice Recipient Section */}
+
+          {/* NEW: Dropdown autofill component */}
+          <RecipientSelect
+            recipients={recipients.map(r => ({
+              ...r,
+              recipientSalutation: r.recipientSalutation ?? undefined,
+              recipientName: r.recipientName ?? undefined,
+              recipientSurname: r.recipientSurname ?? undefined,
+              companyName: r.companyName ?? undefined,
+              recipientEmail: r.recipientEmail ?? undefined,
+              postalCode: r.postalCode ?? undefined,
+              recipientStreet: r.recipientStreet ?? undefined,
+              recipientCity: r.recipientCity ?? undefined,
+              recipientCountry: r.recipientCountry ?? undefined,
+              participantId: r.participantId ?? undefined,
+            }))}
+          />
+
+          {/* Invoice Recipient Section (UNCHANGED) */}
           <fieldset className="border border-neutral-200 rounded-lg p-5">
             <legend className="text-base font-semibold text-blue-700 px-2">Invoice Recipient</legend>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
@@ -84,6 +106,10 @@ export default async function CreateInvoicePage({
                   <option value="PERSON">Person</option>
                   <option value="COMPANY">Company</option>
                 </select>
+              </label>
+              <label className="flex flex-col text-xs font-medium text-neutral-700">
+              Salutation (Recipient)
+              <input name="recipientSalutation" className="mt-1 border rounded px-2 py-1" />
               </label>
               <label className="flex flex-col text-xs font-medium text-neutral-700">
                 First Name (Recipient)
