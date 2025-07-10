@@ -50,10 +50,10 @@ export default async function TrainerPage() {
     }));
 
     return (
-        <div className="p-8">
-            <Dashboard />
+        <div className="min-h-screen bg-gray-50 py-6 px-4">
+            {/* Header */}
             <div className="flex items-center justify-between mb-8">
-                <h1 className="text-3xl font-bold mb-6">Trainer Übersicht</h1>
+                <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Bereiche</h1>
                 <div className="flex gap-2">
                     <Link
                         href="/trainer/new"
@@ -63,6 +63,16 @@ export default async function TrainerPage() {
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 20 20" stroke="currentColor">
                             <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                        </svg>
+                    </Link>
+                    <Link
+                        href="/"
+                        className="p-2 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300 transition"
+                        title="Back to Home"
+                        aria-label="Back to Home"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 20 20" stroke="currentColor">
+                            <path fillRule="evenodd" d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z" clipRule="evenodd" />
                         </svg>
                     </Link>
                     <Link
