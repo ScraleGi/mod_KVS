@@ -53,7 +53,7 @@ async function createParticipant(formData: FormData) {
       })
     }
 
-    redirect(`/participant/${participant.id}`)
+    redirect(`/participant/${participant.id}?created=1`)
   } catch (error) {
     console.error('Failed to create participant:', error)
     throw error
@@ -79,142 +79,6 @@ export default async function NewParticipantPage() {
     const courses = sanitize(coursesData)
 
 
-<<<<<<< HEAD
-            const participant = await prisma.participant.create({
-              data: {
-                code,
-                name,
-                surname,
-                salutation,
-                title: title || null,
-                email,
-                phoneNumber,
-                birthday: new Date(birthday),
-                postalCode,
-                city,
-                street,
-                country,
-              }
-            })
-
-            await prisma.courseRegistration.create({
-              data: {
-                courseId,
-                participantId: participant.id,
-              }
-            })
-
-            redirect(`/participant/${participant.id}?created=1`)
-          }}
-          className="space-y-6"
-        >
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <label className="flex flex-col text-xs font-medium text-neutral-700">
-              Code
-              <input
-                name="code"
-                required
-                className="mt-1 border rounded px-2 py-1"
-                autoFocus
-              />
-            </label>
-            <label className="flex flex-col text-xs font-medium text-neutral-700">
-              Anrede
-              <input
-                name="salutation"
-                required
-                className="mt-1 border rounded px-2 py-1"
-              />
-            </label>
-            <label className="flex flex-col text-xs font-medium text-neutral-700">
-              Titel
-              <input
-                name="title"
-                className="mt-1 border rounded px-2 py-1"
-              />
-            </label>
-            <label className="flex flex-col text-xs font-medium text-neutral-700">
-              Name
-              <input
-                name="name"
-                required
-                className="mt-1 border rounded px-2 py-1"
-              />
-            </label>
-            <label className="flex flex-col text-xs font-medium text-neutral-700">
-              Nachname
-              <input
-                name="surname"
-                required
-                className="mt-1 border rounded px-2 py-1"
-              />
-            </label>
-            <label className="flex flex-col text-xs font-medium text-neutral-700">
-              Email
-              <input
-                name="email"
-                type="email"
-                required
-                className="mt-1 border rounded px-2 py-1"
-              />
-            </label>
-            <label className="flex flex-col text-xs font-medium text-neutral-700">
-              Rufnummer
-              <input
-                name="phoneNumber"
-                required
-                className="mt-1 border rounded px-2 py-1"
-              />
-            </label>
-            <label className="flex flex-col text-xs font-medium text-neutral-700">
-              Geburtstag
-              <input
-                name="birthday"
-                type="date"
-                required
-                className="mt-1 border rounded px-2 py-1"
-              />
-            </label>
-            <label className="flex flex-col text-xs font-medium text-neutral-700">
-              PLZ
-              <input
-                name="postalCode"
-                required
-                className="mt-1 border rounded px-2 py-1"
-              />
-            </label>
-            <label className="flex flex-col text-xs font-medium text-neutral-700">
-              Ort
-              <input
-                name="city"
-                required
-                className="mt-1 border rounded px-2 py-1"
-              />
-            </label>
-            <label className="flex flex-col text-xs font-medium text-neutral-700">
-              Straße
-              <input
-                name="street"
-                required
-                className="mt-1 border rounded px-2 py-1"
-              />
-            </label>
-            <label className="flex flex-col text-xs font-medium text-neutral-700">
-              Land
-              <input
-                name="country"
-                required
-                className="mt-1 border rounded px-2 py-1"
-              />
-            </label>
-            <label className="flex flex-col text-xs font-medium text-neutral-700 sm:col-span-2">
-              Kurs
-              <select
-                name="courseId"
-                required
-                className="mt-1 border rounded px-2 py-1"
-                defaultValue=""
-=======
       //---------------------------------------------------
     // RENDER UI
     //---------------------------------------------------
@@ -346,7 +210,6 @@ export default async function NewParticipantPage() {
               <Link
                 href="/participant"
                 className="px-4 py-2 bg-neutral-200 text-neutral-700 rounded hover:bg-neutral-300 text-xs font-medium transition"
->>>>>>> origin/main
               >
                 Abbrechen
               </Link>
