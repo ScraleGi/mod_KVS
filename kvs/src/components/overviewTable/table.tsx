@@ -1,5 +1,6 @@
 "use client"
 import { CourseParticipantsDialog } from "../participants/CourseParticipantsDialog"
+import { TrainerCourseDialog } from "../trainer/TrainerCourseDialog"
 import { CoursesDialog } from "../participants/participantCoursesDialog"
 import { FilterHeader } from "./FilterHeader"
 import { DoubleFilterHeader } from "./DoubleFilterHeader"
@@ -86,8 +87,8 @@ export type TrainerRow = {
   surname: string
   email: string
   phoneNumber: string
-  mainCourses?: { id: string; name: string; startDate?: string | Date }[]
-  courses?: { id: string; name: string; startDate?: string | Date }[]
+  mainCourses?: { id: string; name: string; startDate?: string }[]
+  courses?: { id: string; name: string; startDate?: string }[]
 }
 
 // -------------------- Table Columns Definition --------------------
@@ -630,7 +631,9 @@ export const trainerColumns: ColumnDef<TrainerRow>[] = [
     ),
     cell: ({ row }) => (
       <span className="block pl-2">
-        {row.original.mainCourses?.length ?? 0}
+        <TrainerCourseDialog courses={row.original.mainCourses ?? []}>
+          {row.original.mainCourses?.length ?? 0}
+        </TrainerCourseDialog>
       </span>
     ),
   },
@@ -644,8 +647,10 @@ export const trainerColumns: ColumnDef<TrainerRow>[] = [
       />
     ),
     cell: ({ row }) => (
-      <span className="block pl-2">
+     <span className="block pl-2">
+      <TrainerCourseDialog courses={row.original.courses ?? []}>
         {row.original.courses?.length ?? 0}
+      </TrainerCourseDialog>
       </span>
     ),
   },
