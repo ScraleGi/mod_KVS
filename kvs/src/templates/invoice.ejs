@@ -24,7 +24,7 @@
       font-size: 14px;
     }
     .recipient-info ul li {
-      margin-bottom: 5px;
+      margin-bottom: 2px;
     }
     .date {
       text-align: right;
@@ -96,10 +96,10 @@
   <div class="recipient-info">
     <ul>
       <% if (recipient.type === 'COMPANY') { %>
-      <p><strong>Firma:</strong><%= recipient.companyName %></p>
+      <li><strong>Firma:</strong><%= recipient.companyName %></li>
       <% } else { %>
-        <p><%= recipient?.recipientSalutation %></p>
-      <p> <%= recipient.recipientName %> <%= recipient.recipientSurname %></p>
+        <li><%= recipient?.recipientSalutation %></li>
+      <li> <%= recipient.recipientName %> <%= recipient.recipientSurname %></li>
       <% } %>
       <li><%= recipient.recipientStreet %></li>
       <li><%= recipient.postalCode %> <%= recipient.recipientCity %>, <%= recipient.recipientCountry %></li>

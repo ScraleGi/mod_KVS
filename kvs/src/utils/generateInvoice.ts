@@ -9,6 +9,7 @@ export async function generateInvoice(formData: FormData) {
   "use server"
   const registrationId = formData.get("registrationId") as string
   const type = formData.get("type") as "PERSON" | "COMPANY"
+  const recipientSalutation = formData.get("recipientSalutation") as string
   const recipientName = formData.get("recipientName") as string
   const recipientSurname = formData.get("recipientSurname") as string
   const companyName = formData.get("companyName") as string
@@ -21,6 +22,7 @@ export async function generateInvoice(formData: FormData) {
   const recipient = await prisma.invoiceRecipient.create({
     data: {
       type,
+      recipientSalutation: type === "PERSON" ? recipientSalutation : null,
       recipientName: type === "PERSON" ? recipientName : null,
       recipientSurname: type === "PERSON" ? recipientSurname : null,
       companyName: type === "COMPANY" ? companyName : null,

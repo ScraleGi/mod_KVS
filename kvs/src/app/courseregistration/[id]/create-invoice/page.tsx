@@ -19,6 +19,8 @@ export default async function CreateInvoicePage({ params }: { params: { id: stri
     },
   })
 
+  console.log(registration, "Registration")
+  
   if (!registration || !registration.participant) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-neutral-50">
