@@ -27,6 +27,8 @@ export default async function TrainerDetailsPage({ params }: { params: { id: str
         },
     });
 
+    console.log('Trainer Details:', trainer);
+
     // Date formatting utility
     const formatDate = (date: string | Date | null) => {
         if (!date) return 'N/A';
@@ -56,7 +58,7 @@ export default async function TrainerDetailsPage({ params }: { params: { id: str
                     <Pencil className="w-5 h-5 cursor-pointer" />
                 </Link>
 
-                <h1 className="text-3xl font-bold mb-6 text-center text-gray-900 drop-shadow-sm">{trainer.name} {trainer.surname}</h1>
+                <h1 className="text-3xl font-bold mb-6 text-center text-gray-900 drop-shadow-sm">{trainer.title} {trainer.name} {trainer.surname}</h1>
 
                 <div className="w-full h-48 bg-gray-100 rounded flex items-center justify-center mb-8">
                     <span className="text-gray-400">[Image Placeholder]</span>
@@ -65,11 +67,17 @@ export default async function TrainerDetailsPage({ params }: { params: { id: str
                 <div className="mb-10">
                     <h2 className="text-xl font-bold mb-2 text-gray-600 flex items-center gap-2">
                         <Info className="w-5 h-5 text-gray-400" />
-                        Trainer Information
+                        Kontakt
                     </h2>
                     <div className="text-gray-700 text-base ml-7">
                         Email: {trainer.email || 'N/A'}<br
                         />Tel: {trainer.phoneNumber || 'N/A'}<br />
+                        Adresse: {trainer.street || 'Keine Anschrift angegeben.'}
+                        {trainer.postalCode && trainer.city ? (
+                            <span>, {trainer.postalCode} {trainer.city}</span>
+                        ) : (
+                            <span className="text-gray-500"> Keine Stadt oder PLZ angegeben.</span>
+                        )}
                         {/* Add more fields as needed */}
                     </div>
                 </div>
