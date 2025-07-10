@@ -56,7 +56,7 @@ export default async function NewParticipantPage() {
               }
             })
 
-            redirect(`/participant/${participant.id}`)
+            redirect(`/participant/${participant.id}?created=1`)
           }}
           className="space-y-6"
         >

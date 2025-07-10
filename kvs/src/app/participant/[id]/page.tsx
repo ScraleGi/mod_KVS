@@ -1,8 +1,9 @@
-import { PrismaClient, RecipientType } from '../../../../generated/prisma'
+import { PrismaClient } from '../../../../generated/prisma'
 import Link from 'next/link'
 import { redirect } from "next/navigation"
 import { revalidatePath } from 'next/cache'
 import ClientCourseModalWrapper from './ClientCourseModalWrapper'
+import ParticipantToaster from './ParticipantToaster'
 
 const prisma = new PrismaClient()
 
@@ -169,6 +170,7 @@ export default async function ParticipantPage({ params, searchParams }: Particip
 
   return (
     <div className="min-h-screen bg-neutral-50 flex items-center justify-center px-2 py-8">
+      <ParticipantToaster />
       <div className="w-full max-w-2xl bg-white rounded-2xl shadow-md border border-neutral-100 p-0 overflow-hidden">
         {/* Profile Card */}
         <section className="flex flex-col sm:flex-row items-center gap-6 px-8 py-8 border-b border-neutral-200 relative">

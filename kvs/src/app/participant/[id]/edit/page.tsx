@@ -69,7 +69,7 @@ export default async function EditParticipantPage({ params }: { params: { id: st
               }
             })
 
-            redirect(`/participant/${id}`)
+            redirect(`/participant/${id}?edited=1`)
           }}
           className="space-y-6"
         >
