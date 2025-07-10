@@ -12,6 +12,11 @@ interface EditTrainerPageProps {
 }
 
 export default async function EditTrainerPage({ params }: EditTrainerPageProps) {
+    const { id } = await params;
+    const trainer = await prisma.trainer.findUnique({
+        where: { id },
+    });
+
     // Server action to update the trainer in the database
     const changeTrainer = async (formData: FormData) => {
         'use server';
@@ -48,10 +53,7 @@ export default async function EditTrainerPage({ params }: EditTrainerPageProps) 
         });
         redirect(`/trainer/${id}`);
     };
-    const { id } = await params;
-    const trainer = await prisma.trainer.findUnique({
-        where: { id },
-    });
+    
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-neutral-50 px-2 py-8">
