@@ -7,7 +7,7 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 50px;
+      margin: 40px 30px 30px;
       line-height: 1.6;
       color: #000;
       background-color: #fff;
@@ -23,8 +23,12 @@
       margin: 0;
       font-size: 14px;
     }
-    .recipient-info ul li {
-      margin-bottom: 2px;
+    .recipient-info li {
+      margin: 0;
+      padding: 0;
+    }
+    .recipient-info {
+      margin-bottom: 50px;
     }
     .date {
       text-align: right;
@@ -35,7 +39,6 @@
       font-size: 20px;
       margin: 30px 0 15px;
       text-transform: uppercase;
-      border-bottom: 1px solid #000;
       padding-bottom: 5px;
     }
     ul.details {
@@ -43,11 +46,12 @@
       padding: 0;
       font-size: 14px;
       margin-top: 10px;
+      text-align: end;
     }
     ul.details li {
-      margin-bottom: 8px;
+      margin: 0;
     }
-    ul.details li span.label {
+    ul.details .label {
       display: inline-block;
       width: 140px;
       font-weight: bold;
@@ -76,46 +80,52 @@
       font-size: 13px;
       line-height: 1.5;
     }
+    .logo-wrapper {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+    .tight-paragraph {
+      margin: 0;
+      padding: 0;
+    }
   </style>
 </head>
 <body>
 
-<% 
-  // Format dates in German locale
+<%
   const formattedDate = new Date(invoice.createdAt || Date.now()).toLocaleDateString('de-DE');
   const dueDateFormatted = new Date(invoice.dueDate).toLocaleDateString('de-DE');
-
-  // Base amounts from invoice (decimal to number)
   const baseAmount = Number(invoice.amount);
-  const discountAmount = invoice.courseRegistration?.discountAmount ? Number(invoice.courseRegistration.discountAmount) : 0;
+  const discountAmount = Number(invoice.courseRegistration?.discountAmount || 0);
   const nettoGesamt = baseAmount - discountAmount;
   const menge = 1;
 %>
+
+<div class="logo-wrapper">
+  <img src="http://localhost:3000/img/DCV_Logo-Schriftzug_pos_WEB.svg" alt="Logo" class="logo" />
+</div>
 
 <header>
   <div class="recipient-info">
     <ul>
       <% if (recipient.type === 'COMPANY') { %>
-      <li><strong>Firma:</strong><%= recipient.companyName %></li>
+        <li><strong>Firma:</strong> <%= recipient.companyName %></li>
       <% } else { %>
         <li><%= recipient?.recipientSalutation %></li>
-      <li> <%= recipient.recipientName %> <%= recipient.recipientSurname %></li>
+        <li><%= recipient.recipientName %> <%= recipient.recipientSurname %></li>
       <% } %>
       <li><%= recipient.recipientStreet %></li>
       <li><%= recipient.postalCode %> <%= recipient.recipientCity %>, <%= recipient.recipientCountry %></li>
-      <li>Email: <%= recipient.recipientEmail %></li>
+      <li><%= recipient.recipientEmail %></li>
     </ul>
-  </div>
-  <div>
-    <p class="date">Datum: <%= formattedDate %></p>
   </div>
 </header>
 
 <h1>Rechnung</h1>
 
 <ul class="details">
+  <li><span class="label">Datum:</span> <%= formattedDate %></li>
   <li><span class="label">Rechnungsnummer:</span> <%= invoice.invoiceNumber %></li>
-  <li><span class="label">Kursteilnehmer:</span> <%= participant?.name %> <%= participant?.surname %></li>
 </ul>
 
 <table>
@@ -161,10 +171,9 @@
 
 <p>Kursteilnehmer: <%= participant?.name %> <%= participant?.surname %></p>
 
-<p>Zahlung ohne Abzug, spätestens 10 Tage nach Erhalt der Rechnung.</p>
-<p>Die Kursgebühren sind ausschließlich in Nettobeträgen angegeben und sind von der Umsatzsteuer befreit. Auslandsüberweisungsspesen dürfen nicht zu Lasten des Digital Campus Vorarlberg verrechnet werden.
-</p>
-<p>Bei Online-Überweisung bitte im Feld Zahlungsreferenz die Rechnungsnummer angeben.</p>
+<p class="tight-paragraph">Zahlung ohne Abzug, spätestens 10 Tage nach Erhalt der Rechnung.</p>
+<p class="tight-paragraph">Die Kursgebühren sind ausschließlich in Nettobeträgen angegeben und sind von der Umsatzsteuer befreit. Auslandsüberweisungsspesen dürfen nicht zu Lasten des Digital Campus Vorarlberg verrechnet werden.</p>
+<p>Bei Online-Überweisung bitte im Feld Zahlungsreferenz die <span class="label">Rechnungsnummer</span> angeben.</p>
 
 <p><strong>Bankverbindung:</strong><br/>
 Sparkasse Feldkirch, IBAN: AT23 2060 40310231 4238, BIC: SPFKAT2BXXX<br/>

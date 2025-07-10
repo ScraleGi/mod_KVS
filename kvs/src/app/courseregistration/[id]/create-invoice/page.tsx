@@ -19,7 +19,7 @@ export default async function CreateInvoicePage({ params }: { params: { id: stri
     },
   })
 
-  console.log(registration, "Registration")
+  console.log("Registration", registration )
   
   if (!registration || !registration.participant) {
     return (
