@@ -1,10 +1,13 @@
-import { PrismaClient } from '../../../generated/prisma/client';
-import Calendar from '../../components/calendar/calendar';
-
-const prisma = new PrismaClient();
+import Calendar from '@/components/calendar/calendar';
+import { db } from '@/lib/db';
+import { sanitize } from '@/lib/sanitize';
+import { Holiday } from '@/types/models';
+import { CourseWithCalendarRelations, CalendarEvent } from '@/types/query-models';
+import { formatDateToISO } from '@/lib/dateUtils';
 
 export default async function CalendarPage() {
-  const courses = await prisma.course.findMany({
+  // Fetch courses and their related data
+  const courses = await db.course.findMany({
     where: { deletedAt: null },
     select: {
       id: true,
@@ -15,25 +18,33 @@ export default async function CalendarPage() {
     }
   });
 
-  const holidays = await prisma.holiday.findMany();
-  //Coures-Events 
-  const CourseEvents = courses.map(course => ({
+  // Fetch holidays
+  const holidays = await db.holiday.findMany();
+  
+  // Sanitize data to handle any Decimal values
+  const sanitizedCourses = sanitize<typeof courses, CourseWithCalendarRelations[]>(courses);
+  const sanitizedHolidays = sanitize<typeof holidays, Holiday[]>(holidays);
+
+  // Convert courses to calendar events
+  const courseEvents: CalendarEvent[] = sanitizedCourses.map(course => ({
     id: course.id,
     title: course.program?.name ?? 'Kurs',
-    start: course.startDate.toISOString(),
+    start: formatDateToISO(course.startDate),
     allDay: true,
     mainTrainer: course.mainTrainer?.name ?? '',
     coTrainers: course.trainers?.map(t => t.name) ?? []
   }));
-  //Holiday-Events
-  const holidayEvents = holidays.map(holiday => ({
+
+  // Convert holidays to calendar events
+  const holidayEvents: CalendarEvent[] = sanitizedHolidays.map(holiday => ({
     id: `holiday-${holiday.id}`,
-    title: holiday.title + '(Feiertag)',
-    start: holiday.date.toISOString(),
+    title: `${holiday.title} (Feiertag)`,
+    start: formatDateToISO(holiday.date),
     allDay: true,
     mainTrainer: '',
-    coTrainers:[]
+    coTrainers: []
   }));
 
-  return <Calendar events={[...CourseEvents, ...holidayEvents]} />;
+  // Combine all events and render the calendar
+  return <Calendar events={[...courseEvents, ...holidayEvents]} />;
 }

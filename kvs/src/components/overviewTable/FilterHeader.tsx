@@ -2,14 +2,20 @@ import * as React from "react"
 import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react"
 import type { Column } from "@tanstack/react-table"
 
+// Use generic type parameters instead of any
+type FilterHeaderProps<TData extends Record<string, unknown>, TValue> = {
+  column: Column<TData, TValue>
 
-type FilterHeaderProps<T> = {
-  column: Column<T, unknown>
   label: string
   placeholder?: string
 }
 
-export function FilterHeader<T>({ column, label, placeholder = "Filter..." }: FilterHeaderProps<T>) {
+// Make the component generic
+export function FilterHeader<TData extends Record<string, unknown>, TValue>({ 
+  column, 
+  label, 
+  placeholder = "Filter..." 
+}: FilterHeaderProps<TData, TValue>) {
   const [showFilter, setShowFilter] = React.useState(false)
 
   const toggleFilter = React.useCallback(() => {

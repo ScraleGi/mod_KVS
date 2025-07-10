@@ -1,25 +1,48 @@
-import { PrismaClient } from '../../../../../generated/prisma/client'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { db } from '@/lib/db'
+import { SanitizedDocument } from '@/types/query-models'
+import { sanitize } from '@/lib/sanitize'
+import { revalidatePath } from 'next/cache'
 
-const prisma = new PrismaClient()
+//---------------------------------------------------
+// SERVER ACTIONS
+//---------------------------------------------------
+async function restoreDocument(formData: FormData) {
+  'use server'
+  const documentId = formData.get('documentId') as string
+  const registrationId = formData.get('registrationId') as string
+  
+  await db.document.update({
+    where: { id: documentId },
+    data: { deletedAt: null },
+  })
+  
+  revalidatePath(`/courseregistration/${registrationId}`)
+  redirect(`/courseregistration/${registrationId}`)
+}
 
-export default async function DeletedItemsPage({
+//---------------------------------------------------
+// MAIN COMPONENT
+//---------------------------------------------------
+export default async function DeletedDocumentsPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const participantId = id
-
+  const registrationId = id
 
   // Find the registration
-  const registration = await prisma.courseRegistration.findFirst({
+  const registration = await db.courseRegistration.findFirst({
     where: { 
-      id: participantId 
+      id: registrationId 
     },
   })
 
+  //---------------------------------------------------
+  // EARLY RETURN FOR MISSING DATA
+  //---------------------------------------------------
   if (!registration) {
     return (
       <div className="min-h-screen bg-gray-50 py-10 px-4 flex items-center justify-center">
@@ -27,7 +50,7 @@ export default async function DeletedItemsPage({
           <div className="bg-white rounded-xl shadow border border-gray-100 px-8 py-10">
             <p className="text-gray-500 text-sm">No registration found.</p>
             <Link
-              href={`/courseregistration/${participantId}`}
+              href={`/courseregistration/${registrationId}`}
               className="mt-8 inline-flex items-center text-xs font-medium text-gray-500 hover:text-blue-700 transition-colors"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -42,7 +65,7 @@ export default async function DeletedItemsPage({
   }
 
   // Fetch soft-deleted documents
-  const deletedDocuments = await prisma.document.findMany({
+  const documents = await db.document.findMany({
     where: {
       courseRegistrationId: registration.id,
       deletedAt: { not: null },
@@ -50,22 +73,19 @@ export default async function DeletedItemsPage({
     orderBy: { deletedAt: 'desc' },
   })
 
-  // Restore document action
-  async function restoreDocument(formData: FormData) {
-    'use server'
-    const documentId = formData.get('documentId') as string
-    await prisma.document.update({
-      where: { id: documentId },
-      data: { deletedAt: null },
-    })
-    redirect(`/courseregistration/${participantId}`)
-  }
+  // Sanitize document data
+  const deletedDocuments = sanitize(documents) as SanitizedDocument[];
 
+  //---------------------------------------------------
+  // RENDER UI
+  //---------------------------------------------------
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4 flex items-center justify-center">
       <div className="w-full max-w-2xl">
         <div className="bg-white rounded-xl shadow border border-gray-100 px-8 py-10">
           <h1 className="text-2xl font-bold text-gray-900 mb-8 tracking-tight">Deleted Documents</h1>
+          
+          {/* Document List */}
           {deletedDocuments.length === 0 ? (
             <p className="text-gray-500 text-sm">No deleted documents found.</p>
           ) : (
@@ -73,24 +93,31 @@ export default async function DeletedItemsPage({
               {deletedDocuments.map(doc => (
                 <li
                   key={doc.id}
-                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 bg-gray-50 rounded-lg border border-gray-100"
+                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-100"
                 >
                   <div>
                     <a
                       href={doc.file}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="font-semibold text-blue-700 underline"
+                      className="font-semibold text-gray-800 hover:text-blue-900"
                     >
                       {doc.file.split('/').pop()}
                     </a>
-                    <span className="ml-2 text-xs text-gray-500">({doc.role})</span>
+                    <span className="ml-4 text-gray-500 text-xs">({doc.role})</span>
+                    {doc.deletedAt && (
+                      <span className="ml-4 text-red-500 text-xs">
+                        Deleted: {new Date(doc.deletedAt).toLocaleString()}
+                      </span>
+                    )}
                   </div>
-                  <form action={restoreDocument} className="mt-3 sm:mt-0">
+                  <form action={restoreDocument}>
                     <input type="hidden" name="documentId" value={doc.id} />
+                    <input type="hidden" name="registrationId" value={registrationId} />
                     <button
                       type="submit"
                       className="cursor-pointer px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold rounded-lg shadow-sm transition"
+                      aria-label={`Restore ${doc.file.split('/').pop()}`}
                     >
                       Restore
                     </button>
@@ -99,14 +126,16 @@ export default async function DeletedItemsPage({
               ))}
             </ul>
           )}
+          
+          {/* Navigation */}
           <Link
-            href={`/courseregistration/${participantId}`}
+            href={`/courseregistration/${registrationId}`}
             className="mt-8 inline-flex items-center text-xs font-medium text-gray-500 hover:text-blue-700 transition-colors"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
-            Back to Participant
+            Back to Registration
           </Link>
         </div>
       </div>

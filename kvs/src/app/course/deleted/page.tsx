@@ -1,22 +1,31 @@
-import { PrismaClient } from '../../../../generated/prisma'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { db } from '@/lib/db'
+import { sanitize } from '@/lib/sanitize'
+import { formatDate } from '@/lib/utils'
+import { DeletedCourseWithProgram } from '@/types/query-models'
 
-const prisma = new PrismaClient()
-
-// Server action to restore a course
+/**
+ * Server action to restore a soft-deleted course
+ */
 async function restoreCourse(formData: FormData) {
   'use server'
   const id = formData.get('id') as string
-  await prisma.course.update({
+  
+  await db.course.update({
     where: { id },
     data: { deletedAt: null },
   })
+  
   redirect('/course/deleted')
 }
 
+/**
+ * Page component for displaying and managing deleted courses
+ */
 export default async function DeletedCoursesPage() {
-  const deletedCourses = await prisma.course.findMany({
+  // Fetch all deleted courses with their program names
+  const deletedCoursesData = await db.course.findMany({
     where: { deletedAt: { not: null } },
     orderBy: { deletedAt: 'desc' },
     include: {
@@ -24,11 +33,16 @@ export default async function DeletedCoursesPage() {
     },
   })
 
+  // Sanitize data to handle any Decimal values
+  const deletedCourses = sanitize<typeof deletedCoursesData, DeletedCourseWithProgram[]>(deletedCoursesData)
+
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4 flex items-center justify-center">
       <div className="w-full max-w-2xl">
         <div className="bg-white rounded-xl shadow border border-gray-100 px-8 py-10">
           <h1 className="text-2xl font-bold text-gray-900 mb-8 tracking-tight">Deleted Courses</h1>
+          
+          {/* Show message when no deleted courses exist */}
           {deletedCourses.length === 0 ? (
             <p className="text-gray-500 text-sm">No deleted courses found.</p>
           ) : (
@@ -43,14 +57,22 @@ export default async function DeletedCoursesPage() {
                       {course.program?.name || 'Unnamed Course'}
                     </span>
                     <span className="ml-4 text-gray-500 text-xs">
-                      {course.startDate ? new Date(course.startDate).toLocaleDateString() : 'No date'}
+                      {course.startDate ? formatDate(course.startDate) : 'No date'}
                     </span>
+                    {course.deletedAt && (
+                      <span className="ml-4 text-red-500 text-xs">
+                        Deleted: {formatDate(course.deletedAt)}
+                      </span>
+                    )}
                   </div>
+                  
+                  {/* Restore form */}
                   <form action={restoreCourse}>
                     <input type="hidden" name="id" value={course.id} />
                     <button
                       type="submit"
                       className="cursor-pointer px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold rounded-lg shadow-sm transition"
+                      aria-label={`Restore ${course.program?.name || 'course'}`}
                     >
                       Restore
                     </button>
@@ -59,6 +81,8 @@ export default async function DeletedCoursesPage() {
               ))}
             </ul>
           )}
+          
+          {/* Navigation back to courses list */}
           <Link
             href="/course"
             className="mt-8 inline-flex items-center text-xs font-medium text-gray-500 hover:text-blue-700 transition-colors"
