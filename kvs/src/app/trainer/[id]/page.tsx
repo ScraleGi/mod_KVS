@@ -7,7 +7,7 @@ import RemoveButton from "@/components/RemoveButton/RemoveButton";
 
 const prisma = new PrismaClient();
 
-export default async function TrainerDetailsPage({ params }: { params: { id: string } }) {
+export default async function TrainerDetailsPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
     const trainer = await prisma.trainer.findUnique({
         where: { id, deletedAt: null },

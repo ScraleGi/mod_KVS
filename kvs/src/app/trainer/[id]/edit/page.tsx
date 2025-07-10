@@ -5,13 +5,8 @@ import { EditLabel } from "../../../../components/trainer/EditLabel";
 
 const prisma = new PrismaClient();
 
-interface EditTrainerPageProps {
-    params: {
-        id: string;
-    };
-}
 
-export default async function EditTrainerPage({ params }: EditTrainerPageProps) {
+export default async function EditTrainerPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
     const trainer = await prisma.trainer.findUnique({
         where: { id },
