@@ -7,6 +7,7 @@ const navItems = [
   { href: '/program', label: 'Programme', icon: FaLayerGroup },
   { href: '/area', label: 'Bereiche', icon: FaThLarge },
   { href: '/participant', label: 'Teilnehmer', icon: FaUsers },
+  { href: '/trainer', label: 'Trainer', icon: FaUsers },
   { href: '/calendar', label: 'Termine', icon: FaCalendarAlt },
   { href: '/reports', label: 'Berichte', icon: FaChartBar },
   { href: '/inbox', label: 'Posteingang', icon: FaRegEnvelope },

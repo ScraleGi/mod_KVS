@@ -80,6 +80,16 @@ export type ProgramRow = {
   price: number | null
 }
 
+export type TrainerRow = {
+  id: string
+  name: string
+  surname: string
+  email: string
+  phoneNumber: string
+  mainCourses?: { id: string; name: string; startDate?: string | Date }[]
+  courses?: { id: string; name: string; startDate?: string | Date }[]
+}
+
 // -------------------- Table Columns Definition --------------------
 export const home: ColumnDef<CourseRow>[] = [
   // Course column with sorting
@@ -552,6 +562,100 @@ export const programColumns: ColumnDef<ProgramRow>[] = [
       <div className="flex justify-center gap-1">
         <Link
           href={`/program/${row.original.id}/edit`}
+          className="p-2 rounded hover:bg-blue-100 text-blue-600 transition"
+          title="Edit"
+          aria-label="Edit"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+          </svg>
+        </Link>
+      </div>
+    ),
+  },
+]
+export const trainerColumns: ColumnDef<TrainerRow>[] = [
+  {
+    accessorKey: "name",
+    header: ({ column }) => (
+      <FilterHeader
+        column={column}
+        label="Vorname"
+        placeholder="Filter Vorname..."
+      />
+    ),
+    cell: ({ row }) => (
+      <Link
+        href={`/trainer/${row.original.id}`}
+        className="relative text-blue-600 hover:text-blue-800 pl-2 inline-block after:content-[''] after:absolute after:left-8 after:bottom-0 after:w-0 hover:after:w-[calc(100%-2rem)] after:h-[2px] after:bg-blue-600 after:transition-all after:duration-300"
+      >
+        {row.original.name} {row.original.surname}
+      </Link>
+    ),
+  },
+  {
+    accessorKey: "email",
+    header: ({ column }) => (
+      <FilterHeader
+        column={column}
+        label="E-Mail"
+        placeholder="Filter E-Mail..."
+      />
+    ),
+    cell: ({ row }) => (
+      <span className="block pl-2">{row.getValue("email")}</span>
+    ),
+  },
+  {
+    accessorKey: "phoneNumber",
+    header: ({ column }) => (
+      <FilterHeader
+        column={column}
+        label="Telefon"
+        placeholder="Filter Telefon..."
+      />
+    ),
+    cell: ({ row }) => (
+      <span className="block pl-2">{row.getValue("phoneNumber")}</span>
+    ),
+  },
+  {
+    accessorKey: "mainCourses",
+    header: ({ column }) => (
+      <FilterHeader
+        column={column}
+        label="Hauptkurse"
+        placeholder="Filter Hauptkurse..."
+      />
+    ),
+    cell: ({ row }) => (
+      <span className="block pl-2">
+        {row.original.mainCourses?.length ?? 0}
+      </span>
+    ),
+  },
+  {
+    accessorKey: "courses",
+    header: ({ column }) => (
+      <FilterHeader
+        column={column}
+        label="Kurse"
+        placeholder="Filter Kurse..."
+      />
+    ),
+    cell: ({ row }) => (
+      <span className="block pl-2">
+        {row.original.courses?.length ?? 0}
+      </span>
+    ),
+  },
+  {
+    id: "actions",
+    header: "Aktionen",
+    cell: ({ row }) => (
+      <div className="flex justify-center gap-1">
+        <Link
+          href={`/trainer/${row.original.id}/edit`}
           className="p-2 rounded hover:bg-blue-100 text-blue-600 transition"
           title="Edit"
           aria-label="Edit"
