@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { redirect } from "next/navigation"
 import { revalidatePath } from 'next/cache'
 import ClientCourseModalWrapper from './ClientCourseModalWrapper'
+import ParticipantToaster from './ParticipantToaster'
 import { sanitize } from '@/lib/sanitize'
 import RemoveButton from '@/components/RemoveButton/RemoveButton'
 
@@ -202,7 +203,8 @@ export default async function ParticipantPage({
     //---------------------------------------------------
     return (
       <div className="min-h-screen bg-neutral-50 flex items-center justify-center px-2 py-8">
-        <div className="w-full max-w-2xl bg-white rounded-2xl shadow-md border border-neutral-100 p-0 overflow-hidden">
+        <ParticipantToaster />
+      <div className="w-full max-w-2xl bg-white rounded-2xl shadow-md border border-neutral-100 p-0 overflow-hidden">
           {/* Profile Card */}
           <section className="flex flex-col sm:flex-row items-center gap-6 px-8 py-8 border-b border-neutral-200 relative">
             <div className="flex-shrink-0 w-20 h-20 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center text-3xl font-bold text-blue-700 select-none">
