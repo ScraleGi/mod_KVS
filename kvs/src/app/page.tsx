@@ -58,7 +58,7 @@ export default async function Home() {
     <div className="p-8">
       <Dashboard />
       <div className="flex items-center justify-between mb-8">
-      <h1 className="text-3xl font-bold mb-6">Courses Overview</h1>
+      <h1 className="text-3xl font-bold mb-6">Kursübersicht</h1>
       <div className="flex gap-2">
         <Link
             href="/course/new"
