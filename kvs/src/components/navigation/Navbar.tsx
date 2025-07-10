@@ -57,14 +57,14 @@ const Navbar = ({ isOpen, setOpen, user }: NavbarProps) => {
       </div>
 
       <div className='flex items-center gap-x-5'>
-        {/* Suchfeld mit Dropdown im Input, beide wachsen gemeinsam */}
+        {/* Suchfeld mit Dropdown im Input, beide exakt gleich groß */}
         <div className="relative w-80 group">
-          <div className="flex items-center w-full transition-all duration-200 group-focus-within:scale-105 group-hover:scale-105">
+          <div className="relative flex items-center w-full z-100">
             <select
               value={searchType}
               onChange={e => setSearchType(e.target.value as 'participants' | 'courses' | 'areas')}
-              className='bg-gray-100 border-r border-gray-300 text-gray-900 rounded-l px-2 py-1 text-xs h-9 focus:outline-none transition-all duration-200'
-              style={{ minWidth: '100px', maxWidth: '120px' }}
+              className='bg-gray-100 border-r border-gray-300 text-gray-900 rounded-l px-3 py-1 text-xs h-10 focus:outline-none'
+              style={{ minWidth: '110px', maxWidth: '120px' }}
             >
               <option value="participants">Teilnehmer</option>
               <option value="courses">Kurse</option>
@@ -78,7 +78,7 @@ const Navbar = ({ isOpen, setOpen, user }: NavbarProps) => {
                 type='text'
                 value={searchValue}
                 onChange={handleSearch}
-                className='w-full bg-white text-gray-900 rounded-r px-4 py-1 pl-10 shadow outline-none transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white focus:shadow-lg h-9'
+                className='w-full bg-white text-gray-900 rounded-r px-3 py-1 pl-10 h-10 outline-none'
                 placeholder={
                   searchType === 'participants'
                     ? 'Suche Teilnehmer...'
@@ -91,8 +91,9 @@ const Navbar = ({ isOpen, setOpen, user }: NavbarProps) => {
                 onFocus={() => { if (results.length > 0) setShowDropdown(true); }}
                 style={{ marginTop: '0px' }}
               />
+
               {showDropdown && results.length > 0 && (
-                <ul className="absolute z-10 bg-white border w-full mt-1 rounded shadow max-h-60 overflow-auto">
+                <ul className="absolute bg-white border w-full mt-1 rounded shadow max-h-60 overflow-auto z-50">
                   {searchType === 'participants'
                     ? results.map((p: any) => (
                         <li key={p.id} className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
