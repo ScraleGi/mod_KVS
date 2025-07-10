@@ -1,25 +1,15 @@
 import { CourseTable, home, CourseRow } from '../components/overviewTable/table'
 import Dashboard from '@/components/navigation/Dashboard'
-<<<<<<< HEAD
 import { db } from '@/lib/db'
 import { sanitize } from '@/lib/sanitize'
 import { Course } from '@/types/models'
 import { formatFullName} from '@/lib/utils'
-=======
 import Link from "next/link";
->>>>>>> origin/main
 
 export default async function Home() {
   // Fetch courses with related data
-<<<<<<< HEAD
   const courses = await db.course.findMany({
     where: { deletedAt: null }, // Only show active courses
-=======
-  const courses = await prisma.course.findMany({
-    where: {
-      deletedAt: null, // Filter out deleted courses
-    },
->>>>>>> origin/main
     include: {
       program: { include: { area: true } },
       mainTrainer: true,

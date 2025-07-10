@@ -2,21 +2,15 @@ import * as React from "react"
 import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react"
 import type { Column } from "@tanstack/react-table"
 
-<<<<<<< HEAD
 // Use generic type parameters instead of any
 type DoubleFilterHeaderProps<TData extends Record<string, unknown>, TValue> = {
   column: Column<TData, TValue>
-=======
-type DoubleFilterHeaderProps<T> = {
-  column: Column<T, unknown>
->>>>>>> origin/main
   label: string
   placeholderFrom?: string
   placeholderTo?: string
   typeDefinition: "date" | "datetime-local" | "time" | "month" | "week" | "number" | "text"
 }
 
-<<<<<<< HEAD
 // Make the component generic
 export function DoubleFilterHeader<TData extends Record<string, unknown>, TValue>({ 
   column, 
@@ -37,24 +31,6 @@ export function DoubleFilterHeader<TData extends Record<string, unknown>, TValue
         if (filterRef.current && !filterRef.current.contains(e.target as Node)) {
           setShowFilter(false)
         }
-=======
-export function DoubleFilterHeader<T>({
-  column,
-  label,
-  placeholderFrom,
-  placeholderTo,
-  typeDefinition,
-}: DoubleFilterHeaderProps<T>) {
-  const [showFilter, setShowFilter] = React.useState(false)
-  const filterValue = (column.getFilterValue() as [string, string]) ?? ["", ""]
-  const filterRef = React.useRef<HTMLDivElement>(null)
-
-  React.useEffect(() => {
-    if (!showFilter) return
-    function handleClick(e: MouseEvent) {
-      if (filterRef.current && !filterRef.current.contains(e.target as Node)) {
-        setShowFilter(false)
->>>>>>> origin/main
       }
       document.addEventListener("mousedown", handleClick)
       return () => document.removeEventListener("mousedown", handleClick)
@@ -106,27 +82,6 @@ export function DoubleFilterHeader<T>({
             <ArrowUpDown className="h-4 w-4 text-gray-400" />
           )}
         </span>
-<<<<<<< HEAD
-        {showFilter && (
-          <div ref={filterRef} className="flex gap-1 mt-1">
-            <input
-              type={typeDefinition}
-              value={filterValue[0]}
-              onChange={e => column.setFilterValue([e.target.value, filterValue[1]])}
-              className="block rounded border px-1 py-0.5 text-xs bg-white shadow text-black w-23"
-              placeholder={placeholderFrom}
-            />
-            <input
-              type={typeDefinition}
-              value={filterValue[1]}
-              onChange={e => column.setFilterValue([filterValue[0], e.target.value])}
-              className="block rounded border px-1 py-0.5 text-xs bg-white shadow text-black w-23"
-              placeholder={placeholderTo}
-            />
-          </div>
-        )}
-=======
->>>>>>> origin/main
       </span>
       {showFilter && (
         <div
