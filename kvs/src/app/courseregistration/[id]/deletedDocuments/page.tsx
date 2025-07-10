@@ -48,7 +48,7 @@ export default async function DeletedDocumentsPage({
       <div className="min-h-screen bg-gray-50 py-10 px-4 flex items-center justify-center">
         <div className="w-full max-w-2xl">
           <div className="bg-white rounded-xl shadow border border-gray-100 px-8 py-10">
-            <p className="text-gray-500 text-sm">No registration found.</p>
+            <p className="text-gray-500 text-sm">Keine Registrationen gefunden.</p>
             <Link
               href={`/courseregistration/${registrationId}`}
               className="mt-8 inline-flex items-center text-xs font-medium text-gray-500 hover:text-blue-700 transition-colors"
@@ -56,7 +56,7 @@ export default async function DeletedDocumentsPage({
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
-              Back
+              Zurück
             </Link>
           </div>
         </div>
@@ -83,11 +83,11 @@ export default async function DeletedDocumentsPage({
     <div className="min-h-screen bg-gray-50 py-10 px-4 flex items-center justify-center">
       <div className="w-full max-w-2xl">
         <div className="bg-white rounded-xl shadow border border-gray-100 px-8 py-10">
-          <h1 className="text-2xl font-bold text-gray-900 mb-8 tracking-tight">Deleted Documents</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-8 tracking-tight">gelöschte Dokumente</h1>
           
           {/* Document List */}
           {deletedDocuments.length === 0 ? (
-            <p className="text-gray-500 text-sm">No deleted documents found.</p>
+            <p className="text-gray-500 text-sm">Keine gelöschten Dokumente gefunden.</p>
           ) : (
             <ul className="space-y-4">
               {deletedDocuments.map(doc => (
@@ -107,7 +107,7 @@ export default async function DeletedDocumentsPage({
                     <span className="ml-4 text-gray-500 text-xs">({doc.role})</span>
                     {doc.deletedAt && (
                       <span className="ml-4 text-red-500 text-xs">
-                        Deleted: {new Date(doc.deletedAt).toLocaleString()}
+                        Gelöscht: {new Date(doc.deletedAt).toLocaleString()}
                       </span>
                     )}
                   </div>
@@ -119,7 +119,7 @@ export default async function DeletedDocumentsPage({
                       className="cursor-pointer px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold rounded-lg shadow-sm transition"
                       aria-label={`Restore ${doc.file.split('/').pop()}`}
                     >
-                      Restore
+                       Wiederherstellen
                     </button>
                   </form>
                 </li>
@@ -135,7 +135,7 @@ export default async function DeletedDocumentsPage({
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
-            Back to Registration
+            Zurück zu den Registrationen
           </Link>
         </div>
       </div>

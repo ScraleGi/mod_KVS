@@ -38,9 +38,9 @@ export default async function CreateInvoicePage({
       <div className="min-h-screen flex items-center justify-center bg-neutral-50">
         <div className="max-w-md w-full px-4">
           <Link href={`/courseregistration/${id}`} className="text-blue-500 hover:text-blue-800 mb-6 block">
-            &larr; Back to Registration
+            &larr; Zurück zu den Registrationen
           </Link>
-          <div className="text-red-600 text-lg font-semibold">Registration or participant not found.</div>
+          <div className="text-red-600 text-lg font-semibold">Anmeldung oder Teilnehmer nicht gefunden.</div>
         </div>
       </div>
     )
@@ -53,16 +53,16 @@ export default async function CreateInvoicePage({
   return (
     <div className="min-h-screen flex items-center justify-center bg-neutral-50 px-2 py-8">
       <div className="w-full max-w-xl bg-white rounded-2xl shadow-md border border-neutral-100 p-8">
-        <h1 className="text-2xl font-bold mb-6 text-neutral-900 text-center">Create Invoice</h1>
+        <h1 className="text-2xl font-bold mb-6 text-neutral-900 text-center">Rechnung erstellen</h1>
         
         {/* Participant and Course Info */}
         <div className="mb-8">
           <div className="flex flex-col sm:flex-row sm:justify-between gap-2 text-sm text-neutral-700">
             <div>
-              <span className="font-semibold">Participant:</span> {registration.participant.name} {registration.participant.surname}
+              <span className="font-semibold">Teilnehmer:</span> {registration.participant.name} {registration.participant.surname}
             </div>
             <div>
-              <span className="font-semibold">Course:</span> {registration.course?.program?.name}
+              <span className="font-semibold">Kurs:</span> {registration.course?.program?.name}
             </div>
           </div>
         </div>
@@ -76,49 +76,49 @@ export default async function CreateInvoicePage({
           
           {/* Invoice Recipient Section */}
           <fieldset className="border border-neutral-200 rounded-lg p-5">
-            <legend className="text-base font-semibold text-blue-700 px-2">Invoice Recipient</legend>
+            <legend className="text-base font-semibold text-blue-700 px-2">Rechnungsempfänger</legend>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
               <label className="flex flex-col text-xs font-medium text-neutral-700">
-                Recipient Type
+                 Empfänger
                 <select name="type" required className="mt-1 border rounded px-2 py-1">
                   <option value="PERSON">Person</option>
-                  <option value="COMPANY">Company</option>
+                  <option value="COMPANY">Firma</option>
                 </select>
               </label>
               <label className="flex flex-col text-xs font-medium text-neutral-700">
-                First Name (Recipient)
+                Name (des Empfänger)
                 <input name="recipientName" className="mt-1 border rounded px-2 py-1" />
               </label>
               <label className="flex flex-col text-xs font-medium text-neutral-700">
-                Surname (Recipient)
+                Nachname (des Empfänge)
                 <input name="recipientSurname" className="mt-1 border rounded px-2 py-1" />
               </label>
               <label className="flex flex-col text-xs font-medium text-neutral-700">
-                Company Name (Recipient)
+                Firmen Name (des Empfänge)
                 <input name="companyName" className="mt-1 border rounded px-2 py-1" />
               </label>
               <label className="flex flex-col text-xs font-medium text-neutral-700 sm:col-span-2">
-                Email (Recipient)
+                Email (des Empfänge)
                 <input name="recipientEmail" type="email" required className="mt-1 border rounded px-2 py-1" />
               </label>
               <label className="flex flex-col text-xs font-medium text-neutral-700 sm:col-span-2">
-                Street (Recipient)
+                Straße (des Empfänge)
                 <input name="recipientStreet" required className="mt-1 border rounded px-2 py-1" />
               </label>
               <label className="flex flex-col text-xs font-medium text-neutral-700">
-                Postal Code (Recipient)
+                PLZ (des Empfänge)
                 <input name="postalCode" required className="mt-1 border rounded px-2 py-1" />
               </label>
               <label className="flex flex-col text-xs font-medium text-neutral-700">
-                City (Recipient)
+                Ort (des Empfänge)
                 <input name="recipientCity" required className="mt-1 border rounded px-2 py-1" />
               </label>
               <label className="flex flex-col text-xs font-medium text-neutral-700 sm:col-span-2">
-                Country (Recipient)
+                Land (des Empfänge)
                 <input name="recipientCountry" required className="mt-1 border rounded px-2 py-1" />
               </label>
               <label className="flex flex-col text-xs font-medium text-neutral-700 sm:col-span-2">
-                Due Date
+                Fälligkeitsdatum
                 <input
                   name="dueDate"
                   type="date"
@@ -132,7 +132,7 @@ export default async function CreateInvoicePage({
           
           {/* Course Participant Reference Section */}
           <fieldset className="border border-neutral-200 rounded-lg p-5">
-            <legend className="text-base font-semibold text-blue-700 px-2">Course Participant (Reference)</legend>
+            <legend className="text-base font-semibold text-blue-700 px-2">Kursteilnehmer (Referenzen)</legend>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 text-xs text-neutral-600">
               <div>
                 <span className="font-semibold">Name:</span> {registration.participant.name} {registration.participant.surname}
@@ -141,7 +141,7 @@ export default async function CreateInvoicePage({
                 <span className="font-semibold">Email:</span> {registration.participant.email}
               </div>
               <div className="sm:col-span-2">
-                <span className="font-semibold">Address:</span> {registration.participant.street}, {registration.participant.postalCode} {registration.participant.city}, {registration.participant.country}
+                <span className="font-semibold">Adresse:</span> {registration.participant.street}, {registration.participant.postalCode} {registration.participant.city}, {registration.participant.country}
               </div>
             </div>
           </fieldset>
@@ -152,13 +152,13 @@ export default async function CreateInvoicePage({
               href={`/courseregistration/${id}`}
               className="px-4 py-2 bg-neutral-200 text-neutral-700 rounded hover:bg-neutral-300 text-xs font-medium transition"
             >
-              Cancel
+              Abbrechen
             </Link>
             <button
               type="submit"
               className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-xs font-medium transition"
             >
-              Generate Invoice
+              Rechnung generieren
             </button>
           </div>
         </form>
