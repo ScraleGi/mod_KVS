@@ -129,13 +129,13 @@ export default async function EditTrainerPage({ params }: { params: Promise<{ id
                             href={`/trainer/${id}`}
                             className="px-4 py-2 bg-neutral-200 text-neutral-700 rounded hover:bg-neutral-300 text-xs font-medium transition"
                         >
-                            Cancel
+                            Abbrechen
                         </Link>
                         <button
                             type="submit"
                             className="cursor-pointer px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-xs font-medium transition"
                         >
-                            Save Changes
+                            Speichern
                         </button>
                     </div>
                 </form>
