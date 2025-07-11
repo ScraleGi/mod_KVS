@@ -11,6 +11,8 @@ import { sanitize } from '@/lib/sanitize'
 //---------------------------------------------------
 async function createParticipant(formData: FormData) {
   'use server'
+  let participant: { id: string } | undefined
+
   try {
     const code = formData.get('code') as string
     const name = formData.get('name') as string
@@ -26,7 +28,7 @@ async function createParticipant(formData: FormData) {
     const country = formData.get('country') as string
     const courseId = formData.get('courseId') as string
 
-    const participant = await db.participant.create({
+    participant = await db.participant.create({
       data: {
         code,
         name,
@@ -43,7 +45,6 @@ async function createParticipant(formData: FormData) {
       }
     })
 
-    // Only create course registration if a course was selected
     if (courseId) {
       await db.courseRegistration.create({
         data: {
@@ -52,12 +53,13 @@ async function createParticipant(formData: FormData) {
         }
       })
     }
-
-    redirect(`/participant/${participant.id}?created=1`)
   } catch (error) {
     console.error('Failed to create participant:', error)
     throw error
   }
+
+  if (!participant) throw new Error('Teilnehmer konnte nicht erstellt werden')
+  redirect(`/participant/${participant.id}?created=1`)
 }
 
 //---------------------------------------------------

@@ -17,8 +17,10 @@ async function createProgram(formData: FormData) {
     throw new Error('Code, Name, and Area are required')
   }
 
+  let program;
+
   try {
-    await db.program.create({
+    program = await db.program.create({
       data: {
         code,
         name,
@@ -32,9 +34,7 @@ async function createProgram(formData: FormData) {
     console.error('Failed to create program:', error)
     throw error
   }
-  
-  // Redirect outside the try/catch block
-  redirect('/program')
+  redirect(`/program/${program?.id}?created=1`)
 }
 
 export default async function NewProgramPage() {
@@ -143,7 +143,7 @@ export default async function NewProgramPage() {
                 <div className="pt-2 flex items-center justify-between">
                   <button
                     type="submit"
-                    className="inline-flex items-center px-5 py-2 border border-transparent text-xs font-semibold rounded text-white bg-blue-600 hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    className="inline-flex cursor-pointer items-center px-5 py-2 border border-transparent text-xs font-semibold rounded text-white bg-blue-600 hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                   >
                     Create Program
                   </button>

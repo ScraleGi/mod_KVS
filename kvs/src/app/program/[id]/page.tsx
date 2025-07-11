@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import ProgramToaster from './ProgramToaster';
 import { Info, GraduationCap, Pencil } from 'lucide-react';
 import { db } from '@/lib/db';
 import { sanitize } from '@/lib/sanitize';
@@ -53,6 +54,7 @@ export default async function ProgramPage({
 
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#f8fafd]">
+        <ProgramToaster />
         {/* Breadcrumb navigation */}
         <nav className="w-full max-w-3xl mb-6 text-sm text-gray-500 flex items-center gap-2 px-2">
           <Link href="/area" className="hover:underline">Areas</Link>

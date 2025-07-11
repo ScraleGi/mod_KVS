@@ -82,11 +82,13 @@ export default async function EditParticipantPage({
           }
         })
 
-        redirect(`/participant/${id}?edited=1`)
+        
       } catch (error) {
         console.error('Failed to update participant:', error)
         throw error
       }
+
+        redirect(`/participant/${id}?edited=1`)
     }
 
     //---------------------------------------------------
