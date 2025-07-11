@@ -142,9 +142,9 @@ export default async function ParticipantDetailsPage({
       <div className="min-h-screen flex items-center justify-center bg-neutral-50">
         <div className="max-w-md w-full px-4">
           <Link href={`/course/${registration?.courseId}`} className="text-blue-500 hover:text-blue-800 mb-6 block">
-            &larr; Back to Course
+            &larr; Zurück zur Startseite
           </Link>
-          <div className="text-red-600 text-lg font-semibold">Participant not found for this course.</div>
+          <div className="text-red-600 text-lg font-semibold">Keine Teilnehmer für diesen Kurs gefunden.</div>
         </div>
       </div>
     )
@@ -177,13 +177,13 @@ export default async function ParticipantDetailsPage({
                 <span className="font-medium text-neutral-700">Email:</span> {sanitizedRegistration.participant.email}
               </span>
               <span>
-                <span className="font-medium text-neutral-700">Phone:</span> {sanitizedRegistration.participant.phoneNumber}
+                <span className="font-medium text-neutral-700">Tel.:</span> {sanitizedRegistration.participant.phoneNumber}
               </span>
               <span>
-                <span className="font-medium text-neutral-700">Birthday:</span> {formatDateGerman(sanitizedRegistration.participant.birthday)}
+                <span className="font-medium text-neutral-700">Geburtstag:</span> {formatDateGerman(sanitizedRegistration.participant.birthday)}
               </span>
               <span>
-                <span className="font-medium text-neutral-700">Address:</span> {sanitizedRegistration.participant.street}, {sanitizedRegistration.participant.postalCode} {sanitizedRegistration.participant.city}, {sanitizedRegistration.participant.country}
+                <span className="font-medium text-neutral-700">Adresse:</span> {sanitizedRegistration.participant.street}, {sanitizedRegistration.participant.postalCode} {sanitizedRegistration.participant.city}, {sanitizedRegistration.participant.country}
               </span>
             </div>
           </div>
@@ -192,7 +192,7 @@ export default async function ParticipantDetailsPage({
         {/* Registration Details Section */}
         <section className="px-8 py-6 border-b border-neutral-200">
           <h2 className="text-sm font-semibold text-neutral-800 mb-4">
-            Course:&nbsp;
+            Kurs:&nbsp;
             <Link
               href={`/course/${sanitizedRegistration.course?.id}`}
               className="text-blue-700 hover:text-blue-800 font-medium hover:underline"
@@ -226,7 +226,7 @@ export default async function ParticipantDetailsPage({
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-medium text-neutral-600">End:</span>
+                <span className="font-medium text-neutral-600">Ende:</span>
                 <span className="text-neutral-600">
                   {sanitizedRegistration.course?.endDate
                     ? formatDateGerman(sanitizedRegistration.course.endDate)
@@ -234,7 +234,7 @@ export default async function ParticipantDetailsPage({
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-medium text-neutral-600">Registered:</span>
+                <span className="font-medium text-neutral-600">Registriert:</span>
                 <span className="text-neutral-600">
                   {sanitizedRegistration.registeredAt
                     ? formatDateGerman(sanitizedRegistration.registeredAt)
@@ -246,7 +246,7 @@ export default async function ParticipantDetailsPage({
             {/* Right column - Registration details */}
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-2">
-                <span className="font-medium text-neutral-600">Unregistered:</span>
+                <span className="font-medium text-neutral-600">Unregistriert:</span>
                 <span className="text-neutral-600">
                   {sanitizedRegistration.unregisteredAt
                     ? formatDateGerman(sanitizedRegistration.unregisteredAt)
@@ -254,7 +254,7 @@ export default async function ParticipantDetailsPage({
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-medium text-neutral-600">Info Session:</span>
+                <span className="font-medium text-neutral-600">Informationen:</span>
                 <span className="text-neutral-600">
                   {sanitizedRegistration.infoSessionAt
                     ? formatDateGerman(sanitizedRegistration.infoSessionAt)
@@ -262,7 +262,7 @@ export default async function ParticipantDetailsPage({
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-medium text-neutral-600">Interested:</span>
+                <span className="font-medium text-neutral-600">Interesiert an:</span>
                 <span className="text-neutral-600">
                   {sanitizedRegistration.interestedAt
                     ? formatDateGerman(sanitizedRegistration.interestedAt)
@@ -270,7 +270,7 @@ export default async function ParticipantDetailsPage({
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-medium">Subsidy:</span>
+                <span className="font-medium">Anrede:</span>
                 {sanitizedRegistration.subsidyRemark || sanitizedRegistration.subsidyAmount ? (
                   <>
                     {sanitizedRegistration.subsidyRemark && (
@@ -287,7 +287,7 @@ export default async function ParticipantDetailsPage({
                 )}
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-medium">Discount:</span>
+                <span className="font-medium">Rabatt:</span>
                 {sanitizedRegistration.discountRemark || sanitizedRegistration.discountAmount ? (
                   <>
                     {sanitizedRegistration.discountRemark && (
@@ -309,7 +309,7 @@ export default async function ParticipantDetailsPage({
           {/* Remark Form Section */}
           <hr className="my-6 border-t border-neutral-200" />
           <div className="mt-6">
-            <div className="text-sm font-semibold text-neutral-800 mb-2">Remark:</div>
+            <div className="text-sm font-semibold text-neutral-800 mb-2">Bemerkung:</div>
             <form action={updateRemark} className="flex flex-col gap-2">
               <input type="hidden" name="registrationId" value={sanitizedRegistration.id} />
               <textarea
@@ -323,7 +323,7 @@ export default async function ParticipantDetailsPage({
                   type="submit"
                   className="cursor-pointer px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-xs font-medium transition"
                 >
-                  Save
+                  Speichern
                 </button>
               </div>
             </form>
@@ -335,8 +335,8 @@ export default async function ParticipantDetailsPage({
           <div>
             {/* Header row - Changed from grid-cols-4 to grid-cols-3 to match the data rows */}
             <div className="grid grid-cols-3 font-semibold text-neutral-700 text-xs uppercase border-b border-neutral-200 pb-2">
-              <div className="col-span-1">Invoice</div>
-              <div className="col-span-1 text-center">Recipient</div>
+              <div className="col-span-1">Rechnung</div>
+              <div className="col-span-1 text-center">Empfänger</div>
               <div className="col-span-1 text-center">Status</div>
             </div>
             
@@ -344,7 +344,7 @@ export default async function ParticipantDetailsPage({
             <div className="border-b border-neutral-200 mb-2">
               {sanitizedInvoices.length === 0 && (
                 <div className="flex items-center px-2 py-2 text-neutral-400 italic text-xs bg-white rounded">
-                  No invoices found
+                  Keine Rechnungen gefunden.
                 </div>
               )}
               {sanitizedInvoices.map((inv) => (
@@ -431,14 +431,14 @@ export default async function ParticipantDetailsPage({
                             : "bg-green-100 text-green-700 hover:bg-green-200"}
                         `}
                       >
-                        {inv.isCancelled ? "Cancelled" : "Active"}
+                        {inv.isCancelled ? "storniert" : "aktiv"}
                       </button>
                     </form>
                     {inv.transactionNumber && !inv.isCancelled && (
-                      <span className="ml-2 text-green-700 font-semibold">Paid</span>
+                      <span className="ml-2 text-green-700 font-semibold">bezahlt</span>
                     )}
                     {!inv.transactionNumber && !inv.isCancelled && (
-                      <span className="ml-2 text-yellow-600 font-semibold">Unpaid</span>
+                      <span className="ml-2 text-yellow-600 font-semibold">nicht bezahlt</span>
                     )}
                   </div>
                 </div>
@@ -453,14 +453,14 @@ export default async function ParticipantDetailsPage({
                   tabIndex={-1}
                   aria-disabled="true"
                 >
-                  Create Invoice
+                  Rechnung generieren
                 </span>
               ) : (
                 <Link
                   href={`/courseregistration/${registrationId}/create-invoice`}
                   className="px-3 py-1 rounded text-xs font-medium bg-blue-600 text-white hover:bg-blue-700 transition"
                 >
-                  Create Invoice
+                  Rechnung generieren 
                 </Link>
               )}
             </div>
@@ -472,8 +472,8 @@ export default async function ParticipantDetailsPage({
           <div>
             {/* Header row */}
             <div className="flex items-center font-semibold text-neutral-700 text-xs uppercase border-b border-neutral-200 pb-2">
-              <div className="flex-1">Document</div>
-              <div className="w-40">Type</div>
+              <div className="flex-1">Dokument</div>
+              <div className="w-40">Typ</div>
               <div className="w-10"></div>
             </div>
             
@@ -481,7 +481,7 @@ export default async function ParticipantDetailsPage({
             <div className="border-b border-neutral-200 mb-2">
               {sanitizedDocuments.length === 0 ? (
                 <div className="flex items-center px-2 py-2 text-neutral-400 italic text-xs bg-white rounded">
-                  No documents found
+                  Keine Dokumente gefunden.
                 </div>
               ) : (
                 sanitizedDocuments.map((doc) => (
@@ -517,7 +517,7 @@ export default async function ParticipantDetailsPage({
                 href={`/courseregistration/${registrationId}/deletedDocuments`}
                 className="inline-flex items-center gap-1 text-neutral-400 hover:text-orange-600 text-xs transition"
               >
-                View Deleted Documents
+                Gelöschte Dokumente anzeigen
                 <svg
                   className="w-4 h-4 ml-1"
                   fill="none"
@@ -535,7 +535,7 @@ export default async function ParticipantDetailsPage({
 
         {/* Generate Documents Section */}
         <section className="px-6 py-6 border-b border-neutral-200">
-          <h2 className="text-sm font-semibold text-neutral-800 mb-4">Generate Documents</h2>
+          <h2 className="text-sm font-semibold text-neutral-800 mb-4">Dokumente generieren</h2>
           <div className="flex gap-4 flex-wrap justify-center">
 
             {/* Create a fully serialized version of the registration */}
@@ -576,10 +576,10 @@ export default async function ParticipantDetailsPage({
         {/* Navigation Footer */}
         <nav className="flex gap-4 justify-end px-8 py-6">
           <Link href={`/course/${registration?.courseId}`} className="text-neutral-400 hover:text-blue-600 text-sm transition">
-            &larr; Back to Course
+            &larr; Zurück zur Startseite
           </Link>
           <Link href="/" className="text-neutral-400 hover:text-blue-600 text-sm transition">
-            Home
+            Startseite
           </Link>
         </nav>
       </div>
