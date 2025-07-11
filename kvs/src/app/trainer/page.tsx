@@ -52,7 +52,7 @@ export default async function TrainerPage() {
         <div className="min-h-screen bg-gray-50 py-6 px-4">
             {/* Header */}
             <div className="flex items-center justify-between mb-8">
-                <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Bereiche</h1>
+                <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Trainerübersicht</h1>
                 <div className="flex gap-2">
                     <Link
                         href="/trainer/new"
