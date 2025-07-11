@@ -8,6 +8,7 @@ import { CourseTable, programColumns } from '@/components/overviewTable/table'
 import { db } from '@/lib/db'
 import { sanitize } from '@/lib/sanitize'
 import { SanitizedProgram } from '@/types/query-models';
+import ProgramToaster from './[id]/ProgramToaster';
 
 //---------------------------------------------------
 // DATA FETCHING
@@ -76,6 +77,7 @@ export default async function ProgramsPage({
     //---------------------------------------------------
     return (
       <div className="min-h-screen bg-neutral-50 py-10 px-4">
+        <ProgramToaster />
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-2xl font-bold text-neutral-900 tracking-tight">Programme</h1>
