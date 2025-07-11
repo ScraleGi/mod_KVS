@@ -143,7 +143,7 @@ export default async function ParticipantPage({
         throw error
       }
 
-      redirect('/participant')
+      redirect('/participant/deleted?deleted=1')
     }
 
     // 2. Register participant in a course
@@ -477,7 +477,7 @@ export default async function ParticipantPage({
                 customButton={
                   <button
                     type="submit"
-                    className="px-3 py-1.5 bg-white border border-red-300 rounded text-sm text-red-600 hover:bg-red-50 hover:border-red-400 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-30"
+                    className="px-3 py-1.5 bg-white border border-red-300 cursor-pointer rounded text-sm text-red-600 hover:bg-red-50 hover:border-red-400 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-30"
                   >
                     <div className="flex items-center">
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
