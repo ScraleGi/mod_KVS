@@ -132,7 +132,7 @@ model Invoice {
   id                    String               @id @default(uuid())
   invoiceNumber         String               @unique
   amount                Decimal              @db.Decimal(10, 2)
-  discountAmount        Decimal? @db.Decimal(10, 2) // make it optional // if participant has a Coupon this will be the End Amount that he pays else it is amount //!!!!!!!CHECK 
+  finalAmount           Decimal?             @db.Decimal(10, 2) // make it optional // if participant has a Coupon this will be the End Amount that he pays else it is amount //!!!!!!!CHECK 
   courseRegistrationId  String
   courseRegistration    CourseRegistration   @relation(fields: [courseRegistrationId], references: [id])
   isCancelled           Boolean              @default(false)
