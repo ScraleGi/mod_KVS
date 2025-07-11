@@ -26,7 +26,7 @@ export async function generateInvoice(formData: FormData) {
     const recipientCity = formData.get("recipientCity") as string
     const recipientCountry = formData.get("recipientCountry") as string
 
-  const recipient = await prisma.invoiceRecipient.create({
+  const recipient = await db.invoiceRecipient.create({
     data: {
       type,
       recipientSalutation: type === "PERSON" ? recipientSalutation : null,
