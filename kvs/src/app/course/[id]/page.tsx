@@ -86,7 +86,7 @@ export default async function CoursePage({ params }: { params: Promise<{ id: str
     return (
       <div className="container mx-auto py-8 px-4">
         <Link href="/" className="text-blue-500 hover:underline mb-6 block">
-          &larr; Zurück zur Startseite
+          &larr; Startseite
         </Link>
         <div className="text-red-600 text-lg font-semibold">Kurse nicht gefunden.</div>
       </div>
@@ -98,11 +98,9 @@ export default async function CoursePage({ params }: { params: Promise<{ id: str
       <div className="container mx-auto py-8 px-4">
         {/* Navigation links */}
         <div className="flex justify-left gap-6 mb-8">
-          <Link href="/course" className="text-blue-500 hover:underline">
-            &larr; Zurück zu Kurse
-          </Link>
+      
           <Link href="/" className="text-blue-500 hover:underline">
-            &larr; Zurück zur Startseite
+            &larr; Startseite
           </Link>
         </div>
 
