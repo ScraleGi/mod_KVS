@@ -109,7 +109,7 @@ export default async function EditAreaPage({
               </div>
               <div className="space-y-1">
                 <label htmlFor="description" className="block text-xs font-medium text-gray-600">
-                  Description (optional)
+                  Beschreibung (optional)
                 </label>
                 <textarea
                   id="description"
@@ -134,7 +134,7 @@ export default async function EditAreaPage({
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                   </svg>
-                  zurück zu Details
+                  Details
                 </Link>
                 <Link
                   href={`/area/`}
@@ -143,7 +143,7 @@ export default async function EditAreaPage({
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                   </svg>
-                  Back to Areas
+                  Bereiche
                 </Link>
               </div>
             </form>
@@ -153,8 +153,8 @@ export default async function EditAreaPage({
           <div className="px-6 py-4 bg-gray-50 rounded-b-sm">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-medium text-gray-700">Danger Zone</h3>
-                <p className="text-xs text-gray-500 mt-1">This action will soft-delete Area</p>
+                <h3 className="text-sm font-medium text-gray-700">Archiv</h3>
+                <p className="text-xs text-gray-500 mt-1">Bereich archivieren</p>
               </div>
               <RemoveButton
                 itemId={id}
@@ -171,7 +171,7 @@ export default async function EditAreaPage({
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                       </svg>
-                      Delete
+                      Archivieren
                     </div>
                   </button>
                 }
