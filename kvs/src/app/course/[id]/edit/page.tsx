@@ -89,7 +89,7 @@ import RemoveButton from '@/components/RemoveButton/RemoveButton';
   if (!formattedCourse) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg text-red-500">Course not found.</div>
+        <div className="text-lg text-red-500">Keine Kurse gefunden.</div>
       </div>
     )
   }
@@ -100,7 +100,7 @@ import RemoveButton from '@/components/RemoveButton/RemoveButton';
         <div className="bg-white rounded-sm shadow border border-gray-100">
           <div className="px-6 py-8">
             <h1 className="text-xl font-bold text-gray-900 mb-8 tracking-tight">
-              Edit Course
+              Kurs bearbeiten
             </h1>
             <EditCourseForm
               id={id}
@@ -115,8 +115,8 @@ import RemoveButton from '@/components/RemoveButton/RemoveButton';
           <div className="px-6 py-4 bg-gray-50 rounded-b-sm">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-medium text-gray-700">Danger Zone</h3>
-                <p className="text-xs text-gray-500 mt-1">This will soft-delete the course.</p>
+                <h3 className="text-sm font-medium text-gray-700">Archiv</h3>
+                <p className="text-xs text-gray-500 mt-1">Dadurch werden die Kurse archiviert.</p>
               </div>
               <RemoveButton
                 itemId={id}
@@ -133,7 +133,7 @@ import RemoveButton from '@/components/RemoveButton/RemoveButton';
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                       </svg>
-                      Delete
+                      archivieren
                     </div>
                   </button>
                 }
