@@ -18,7 +18,7 @@ export async function generateInvoice(formData: FormData) {
     }
     
     const recipientSalutation = formData.get("recipientSalutation") as string
-  const recipientName = formData.get("recipientName") as string
+    const recipientName = formData.get("recipientName") as string
     const recipientSurname = formData.get("recipientSurname") as string
     const companyName = formData.get("companyName") as string
     const recipientEmail = formData.get("recipientEmail") as string
@@ -54,8 +54,9 @@ export async function generateInvoice(formData: FormData) {
 
     // calculation logic for dicounts and final amount
   
-  const baseAmount: Decimal = registration.course?.program?.price ?? new Decimal(0)
-  const discountAmount: Decimal = registration.discountAmount ?? new Decimal(0)
+  const menge = 1
+  const baseAmount: Decimal = (registration.course?.program?.price ?? new Decimal(0)).mul(menge)
+  const discountAmount: Decimal = (registration.discountAmount ?? new Decimal(0)).mul(menge)
   const finalAmount = baseAmount.minus(discountAmount)
 
   // Use dueDate from form if provided, otherwise default to 14 days from now

@@ -513,8 +513,8 @@ async function seedRegistrations(
         generalRemark: 'Attended info session.',
         subsidyRemark: null,
         subsidyAmount: null,
-        discountRemark: null,
-        discountAmount: null,
+        discountRemark: 'Early bird discount.',
+        discountAmount: new Prisma.Decimal('50.00'),
       },
       {
         courseId: courseMap[programMap['AI Fundamentals']],
@@ -557,8 +557,8 @@ async function seedRegistrations(
         generalRemark: 'Attended info session.',
         subsidyRemark: null,
         subsidyAmount: null,
-        discountRemark: null,
-        discountAmount: null,
+        discountRemark: 'Early bird discount.',
+        discountAmount: new Prisma.Decimal('50.00'),
       },
       // Python for Beginners
       {
@@ -601,8 +601,8 @@ async function seedRegistrations(
         generalRemark: 'Marketing background.',
         subsidyRemark: null,
         subsidyAmount: null,
-        discountRemark: null,
-        discountAmount: null,
+        discountRemark: 'Early bird discount.',
+        discountAmount: new Prisma.Decimal('50.00'),
       },
       // Cloud Computing Basics
       {
@@ -612,8 +612,8 @@ async function seedRegistrations(
         generalRemark: 'Cloud enthusiast.',
         subsidyRemark: null,
         subsidyAmount: null,
-        discountRemark: null,
-        discountAmount: null,
+        discountRemark: 'Early bird discount.',
+        discountAmount: new Prisma.Decimal('50.00'),
       },
       {
         courseId: courseMap[programMap['Cloud Computing Basics']],
@@ -696,8 +696,8 @@ async function seedRegistrations(
         generalRemark: 'Designer.',
         subsidyRemark: null,
         subsidyAmount: null,
-        discountRemark: null,
-        discountAmount: null,
+        discountRemark: 'Early bird discount.',
+        discountAmount: new Prisma.Decimal('50.00'),
       },
       {
         courseId: courseMap[programMap['UI/UX Design']],
