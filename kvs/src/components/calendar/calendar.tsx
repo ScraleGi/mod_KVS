@@ -6,6 +6,7 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import { EventContentArg, DatesSetArg } from '@fullcalendar/core'; // Add these imports
+import deLocale from '@fullcalendar/core/locales/de';
 
 type EventType = {
   id: string;
@@ -140,6 +141,7 @@ const Calendar: React.FC<{ events: EventType[] }> = ({ events }) => {
           slotDuration='00:30:00'
           slotMinTime='06:00:00'
           slotMaxTime='24:00:00'
+          locale={deLocale}
           events={[...events, ...userEvents, ...backgroundEvents]}
           selectable
           editable
