@@ -4,6 +4,7 @@ import { db } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
 import { generatePDF } from '@/utils/generatePDF'
 import { savePDF } from '@/utils/fileStorage'
+import { Decimal } from '../../generated/prisma/runtime/library'
 
 export async function generateInvoice(formData: FormData) {
   try {
@@ -51,7 +52,11 @@ export async function generateInvoice(formData: FormData) {
       throw new Error(`Course registration with ID ${registrationId} not found`)
     }
 
-    const amount = registration.course?.program?.price ?? 0
+    // calculation logic for dicounts and final amount
+  
+  const baseAmount: Decimal = registration.course?.program?.price ?? new Decimal(0)
+  const discountAmount: Decimal = registration.discountAmount ?? new Decimal(0)
+  const finalAmount = baseAmount.minus(discountAmount)
 
   // Use dueDate from form if provided, otherwise default to 14 days from now
   const dueDateStr = formData.get("dueDate") as string | null
@@ -65,7 +70,8 @@ export async function generateInvoice(formData: FormData) {
     const invoice = await db.invoice.create({
       data: {
         invoiceNumber,
-        amount,
+        amount: baseAmount,
+        finalAmount,
         dueDate,
         courseRegistrationId: registrationId,
         recipientId: recipient.id,
@@ -80,6 +86,8 @@ export async function generateInvoice(formData: FormData) {
       participant: registration.participant,
       course: registration.course,
       program: registration.course?.program,
+      finalAmount,                  // <-- added new
+      discountAmount,         // <-- added new  
     }
 
     // Generate and save PDF
