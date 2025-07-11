@@ -48,15 +48,16 @@ export async function generateInvoice(formData: FormData) {
       include: { course: { include: { program: true } }, participant: true }
     })
 
+
     if (!registration) {
       throw new Error(`Course registration with ID ${registrationId} not found`)
     }
 
     // calculation logic for dicounts and final amount
   
-  const menge = 1
-  const baseAmount: Decimal = (registration.course?.program?.price ?? new Decimal(0)).mul(menge)
-  const discountAmount: Decimal = (registration.discountAmount ?? new Decimal(0)).mul(menge)
+  const amountNumber = 1
+  const baseAmount: Decimal = (registration.course?.program?.price ?? new Decimal(0)).mul(amountNumber)
+  const discountAmount: Decimal = (registration.discountAmount ?? new Decimal(0)).mul(amountNumber)
   const finalAmount = baseAmount.minus(discountAmount)
 
   // Use dueDate from form if provided, otherwise default to 14 days from now
@@ -65,6 +66,7 @@ export async function generateInvoice(formData: FormData) {
     ? new Date(dueDateStr)
     : new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
     
+    // hier Invocie nummer logik bearbeiten
   const invoiceNumber = `INV-${Date.now()}`
 
     // Create the invoice record
@@ -79,6 +81,8 @@ export async function generateInvoice(formData: FormData) {
       }
     })
 
+
+
     // Prepare data for PDF template
     const templateData = {
       invoice,
@@ -87,6 +91,8 @@ export async function generateInvoice(formData: FormData) {
       participant: registration.participant,
       course: registration.course,
       program: registration.course?.program,
+      amountNumber,
+      baseAmount,
       finalAmount,                  // <-- added new
       discountAmount,         // <-- added new  
     }
