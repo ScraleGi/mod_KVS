@@ -29,7 +29,6 @@ export default async function TrainerDetailsPage({ params }: { params: Promise<{
         },
     });
 
-    console.log('Trainer Details:', trainer);
 
     // Date formatting utility
     const formatDate = (date: string | Date | null) => {

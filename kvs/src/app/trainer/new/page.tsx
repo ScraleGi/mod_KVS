@@ -1,6 +1,7 @@
 import { PrismaClient } from "../../../../generated/prisma";
 import { redirect } from 'next/navigation';
 import { EditLabel } from "../../../components/trainer/EditLabel";
+import Link from 'next/link';
 
 const prisma = new PrismaClient();
 
@@ -121,7 +122,13 @@ export default async function NewTrainerPage() {
                             value=""
                         />
                     </div>
-                    <div className="flex justify-end mt-6">
+                    <div className="flex justify-between mt-6">
+                        <Link
+                            href="/trainer"
+                            className="px-4 py-2 bg-neutral-200 text-neutral-700 rounded hover:bg-neutral-300 text-xs font-medium transition"
+                        >
+                            Abbrechen
+                        </Link>
                         <button
                             type="submit"
                             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
