@@ -16,14 +16,14 @@ export default function CreateCourseForm({
 
   // Determine if this is a new course or an edit
   const isEditing = Boolean(id);
-  const buttonText = isEditing ? "Update Course" : "Create Course";
+  const buttonText = isEditing ? "Aktualisieren" : "Kurs erstellen";
 
   return (
     <form action={onSubmit} className="space-y-6">
       {/* Course Code */}
       <div className="space-y-1">
         <label htmlFor="code" className="block text-xs font-medium text-gray-600">
-          Course Code
+          Kurs-Code
         </label>
         <input
           id="code"
@@ -31,14 +31,14 @@ export default function CreateCourseForm({
           type="text"
           required
           defaultValue={course?.code || ""}
-          placeholder="Enter course code"
+          placeholder="Kurs-Code einfügen"
           className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
         />
       </div>
       {/* Program */}
       <div className="space-y-1">
         <label htmlFor="programId" className="block text-xs font-medium text-gray-600">
-          Program
+          Programm
         </label>
         <select
           id="programId"
@@ -56,7 +56,7 @@ export default function CreateCourseForm({
       </div>
       <div className="space-y-1">
         <label htmlFor="startDate" className="block text-xs font-medium text-gray-600">
-          Start Date
+          Start Datum
         </label>
         <input
           id="startDate"
@@ -69,7 +69,7 @@ export default function CreateCourseForm({
       </div>
       <div className="space-y-1">
         <label htmlFor="endDate" className="block text-xs font-medium text-gray-600">
-          End Date
+          End Datum
         </label>
         <input
           id="endDate"
@@ -82,7 +82,7 @@ export default function CreateCourseForm({
       </div>
       <div className="space-y-1">
         <label htmlFor="mainTrainerId" className="block text-xs font-medium text-gray-600">
-          Main Trainer
+          Trainer
         </label>
         <select
           id="mainTrainerId"
@@ -92,7 +92,7 @@ export default function CreateCourseForm({
           required
           className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
         >
-          <option value="" disabled>Select main trainer</option>
+          <option value="" disabled>Trainer auswählen</option>
           {trainers.map((trainer) => (
             <option key={trainer.id} value={trainer.id}>
               {trainer.name} {trainer.surname}
@@ -102,7 +102,7 @@ export default function CreateCourseForm({
       </div>
       <div className="space-y-1">
         <label className="block text-xs font-medium text-gray-600">
-          Additional Trainers
+          Co-Trainers
         </label>
         <div className="flex flex-wrap gap-2" id="trainer-checkboxes">
           {trainers
@@ -135,7 +135,7 @@ export default function CreateCourseForm({
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
-          Cancel
+          Abbrechen
         </Link>
       </div>
     </form>

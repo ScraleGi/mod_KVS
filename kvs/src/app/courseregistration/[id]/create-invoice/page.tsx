@@ -3,6 +3,8 @@ import { redirect } from 'next/navigation'
 import { db } from '@/lib/db'
 import { generateInvoice } from '@/utils/generateInvoice'
 
+import RecipientSelect from './RecipientSelect' // <-- import client component
+
 //---------------------------------------------------
 // SERVER ACTIONS
 //---------------------------------------------------
@@ -46,9 +48,11 @@ export default async function CreateInvoicePage({
     )
   }
 
-   //---------------------------------------------------
-  // RENDER UI
-  //---------------------------------------------------
+  // NEW: Fetch saved recipients to pass to client component
+  const recipients = await db.invoiceRecipient.findMany({
+    where: { deletedAt: null },
+    orderBy: { createdAt: 'desc' },
+  })
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-neutral-50 px-2 py-8">
@@ -66,55 +70,77 @@ export default async function CreateInvoicePage({
             </div>
           </div>
         </div>
-        
-        {/* Invoice Form */}
+
+        {/* Add id here for client component to target */}
         <form
+          id="invoice-form"
           action={createInvoiceAction}
           className="space-y-6"
         >
           <input type="hidden" name="registrationId" value={registration.id} />
-          
-          {/* Invoice Recipient Section */}
+
+          {/* NEW: Dropdown autofill component */}
+          <RecipientSelect
+            recipients={recipients.map(r => ({
+              ...r,
+              recipientSalutation: r.recipientSalutation ?? undefined,
+              recipientName: r.recipientName ?? undefined,
+              recipientSurname: r.recipientSurname ?? undefined,
+              companyName: r.companyName ?? undefined,
+              recipientEmail: r.recipientEmail ?? undefined,
+              postalCode: r.postalCode ?? undefined,
+              recipientStreet: r.recipientStreet ?? undefined,
+              recipientCity: r.recipientCity ?? undefined,
+              recipientCountry: r.recipientCountry ?? undefined,
+              participantId: r.participantId ?? undefined,
+            }))}
+          />
+
+          {/* Invoice Recipient Section (UNCHANGED) */}
           <fieldset className="border border-neutral-200 rounded-lg p-5">
             <legend className="text-base font-semibold text-blue-700 px-2">Rechnungsempfänger</legend>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
               <label className="flex flex-col text-xs font-medium text-neutral-700">
-                 Empfänger
+                Empfänger
                 <select name="type" required className="mt-1 border rounded px-2 py-1">
                   <option value="PERSON">Person</option>
                   <option value="COMPANY">Firma</option>
                 </select>
               </label>
               <label className="flex flex-col text-xs font-medium text-neutral-700">
-                Name (des Empfänger)
+                Anrede (Empfänger)
+                <input name="recipientSalutation" className="mt-1 border rounded px-2 py-1" />
+              </label>
+              <label className="flex flex-col text-xs font-medium text-neutral-700">
+                Name (Empfänger)
                 <input name="recipientName" className="mt-1 border rounded px-2 py-1" />
               </label>
               <label className="flex flex-col text-xs font-medium text-neutral-700">
-                Nachname (des Empfänge)
+                Nachname (Empfänger)
                 <input name="recipientSurname" className="mt-1 border rounded px-2 py-1" />
               </label>
               <label className="flex flex-col text-xs font-medium text-neutral-700">
-                Firmen Name (des Empfänge)
+                Firmen Name (Empfänger)
                 <input name="companyName" className="mt-1 border rounded px-2 py-1" />
               </label>
               <label className="flex flex-col text-xs font-medium text-neutral-700 sm:col-span-2">
-                Email (des Empfänge)
+                Email (Empfänger)
                 <input name="recipientEmail" type="email" required className="mt-1 border rounded px-2 py-1" />
               </label>
               <label className="flex flex-col text-xs font-medium text-neutral-700 sm:col-span-2">
-                Straße (des Empfänge)
+                Straße (Empfänger)
                 <input name="recipientStreet" required className="mt-1 border rounded px-2 py-1" />
               </label>
               <label className="flex flex-col text-xs font-medium text-neutral-700">
-                PLZ (des Empfänge)
+                PLZ (Empfänger)
                 <input name="postalCode" required className="mt-1 border rounded px-2 py-1" />
               </label>
               <label className="flex flex-col text-xs font-medium text-neutral-700">
-                Ort (des Empfänge)
+                Ort (Empfänger)
                 <input name="recipientCity" required className="mt-1 border rounded px-2 py-1" />
               </label>
               <label className="flex flex-col text-xs font-medium text-neutral-700 sm:col-span-2">
-                Land (des Empfänge)
+                Land (Empfänger)
                 <input name="recipientCountry" required className="mt-1 border rounded px-2 py-1" />
               </label>
               <label className="flex flex-col text-xs font-medium text-neutral-700 sm:col-span-2">

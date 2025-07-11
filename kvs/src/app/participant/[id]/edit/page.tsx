@@ -29,18 +29,18 @@ export default async function EditParticipantPage({
       }
     })
 
-    if (!participant) {
-      return (
-        <div className="min-h-screen flex items-center justify-center bg-neutral-50">
-          <div className="max-w-md w-full px-4">
-            <Link href="/participant" className="text-blue-500 hover:underline mb-6 block">
-              &larr; Back to Participants
-            </Link>
-            <div className="text-red-600 text-lg font-semibold">Participant not found.</div>
-          </div>
+  if (!participant) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-neutral-50">
+        <div className="max-w-md w-full px-4">
+          <Link href="/participant" className="text-blue-500 hover:underline mb-6 block">
+            &larr; Back to Participants
+          </Link>
+          <div className="text-red-600 text-lg font-semibold">Participant not found.</div>
         </div>
-      )
-    }
+      </div>
+    )
+  }
 
     // Sanitize participant data
     const sanitizedParticipant = sanitize(participant)
@@ -82,7 +82,7 @@ export default async function EditParticipantPage({
           }
         })
 
-        redirect(`/participant/${id}`)
+        redirect(`/participant/${id}?edited=1`)
       } catch (error) {
         console.error('Failed to update participant:', error)
         throw error

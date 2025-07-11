@@ -16,7 +16,8 @@ export async function generateInvoice(formData: FormData) {
       throw new Error("Valid recipient type (PERSON or COMPANY) is required")
     }
     
-    const recipientName = formData.get("recipientName") as string
+    const recipientSalutation = formData.get("recipientSalutation") as string
+  const recipientName = formData.get("recipientName") as string
     const recipientSurname = formData.get("recipientSurname") as string
     const companyName = formData.get("companyName") as string
     const recipientEmail = formData.get("recipientEmail") as string
@@ -25,20 +26,20 @@ export async function generateInvoice(formData: FormData) {
     const recipientCity = formData.get("recipientCity") as string
     const recipientCountry = formData.get("recipientCountry") as string
 
-    // Create invoice recipient
-    const recipient = await db.invoiceRecipient.create({
-      data: {
-        type,
-        recipientName: type === "PERSON" ? recipientName : null,
-        recipientSurname: type === "PERSON" ? recipientSurname : null,
-        companyName: type === "COMPANY" ? companyName : null,
-        recipientEmail,
-        recipientStreet,
-        postalCode,
-        recipientCity,
-        recipientCountry,
-      }
-    })
+  const recipient = await db.invoiceRecipient.create({
+    data: {
+      type,
+      recipientSalutation: type === "PERSON" ? recipientSalutation : null,
+      recipientName: type === "PERSON" ? recipientName : null,
+      recipientSurname: type === "PERSON" ? recipientSurname : null,
+      companyName: type === "COMPANY" ? companyName : null,
+      recipientEmail,
+      recipientStreet,
+      postalCode,
+      recipientCity,
+      recipientCountry,
+    }
+  })
 
     // Get registration details
     const registration = await db.courseRegistration.findUnique({
@@ -52,14 +53,13 @@ export async function generateInvoice(formData: FormData) {
 
     const amount = registration.course?.program?.price ?? 0
 
-    // Use dueDate from form if provided, otherwise default to 14 days from now
-    const dueDateStr = formData.get("dueDate") as string | null
-    const dueDate = dueDateStr
-      ? new Date(dueDateStr)
-      : new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
-      
-    // Generate unique invoice number with timestamp
-    const invoiceNumber = `INV-${Date.now()}`
+  // Use dueDate from form if provided, otherwise default to 14 days from now
+  const dueDateStr = formData.get("dueDate") as string | null
+  const dueDate = dueDateStr
+    ? new Date(dueDateStr)
+    : new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
+    
+  const invoiceNumber = `INV-${Date.now()}`
 
     // Create the invoice record
     const invoice = await db.invoice.create({

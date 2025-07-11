@@ -53,7 +53,7 @@ async function createParticipant(formData: FormData) {
       })
     }
 
-    redirect(`/participant/${participant.id}`)
+    redirect(`/participant/${participant.id}?created=1`)
   } catch (error) {
     console.error('Failed to create participant:', error)
     throw error
