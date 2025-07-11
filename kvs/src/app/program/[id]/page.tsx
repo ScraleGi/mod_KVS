@@ -43,9 +43,9 @@ export default async function ProgramPage({
         <div className="min-h-screen flex items-center justify-center bg-[#f8fafd]">
           <div className="max-w-2xl w-full mx-auto bg-white rounded-2xl shadow px-8 py-10">
             <Link href="/program" className="text-blue-700 hover:underline mb-6 block">
-              &larr; Back to Programs
+              &larr; Programme
             </Link>
-            <div className="text-red-600 text-lg font-semibold">Program not found.</div>
+            <div className="text-red-600 text-lg font-semibold">Keine Programme gefunden.</div>
           </div>
         </div>
       );
@@ -55,9 +55,9 @@ export default async function ProgramPage({
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#f8fafd]">
         {/* Breadcrumb navigation */}
         <nav className="w-full max-w-3xl mb-6 text-sm text-gray-500 flex items-center gap-2 px-2">
-          <Link href="/area" className="hover:underline">Areas</Link>
+          <Link href="/area" className="hover:underline">Bereich</Link>
           <span>&gt;</span>
-          <Link href="/program" className="hover:underline">Programs</Link>
+          <Link href="/program" className="hover:underline">Programm</Link>
           <span>&gt;</span>
           <span className="text-gray-700">{program.name}</span>
         </nav>
@@ -77,10 +77,10 @@ export default async function ProgramPage({
 
           {/* Info Line */}
           <div className="flex flex-wrap justify-center gap-6 text-base mb-8 text-gray-600">
-            <div><b>Area:</b> {program.area?.name ?? 'Unknown'}</div>
-            <div><b>Units:</b> {program.teachingUnits ?? 'N/A'}</div>
-            <div><b>Price:</b> {program.price ? `€${program.price}` : 'N/A'}</div>
-            <div><b>Created:</b> {new Date(program.createdAt).toLocaleDateString()}</div>
+            <div><b>Bereich:</b> {program.area?.name ?? 'Unknown'}</div>
+            <div><b>Einheiten:</b> {program.teachingUnits ?? 'N/A'}</div>
+            <div><b>Preis:</b> {program.price ? `€${program.price}` : 'N/A'}</div>
+            <div><b>Erstellt:</b> {new Date(program.createdAt).toLocaleDateString()}</div>
           </div>
 
           <hr className="my-6 border-gray-200" />
@@ -88,12 +88,12 @@ export default async function ProgramPage({
           {/* Program Description */}
           <h2 className="text-xl font-bold mb-2 text-gray-600 flex items-center gap-2">
             <Info className="w-5 h-5 text-gray-400" />
-            Program Description
+            Programm Beschreibung
           </h2>
           <div className="mb-8 text-gray-700">
             {program.description
               ? <span className="block ml-7">{program.description}</span>
-              : <span className="italic text-gray-400 block ml-7">No description provided.</span>
+              : <span className="italic text-gray-400 block ml-7">Keine Beschreibung vorhanden.</span>
             }
           </div>
 
@@ -102,10 +102,10 @@ export default async function ProgramPage({
           {/* Courses List */}
           <h2 className="text-xl font-bold mb-2 text-gray-600 flex items-center gap-2">
             <GraduationCap className="w-5 h-5 text-gray-400" />
-            Courses for this Program
+            Kurse für dieses Programm
           </h2>
           {program.course.length === 0 ? (
-            <div className="text-gray-400 italic ml-7">No courses for this program.</div>
+            <div className="text-gray-400 italic ml-7">Keine Kurse in diesem Programm gefunden.</div>
           ) : (
             <ul className="space-y-2 ml-2">
               {program.course.map(course => (
@@ -116,15 +116,15 @@ export default async function ProgramPage({
                     </Link>
                     <div className="text-sm text-gray-500 space-y-2">
                       <div>
-                        Start Date: {course.startDate ? new Date(course.startDate).toLocaleDateString() : "N/A"}
+                        Start Datum: {course.startDate ? new Date(course.startDate).toLocaleDateString() : "N/A"}
                       </div>
                       <div>
-                        Main Trainer: {course.mainTrainer ? `${course.mainTrainer.name} ${course.mainTrainer.surname}` : "N/A"}
+                        Trainer: {course.mainTrainer ? `${course.mainTrainer.name} ${course.mainTrainer.surname}` : "N/A"}
                       </div>
                     </div>
                   </div>
                   <span className="inline-block mt-14 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">
-                    Participants: {course.registrations.length || 0}
+                    Teilnehmer: {course.registrations.length || 0}
                   </span>
                 </li>
               ))}
@@ -141,10 +141,10 @@ export default async function ProgramPage({
       <div className="min-h-screen flex items-center justify-center bg-[#f8fafd]">
         <div className="max-w-2xl w-full mx-auto bg-white rounded-2xl shadow px-8 py-10">
           <Link href="/program" className="text-blue-700 hover:underline mb-6 block">
-            &larr; Back to Programs
+            &larr; Programmen
           </Link>
           <div className="text-red-600 text-lg font-semibold">
-            An error occurred while loading the program. Please try again.
+            Beim Laden des Programms ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.
           </div>
         </div>
       </div>
