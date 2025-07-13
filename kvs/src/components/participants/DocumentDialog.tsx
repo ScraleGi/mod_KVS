@@ -1,9 +1,17 @@
 import * as React from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import Link from "next/link"
+import { DownloadPDFLink } from "@/components/DownloadButton/DownloadButton"
 import { formatDateTimeGerman } from "@/lib/utils"
 
-export function DocumentDialog({ documents, trigger }: { documents: { id: string; file: string; role: string; createdAt: string | Date }[], trigger: React.ReactNode }) {
+export function DocumentDialog({
+  documents,
+  trigger,
+  registrationId, // <-- Pass the registrationId to use for DownloadPDFLink
+}: {
+  documents: { id: string; file: string; role: string; createdAt: string | Date }[]
+  trigger: React.ReactNode
+  registrationId: string
+}) {
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -17,13 +25,15 @@ export function DocumentDialog({ documents, trigger }: { documents: { id: string
           {documents.length === 0 && <li className="text-gray-400">Keine Dokumente</li>}
           {documents.map(doc => (
             <li key={doc.id} className="flex flex-col">
-              <span className="font-medium">{doc.role}</span>
-              <Link href={doc.file} className="text-blue-600 hover:underline break-all" target="_blank" rel="noopener noreferrer">
-                {doc.file}
-              </Link>
-            <span className="text-xs text-gray-500">
-            {formatDateTimeGerman(doc.createdAt)}
-            </span>
+              <DownloadPDFLink
+                uuidString={registrationId}
+                filename={doc.file}
+                displayName={doc.file}
+                className="text-blue-600 hover:underline break-all"
+              />
+              <span className="text-xs text-gray-500">
+                {formatDateTimeGerman(doc.createdAt)}
+              </span>
             </li>
           ))}
         </ul>

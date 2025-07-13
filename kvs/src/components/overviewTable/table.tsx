@@ -7,7 +7,8 @@ import { FilterHeader } from "./FilterHeader"
 import { DoubleFilterHeader } from "./DoubleFilterHeader"
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger, } from "@/components/ui/dropdown-menu"
 import { ChevronDown } from "lucide-react"
-import { formatFullName, formatDateGerman } from "@/lib/utils"
+import { formatFullName } from "@/lib/utils"
+import { DownloadPDFLink } from "@/components/DownloadButton/DownloadButton";
 
 
 // -------------------- Imports --------------------
@@ -744,22 +745,30 @@ export const courseParticipantsColumns: ColumnDef<CourseParticipantRow>[] = [
       return <span className="text-gray-400">—</span>;
     }
     return (
-      <span>
+      <span className="flex flex-wrap gap-2 items-center">
         {invoices.map((inv, idx) => (
-          <React.Fragment key={inv.id}>
+          <span key={inv.id} className="flex items-center gap-1">
+            {/* Download PDF link */}
+            <DownloadPDFLink
+              uuidString={row.original.id}
+              filename={`${inv.id}.pdf`}
+              displayName={`#${inv.invoiceNumber}`}
+              className="text-blue-600 hover:text-blue-800 font-medium text-sm"
+            />
+            {/* Details icon */}
             <Link
               href={`/invoice/${inv.id}`}
-              className="text-blue-600 hover:text-blue-800"
+              className="ml-1 text-gray-400 hover:text-blue-600 transition"
+              title="Details"
             >
-              #{inv.invoiceNumber}
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 16v-4m0-4h.01" />
+              </svg>
             </Link>
-            {inv.dueDate && (
-              <span className="ml-1 text-xs text-gray-500">
-                (Fällig: {formatDateGerman(inv.dueDate)})
-              </span>
-            )}
-            {idx < invoices.length - 1 && ", "}
-          </React.Fragment>
+            {/* Comma between invoices, except after last */}
+            {idx < invoices.length - 1 && <span>,</span>}
+          </span>
         ))}
       </span>
     );
@@ -818,10 +827,10 @@ export const courseParticipantsColumns: ColumnDef<CourseParticipantRow>[] = [
   },
 },
 {
-accessorKey: "generatedDocuments",
-header: () => (
-  <span>Dokumente</span>
-),
+  accessorKey: "generatedDocuments",
+  header: () => (
+    <span>Dokumente</span>
+  ),
   cell: ({ row }) => {
     const docs = row.original.generatedDocuments;
     if (!docs || docs.length === 0) {
@@ -830,6 +839,7 @@ header: () => (
     return (
       <DocumentDialog
         documents={docs}
+        registrationId={row.original.id} // <-- Pass registrationId here
         trigger={
           <span className="cursor-pointer text-blue-600">
             {docs.length}
@@ -837,9 +847,6 @@ header: () => (
         }
       />
     );
-  },
-  sortingFn: (rowA, rowB) => {
-    return rowA.original.generatedDocuments.length - rowB.original.generatedDocuments.length
   },
 },
   {
