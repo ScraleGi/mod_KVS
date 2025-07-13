@@ -190,7 +190,7 @@ export default async function CoursePage({ params }: { params: Promise<{ id: str
         </div>
 
         {/* Participants Table */}
-        <CourseTable data={participantRows} columns={courseParticipantsColumns} />
+        <CourseTable data={participantRows} columns={courseParticipantsColumns} courseId={course.id} />
       </div>
     </div>
   )

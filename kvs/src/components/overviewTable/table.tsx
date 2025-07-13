@@ -914,10 +914,12 @@ export const trainerColumns: ColumnDef<TrainerRow>[] = [
 export function CourseTable<T>({
   data,
   columns,
+  courseId, // <-- Add this prop if you want to pass the course id for the button link
 }: {
   data: T[]
   columns: ColumnDef<T>[]
   filterColumn?: string
+  courseId?: string // optional, for dynamic link
 }) {
   // Table state hooks
   const [sorting, setSorting] = React.useState<SortingState>([])
@@ -946,11 +948,39 @@ export function CourseTable<T>({
     },
   })
 
+   // Helper to check if columns is courseParticipantsColumns
+  const isCourseParticipantsTable =
+    columns === courseParticipantsColumns
+
   // -------------------- Render --------------------
   return (
     <div className="w-full">
       {/* Filter and column visibility controls */}
       <div className="flex items-center py-4">
+        {isCourseParticipantsTable && (
+          <>
+            <Link
+              href={courseId ? `/course/${courseId}/courseDocuments` : "/course/courseDocuments"}
+              className="mr-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition text-sm font-medium flex items-center"
+              title="Dokumente generieren"
+            >
+              <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+              </svg>
+              Dokumente generieren
+            </Link>
+            <Link
+              href={courseId ? `/course/${courseId}/courseInvoices` : "/course/courseInvoices"}
+               className="mr-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition text-sm font-medium flex items-center"
+              title="Rechnungen generieren"
+            >
+              <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+              </svg>
+              Rechnungen generieren
+            </Link>
+          </>
+        )}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto cursor-pointer">
