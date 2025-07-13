@@ -176,7 +176,6 @@ const courseData = await db.course.findUnique({
               </dl>
             </div>
           </div>
-         
         </div>
 
         {/* Participants Table */}
