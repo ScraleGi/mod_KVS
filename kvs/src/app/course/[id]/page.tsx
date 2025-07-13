@@ -17,7 +17,12 @@ type ParticipantWithContact = {
 type RegistrationWithAmounts = {
   id: string
   participant: ParticipantWithContact | null
-  invoices: { id: string; invoiceNumber: string; dueDate: Date | null }[]
+  invoices: { 
+    id: string
+    invoiceNumber: string
+    dueDate: Date | null
+    isCancelled?: boolean 
+  }[]
   generatedDocuments: { id: string; file: string; role: string; createdAt: Date }[]
   discountAmount?: string | number | null
   subsidyAmount?: string | number | null
@@ -38,32 +43,39 @@ export default async function CoursePage({ params }: { params: Promise<{ id: str
       program: { include: { area: true } },
       mainTrainer: true,
       trainers: true,
-      registrations: {
-        where: { 
-          deletedAt: null,
-          participant: { deletedAt: null }
-        },
-        select: {
-          id: true,
-          participant: {
-            select: {
-              name: true,
-              surname: true,
-              email: true,
-              phoneNumber: true,
-            }
-          },
-          invoices: true,
-          generatedDocuments: {
-            where: { deletedAt: null },
-            orderBy: { createdAt: 'desc' }
-          },
-          discountAmount: true,
-          subsidyAmount: true,
-          discountRemark: true,
-          subsidyRemark: true,
-        }
-      },
+registrations: {
+  where: { 
+    deletedAt: null,
+    participant: { deletedAt: null }
+  },
+  select: {
+    id: true,
+    participant: {
+      select: {
+        name: true,
+        surname: true,
+        email: true,
+        phoneNumber: true,
+      }
+    },
+    invoices: {
+      select: {
+        id: true,
+        invoiceNumber: true,
+        dueDate: true,
+        isCancelled: true, // <-- Add this!
+      }
+    },
+    generatedDocuments: {
+      where: { deletedAt: null },
+      orderBy: { createdAt: 'desc' }
+    },
+    discountAmount: true,
+    subsidyAmount: true,
+    discountRemark: true,
+    subsidyRemark: true,
+  }
+},
     },
   })
 
@@ -95,6 +107,7 @@ export default async function CoursePage({ params }: { params: Promise<{ id: str
       id: inv.id,
       invoiceNumber: inv.invoiceNumber,
       dueDate: inv.dueDate,
+      isCancelled: inv.isCancelled
     })),
     generatedDocuments: reg.generatedDocuments.map(doc => ({
       id: doc.id,
