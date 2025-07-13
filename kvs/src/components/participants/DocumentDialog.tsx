@@ -6,11 +6,13 @@ import { formatDateTimeGerman } from "@/lib/utils"
 export function DocumentDialog({
   documents,
   trigger,
-  registrationId, // <-- Pass the registrationId to use for DownloadPDFLink
+  registrationId,
+  participantName, // <-- Add participantName prop
 }: {
   documents: { id: string; file: string; role: string; createdAt: string | Date }[]
   trigger: React.ReactNode
   registrationId: string
+  participantName: string // <-- Add participantName prop type
 }) {
   return (
     <Dialog>
@@ -19,7 +21,9 @@ export function DocumentDialog({
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Dokumente</DialogTitle>
+          <DialogTitle>
+            Dokumente für {participantName}
+          </DialogTitle>
         </DialogHeader>
         <ul className="space-y-2">
           {documents.length === 0 && <li className="text-gray-400">Keine Dokumente</li>}

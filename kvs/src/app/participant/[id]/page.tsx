@@ -387,7 +387,7 @@ export default async function ParticipantPage({
             </div>
           </section>
 
-          {/* Documents Section */}
+         {/* Documents Section */}
           <section className="px-8 py-6 border-b border-neutral-200">
             <h2 className="text-sm font-semibold text-neutral-800 mb-2">Documents</h2>
             <div className="overflow-x-auto">
@@ -424,7 +424,7 @@ export default async function ParticipantPage({
                         <td className="px-3 py-2 text-center">
                           {labelMap[doc.role] || doc.role}
                         </td>
-                        <td className="px-3 py-2 text-center">
+                        <td className="px-3 py-2 text-center flex justify-center items-center">
                           <RemoveButton 
                             itemId={doc.id} 
                             onRemove={removeDocument}

@@ -511,7 +511,7 @@ export default async function ParticipantDetailsPage({
                 />
               </td>
               <td className="px-3 py-2">{labelMap[doc.role] || doc.role}</td>
-              <td className="px-3 py-2 text-center">
+              <td className="px-3 py-2 text-center flex justify-center items-center">
                 <RemoveButton 
                   itemId={doc.id} 
                   onRemove={removeDocument}
