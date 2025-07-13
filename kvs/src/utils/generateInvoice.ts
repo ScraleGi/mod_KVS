@@ -66,7 +66,7 @@ export async function generateInvoice(formData: FormData) {
     ? new Date(dueDateStr)
     : new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
     
-    // hier Invocie nummer logik bearbeiten
+    
   const invoiceNumber = `INV-${Date.now()}`
 
     // Create the invoice record
@@ -97,9 +97,12 @@ export async function generateInvoice(formData: FormData) {
       discountAmount,         // <-- added new  
     }
 
-    // Generate and save PDF
+    // Generate and save PDF // hier Invocie nummer logik bearbeiten
     const pdfBuffer = await generatePDF('invoice', templateData)
     await savePDF(registrationId, `${invoice.id}.pdf`, pdfBuffer)
+
+    // const formattedDate = invoice.dueDate.toISOString().split('T')[0]
+    // const pdfFilename = `Rechnung_${invoice.invoiceNumber}_${formattedDate}.pdf`
 
     // Refresh the UI
     revalidatePath(`/courseregistration/${registrationId}`)
