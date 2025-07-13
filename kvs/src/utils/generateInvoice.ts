@@ -67,6 +67,7 @@ export async function generateInvoice(formData: FormData) {
     : new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
     
     // hier Invocie nummer logik bearbeiten
+    // Die naming ist hier zu bearbeiten     *filestorage *savePDF *generatePDF
   const invoiceNumber = `INV-${Date.now()}`
 
     // Create the invoice record
