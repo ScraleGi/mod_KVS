@@ -13,6 +13,18 @@ export function formatDateGerman(date: Date | string | null | undefined): string
   return new Date(date).toLocaleDateString('de-DE')
 }
 
+export function formatDateTimeGerman(date: Date | string | null | undefined): string {
+  if (!date) return 'N/A'
+  return new Date(date).toLocaleString('de-DE', {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit"
+  })
+}
+
 /**
  * Format date to ISO format (YYYY-MM-DD) for form inputs
  */

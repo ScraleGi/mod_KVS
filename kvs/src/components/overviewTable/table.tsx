@@ -2,10 +2,12 @@
 import { CourseParticipantsDialog } from "../participants/CourseParticipantsDialog"
 import { TrainerCourseDialog } from "../trainer/TrainerCourseDialog"
 import { CoursesDialog } from "../participants/participantCoursesDialog"
+import { DocumentDialog } from "../participants/DocumentDialog"
 import { FilterHeader } from "./FilterHeader"
 import { DoubleFilterHeader } from "./DoubleFilterHeader"
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger, } from "@/components/ui/dropdown-menu"
 import { ChevronDown } from "lucide-react"
+import { formatFullName, formatDateGerman } from "@/lib/utils"
 
 
 // -------------------- Imports --------------------
@@ -89,6 +91,31 @@ export type TrainerRow = {
   phoneNumber: string
   mainCourses?: { id: string; name: string; startDate?: string }[]
   courses?: { id: string; name: string; startDate?: string }[]
+}
+
+export type CourseParticipantRow = {
+  id: string
+  participant: {
+    name: string
+    surname: string
+    email?: string
+    phoneNumber?: string
+  } | null
+  invoices: {
+    id: string
+    invoiceNumber: string
+    dueDate: Date | string | null
+  }[]
+  generatedDocuments: {
+    id: string
+    file: string
+    role: string
+    createdAt: Date | string
+  }[]
+  discountAmount?: string | number | null
+  subsidyAmount?: string | number | null
+  discountRemark?: string | null
+  subsidyRemark?: string | null
 }
 
 // -------------------- Table Columns Definition --------------------
@@ -678,6 +705,191 @@ export const trainerColumns: ColumnDef<TrainerRow>[] = [
       return false
     },
   },
+]
+
+export const courseParticipantsColumns: ColumnDef<CourseParticipantRow>[] = [
+{
+  accessorKey: "participant",
+  header: ({ column }) => (
+    <FilterHeader column={column} label="Name" placeholder="Filter Name..." />
+  ),
+  cell: ({ row }) => {
+    const p = row.original.participant
+    return p ? (
+      <Link
+        href={`/courseregistration/${row.original.id}`}
+        className="font-medium text-blue-700 hover:underline"
+      >
+        {formatFullName(p)}
+      </Link>
+    ) : (
+      <span className="text-gray-400">Unknown</span>
+    )
+  },
+  filterFn: (row, _columnId, filterValue) => {
+    const p = row.original.participant
+    if (!p) return false
+    return (
+      p.name.toLowerCase().includes(filterValue.toLowerCase()) ||
+      p.surname.toLowerCase().includes(filterValue.toLowerCase())
+    )
+  },
+},
+{
+  accessorKey: "invoices",
+  header: "Rechnungen",
+  cell: ({ row }) => {
+    const invoices = row.original.invoices;
+    if (!invoices || invoices.length === 0) {
+      return <span className="text-gray-400">—</span>;
+    }
+    return (
+      <span>
+        {invoices.map((inv, idx) => (
+          <React.Fragment key={inv.id}>
+            <Link
+              href={`/invoice/${inv.id}`}
+              className="text-blue-600 hover:text-blue-800"
+            >
+              #{inv.invoiceNumber}
+            </Link>
+            {inv.dueDate && (
+              <span className="ml-1 text-xs text-gray-500">
+                (Fällig: {formatDateGerman(inv.dueDate)})
+              </span>
+            )}
+            {idx < invoices.length - 1 && ", "}
+          </React.Fragment>
+        ))}
+      </span>
+    );
+  },
+},
+{
+  accessorKey: "discountAmount",
+  header: ({ column }) => (
+    <FilterHeader column={column} label="Rabatt" placeholder="Filter Rabatt..." />
+  ),
+  cell: ({ row }) => {
+    const value = row.original.discountAmount
+    const remark = row.original.discountRemark
+    if (value) {
+      return (
+        <span className="ml-1 text-xs text-gray-700">
+          -{value} €{remark ? ` (${remark})` : ""}
+        </span>
+      )
+    }
+    return <span className="text-gray-400">—</span>
+  },
+  filterFn: (row, _columnId, filterValue) => {
+    const value = row.original.discountAmount?.toString() ?? ""
+    const remark = row.original.discountRemark ?? ""
+    return (
+      value.includes(filterValue) ||
+      remark.toLowerCase().includes(filterValue.toLowerCase())
+    )
+  },
+},
+{
+  accessorKey: "subsidyAmount",
+  header: ({ column }) => (
+    <FilterHeader column={column} label="Subvention" placeholder="Filter Subvention..." />
+  ),
+  cell: ({ row }) => {
+    const value = row.original.subsidyAmount
+    const remark = row.original.subsidyRemark
+    if (value) {
+      return (
+        <span className="ml-1 text-xs text-gray-700">
+          -{value} €{remark ? ` (${remark})` : ""}
+        </span>
+      )
+    }
+    return <span className="text-gray-400">—</span>
+  },
+  filterFn: (row, _columnId, filterValue) => {
+    const value = row.original.subsidyAmount?.toString() ?? ""
+    const remark = row.original.subsidyRemark ?? ""
+    return (
+      value.includes(filterValue) ||
+      remark.toLowerCase().includes(filterValue.toLowerCase())
+    )
+  },
+},
+{
+  accessorKey: "generatedDocuments",
+  header: ({ column }) => (
+    <span>Dokumente</span>
+  ),
+  cell: ({ row }) => {
+    const docs = row.original.generatedDocuments;
+    if (!docs || docs.length === 0) {
+      return <span className="text-gray-400">—</span>;
+    }
+    return (
+      <DocumentDialog
+        documents={docs}
+        trigger={
+          <span className="cursor-pointer text-blue-600">
+            {docs.length}
+          </span>
+        }
+      />
+    );
+  },
+  sortingFn: (rowA, rowB) => {
+    return rowA.original.generatedDocuments.length - rowB.original.generatedDocuments.length
+  },
+},
+  {
+    accessorKey: "participant.email",
+    header: ({ column }) => (
+      <FilterHeader column={column} label="E-Mail" placeholder="Filter E-Mail..." />
+    ),
+    cell: ({ row }) => (
+      <span>
+        {row.original.participant?.email ?? <span className="text-gray-400">—</span>}
+      </span>
+    ),
+    filterFn: (row, _columnId, filterValue) => {
+      const email = row.original.participant?.email ?? ""
+      return email.toLowerCase().includes(filterValue.toLowerCase())
+    },
+  },
+  {
+    accessorKey: "participant.phoneNumber",
+    header: ({ column }) => (
+      <FilterHeader column={column} label="Telefon" placeholder="Filter Telefon..." />
+    ),
+    cell: ({ row }) => (
+      <span>
+        {row.original.participant?.phoneNumber ?? <span className="text-gray-400">—</span>}
+      </span>
+    ),
+    filterFn: (row, _columnId, filterValue) => {
+      const phone = row.original.participant?.phoneNumber ?? ""
+      return phone.toLowerCase().includes(filterValue.toLowerCase())
+    },
+  },
+{
+  id: "actions",
+  header: "Aktionen",
+  cell: ({ row }) => (
+    <div className="flex items-center justify-center h-full">
+      <Link
+        href={`/courseregistration/${row.original.id}`}
+        className="p-2 rounded hover:bg-blue-100 text-blue-600 transition"
+        title="Bearbeiten"
+        aria-label="Bearbeiten"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+        </svg>
+      </Link>
+    </div>
+  ),
+},
 ]
 
 
