@@ -32,40 +32,40 @@ type CourseWithParticipants = Omit<CourseWithDetailedRelations, 'registrations'>
 export default async function CoursePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
 
-const courseData = await db.course.findUnique({
-  where: { id },
-  include: {
-    program: { include: { area: true } },
-    mainTrainer: true,
-    trainers: true,
-    registrations: {
-      where: { 
-        deletedAt: null,
-        participant: { deletedAt: null }
+  const courseData = await db.course.findUnique({
+    where: { id },
+    include: {
+      program: { include: { area: true } },
+      mainTrainer: true,
+      trainers: true,
+      registrations: {
+        where: { 
+          deletedAt: null,
+          participant: { deletedAt: null }
+        },
+        select: {
+          id: true,
+          participant: {
+            select: {
+              name: true,
+              surname: true,
+              email: true,
+              phoneNumber: true,
+            }
+          },
+          invoices: true,
+          generatedDocuments: {
+            where: { deletedAt: null },
+            orderBy: { createdAt: 'desc' }
+          },
+          discountAmount: true,
+          subsidyAmount: true,
+          discountRemark: true,
+          subsidyRemark: true,
+        }
       },
-      select: {
-        id: true,
-        participant: {
-          select: {
-            name: true,
-            surname: true,
-            email: true,
-            phoneNumber: true,
-          }
-        },
-        invoices: true,
-        generatedDocuments: {
-          where: { deletedAt: null },
-          orderBy: { createdAt: 'desc' }
-        },
-        discountAmount: true,
-        subsidyAmount: true,
-        discountRemark: true,
-        subsidyRemark: true,
-      }
     },
-  },
-})
+  })
 
   const course = sanitize<typeof courseData, CourseWithParticipants>(courseData)
 
@@ -116,7 +116,18 @@ const courseData = await db.course.findUnique({
           <Link href="/" className="text-blue-500 hover:underline text-sm">
             &larr; Startseite
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">{course.program?.name ?? 'Course'}</h1>
+          <div className="flex-1 flex justify-center items-center relative">
+            <h1 className="text-3xl font-bold text-gray-900">{course.program?.name ?? 'Course'}</h1>
+            <Link
+              href={`/course/${course.id}/edit`}
+              className="absolute right-0 text-gray-400 hover:text-blue-600 transition ml-4"
+              title="Kurs bearbeiten"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              </svg>
+            </Link>
+          </div>
           <div />
         </div>
 
@@ -167,7 +178,7 @@ const courseData = await db.course.findUnique({
                       : <span className="text-gray-400">—</span>}
                   </dd>
                 </div>
-                  <div className="py-3 flex justify-between">
+                <div className="py-3 flex justify-between">
                   <dt className="font-semibold text-gray-700">Ort</dt>  {/* Logik fehlt noch*/}
                   <dd>
                     <span className="text-gray-400">—</span>

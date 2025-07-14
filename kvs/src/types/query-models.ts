@@ -205,6 +205,7 @@ export interface SanitizedInvoice {
   isCancelled: boolean;
   transactionNumber?: string | null;
   recipient?: SanitizedInvoiceRecipient | null;
+  invoiceNumber?: string; //
 }
 
 /**

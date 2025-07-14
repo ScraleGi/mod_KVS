@@ -369,94 +369,94 @@ export default async function ParticipantDetailsPage({
         </section>
 
        {/* Invoices Section */}
-<section className="px-8 py-6 border-b border-neutral-200">
-  <h2 className="text-sm font-semibold text-neutral-800 mb-4">Rechnungen</h2>
-  <div className="overflow-x-auto">
-    <table className="min-w-full text-xs border border-neutral-200 rounded">
-      <thead>
-        <tr className="bg-neutral-100">
-          <th className="px-3 py-2 text-left font-semibold">Rechnung</th>
-          <th className="px-3 py-2 text-center font-semibold">Empfänger</th>
-          <th className="px-3 py-2 text-center font-semibold">Status</th>
-          <th className="px-3 py-2 text-center font-semibold">Aktion</th>
-        </tr>
-      </thead>
-      <tbody>
-        {sanitizedInvoices.length === 0 && (
-          <tr>
-            <td colSpan={4} className="px-3 py-2 text-neutral-400 italic text-xs bg-white rounded text-center">
-              Keine Rechnungen gefunden.
-            </td>
-          </tr>
-        )}
-        {sanitizedInvoices.map((inv) => (
-          <tr key={inv.id} className="border-t border-neutral-200 bg-white hover:bg-blue-50 transition-colors">
-            <td className="px-3 py-2">
-              <span
-                className="truncate max-w-[120px] block"
-                title={`Invoice #${inv.id || ''} - €${inv.amount?.toString() || ''}`}
-              >
-                <DownloadPDFLink
-                  uuidString={sanitizedRegistration.id}
-                  filename={`${inv.id}.pdf`}
-                  className="text-blue-700 hover:text-blue-900 font-medium text-sm"
-                />
-              </span>
-            </td>
-            <td className="px-3 py-2 text-center">
-              {inv.recipient?.type === 'PERSON'
-                ? `${inv.recipient.recipientName ?? ''} ${inv.recipient.recipientSurname ?? ''}`.trim() || '-'
-                : inv.recipient?.type === 'COMPANY'
-                  ? inv.recipient.companyName ?? '-'
-                  : '-'}
-            </td>
-            <td className="px-3 py-2 text-center">
-              <form action={toggleInvoiceCancelled} className="inline">
-                <input type="hidden" name="invoiceId" value={inv.id} />
-                <input type="hidden" name="registrationId" value={registrationId} />
-                <button
-                  type="submit"
-                  name="isCancelled"
-                  value={inv.isCancelled ? "" : "on"}
-                  className={`px-2 py-1 rounded text-xs font-semibold transition
-                    ${inv.isCancelled
-                      ? "bg-red-100 text-red-600 hover:bg-red-200"
-                      : "bg-green-100 text-green-700 hover:bg-green-200"}
-                  `}
-                >
-                  {inv.isCancelled ? "storniert" : "aktiv"}
-                </button>
-              </form>
-              {inv.transactionNumber && !inv.isCancelled && (
-                <span className="ml-2 text-green-700 font-semibold">bezahlt</span>
-              )}
-              {!inv.transactionNumber && !inv.isCancelled && (
-                <span className="ml-2 text-yellow-600 font-semibold">nicht bezahlt</span>
-              )}
-            </td>
-            <td className="px-3 py-2 text-center">
-              <Link
-                href={`/invoice/${inv.id}`}
-                className="text-neutral-400 hover:text-blue-600 transition mr-2"
-                title="View invoice details"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 16v-4m0-4h.01" />
-                </svg>
-              </Link>
-              <Link
-                href={`/invoice/${inv.id}/edit`}
-                className="text-neutral-400 hover:text-blue-600 transition"
-                title="Edit invoice"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                </svg>
-              </Link>
-            </td>
-          </tr>
-        ))}
+    <section className="px-8 py-6 border-b border-neutral-200">
+      <h2 className="text-sm font-semibold text-neutral-800 mb-4">Rechnungen</h2>
+      <div className="overflow-x-auto">
+        <table className="min-w-full text-xs border border-neutral-200 rounded">
+          <thead>
+            <tr className="bg-neutral-100">
+              <th className="px-3 py-2 text-left font-semibold">Rechnung</th>
+              <th className="px-3 py-2 text-center font-semibold">Empfänger</th>
+              <th className="px-3 py-2 text-center font-semibold">Status</th>
+              <th className="px-3 py-2 text-center font-semibold">Aktion</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sanitizedInvoices.length === 0 && (
+              <tr>
+                <td colSpan={4} className="px-3 py-2 text-neutral-400 italic text-xs bg-white rounded text-center">
+                  Keine Rechnungen gefunden.
+                </td>
+              </tr>
+            )}
+    {sanitizedInvoices.map((inv) => (
+      <tr key={inv.id} className="border-t border-neutral-200 bg-white hover:bg-blue-50 transition-colors">
+        <td className="px-3 py-2">
+          <span
+            title={`Invoice #${inv.invoiceNumber || ''} - €${inv.amount?.toString() || ''}`}
+          >
+            <DownloadPDFLink
+              uuidString={sanitizedRegistration.id}
+              filename={`${inv.id}.pdf`}
+              displayName={`#${inv.invoiceNumber}`}
+              className="text-blue-700 hover:text-blue-900 font-medium text-sm"
+            />
+          </span>
+        </td>
+        <td className="px-3 py-2 text-center">
+          {inv.recipient?.type === 'PERSON'
+            ? `${inv.recipient.recipientName ?? ''} ${inv.recipient.recipientSurname ?? ''}`.trim() || '-'
+            : inv.recipient?.type === 'COMPANY'
+              ? inv.recipient.companyName ?? '-'
+              : '-'}
+        </td>
+        <td className="px-3 py-2 text-center">
+          <form action={toggleInvoiceCancelled} className="inline">
+            <input type="hidden" name="invoiceId" value={inv.id} />
+            <input type="hidden" name="registrationId" value={registrationId} />
+            <button
+              type="submit"
+              name="isCancelled"
+              value={inv.isCancelled ? "" : "on"}
+              className={`px-2 py-1 rounded text-xs font-semibold transition
+                ${inv.isCancelled
+                  ? "bg-red-100 text-red-600 hover:bg-red-200"
+                  : "bg-green-100 text-green-700 hover:bg-green-200"}
+              `}
+            >
+              {inv.isCancelled ? "storniert" : "aktiv"}
+            </button>
+          </form>
+          {inv.transactionNumber && !inv.isCancelled && (
+            <span className="ml-2 text-green-700 font-semibold">bezahlt</span>
+          )}
+          {!inv.transactionNumber && !inv.isCancelled && (
+            <span className="ml-2 text-yellow-600 font-semibold">nicht bezahlt</span>
+          )}
+        </td>
+        <td className="px-3 py-2 text-center">
+          <Link
+            href={`/invoice/${inv.id}`}
+            className="text-neutral-400 hover:text-blue-600 transition mr-2"
+            title="View invoice details"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 16v-4m0-4h.01" />
+            </svg>
+          </Link>
+          <Link
+            href={`/invoice/${inv.id}/edit`}
+            className="text-neutral-400 hover:text-blue-600 transition"
+            title="Edit invoice"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+            </svg>
+          </Link>
+        </td>
+      </tr>
+    ))}
       </tbody>
     </table>
     {/* Create Invoice Button */}
@@ -511,7 +511,7 @@ export default async function ParticipantDetailsPage({
                 />
               </td>
               <td className="px-3 py-2">{labelMap[doc.role] || doc.role}</td>
-              <td className="px-3 py-2 text-center">
+              <td className="px-3 py-2 text-center flex justify-center items-center">
                 <RemoveButton 
                   itemId={doc.id} 
                   onRemove={removeDocument}
@@ -588,11 +588,14 @@ export default async function ParticipantDetailsPage({
 </section>
         {/* Navigation Footer */}
         <nav className="flex gap-4 justify-end px-8 py-6">
-          <Link href={`/course/${registration?.courseId}`} className="text-neutral-400 hover:text-blue-600 text-sm transition">
-            &larr; Zurück zur Startseite
+          <Link
+            href={`/course/${sanitizedRegistration.course?.id}`}
+            className="text-neutral-400 hover:text-blue-600 text-sm transition"
+          >
+            &larr; Kurs
           </Link>
           <Link href="/" className="text-neutral-400 hover:text-blue-600 text-sm transition">
-            Startseite
+            &larr;  Startseite
           </Link>
         </nav>
       </div>

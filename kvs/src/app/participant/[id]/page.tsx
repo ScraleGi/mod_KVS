@@ -9,6 +9,7 @@ import ClientCourseModalWrapper from './ClientCourseModalWrapper'
 import ParticipantToaster from './ParticipantToaster'
 import { sanitize } from '@/lib/sanitize'
 import RemoveButton from '@/components/RemoveButton/RemoveButton'
+import { DownloadPDFLink } from '@/components/DownloadButton/DownloadButton'
 
 //---------------------------------------------------
 // MAIN COMPONENT
@@ -268,186 +269,175 @@ export default async function ParticipantPage({
           
           {/* Courses Registered Section */}
           <section className="px-8 py-6 border-b border-neutral-200">
-            <div className="flex flex-col gap-2">
-              <div className="grid grid-cols-6 border-b border-neutral-200 py-1 bg-neutral-50 rounded-t">
-                <div className="col-span-2 text-xs font-semibold text-neutral-500 flex items-center px-1">Course Registration</div>
-                <div className="col-span-1 text-xs font-semibold text-neutral-500 flex items-center justify-center">Course Code</div>
-                <div className="col-span-1"></div> {/* Spacer column */}
-                <div className="col-span-1 text-xs font-semibold text-neutral-500 flex items-center justify-center">Start</div>
-                <div className="col-span-1 text-xs font-semibold text-neutral-500 flex items-center justify-end">
-                  <ClientCourseModalWrapper
-                    registerToCourse={registerToCourse}
-                    availableCourses={availableCourses}
-                  />
-                </div>
-              </div>
-              
-              {/* Course list or empty state */}
-              {sanitizedParticipant.registrations.length === 0 && (
-                <div className="flex items-center px-2 py-2 text-neutral-400 italic text-sm bg-white rounded">
-                  No courses registered
-                </div>
-              )}
-              
-              {/* Registered courses */}
-              {sanitizedParticipant.registrations.map((reg, idx) => (
-                <div
-                  key={idx}
-                  className="grid grid-cols-6 items-center bg-white hover:bg-sky-50 transition rounded border-b border-neutral-100 group"
-                >
-                  <div className="col-span-2 flex items-center px-1 py-2">
-                    <Link
-                      href={`/course/${reg.course?.id}`}
-                      className="text-blue-700 hover:text-blue-900 font-medium text-sm"
-                    >
-                      {reg.course?.program?.name ?? 'Unknown Course'}
-                    </Link>
-                  </div>
-                  <div className="col-span-1 flex items-center justify-center text-xs text-neutral-600">
-                    {reg.course?.code ? (
-                      <span title={reg.course.code}>{reg.course.code}</span>
-                    ) : (
-                      <span className="text-neutral-300">—</span>
-                    )}
-                  </div>
-                  <div className="col-span-1"></div> {/* Spacer column */}
-                  <div className="col-span-1 flex items-center justify-center text-xs text-neutral-600">
-                    {reg.course?.startDate ? (
-                      <span>{new Date(reg.course.startDate).toLocaleDateString('de-DE')}</span>
-                    ) : (
-                      <span className="text-neutral-300">—</span>
-                    )}
-                  </div>
-                  <div className="col-span-1 flex items-center justify-end h-full">
-                    <RemoveButton 
-                      itemId={reg.id} 
-                      onRemove={removeRegistration} 
-                      title="Remove Course Registration"
-                      message="Are you sure you want to remove this course registration? This action cannot be undone."
-                      fieldName="registrationId"
-                    />
-                  </div>
-                </div>
-              ))}
+            <div className="flex items-center mb-2">
+              <h2 className="text-sm font-semibold text-neutral-800">Course Registrations</h2>
+              <span className="ml-3">
+                <ClientCourseModalWrapper
+                  registerToCourse={registerToCourse}
+                  availableCourses={availableCourses}
+                />
+              </span>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-xs border border-neutral-200 rounded">
+                <thead>
+                  <tr className="bg-neutral-100">
+                    <th className="px-3 py-2 text-left font-semibold">Name</th>
+                    <th className="px-3 py-2 text-center font-semibold">Code</th>
+                    <th className="px-3 py-2 text-center font-semibold">Start</th>
+                    <th className="px-3 py-2 text-center font-semibold">Aktion</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sanitizedParticipant.registrations.length === 0 ? (
+                    <tr>
+                      <td colSpan={4} className="px-3 py-2 text-neutral-400 italic text-xs bg-white rounded text-center">
+                        No courses registered
+                      </td>
+                    </tr>
+                  ) : (
+                    sanitizedParticipant.registrations.map((reg) => (
+                      <tr key={reg.id} className="border-t border-neutral-200 bg-white hover:bg-sky-50 transition">
+                        <td className="px-3 py-2">
+                          <Link
+                            href={`/course/${reg.course?.id}`}
+                            className="text-blue-700 hover:text-blue-900 font-medium text-sm"
+                          >
+                            {reg.course?.program?.name ?? 'Unknown Course'}
+                          </Link>
+                        </td>
+                        <td className="px-3 py-2 text-center">
+                          {reg.course?.code ?? <span className="text-neutral-300">—</span>}
+                        </td>
+                        <td className="px-3 py-2 text-center">
+                          {reg.course?.startDate
+                            ? new Date(reg.course.startDate).toLocaleDateString('de-DE')
+                            : <span className="text-neutral-300">—</span>}
+                        </td>
+                        <td className="px-3 py-2 text-center flex justify-center items-center">
+                          <RemoveButton 
+                            itemId={reg.id} 
+                            onRemove={removeRegistration} 
+                            title="Remove Course Registration"
+                            message="Are you sure you want to remove this course registration? This action cannot be undone."
+                            fieldName="registrationId"
+                          />
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
           </section>
 
           {/* Invoices Section */}
           <section className="px-8 py-6 border-b border-neutral-200">
-            <div>
-              <div className="grid grid-cols-4 font-semibold text-neutral-700 text-xs uppercase border-b border-neutral-200 pb-2 mb-2">
-                <div className="col-span-1">Invoice</div>
-                <div className="col-span-1 text-center">Course Code</div>
-                <div className="col-span-1 text-center">Recipient</div>
-                <div className="col-span-1 text-center">Status</div>
-              </div>
-              
-              {/* Invoice list or empty state */}
-              <div>
-                {allInvoices.length === 0 && (
-                  <div className="flex items-center px-2 py-2 text-neutral-400 italic text-xs bg-white rounded">
-                    No invoices found
-                  </div>
-                )}
-                
-                {/* Invoice items */}
-                {allInvoices.map((inv) => (
-                  <div
-                    key={inv.id}
-                    className="grid grid-cols-4 items-center py-2 border-b border-neutral-100 last:border-b-0 bg-white transition-colors hover:bg-blue-50"
-                  >
-                    <div className="col-span-1 flex items-center gap-2">
-                      <Link
-                        href={`/invoice/${inv.id}`}
-                        className="text-blue-700 hover:text-blue-900 font-medium text-sm truncate max-w-[120px]"
-                        title={inv.invoiceNumber ?? inv.id}
-                      >
-                        #{inv.invoiceNumber ?? inv.id}
-                      </Link>
-                    </div>
-                    <div className="col-span-1 flex items-center justify-center text-xs text-neutral-600">
-                      {inv.course?.code ? (
-                        <span title={inv.course.code}>{inv.course.code}</span>
-                      ) : (
-                        <span className="text-neutral-300">—</span>
-                      )}
-                    </div>
-                    <div className="col-span-1 flex items-center justify-center text-xs">
-                      {inv.recipient?.type === 'COMPANY'
-                        ? inv.recipient?.companyName
-                        : `${inv.recipient?.recipientName ?? ''} ${inv.recipient?.recipientSurname ?? ''}`}
-                    </div>
-                    <div className="col-span-1 flex items-center justify-center text-xs">
-                      {inv.isCancelled ? (
-                        <span className="px-2 py-1 rounded bg-red-100 text-red-600">Cancelled</span>
-                      ) : inv.transactionNumber ? (
-                        <span className="px-2 py-1 rounded bg-green-100 text-green-700">Paid</span>
-                      ) : (
-                        <span className="px-2 py-1 rounded bg-yellow-100 text-yellow-700">Unpaid</span>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
+            <h2 className="text-sm font-semibold text-neutral-800 mb-2">Invoices</h2>
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-xs border border-neutral-200 rounded">
+                <thead>
+                  <tr className="bg-neutral-100">
+                    <th className="px-3 py-2 text-left font-semibold">Invoice</th>
+                    <th className="px-3 py-2 text-center font-semibold">Course Code</th>
+                    <th className="px-3 py-2 text-center font-semibold">Recipient</th>
+                    <th className="px-3 py-2 text-center font-semibold">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {allInvoices.length === 0 ? (
+                    <tr>
+                      <td colSpan={4} className="px-3 py-2 text-neutral-400 italic text-xs bg-white rounded text-center">
+                        No invoices found
+                      </td>
+                    </tr>
+                  ) : (
+                    allInvoices.map((inv) => (
+                      <tr key={inv.id} className="border-t border-neutral-200 bg-white hover:bg-blue-50 transition">
+                        <td className="px-3 py-2">
+                          <DownloadPDFLink
+                            uuidString={inv.courseRegistrationId ||  inv.id}
+                            filename={`${inv.id}.pdf`}
+                            displayName={`#${inv.invoiceNumber ?? inv.id}`}
+                            className="text-blue-700 hover:text-blue-900 font-medium text-sm"
+                          />
+                        </td>
+                        <td className="px-3 py-2 text-center">
+                          {inv.course?.code ?? <span className="text-neutral-300">—</span>}
+                        </td>
+                        <td className="px-3 py-2 text-center">
+                          {inv.recipient?.type === 'COMPANY'
+                            ? inv.recipient?.companyName
+                            : `${inv.recipient?.recipientName ?? ''} ${inv.recipient?.recipientSurname ?? ''}`}
+                        </td>
+                        <td className="px-3 py-2 text-center">
+                          {inv.isCancelled ? (
+                            <span className="px-2 py-1 rounded bg-red-100 text-red-600">Cancelled</span>
+                          ) : inv.transactionNumber ? (
+                            <span className="px-2 py-1 rounded bg-green-100 text-green-700">Paid</span>
+                          ) : (
+                            <span className="px-2 py-1 rounded bg-yellow-100 text-yellow-700">Unpaid</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
           </section>
 
-          {/* Documents Section */}
+         {/* Documents Section */}
           <section className="px-8 py-6 border-b border-neutral-200">
-            <div>
-              <div className="grid grid-cols-4 font-semibold text-neutral-700 text-xs uppercase border-b border-neutral-200 pb-2 mb-2">
-                <div className="col-span-1">Document</div>
-                <div className="col-span-1 text-center">Course Code</div>
-                <div className="col-span-1 text-center">Type</div>
-                <div className="col-span-1"></div>
-              </div>
-              
-              {/* Document list or empty state */}
-              <div className="text-black">
-                {sanitizedDocuments.length === 0 ? (
-                  <div className="flex items-center px-2 py-2 text-neutral-400 italic text-xs bg-white rounded">
-                    No documents found
-                  </div>
-                ) : (
-                  sanitizedDocuments.map((doc) => (
-                    <div
-                      key={doc.id}
-                      className="grid grid-cols-4 items-center py-2 border-b border-neutral-100 last:border-b-0 bg-white transition-colors hover:bg-blue-50"
-                    >
-                      <div className="col-span-1 flex items-center gap-2">
-                        <a
-                          href={doc.file}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-700 hover:text-blue-900 font-medium text-sm truncate max-w-[140px]"
-                          title={doc.file.split('/').pop()}
-                        >
-                          {doc.file.split('/').pop()}
-                        </a>
-                      </div>
-                      <div className="col-span-1 flex items-center justify-center text-xs text-neutral-600">
-                        {doc.courseRegistration?.course?.code ? (
-                          <span title={doc.courseRegistration.course.code}>{doc.courseRegistration.course.code}</span>
-                        ) : (
-                          <span className="text-neutral-300">—</span>
-                        )}
-                      </div>
-                      <div className="col-span-1 flex items-center justify-center text-xs text-neutral-600">
-                        {labelMap[doc.role] || doc.role}
-                      </div>
-                      <div className="col-span-1 flex justify-end pl-2">
-                        <RemoveButton 
-                          itemId={doc.id} 
-                          onRemove={removeDocument}
-                          title="Remove Document"
-                          message="Are you sure you want to remove this document? You will no longer have access to it."
-                          fieldName="documentId"
-                        />
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
+            <h2 className="text-sm font-semibold text-neutral-800 mb-2">Documents</h2>
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-xs border border-neutral-200 rounded">
+                <thead>
+                  <tr className="bg-neutral-100">
+                    <th className="px-3 py-2 text-left font-semibold">Document</th>
+                    <th className="px-3 py-2 text-center font-semibold">Course Code</th>
+                    <th className="px-3 py-2 text-center font-semibold">Type</th>
+                    <th className="px-3 py-2 text-center font-semibold">Aktion</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sanitizedDocuments.length === 0 ? (
+                    <tr>
+                      <td colSpan={4} className="px-3 py-2 text-neutral-400 italic text-xs bg-white rounded text-center">
+                        No documents found
+                      </td>
+                    </tr>
+                  ) : (
+                    sanitizedDocuments.map((doc) => (
+                      <tr key={doc.id} className="border-t border-neutral-200 bg-white hover:bg-blue-50 transition">
+                        <td className="px-3 py-2">
+                          <DownloadPDFLink
+                            uuidString={doc.courseRegistrationId || doc.courseRegistration?.id}
+                            filename={doc.file}
+                            className="text-blue-700 hover:text-blue-900 font-medium text-sm"
+                            displayName={doc.file.split('/').pop()}
+                          />
+                        </td>
+                        <td className="px-3 py-2 text-center">
+                          {doc.courseRegistration?.course?.code ?? <span className="text-neutral-300">—</span>}
+                        </td>
+                        <td className="px-3 py-2 text-center">
+                          {labelMap[doc.role] || doc.role}
+                        </td>
+                        <td className="px-3 py-2 text-center flex justify-center items-center">
+                          <RemoveButton 
+                            itemId={doc.id} 
+                            onRemove={removeDocument}
+                            title="Remove Document"
+                            message="Are you sure you want to remove this document? You will no longer have access to it."
+                            fieldName="documentId"
+                          />
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
           </section>
 
