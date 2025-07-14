@@ -219,7 +219,6 @@ model User {
   id        String   @id @default(uuid())
   email     String   @unique
   roles     UserRole[]
-  // weitere Felder...
 }
 
 model UserRole {
