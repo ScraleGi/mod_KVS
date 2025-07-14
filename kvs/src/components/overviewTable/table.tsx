@@ -1,5 +1,6 @@
 "use client"
 import { CourseParticipantsDialog } from "../participants/CourseParticipantsDialog"
+import { TrainerCourseDialog } from "../trainer/TrainerCourseDialog"
 import { CoursesDialog } from "../participants/participantCoursesDialog"
 import { FilterHeader } from "./FilterHeader"
 import { DoubleFilterHeader } from "./DoubleFilterHeader"
@@ -78,6 +79,16 @@ export type ProgramRow = {
   courses: number
   teachingUnits: number | null
   price: number | null
+}
+
+export type TrainerRow = {
+  id: string
+  name: string
+  surname: string
+  email: string
+  phoneNumber: string
+  mainCourses?: { id: string; name: string; startDate?: string }[]
+  courses?: { id: string; name: string; startDate?: string }[]
 }
 
 // -------------------- Table Columns Definition --------------------
@@ -562,6 +573,110 @@ export const programColumns: ColumnDef<ProgramRow>[] = [
         </Link>
       </div>
     ),
+  },
+]
+export const trainerColumns: ColumnDef<TrainerRow>[] = [
+  {
+    accessorKey: "name",
+    header: ({ column }) => (
+      <FilterHeader
+        column={column}
+        label="Vorname"
+        placeholder="Filter Vorname..."
+      />
+    ),
+    cell: ({ row }) => (
+      <Link
+        href={`/trainer/${row.original.id}`}
+        className="relative text-blue-600 hover:text-blue-800 pl-2 inline-block after:content-[''] after:absolute after:left-8 after:bottom-0 after:w-0 hover:after:w-[calc(100%-2rem)] after:h-[2px] after:bg-blue-600 after:transition-all after:duration-300"
+      >
+        {row.original.name} {row.original.surname}
+      </Link>
+    ),
+  },
+  {
+    accessorKey: "email",
+    header: ({ column }) => (
+      <FilterHeader
+        column={column}
+        label="E-Mail"
+        placeholder="Filter E-Mail..."
+      />
+    ),
+    cell: ({ row }) => (
+      <span className="block pl-2">{row.getValue("email")}</span>
+    ),
+  },
+  {
+    accessorKey: "phoneNumber",
+    header: ({ column }) => (
+      <FilterHeader
+        column={column}
+        label="Telefon"
+        placeholder="Filter Telefon..."
+      />
+    ),
+    cell: ({ row }) => (
+      <span className="block pl-2">{row.getValue("phoneNumber")}</span>
+    ),
+  },
+  {
+    accessorKey: "mainCourses",
+    header: ({ column }) => (
+      <FilterHeader
+        column={column}
+        label="Hauptkurse"
+        placeholder="Filter Hauptkurse..."
+      />
+    ),
+    cell: ({ row }) => (
+      <span className="block pl-2">
+        <TrainerCourseDialog courses={row.original.mainCourses ?? []}>
+          {row.original.mainCourses?.length ?? 0}
+        </TrainerCourseDialog>
+      </span>
+    ),
+    filterFn: (row, columnId, filterValue) => {
+      const value = row.getValue(columnId)
+      if (!value || !Array.isArray(value)) return false
+      const count = value.length
+      if (typeof filterValue === "number") {
+        return count === filterValue
+      } else if (typeof filterValue === "string") {
+        const num = parseInt(filterValue, 10)
+        return !isNaN(num) && count === num
+      }
+      return false
+    },
+  },
+  {
+    accessorKey: "courses",
+    header: ({ column }) => (
+      <FilterHeader
+        column={column}
+        label="Kurse"
+        placeholder="Filter Kurse..."
+      />
+    ),
+    cell: ({ row }) => (
+     <span className="block pl-2">
+      <TrainerCourseDialog courses={row.original.courses ?? []}>
+        {row.original.courses?.length ?? 0}
+      </TrainerCourseDialog>
+      </span>
+    ),
+    filterFn: (row, columnId, filterValue) => {
+      const value = row.getValue(columnId)
+      if (!value || !Array.isArray(value)) return false
+      const count = value.length
+      if (typeof filterValue === "number") {
+        return count === filterValue
+      } else if (typeof filterValue === "string") {
+        const num = parseInt(filterValue, 10)
+        return !isNaN(num) && count === num
+      }
+      return false
+    },
   },
 ]
 

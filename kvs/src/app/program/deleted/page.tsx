@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { db } from '@/lib/db'
 import { sanitize } from '@/lib/sanitize'
+import ClientToasterWrapper from './ClientToasterWrapper'
 
 // Server action to restore a program
 async function restoreProgram(formData: FormData) {
@@ -19,7 +20,7 @@ async function restoreProgram(formData: FormData) {
     throw error
   }
   
-  redirect('/program/deleted')
+  redirect('/program?restored=1')
 }
 
 export default async function DeletedProgramsPage() {
@@ -35,11 +36,12 @@ export default async function DeletedProgramsPage() {
 
     return (
       <div className="min-h-screen bg-gray-50 py-10 px-4 flex items-center justify-center">
+        <ClientToasterWrapper />
         <div className="w-full max-w-2xl">
           <div className="bg-white rounded-xl shadow border border-gray-100 px-8 py-10">
-            <h1 className="text-2xl font-bold text-gray-900 mb-8 tracking-tight">Deleted Programs</h1>
+            <h1 className="text-2xl font-bold text-gray-900 mb-8 tracking-tight">Gelöschte Programme</h1>
             {deletedPrograms.length === 0 ? (
-              <p className="text-gray-500 text-sm">No deleted programs found.</p>
+              <p className="text-gray-500 text-sm">Keine gelöschten Programme gefunden.</p>
             ) : (
               <ul className="space-y-4">
                 {deletedPrograms.map(program => (
@@ -55,7 +57,7 @@ export default async function DeletedProgramsPage() {
                         </span>
                       )}
                       <div className="text-xs text-gray-500 mt-1">
-                        Deleted: {program.deletedAt ? new Date(program.deletedAt).toLocaleString() : 'Unknown'}
+                        Gelöscht: {program.deletedAt ? new Date(program.deletedAt).toLocaleString() : 'Unknown'}
                       </div>
                     </div>
                     <form action={restoreProgram}>
@@ -64,7 +66,7 @@ export default async function DeletedProgramsPage() {
                         type="submit"
                         className="cursor-pointer px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold rounded-lg shadow-sm transition"
                       >
-                        Restore
+                        Wiederherstellen
                       </button>
                     </form>
                   </li>
@@ -79,7 +81,7 @@ export default async function DeletedProgramsPage() {
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
-                Back to Programs
+                Programme
               </Link>
             </div>
           </div>
@@ -92,7 +94,7 @@ export default async function DeletedProgramsPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="max-w-md bg-white rounded-sm shadow border border-gray-100 p-6">
-          <div className="text-lg text-red-500 mb-4">Error loading deleted programs</div>
+          <div className="text-lg text-red-500 mb-4">Fehler beim laden der gelöschten Programme.</div>
           <Link
             href="/program"
             className="inline-flex items-center text-xs font-medium text-gray-500 hover:text-blue-700 transition-colors"
@@ -100,7 +102,7 @@ export default async function DeletedProgramsPage() {
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
-            Back to Programs
+            Programme
           </Link>
         </div>
       </div>

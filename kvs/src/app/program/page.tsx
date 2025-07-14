@@ -8,6 +8,7 @@ import { CourseTable, programColumns } from '@/components/overviewTable/table'
 import { db } from '@/lib/db'
 import { sanitize } from '@/lib/sanitize'
 import { SanitizedProgram } from '@/types/query-models';
+import ProgramToaster from './[id]/ProgramToaster';
 
 //---------------------------------------------------
 // DATA FETCHING
@@ -76,9 +77,10 @@ export default async function ProgramsPage({
     //---------------------------------------------------
     return (
       <div className="min-h-screen bg-neutral-50 py-10 px-4">
+        <ProgramToaster />
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-2xl font-bold text-neutral-900 tracking-tight">Programs</h1>
+          <h1 className="text-2xl font-bold text-neutral-900 tracking-tight">Programme</h1>
           <div className="flex gap-2">
             <Link
               href="/program/new"
@@ -112,13 +114,13 @@ export default async function ProgramsPage({
         {/* Display appropriate message if no programs exist */}
         {tableData.length === 0 ? (
           <div className="bg-white rounded-lg shadow-md p-8 text-center">
-            <p className="text-neutral-600 mb-4">No programs found.</p>
+            <p className="text-neutral-600 mb-4">Keine Programme gefunden.</p>
             <Link
               href="/program/new"
               className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
             >
               <Plus className="h-4 w-4" />
-              Create your first program
+              Programm erstellen
             </Link>
           </div>
         ) : (
@@ -138,10 +140,10 @@ export default async function ProgramsPage({
         <div className="max-w-md w-full px-4 bg-white rounded-xl shadow-md border border-neutral-100 p-8">
           <h1 className="text-xl font-bold text-red-600 mb-4">Error</h1>
           <p className="text-neutral-700 mb-6">
-            An error occurred while loading the programs. Please try again later.
+             Beim Laden der Programme ist ein Fehler aufgetreten. Bitte versuchen Sie es später noch einmal.
           </p>
           <Link href="/" className="text-blue-500 hover:text-blue-700">
-            &larr; Back to Home
+            &larr; Startseite
           </Link>
         </div>
       </div>
