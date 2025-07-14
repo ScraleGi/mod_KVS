@@ -135,7 +135,7 @@ export default async function InvoicePage({
       <div className="bg-white rounded-xl shadow border border-gray-100 p-8 max-w-xl w-full">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
-            Invoice #{invoice.invoiceNumber}
+            Rechnung #{invoice.invoiceNumber}
           </h1>
           
           {/* Add Edit button */}
