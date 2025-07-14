@@ -97,8 +97,11 @@ export async function generateInvoice(formData: FormData) {
           }
         }
       })
-console.log("registration", registration)      
-console.log(invoiceCountForCourse, 'invoiceCountForCourse')
+     
+// debugger   
+
+// console.log("registration", registration)      
+// console.log(invoiceCountForCourse, 'invoiceCountForCourse')
 
       const nextSequential = invoiceCountForCourse + 1
       const paddedSequential = String(nextSequential).padStart(7, '0')
