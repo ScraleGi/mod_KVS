@@ -17,8 +17,10 @@ async function createProgram(formData: FormData) {
     throw new Error('Code, Name, and Area are required')
   }
 
+  let program;
+
   try {
-    await db.program.create({
+    program = await db.program.create({
       data: {
         code,
         name,
@@ -32,9 +34,7 @@ async function createProgram(formData: FormData) {
     console.error('Failed to create program:', error)
     throw error
   }
-  
-  // Redirect outside the try/catch block
-  redirect('/program')
+  redirect(`/program/${program?.id}?created=1`)
 }
 
 export default async function NewProgramPage() {
@@ -51,7 +51,7 @@ export default async function NewProgramPage() {
           <div className="bg-white rounded-sm shadow border border-gray-100">
             <div className="px-6 py-8">
               <h1 className="text-xl font-bold text-gray-900 mb-8 tracking-tight">
-                Add New Program
+                Programm hinzufügen
               </h1>
               <form action={createProgram} className="space-y-6">
                 <div className="space-y-1">
@@ -82,7 +82,7 @@ export default async function NewProgramPage() {
                 </div>
                 <div className="space-y-1">
                   <label htmlFor="areaId" className="block text-xs font-medium text-gray-600">
-                    Area
+                    Bereich
                   </label>
                   <select
                     id="areaId"
@@ -92,7 +92,7 @@ export default async function NewProgramPage() {
                     className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                   >
                     <option value="" disabled>
-                      Select area
+                      Bereich wählen
                     </option>
                     {areas.map(area => (
                       <option key={area.id} value={area.id}>
@@ -103,7 +103,7 @@ export default async function NewProgramPage() {
                 </div>
                 <div className="space-y-1">
                   <label htmlFor="description" className="block text-xs font-medium text-gray-600">
-                    Description
+                    Beschreibung
                   </label>
                   <textarea
                     id="description"
@@ -115,7 +115,7 @@ export default async function NewProgramPage() {
                 </div>
                 <div className="space-y-1">
                   <label htmlFor="teachingUnits" className="block text-xs font-medium text-gray-600">
-                    Teaching Units
+                    Unterrichtseinheiten
                   </label>
                   <input
                     id="teachingUnits"
@@ -128,7 +128,7 @@ export default async function NewProgramPage() {
                 </div>
                 <div className="space-y-1">
                   <label htmlFor="price" className="block text-xs font-medium text-gray-600">
-                    Price (€)
+                    Preis (€)
                   </label>
                   <input
                     id="price"
@@ -143,9 +143,9 @@ export default async function NewProgramPage() {
                 <div className="pt-2 flex items-center justify-between">
                   <button
                     type="submit"
-                    className="inline-flex items-center px-5 py-2 border border-transparent text-xs font-semibold rounded text-white bg-blue-600 hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    className="inline-flex cursor-pointer items-center px-5 py-2 border border-transparent text-xs font-semibold rounded text-white bg-blue-600 hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                   >
-                    Create Program
+                    Programm erstellen 
                   </button>
                   <Link
                     href="/program"
@@ -154,7 +154,7 @@ export default async function NewProgramPage() {
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                     </svg>
-                    Back to Programs
+                    Programme
                   </Link>
                 </div>
               </form>
@@ -169,7 +169,7 @@ export default async function NewProgramPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="max-w-md bg-white rounded-sm shadow border border-gray-100 p-6">
-          <div className="text-lg text-red-500 mb-4">Error loading form</div>
+          <div className="text-lg text-red-500 mb-4">Fehler beim laden des Formulars</div>
           <Link
             href="/program"
             className="inline-flex items-center text-xs font-medium text-gray-500 hover:text-blue-700 transition-colors"
@@ -177,7 +177,7 @@ export default async function NewProgramPage() {
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
-            Back to Programs
+            Programme
           </Link>
         </div>
       </div>

@@ -2,6 +2,7 @@ import { db } from '@/lib/db'
 import { sanitize } from '@/lib/sanitize'
 import { CourseTable, participantColumns, ParticipantRow } from "@/components/overviewTable/table"
 import { AddParticipantButton } from "@/components/participants/buttonAddParticipant"
+import ParticipantToaster from './[id]/ParticipantToaster'
 import Link from 'next/link'
 
 //---------------------------------------------------
@@ -55,6 +56,7 @@ export default async function ParticipantOverviewPage() {
     //---------------------------------------------------
     return (
       <div className="container mx-auto py-8 px-4">
+        <ParticipantToaster />
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Participant Overview</h1>
           <div className="flex items-center space-x-2">

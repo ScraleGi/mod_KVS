@@ -29,7 +29,7 @@ export default async function EditProgramPage({
     if (!program) {
       return (
         <div className="min-h-screen flex items-center justify-center">
-          <div className="text-lg text-red-500">Program not found.</div>
+          <div className="text-lg text-red-500">Keine Programme gefunden.</div>
         </div>
       )
     }
@@ -65,7 +65,7 @@ export default async function EditProgramPage({
       }
       
       // Redirect outside the try/catch block
-      redirect('/program')
+      redirect(`/program/${id}?edited=1`)
     }
 
     // Soft Delete Handler
@@ -85,7 +85,7 @@ export default async function EditProgramPage({
       }
       
       // Redirect outside the try/catch block
-      redirect('/program')
+      redirect('/program/deleted?deleted=1')
     }
 
     return (
@@ -94,7 +94,7 @@ export default async function EditProgramPage({
           <div className="bg-white rounded-sm shadow border border-gray-100">
             <div className="px-6 py-8">
               <h1 className="text-xl font-bold text-gray-900 mb-8 tracking-tight">
-                Edit Program
+                Programm bearbeiten
               </h1>
               <form action={changeProgram} className="space-y-6">
                 <input type="hidden" name="id" value={id} />
@@ -128,7 +128,7 @@ export default async function EditProgramPage({
                 </div>
                 <div className="space-y-1">
                   <label htmlFor="areaId" className="block text-xs font-medium text-gray-600">
-                    Area
+                    Bereich
                   </label>
                   <select
                     id="areaId"
@@ -147,7 +147,7 @@ export default async function EditProgramPage({
                 </div>
                 <div className="space-y-1">
                   <label htmlFor="description" className="block text-xs font-medium text-gray-600">
-                    Description
+                    Beschreibung
                   </label>
                   <textarea
                     id="description"
@@ -160,7 +160,7 @@ export default async function EditProgramPage({
                 </div>
                 <div className="space-y-1">
                   <label htmlFor="teachingUnits" className="block text-xs font-medium text-gray-600">
-                    Teaching Units
+                    Unterrichtseinheiten
                   </label>
                   <input
                     id="teachingUnits"
@@ -174,7 +174,7 @@ export default async function EditProgramPage({
                 </div>
                 <div className="space-y-1">
                   <label htmlFor="price" className="block text-xs font-medium text-gray-600">
-                    Price (€)
+                    Preis (€)
                   </label>
                   <input
                     id="price"
@@ -190,9 +190,9 @@ export default async function EditProgramPage({
                 <div className="pt-2 flex items-center justify-between">
                   <button
                     type="submit"
-                    className="inline-flex items-center px-5 py-2 border border-transparent text-xs font-semibold rounded text-white bg-blue-600 hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    className="inline-flex items-center px-5 py-2 cursor-pointer border border-transparent text-xs font-semibold rounded text-white bg-blue-600 hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                   >
-                    Save Changes
+                    Speichern
                   </button>
                   <Link
                     href={`/program/${id}`}
@@ -201,7 +201,7 @@ export default async function EditProgramPage({
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                     </svg>
-                    Back to Details
+                    Details
                   </Link>
                   <Link
                     href={`/program/`}
@@ -210,7 +210,7 @@ export default async function EditProgramPage({
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                     </svg>
-                    Back to Programs
+                    Programme
                   </Link>
                 </div>
               </form>
@@ -221,8 +221,8 @@ export default async function EditProgramPage({
             <div className="px-6 py-4 bg-gray-50 rounded-b-sm">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-sm font-medium text-gray-700">Danger Zone</h3>
-                  <p className="text-xs text-gray-500 mt-1">This action will soft-delete Program</p>
+                  <h3 className="text-sm font-medium text-gray-700">Archiv</h3>
+                  <p className="text-xs text-gray-500 mt-1">Programm archivieren</p>
                 </div>
                 <RemoveButton
                   itemId={id}
@@ -233,13 +233,13 @@ export default async function EditProgramPage({
                   customButton={
                     <button
                       type="submit"
-                      className="px-3 py-1.5 bg-white border border-red-300 rounded text-sm text-red-600 hover:bg-red-50 hover:border-red-400 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-30"
+                      className="px-3 py-1.5 cursor-pointer bg-white border border-red-300 rounded text-sm text-red-600 hover:bg-red-50 hover:border-red-400 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-30"
                     >
                       <div className="flex items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                         </svg>
-                        Delete
+                        Archivieren
                       </div>
                     </button>
                   }
@@ -255,7 +255,7 @@ export default async function EditProgramPage({
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-lg text-red-500">
-          An error occurred while loading the program. Please try again.
+          Beim Laden des Programms ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.
         </div>
       </div>
     )

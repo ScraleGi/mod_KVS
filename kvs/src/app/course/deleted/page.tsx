@@ -40,11 +40,11 @@ export default async function DeletedCoursesPage() {
     <div className="min-h-screen bg-gray-50 py-10 px-4 flex items-center justify-center">
       <div className="w-full max-w-2xl">
         <div className="bg-white rounded-xl shadow border border-gray-100 px-8 py-10">
-          <h1 className="text-2xl font-bold text-gray-900 mb-8 tracking-tight">Deleted Courses</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-8 tracking-tight">Archivierte Kurse</h1>
           
           {/* Show message when no deleted courses exist */}
           {deletedCourses.length === 0 ? (
-            <p className="text-gray-500 text-sm">No deleted courses found.</p>
+            <p className="text-gray-500 text-sm">Keine archivierten Kurse gefunden.</p>
           ) : (
             <ul className="space-y-4">
               {deletedCourses.map(course => (
@@ -61,7 +61,7 @@ export default async function DeletedCoursesPage() {
                     </span>
                     {course.deletedAt && (
                       <span className="ml-4 text-red-500 text-xs">
-                        Deleted: {formatDate(course.deletedAt)}
+                        Archiviert: {formatDate(course.deletedAt)}
                       </span>
                     )}
                   </div>
@@ -74,7 +74,7 @@ export default async function DeletedCoursesPage() {
                       className="cursor-pointer px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold rounded-lg shadow-sm transition"
                       aria-label={`Restore ${course.program?.name || 'course'}`}
                     >
-                      Restore
+                      Wiederherstellen
                     </button>
                   </form>
                 </li>
@@ -90,7 +90,7 @@ export default async function DeletedCoursesPage() {
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
-            Back to Courses
+            Zurück zur Startseite
           </Link>
         </div>
       </div>

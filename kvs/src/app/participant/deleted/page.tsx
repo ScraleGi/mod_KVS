@@ -5,6 +5,7 @@ import { db } from '@/lib/db'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { sanitize } from '@/lib/sanitize'
+import ClientToasterWrapper from './ClientToasterWrapper'
 
 //---------------------------------------------------
 // SERVER ACTIONS
@@ -23,7 +24,7 @@ async function restoreParticipant(formData: FormData) {
     throw error
   }
   
-  redirect('/participant/deleted')
+  redirect('/participant?restored=1')
 }
 
 //---------------------------------------------------
@@ -47,6 +48,7 @@ export default async function DeletedParticipantsPage() {
     //---------------------------------------------------
     return (
       <div className="min-h-screen bg-neutral-50 py-10 px-4 flex items-center justify-center">
+        <ClientToasterWrapper />
         <div className="w-full max-w-2xl">
           <div className="bg-white rounded-2xl shadow-md border border-neutral-100 px-8 py-10">
             <h1 className="text-2xl font-bold text-neutral-900 mb-6 tracking-tight">Archived Participants</h1>

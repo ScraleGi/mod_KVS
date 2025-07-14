@@ -185,6 +185,8 @@ export interface SanitizedCourse {
 export interface SanitizedInvoiceRecipient {
   id: string;
   type: RecipientType;
+  participantId?: string | null; 
+  recipientSalutation?: string | null; 
   recipientName?: string | null;
   recipientSurname?: string | null;
   companyName?: string | null;

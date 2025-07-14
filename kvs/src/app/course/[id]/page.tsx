@@ -2,261 +2,208 @@ import React from 'react'
 import Link from 'next/link'
 import { db } from '@/lib/db'
 import { sanitize } from '@/lib/sanitize'
-import { Course } from '@/types/models'
 import { formatFullName, formatDateGerman } from '@/lib/utils'
+import { CourseTable, courseParticipantsColumns, CourseParticipantRow } from '@/components/overviewTable/table'
+import type { CourseWithDetailedRelations } from '@/types/query-models'
 
-/**
- * Extended Course type with nested relations for the detailed view
- */
-interface CourseWithRelations extends Omit<Course, 'program' | 'mainTrainer' | 'trainers' | 'registrations'> {
-  program: {
-    name: string;
-    area: {
-      name: string;
-    } | null;
-  } | null;
-  mainTrainer: {
-    name: string;
-    surname: string;
-    title?: string | null;
-  } | null;
-  trainers: {
-    name: string;
-    surname: string;
-    title?: string | null;
-  }[];
-  registrations: {
-    id: string;
-    participant: {
-      name: string;
-      surname: string;
-    } | null;
-    invoices: {
-      id: string;
-      invoiceNumber: string;
-      dueDate: Date | null;
-    }[];
-    generatedDocuments: {
-      id: string;
-      file: string;
-      role: string;
-      createdAt: Date;
-    }[];
-  }[];
+// Extend the type locally to include email, phoneNumber, discountAmount, subsidyAmount
+type ParticipantWithContact = {
+  name: string
+  surname: string
+  email: string
+  phoneNumber: string
 }
 
-/**
- * Format date to German locale format (DD.MM.YYYY)
- */
+type RegistrationWithAmounts = {
+  id: string
+  participant: ParticipantWithContact | null
+  invoices: { 
+    id: string
+    invoiceNumber: string
+    dueDate: Date | null
+    isCancelled?: boolean 
+  }[]
+  generatedDocuments: { id: string; file: string; role: string; createdAt: Date }[]
+  discountAmount?: string | number | null
+  subsidyAmount?: string | number | null
+  discountRemark?: string | null   
+  subsidyRemark?: string | null     
+}
+
+type CourseWithParticipants = Omit<CourseWithDetailedRelations, 'registrations'> & {
+  registrations: RegistrationWithAmounts[]
+}
 
 export default async function CoursePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
 
-  // Fetch course with related data, including generatedDocuments for each registration
   const courseData = await db.course.findUnique({
     where: { id },
     include: {
       program: { include: { area: true } },
       mainTrainer: true,
       trainers: true,
-      registrations: {
-        where: { 
-          deletedAt: null, // Only include active registrations
-          participant: {
-            deletedAt: null // Also filter out registrations of soft-deleted participants
-          }
-        }, 
-        include: {
-          participant: true,
-          invoices: true,
-          generatedDocuments: {
-            where: { deletedAt: null },
-            orderBy: { createdAt: 'desc' }
-          }
-        },
-      },
+registrations: {
+  where: { 
+    deletedAt: null,
+    participant: { deletedAt: null }
+  },
+  select: {
+    id: true,
+    participant: {
+      select: {
+        name: true,
+        surname: true,
+        email: true,
+        phoneNumber: true,
+      }
+    },
+    invoices: {
+      select: {
+        id: true,
+        invoiceNumber: true,
+        dueDate: true,
+        isCancelled: true, // <-- Add this!
+      }
+    },
+    generatedDocuments: {
+      where: { deletedAt: null },
+      orderBy: { createdAt: 'desc' }
+    },
+    discountAmount: true,
+    subsidyAmount: true,
+    discountRemark: true,
+    subsidyRemark: true,
+  }
+},
     },
   })
 
-  // Sanitize data to handle any Decimal values
-  const course = sanitize<typeof courseData, CourseWithRelations>(courseData)
+  const course = sanitize<typeof courseData, CourseWithParticipants>(courseData)
 
-  // Show error if course not found
   if (!course) {
     return (
       <div className="container mx-auto py-8 px-4">
         <Link href="/" className="text-blue-500 hover:underline mb-6 block">
-          &larr; Zurück zur Startseite
+          &larr; Startseite
         </Link>
         <div className="text-red-600 text-lg font-semibold">Kurse nicht gefunden.</div>
       </div>
     )
   }
 
+  // Prepare participantRows for the table, now fully type-safe
+  const participantRows: CourseParticipantRow[] = course.registrations.map(reg => ({
+    id: reg.id,
+    participant: reg.participant
+      ? {
+          name: reg.participant.name ?? "",
+          surname: reg.participant.surname ?? "",
+          email: reg.participant.email ?? "",
+          phoneNumber: reg.participant.phoneNumber ?? "",
+        }
+      : { name: "", surname: "", email: "", phoneNumber: "" },
+    invoices: reg.invoices.map(inv => ({
+      id: inv.id,
+      invoiceNumber: inv.invoiceNumber,
+      dueDate: inv.dueDate,
+      isCancelled: inv.isCancelled
+    })),
+    generatedDocuments: reg.generatedDocuments.map(doc => ({
+      id: doc.id,
+      file: doc.file,
+      role: doc.role,
+      createdAt: doc.createdAt,
+    })),
+    discountAmount: reg.discountAmount ?? null,
+    subsidyAmount: reg.subsidyAmount ?? null,
+    discountRemark: reg.discountRemark ?? null,   
+    subsidyRemark: reg.subsidyRemark ?? null,    
+  }))
+
   return (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="container mx-auto py-8 px-4">
-        {/* Navigation links */}
-        <div className="flex justify-left gap-6 mb-8">
-          <Link href="/course" className="text-blue-500 hover:underline">
-            &larr; Zurück zu Kurse
+    <div className="min-h-screen bg-gray-50 py-10 px-4">
+      <div className="max-w-[1800px] mx-auto">
+        {/* Navigation */}
+        <div className="flex justify-between items-center mb-8">
+          <Link href="/" className="text-blue-500 hover:underline text-sm">
+            &larr; Startseite
           </Link>
-          <Link href="/" className="text-blue-500 hover:underline">
-            &larr; Zurück zur Startseite
-          </Link>
+          <div className="flex-1 flex justify-center items-center relative">
+            <h1 className="text-3xl font-bold text-gray-900">{course.program?.name ?? 'Course'}</h1>
+            <Link
+              href={`/course/${course.id}/edit`}
+              className="absolute right-0 text-gray-400 hover:text-blue-600 transition ml-4"
+              title="Kurs bearbeiten"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              </svg>
+            </Link>
+          </div>
+          <div />
         </div>
 
-        <h1 className="text-3xl font-bold mb-6">{course.program?.name ?? 'Course'}</h1>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Main course details and participants */}
-          <div className="md:col-span-2">
-            {/* Course information card */}
-            <div className="bg-white shadow rounded-lg p-6 mb-6 flex flex-col md:flex-row md:gap-8">
-              <div className="flex-1">
-                {/* Course Code */}
-                <div className="flex items-center mb-4">
-                  <span className="font-semibold mr-2">Code:</span>
-                  <span>{course.code ?? 'N/A'}</span>
+        {/* Organized Course Info Card */}
+        <div className="bg-white shadow rounded-lg p-8 mb-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Left: Main Info */}
+            <div>
+              <dl className="divide-y divide-gray-200">
+                <div className="py-3 flex justify-between">
+                  <dt className="font-semibold text-gray-700">Code</dt>
+                  <dd>{course.code ?? <span className="text-gray-400">N/A</span>}</dd>
                 </div>
-                {/* Area information */}
-                <div className="flex items-center mb-4">
-                  <span className="font-semibold mr-2">Bereich:</span>
-                  <span>{course.program?.area?.name ?? 'Unknown'}</span>
+                <div className="py-3 flex justify-between">
+                  <dt className="font-semibold text-gray-700">Bereich</dt>
+                  <dd>{course.program?.area?.name ?? <span className="text-gray-400">Unbekannt</span>}</dd>
                 </div>
-                
-                {/* Trainer information */}
-                <div className="flex items-center mb-4">
-                  <span className="font-semibold mr-2">Trainer:</span>
-                  <span>
+                <div className="py-3 flex justify-between">
+                  <dt className="font-semibold text-gray-700">Start</dt>
+                  <dd>{formatDateGerman(course.startDate)}</dd>
+                </div>
+                <div className="py-3 flex justify-between">
+                  <dt className="font-semibold text-gray-700">Ende</dt>
+                  <dd>{formatDateGerman(course.endDate)}</dd>
+                </div>
+              </dl>
+            </div>
+            {/* Right: Trainer Info */}
+            <div>
+              <dl className="divide-y divide-gray-200">
+                <div className="py-3 flex justify-between">
+                  <dt className="font-semibold text-gray-700">Anmeldungen</dt>
+                  <dd>{course.registrations.length}</dd>
+                </div>
+                <div className="py-3 flex justify-between">
+                  <dt className="font-semibold text-gray-700">Trainer</dt>
+                  <dd>
                     {course.mainTrainer
                       ? formatFullName(course.mainTrainer)
-                      : 'N/A'}
-                  </span>
-                  {course.trainers && course.trainers.length > 0 && (
-                    <span className="ml-2 text-xs text-gray-600 bg-gray-100 rounded px-2 py-1">
-
-                      Co-Trainer: {course.trainers.map(t => formatFullName(t)).join(', ')}
-                    </span>
-                  )}
+                      : <span className="text-gray-400">N/A</span>}
+                  </dd>
                 </div>
-                
-                {/* Date information */}
-                <div className="flex items-center mb-4">
-                  <span className="font-semibold mr-2">Start Datum:</span>
-                  <span>{formatDateGerman(course.startDate)}</span>
+                <div className="py-3 flex justify-between">
+                  <dt className="font-semibold text-gray-700">Co-Trainer</dt>
+                  <dd>
+                    {course.trainers && course.trainers.length > 0
+                      ? course.trainers.map(t => formatFullName(t)).join(', ')
+                      : <span className="text-gray-400">—</span>}
+                  </dd>
                 </div>
-                <div className="flex items-center mb-4">
-
-                  <span className="font-semibold mr-2">End Datum:</span>
-                  <span>{formatDateGerman(course.endDate)}</span>
+                <div className="py-3 flex justify-between">
+                  <dt className="font-semibold text-gray-700">Ort</dt>  {/* Logik fehlt noch*/}
+                  <dd>
+                    <span className="text-gray-400">—</span>
+                  </dd>
                 </div>
-                
-                {/* Registration count */}
-                <div className="flex items-center mb-4">
-                  <span className="font-semibold mr-2">Registrationen:</span>
-                  <span>{course.registrations.length}</span>
-                </div>
-              </div>
-              
-              {/* Action buttons */}
-              <div className="flex flex-col gap-2 md:w-48 w-full mt-4 md:mt-0">
-                <button
-                  type="button"
-                  className="cursor-pointer w-full px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium rounded border border-blue-200 shadow-sm transition text-sm"
-                >
-                  Diplom generieren
-                </button>
-                <button
-                  type="button"
-                  className="cursor-pointer w-full px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-medium rounded border border-emerald-200 shadow-sm transition text-sm"
-                >
-                  Rechnung generieren
-                </button>
-              </div>
-            </div>
-
-            {/* Participants list */}
-            <div className="bg-white shadow rounded-lg p-6 mb-6">
-              <h2 className="text-xl font-bold mb-4">Teilnehmer</h2>
-              {course.registrations.length === 0 ? (
-                <p className="text-gray-500">Keine Teilnehmer registriert.</p>
-              ) : (
-                <ul className="divide-y divide-gray-200">
-                  {course.registrations.map(reg => (
-                    <li
-                      key={reg.id}
-                      className="py-4 flex flex-col md:flex-row md:items-start md:gap-6"
-                    >
-                      {/* Participant Name */}
-                      <div className="md:w-1/4 w-full mb-2 md:mb-0">
-                        <Link
-                          href={`/courseregistration/${reg.id}`}
-                          className="font-semibold text-blue-600 hover:text-blue-800"
-                        >
-                          {reg.participant
-                            ? `${reg.participant.name} ${reg.participant.surname ?? ''}`
-                            : 'Unknown'}
-                        </Link>
-                      </div>
-                      
-                      {/* Invoices */}
-                      <div className="md:w-1/3 w-full mb-2 md:mb-0 text-sm text-gray-600">
-                        <span className="font-semibold">Rechnungen: </span>
-                        {reg.invoices.length
-                          ? reg.invoices.map((inv, idx) => (
-                              <React.Fragment key={inv.id}>
-                                <Link
-                                  href={`/invoice/${inv.id}`}
-                                  className="text-blue-600 hover:text-blue-800"
-                                >
-                                  #{inv.invoiceNumber}
-                                </Link>
-                                {inv.dueDate && (
-                                  <span className="ml-1 text-xs text-gray-500">
-                                    (Fällig: {formatDateGerman(inv.dueDate)})
-                                  </span>
-                                )}
-                                {idx < reg.invoices.length - 1 && ", "}
-                              </React.Fragment>
-                            ))
-                          : "keine Rechnungen"}
-                      </div>
-                      
-                      {/* Documents */}
-                      <div className="md:w-1/3 w-full text-sm text-gray-600">
-                        <span className="font-semibold">Dokumente: </span>
-                        {reg.generatedDocuments && reg.generatedDocuments.length > 0 ? (
-                          reg.generatedDocuments.map((doc, idx) => (
-                            <React.Fragment key={doc.id}>
-                              <a
-                                href={doc.file}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-blue-600 hover:text-blue-800 underline"
-                              >
-                                {doc.file.split('/').pop()}
-                              </a>
-                              <span className="ml-1 text-xs text-gray-500">({doc.role})</span>
-                              {doc.createdAt && (
-                                <span className="ml-1 text-xs text-gray-400">
-                                  [{formatDateGerman(doc.createdAt)}]
-                                </span>
-                              )}
-                              {idx < reg.generatedDocuments.length - 1 && ", "}
-                            </React.Fragment>
-                          ))
-                        ) : (
-                          "keine Dokumente"
-                        )}
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
+              </dl>
             </div>
           </div>
         </div>
+
+        {/* Participants Table */}
+        <CourseTable data={participantRows} columns={courseParticipantsColumns} courseId={course.id} />
       </div>
     </div>
   )
