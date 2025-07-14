@@ -356,7 +356,7 @@ export default async function ParticipantDetailsPage({
                     {/* Downloadable invoice link with tooltip */}
                     <span 
                       className="truncate max-w-[120px] block" 
-                      title={`Invoice #${inv.id || inv.id || ''} - €${inv.amount?.toString() || ''}`}
+                      title={`#${inv.id || inv.id || ''} - €${inv.amount?.toString() || ''}`}
                     >
                       <DownloadPDFLink
                         uuidString={sanitizedRegistration.id}

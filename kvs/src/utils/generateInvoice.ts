@@ -44,15 +44,34 @@ export async function generateInvoice(formData: FormData) {
 
     const registration = await db.courseRegistration.findUnique({
       where: { id: registrationId },
-      include: { course: { include: { program: true } }, participant: true }
+      include: {
+        course: {
+          include: {
+            program: {
+              include: {
+                area: true, // ✅ to access area.code
+              }
+            }
+          }
+        },
+        participant: true,
+      }
     })
 
     if (!registration) {
       throw new Error(`Course registration with ID ${registrationId} not found`)
     }
 
+    const course = registration.course
+    const program = course?.program
+    const area = program?.area
+
+    if (!course || !program || !area) {
+      throw new Error("Missing course, program, or area information")
+    }
+
     const amountNumber = 1
-    const baseAmount: Decimal = (registration.course?.program?.price ?? new Decimal(0)).mul(amountNumber)
+    const baseAmount: Decimal = (program.price ?? new Decimal(0)).mul(amountNumber)
     const discountAmount: Decimal = (registration.discountAmount ?? new Decimal(0)).mul(amountNumber)
     const finalAmount = baseAmount.minus(discountAmount)
 
@@ -69,17 +88,21 @@ export async function generateInvoice(formData: FormData) {
     const maxRetries = 3
 
     while (!invoice && retries < maxRetries) {
-      const invoiceCountToday = await db.invoice.count({
+      const invoiceCountForCourse = await db.invoice.count({
         where: {
-          invoiceNumber: {
-            startsWith: `Rechnung-${datePrefix}`
+          courseRegistration: {
+            course: {
+              code: course.code,
+            }
           }
         }
       })
+console.log("registration", registration)      
+console.log(invoiceCountForCourse, 'invoiceCountForCourse')
 
-      const nextSequential = invoiceCountToday + 1
+      const nextSequential = invoiceCountForCourse + 1
       const paddedSequential = String(nextSequential).padStart(7, '0')
-      const invoiceNumber = `Rechnung-${datePrefix}_${paddedSequential}`
+      const invoiceNumber = `Rechnung-${course.code}-${paddedSequential}-${area.code}`
 
       try {
         invoice = await db.invoice.create({
@@ -111,8 +134,8 @@ export async function generateInvoice(formData: FormData) {
       recipient,
       registration,
       participant: registration.participant,
-      course: registration.course,
-      program: registration.course?.program,
+      course,
+      program,
       amountNumber,
       baseAmount,
       finalAmount,
