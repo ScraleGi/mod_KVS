@@ -209,4 +209,23 @@ model Holiday {
     @@unique([title, date]) // verhindert doppelte Feiertage pro Jahr
 }
 
+model Role {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  users     UserRole[]
+}
 
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  roles     UserRole[]
+  // weitere Felder...
+}
+
+model UserRole {
+  id     String @id @default(uuid())
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+  role   Role   @relation(fields: [roleId], references: [id])
+  roleId String
+}

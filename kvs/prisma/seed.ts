@@ -1007,6 +1007,36 @@ async function seedHoliday() {
   console.log(`✅ Feiertage für ${years.length} Jahre gespeichert.`);
 }
 
+async function seedRoles() {
+  const roles = [
+    { name: 'ADMIN'},
+    { name: 'TRAINER'},
+    { name: 'RECHNUNGSWESEN'},
+    { name: 'PROGRAMMMANAGER'},
+  ];
+  await db.role.createMany({ data: roles, skipDuplicates: true });
+}
+
+async function seedUsers() {
+  const users = [
+    { email: 'leonie@dc.at' },
+  ];
+  await db.user.createMany({ data: users, skipDuplicates: true });
+  // IDs für Zuordnung holen
+  const allUsers = await db.user.findMany();
+  return Object.fromEntries(allUsers.map(u => [u.email, u.id]));
+}
+
+async function seedUserRoles(userMap: Record<string, string>) {
+  const roles = await db.role.findMany();
+  const roleMap = Object.fromEntries(roles.map(r => [r.name, r.id]));
+  const userRoles = [
+    { userId: userMap['leonie@dc.at'], roleId: roleMap['ADMIN'] },
+  ];
+  await db.userRole.createMany({ data: userRoles, skipDuplicates: true });
+}
+
+
 // -------------------- Main Seed Function --------------------
 
 async function seedDatabase() {
@@ -1021,6 +1051,9 @@ async function seedDatabase() {
   const recipientMap = await seedInvoiceRecipients(participantMap)
   await seedInvoices(programMap, courseMap, participantMap, registrationMap, recipientMap)
   await seedHoliday()
+  await seedRoles();
+  const userMap = await seedUsers();
+  await seedUserRoles(userMap);
 }
 
 
