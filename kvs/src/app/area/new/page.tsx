@@ -7,6 +7,7 @@ import { db } from '@/lib/db'
  */
 async function createArea(formData: FormData) {
   'use server'
+  let area
   try {
     const code = formData.get('code') as string
     const name = formData.get('name') as string
@@ -21,7 +22,7 @@ async function createArea(formData: FormData) {
     }
 
     // Create new area in database
-    await db.area.create({
+    area = await db.area.create({
       data: { code, name, description: description || null },
     })
   } catch (error) {
@@ -30,7 +31,7 @@ async function createArea(formData: FormData) {
   }
   
   // Redirect to areas list after successful creation
-  redirect('/area')
+  redirect(`/area/${area?.id}?created=1`)
 }
 
 export default function NewAreaPage() {
@@ -91,7 +92,7 @@ export default function NewAreaPage() {
               <div className="pt-2 flex items-center justify-between">
                 <button
                   type="submit"
-                  className="inline-flex items-center px-5 py-2 border border-transparent text-xs font-semibold rounded text-white bg-blue-600 hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  className="inline-flex items-center px-5 py-2 cursor-pointer border border-transparent text-xs font-semibold rounded text-white bg-blue-600 hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
                   Bereich erstellen
                 </button>

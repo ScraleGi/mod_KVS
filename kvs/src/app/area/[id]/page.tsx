@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import AreaToaster from './AreaToaster'
 import { notFound } from 'next/navigation'
 import { Info, GraduationCap, Pencil } from 'lucide-react'
 import { db } from '@/lib/db'
@@ -39,6 +40,7 @@ export default async function AreaDetailPage({
 
   return (
     <div className="min-h-screen bg-[#f8fafd] py-14 px-4">
+      <AreaToaster />
       {/* Breadcrumb navigation */}
       <nav className="max-w-xl mx-auto mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
         <Link href="/area" className="hover:underline text-gray-700">zurück zu Bereiche</Link>

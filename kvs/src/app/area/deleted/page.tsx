@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { db } from '@/lib/db'
 import { sanitize } from '@/lib/sanitize'
 import { Area } from '@/types/models'
+import ClientToasterWrapper from './ClientToasterWrapper'
 
 interface DeletedAreaWithPrograms extends Omit<Area, 'programs'> {
   programs: {
@@ -37,7 +38,7 @@ async function restoreArea(formData: FormData) {
     throw error
   }
   
-  redirect('/area/deleted')
+  redirect('/area?restored=1')
 }
 
 export default async function DeletedAreasPage() {
@@ -58,6 +59,7 @@ export default async function DeletedAreasPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4 flex items-center justify-center">
+      <ClientToasterWrapper />
       <div className="w-full max-w-2xl">
         <div className="bg-white rounded-xl shadow border border-gray-100 px-8 py-10">
           <h1 className="text-2xl font-bold text-gray-900 mb-8 tracking-tight">Gelöschte Bereiche</h1>
