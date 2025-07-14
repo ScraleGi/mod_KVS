@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { db } from '@/lib/db'
 import { sanitize } from '@/lib/sanitize'
+import ClientToasterWrapper from './ClientToasterWrapper'
 
 // Server action to restore a program
 async function restoreProgram(formData: FormData) {
@@ -19,7 +20,7 @@ async function restoreProgram(formData: FormData) {
     throw error
   }
   
-  redirect('/program/deleted')
+  redirect('/program?restored=1')
 }
 
 export default async function DeletedProgramsPage() {
@@ -35,6 +36,7 @@ export default async function DeletedProgramsPage() {
 
     return (
       <div className="min-h-screen bg-gray-50 py-10 px-4 flex items-center justify-center">
+        <ClientToasterWrapper />
         <div className="w-full max-w-2xl">
           <div className="bg-white rounded-xl shadow border border-gray-100 px-8 py-10">
             <h1 className="text-2xl font-bold text-gray-900 mb-8 tracking-tight">Gelöschte Programme</h1>
