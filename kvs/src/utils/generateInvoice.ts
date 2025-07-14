@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { generatePDF } from '@/utils/generatePDF'
 import { savePDF } from '@/utils/fileStorage'
 import { Decimal } from '../../generated/prisma/runtime/library'
-import { format } from 'date-fns'
+
 
 export async function generateInvoice(formData: FormData) {
   try {
@@ -80,8 +80,7 @@ export async function generateInvoice(formData: FormData) {
       ? new Date(dueDateStr)
       : new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
 
-    const today = new Date()
-    const datePrefix = format(today, 'ddMMyyyy')
+
 
     let invoice
     let retries = 0
