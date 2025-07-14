@@ -72,14 +72,14 @@ export async function generateInvoice(formData: FormData) {
       const invoiceCountToday = await db.invoice.count({
         where: {
           invoiceNumber: {
-            startsWith: datePrefix
+            startsWith: `Rechnung-${datePrefix}`
           }
         }
       })
 
       const nextSequential = invoiceCountToday + 1
       const paddedSequential = String(nextSequential).padStart(7, '0')
-      const invoiceNumber = `${datePrefix}_${paddedSequential}`
+      const invoiceNumber = `Rechnung-${datePrefix}_${paddedSequential}`
 
       try {
         invoice = await db.invoice.create({
@@ -94,16 +94,16 @@ export async function generateInvoice(formData: FormData) {
         })
       } catch (error) {
         const msg = error instanceof Error ? error.message : ''
-        if (msg.includes('Unique constraint') || msg.includes('unique') || msg.includes('constraint')) {
+        if (msg.includes('Unique constraint') || msg.includes('unique')) {
           retries++
-          continue // retry on duplicate
+          continue
         }
-        throw error // throw unknown errors
+        throw error
       }
     }
 
     if (!invoice) {
-      throw new Error('Failed to generate a unique invoice number after 3 retries')
+      throw new Error('Failed to generate a unique invoice number after multiple attempts')
     }
 
     const templateData = {
@@ -119,14 +119,9 @@ export async function generateInvoice(formData: FormData) {
       discountAmount,
     }
 
-    // Generate and save PDF // hier Invocie nummer logik bearbeiten
     const pdfBuffer = await generatePDF('invoice', templateData)
-    await savePDF(registrationId, `${invoice.id}.pdf`, pdfBuffer)
+    await savePDF(registrationId, `${invoice.invoiceNumber}.pdf`, pdfBuffer)
 
-    // const formattedDate = invoice.dueDate.toISOString().split('T')[0]
-    // const pdfFilename = `Rechnung_${invoice.invoiceNumber}_${formattedDate}.pdf`
-
-    // Refresh the UI
     revalidatePath(`/courseregistration/${registrationId}`)
     return { success: true, invoiceId: invoice.id }
   } catch (error) {
