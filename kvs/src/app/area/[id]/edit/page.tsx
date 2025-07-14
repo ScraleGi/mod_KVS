@@ -27,7 +27,7 @@ export default async function EditAreaPage({
   if (!area) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg text-red-500">Area not found.</div>
+        <div className="text-lg text-red-500">Bereich nicht gefunden.</div>
       </div>
     );
   }
@@ -72,6 +72,14 @@ export default async function EditAreaPage({
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-10 px-4">
       <div className="w-full max-w-md">
+        <nav className="mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
+          <Link href="/area" className="hover:underline text-gray-700">Bereiche</Link>
+          <span>&gt;</span>
+          <span className="text-gray-700 font-semibold">Bereich bearbeiten</span>
+          <span>&gt;</span>
+          <Link href={`/area/${id}`} className="hover:underline text-gray-700">Details</Link>
+
+        </nav>
         <div className="bg-white rounded-sm shadow border border-gray-100">
           <div className="px-6 py-8">
             <h1 className="text-xl font-bold text-gray-900 mb-8 tracking-tight">
@@ -120,31 +128,15 @@ export default async function EditAreaPage({
                   rows={2}
                 />
               </div>
-              <div className="pt-2 flex items-center justify-between">
+              <div className="pt-2 flex items-center justify-end">
                 <button
                   type="submit"
                   className="inline-flex items-center px-5 py-2 border border-transparent cursor-pointer text-xs font-semibold rounded text-white bg-blue-600 hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
-                  Änderungen speichern 
+                  Änderungen speichern
                 </button>
-                <Link
-                  href={`/area/${id}`}
-                  className="text-xs font-medium text-gray-500 hover:text-gray-700 transition-colors flex items-center"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                  </svg>
-                  Details
-                </Link>
-                <Link
-                  href={`/area/`}
-                  className="text-xs font-medium text-gray-500 hover:text-gray-700 transition-colors flex items-center"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                  </svg>
-                  Bereiche
-                </Link>
+                
+              
               </div>
             </form>
           </div>
@@ -154,7 +146,7 @@ export default async function EditAreaPage({
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-sm font-medium text-gray-700">Archiv</h3>
-                <p className="text-xs text-gray-500 mt-1">Bereich archivieren</p>
+                <p className="text-xs text-gray-500 mt-1">In Ablage verwahren.</p>
               </div>
               <RemoveButton
                 itemId={id}
