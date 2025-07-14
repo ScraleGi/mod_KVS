@@ -119,9 +119,14 @@ export async function generateInvoice(formData: FormData) {
       discountAmount,
     }
 
+    // Generate and save PDF // hier Invocie nummer logik bearbeiten
     const pdfBuffer = await generatePDF('invoice', templateData)
     await savePDF(registrationId, `${invoice.id}.pdf`, pdfBuffer)
 
+    // const formattedDate = invoice.dueDate.toISOString().split('T')[0]
+    // const pdfFilename = `Rechnung_${invoice.invoiceNumber}_${formattedDate}.pdf`
+
+    // Refresh the UI
     revalidatePath(`/courseregistration/${registrationId}`)
     return { success: true, invoiceId: invoice.id }
   } catch (error) {
