@@ -1,4 +1,4 @@
-import { updateSubsidy } from '../../sharedServerActions/page'
+import { updateSubsidy } from '../../sharedServerActions/actions'
 import { redirect } from 'next/navigation'
 
 export default async function SubsidyNewPage({ params }: { params: Promise<{ id: string }> }) {

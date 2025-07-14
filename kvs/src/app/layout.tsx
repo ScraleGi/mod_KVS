@@ -50,7 +50,7 @@ export default function RootLayout({
 
   return (
     <html lang="de">
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} overflow-x-hidden`}>
         <ToasterProvider>
         {user == null ? (
           <div className="min-h-screen flex flex-col">
@@ -61,7 +61,7 @@ export default function RootLayout({
             <Navbar isOpen={isOpen} setOpen={setOpen} user={user}/>
             <div className="flex grow">
               <Sidebar isOpen={isOpen} />
-              <main className="flex-1 transition-all duration-200">{children}</main>
+              <main className="flex-1 transition-all duration-200 overflow-x-auto">{children}</main>
             </div>
           </div>
         )}

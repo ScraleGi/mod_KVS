@@ -1,5 +1,5 @@
 import { db } from '@/lib/db'
-import { updateDiscount } from '../../sharedServerActions/page'
+import { updateDiscount } from '../../sharedServerActions/actions'
 import { redirect } from 'next/navigation'
 import { sanitize } from '@/lib/sanitize'
 

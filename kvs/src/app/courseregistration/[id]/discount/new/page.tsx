@@ -1,4 +1,4 @@
-import { updateDiscount } from '../../sharedServerActions/page'
+import { updateDiscount } from '../../sharedServerActions/actions'
 import { redirect } from 'next/navigation'
 
 export default async function DiscountNewPage({ params }: { params: Promise<{ id: string }> }) {

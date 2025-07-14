@@ -1,5 +1,5 @@
 import { db } from '@/lib/db'
-import { updateSubsidy } from '../../sharedServerActions/page'
+import { updateSubsidy } from '../../sharedServerActions/actions'
 import { redirect } from 'next/navigation'
 import { sanitize } from '@/lib/sanitize'
 
