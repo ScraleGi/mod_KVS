@@ -97,7 +97,7 @@ export default async function EditAreaPage({
                   type="text"
                   defaultValue={sanitizedArea?.code || ''}
                   className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                  placeholder="Enter unique area code"
+                  placeholder="Bereichs Code einfügen"
                   required
                 />
               </div>
@@ -111,7 +111,7 @@ export default async function EditAreaPage({
                   type="text"
                   defaultValue={sanitizedArea?.name || ''}
                   className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                  placeholder="Enter area name"
+                  placeholder="Bereichs Name einfügen"
                   required
                 />
               </div>
@@ -124,7 +124,7 @@ export default async function EditAreaPage({
                   name="description"
                   defaultValue={sanitizedArea?.description || ''}
                   className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                  placeholder="Enter area description"
+                  placeholder="Beschreibung einfügen"
                   rows={2}
                 />
               </div>
@@ -151,8 +151,8 @@ export default async function EditAreaPage({
               <RemoveButton
                 itemId={id}
                 onRemove={deleteArea}
-                title="Delete Area"
-                message="Are you sure you want to soft delete this area? This will also remove all associated programs."
+                title="Bereich löschen"
+                message="Sind Sie sicher, dass Sie diesen Bereich sanft löschen wollen? Dadurch werden auch alle zugehörigen Programme entfernt."
                 fieldName="id"
                 customButton={
                   <button
