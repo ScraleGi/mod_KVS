@@ -106,6 +106,7 @@ export type CourseParticipantRow = {
     id: string
     invoiceNumber: string
     dueDate: Date | string | null
+    isCancelled?: boolean 
   }[]
   generatedDocuments: {
     id: string
@@ -737,43 +738,41 @@ export const trainerColumns: ColumnDef<TrainerRow>[] = [
     },
   },
   {
-    accessorKey: "invoices",
-    header: "Rechnungen",
-    cell: ({ row }) => {
-      const invoices = row.original.invoices;
-      if (!invoices || invoices.length === 0) {
-        return <span className="text-gray-400">—</span>;
-      }
-      return (
-        <span className="flex flex-wrap gap-2 items-center">
-          {invoices.map((inv, idx) => (
-            <span key={inv.id} className="flex items-center gap-1">
-              {/* Download PDF link */}
-              <DownloadPDFLink
-                uuidString={row.original.id}
-                filename={`${inv.id}.pdf`}
-                displayName={`#${inv.invoiceNumber}`}
-                className="text-blue-600 hover:text-blue-800 font-medium text-sm"
-              />
-              {/* Details icon */}
-              <Link
-                href={`/invoice/${inv.id}`}
-                className="ml-1 text-gray-400 hover:text-blue-600 transition"
-                title="Details"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 16v-4m0-4h.01" />
-                </svg>
-              </Link>
-              {/* Comma between invoices, except after last */}
-              {idx < invoices.length - 1 && <span>,</span>}
-            </span>
-          ))}
-        </span>
-      );
-    },
+  accessorKey: "invoices",
+  header: "Rechnungen",
+  cell: ({ row }) => {
+    // Only show invoices that are not cancelled
+    const invoices = (row.original.invoices || []).filter(inv => !inv.isCancelled);
+    if (!invoices.length) {
+      return <span className="text-gray-400">—</span>;
+    }
+    return (
+      <span className="flex flex-wrap gap-2 items-center">
+        {invoices.map((inv, idx) => (
+          <span key={inv.id} className="flex items-center gap-1">
+            <DownloadPDFLink
+              uuidString={row.original.id}
+              filename={`${inv.id}.pdf`}
+              displayName={`#${inv.invoiceNumber}`}
+              className="text-blue-600 hover:text-blue-800 font-medium text-sm"
+            />
+            <Link
+              href={`/invoice/${inv.id}`}
+              className="ml-1 text-gray-400 hover:text-blue-600 transition"
+              title="Details"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 16v-4m0-4h.01" />
+              </svg>
+            </Link>
+            {idx < invoices.length - 1 && <span>,</span>}
+          </span>
+        ))}
+      </span>
+    );
   },
+},
   {
     accessorKey: "discountAmount",
     header: ({ column }) => (
@@ -914,10 +913,12 @@ export const trainerColumns: ColumnDef<TrainerRow>[] = [
 export function CourseTable<T>({
   data,
   columns,
+  courseId, // <-- Add this prop if you want to pass the course id for the button link
 }: {
   data: T[]
   columns: ColumnDef<T>[]
   filterColumn?: string
+  courseId?: string // optional, for dynamic link
 }) {
   // Table state hooks
   const [sorting, setSorting] = React.useState<SortingState>([])
@@ -946,11 +947,39 @@ export function CourseTable<T>({
     },
   })
 
+   // Helper to check if columns is courseParticipantsColumns
+  const isCourseParticipantsTable =
+    columns === courseParticipantsColumns
+
   // -------------------- Render --------------------
   return (
     <div className="w-full">
       {/* Filter and column visibility controls */}
       <div className="flex items-center py-4">
+        {isCourseParticipantsTable && (
+          <>
+            <Link
+              href={courseId ? `/course/${courseId}/courseDocuments` : "/course/courseDocuments"}
+              className="mr-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition text-sm font-medium flex items-center"
+              title="Dokumente generieren"
+            >
+              <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+              </svg>
+              Dokumente generieren
+            </Link>
+            <Link
+              href={courseId ? `/course/${courseId}/courseInvoices` : "/course/courseInvoices"}
+               className="mr-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition text-sm font-medium flex items-center"
+              title="Rechnungen generieren"
+            >
+              <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+              </svg>
+              Rechnungen generieren
+            </Link>
+          </>
+        )}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto cursor-pointer">
