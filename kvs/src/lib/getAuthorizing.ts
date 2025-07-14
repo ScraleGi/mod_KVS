@@ -2,15 +2,18 @@ import { auth0 } from "@/lib/auth0";
 import { getRolesByEmail } from "@/lib/getRoles";
 import { redirect } from "next/navigation";
 
-export async function getAuthorizing({ privilige, email }: { privilige?: string[], email?: string } = {}) {
+export async function getAuthorizing({ privilige }: { privilige?: string[] } = {}) {
   try {
-    if (!email) {
-      const session = await auth0.getSession();
-      if (!session || !session.user || !session.user.email) {
-        redirect("/403");
-      }
-      email = session.user.email;
+    const session = await auth0.getSession();
+    if (!session || !session.user) {
+      redirect("/api/auth/login");
     }
+
+    const email = session.user.email;
+    if (!email) {
+      redirect("/403");
+    }
+
     const roles = await getRolesByEmail(email);
     if (roles.length === 0) {
       redirect("/403");

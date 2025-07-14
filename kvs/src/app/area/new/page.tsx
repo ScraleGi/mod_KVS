@@ -34,12 +34,11 @@ async function createArea(formData: FormData) {
   redirect('/area')
 }
 
-export default async function NewAreaPage( { email }: { email: string }) {
+export default async function NewAreaPage() {
 
   // Check user authorization
   await getAuthorizing({
-    privilige: ['ADMIN'],
-    email,
+    privilige: ['TRAINER'],
   })
   
   return (
