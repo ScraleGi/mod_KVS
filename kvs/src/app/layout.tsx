@@ -1,14 +1,12 @@
 'use client';
-import { UserContext } from "@/context/UserEmailContext";
 import { Geist, Geist_Mono } from "next/font/google";
-import { useEffect, useState, createContext } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation'
 import { ToasterProvider } from "@/components/ui/toaster";
 import Sidebar from '@/components/navigation/Sidebar';
 import Navbar from '@/components/navigation/Navbar';
 import "./globals.css";
 import '../styles/components.css';
-import { create } from "domain";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -52,7 +50,6 @@ export default function RootLayout({
   return (
     <html lang="de">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <UserContext.Provider value={user}>
           <ToasterProvider>
             {user == null ? (
               <div className="min-h-screen flex flex-col">
@@ -68,7 +65,6 @@ export default function RootLayout({
               </div>
             )}
           </ToasterProvider>
-        </UserContext.Provider>
       </body>
     </html>
   );
