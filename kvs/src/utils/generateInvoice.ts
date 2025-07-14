@@ -104,8 +104,8 @@ export async function generateInvoice(formData: FormData) {
 // console.log(invoiceCountForCourse, 'invoiceCountForCourse')
 
       const nextSequential = invoiceCountForCourse + 1
-      const paddedSequential = String(nextSequential).padStart(7, '0')
-      const invoiceNumber = `Rechnung-${course.code}-${paddedSequential}-${area.code}`
+      const paddedSequential = String(nextSequential).padStart(3, '0')
+      const invoiceNumber = `${course.code}-${paddedSequential}-${area.code}`
 
       try {
         invoice = await db.invoice.create({
