@@ -62,7 +62,7 @@ export async function generateInvoice(formData: FormData) {
       : new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
 
     const today = new Date()
-    const datePrefix = format(today, 'yyyyMMdd')
+    const datePrefix = format(today, 'ddMMyyyy')
 
     let invoice
     let retries = 0
