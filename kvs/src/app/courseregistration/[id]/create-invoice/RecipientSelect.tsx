@@ -100,7 +100,7 @@ export default function RecipientSelect({ recipients }: { recipients: Recipient[
   }
 
   return (
-    <fieldset className="border border-neutral-200 rounded-lg p-5 mb-6 relative">
+    <fieldset className="border border-neutral-200 rounded-lg p-5 mb-4 mt-4 relative">
       <legend className="text-base font-semibold text-blue-700 px-2">
         Search Previous Recipient to Autofill
       </legend>

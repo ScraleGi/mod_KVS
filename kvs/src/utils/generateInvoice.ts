@@ -4,6 +4,7 @@ import { db } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
 import { generatePDF } from '@/utils/generatePDF'
 import { savePDF } from '@/utils/fileStorage'
+import { Decimal } from '../../generated/prisma/runtime/library'
 
 export async function generateInvoice(formData: FormData) {
   try {
@@ -17,7 +18,7 @@ export async function generateInvoice(formData: FormData) {
     }
     
     const recipientSalutation = formData.get("recipientSalutation") as string
-  const recipientName = formData.get("recipientName") as string
+    const recipientName = formData.get("recipientName") as string
     const recipientSurname = formData.get("recipientSurname") as string
     const companyName = formData.get("companyName") as string
     const recipientEmail = formData.get("recipientEmail") as string
@@ -47,11 +48,17 @@ export async function generateInvoice(formData: FormData) {
       include: { course: { include: { program: true } }, participant: true }
     })
 
+
     if (!registration) {
       throw new Error(`Course registration with ID ${registrationId} not found`)
     }
 
-    const amount = registration.course?.program?.price ?? 0
+    // calculation logic for dicounts and final amount
+  
+  const amountNumber = 1
+  const baseAmount: Decimal = (registration.course?.program?.price ?? new Decimal(0)).mul(amountNumber)
+  const discountAmount: Decimal = (registration.discountAmount ?? new Decimal(0)).mul(amountNumber)
+  const finalAmount = baseAmount.minus(discountAmount)
 
   // Use dueDate from form if provided, otherwise default to 14 days from now
   const dueDateStr = formData.get("dueDate") as string | null
@@ -59,18 +66,23 @@ export async function generateInvoice(formData: FormData) {
     ? new Date(dueDateStr)
     : new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
     
+    // hier Invocie nummer logik bearbeiten
+    // Die naming ist hier zu bearbeiten     *filestorage *savePDF *generatePDF
   const invoiceNumber = `INV-${Date.now()}`
 
     // Create the invoice record
     const invoice = await db.invoice.create({
       data: {
         invoiceNumber,
-        amount,
+        amount: baseAmount,
+        finalAmount,
         dueDate,
         courseRegistrationId: registrationId,
         recipientId: recipient.id,
       }
     })
+
+
 
     // Prepare data for PDF template
     const templateData = {
@@ -80,6 +92,10 @@ export async function generateInvoice(formData: FormData) {
       participant: registration.participant,
       course: registration.course,
       program: registration.course?.program,
+      amountNumber,
+      baseAmount,
+      finalAmount,                  // <-- added new
+      discountAmount,         // <-- added new  
     }
 
     // Generate and save PDF

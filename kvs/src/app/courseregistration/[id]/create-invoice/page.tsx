@@ -60,16 +60,24 @@ export default async function CreateInvoicePage({
         <h1 className="text-2xl font-bold mb-6 text-neutral-900 text-center">Rechnung erstellen</h1>
         
         {/* Participant and Course Info */}
-        <div className="mb-8">
-          <div className="flex flex-col sm:flex-row sm:justify-between gap-2 text-sm text-neutral-700">
-            <div>
-              <span className="font-semibold">Teilnehmer:</span> {registration.participant.name} {registration.participant.surname}
-            </div>
+                  {/* Course Participant Reference Section */}
+          <fieldset className="border border-neutral-200 rounded-lg p-5">
+            <legend className="text-base font-semibold text-blue-700 px-2">Course Participant (Reference)</legend>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 text-xs text-neutral-600">
+              <div>
+                <span className="font-semibold">Name:</span> {registration.participant.name} {registration.participant.surname}
+              </div>
+              <div>
+                <span className="font-semibold">Email:</span> {registration.participant.email}
+              </div>
+              <div>
+                <span className="font-semibold">Address:</span> {registration.participant.street}, {registration.participant.postalCode} {registration.participant.city}, {registration.participant.country}
+              </div>
             <div>
               <span className="font-semibold">Kurs:</span> {registration.course?.program?.name}
             </div>
-          </div>
-        </div>
+            </div>
+          </fieldset>
 
         {/* Add id here for client component to target */}
         <form
@@ -79,7 +87,7 @@ export default async function CreateInvoicePage({
         >
           <input type="hidden" name="registrationId" value={registration.id} />
 
-          {/* NEW: Dropdown autofill component */}
+          {/*autofill component */}
           <RecipientSelect
             recipients={recipients.map(r => ({
               ...r,
