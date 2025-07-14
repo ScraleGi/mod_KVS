@@ -1,5 +1,6 @@
 import React from 'react'
 import Link from 'next/link'
+import CourseToaster from './CourseToaster'
 import { db } from '@/lib/db'
 import { sanitize } from '@/lib/sanitize'
 import { formatFullName, formatDateGerman } from '@/lib/utils'
@@ -123,6 +124,7 @@ registrations: {
 
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4">
+      <CourseToaster />
       <div className="max-w-[1800px] mx-auto">
         {/* Navigation */}
         <div className="flex justify-between items-center mb-8">

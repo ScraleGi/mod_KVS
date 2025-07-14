@@ -69,7 +69,7 @@ import RemoveButton from '@/components/RemoveButton/RemoveButton';
         },
       },
     })
-    redirect('/course')
+    redirect(`/course/${id}?edited=1`)
   }
 
   /**
@@ -82,7 +82,7 @@ import RemoveButton from '@/components/RemoveButton/RemoveButton';
       where: { id },
       data: { deletedAt: new Date() }
     })
-    redirect('/course')
+    redirect('/course/deleted?deleted=1')
   }
 
   // Show error if course not found
@@ -127,13 +127,13 @@ import RemoveButton from '@/components/RemoveButton/RemoveButton';
                 customButton={
                   <button
                     type="submit"
-                    className="px-3 py-1.5 bg-white border border-red-300 rounded text-sm text-red-600 hover:bg-red-50 hover:border-red-400 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-30"
+                    className="px-3 py-1.5 cursor-pointer bg-white border border-red-300 rounded text-sm text-red-600 hover:bg-red-50 hover:border-red-400 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-30"
                   >
                     <div className="flex items-center">
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                       </svg>
-                      archivieren
+                      Archivieren
                     </div>
                   </button>
                 }
