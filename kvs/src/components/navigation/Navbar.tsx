@@ -150,6 +150,17 @@ const Navbar = ({ isOpen, setOpen, user }: NavbarProps) => {
                     </Link>
                   )}
                 </li>
+                <li>
+                  {user ? (
+                    <Link href="/auth/logout" className="block px-4 py-2 text-red-500 hover:bg-gray-100 hover:text-red-600">
+                      Abmelden
+                    </Link>
+                  ) : (
+                    <Link href="/auth/login" className="block px-4 py-2 text-green-500 hover:bg-gray-100 hover:text-green-600">
+                      Anmelden
+                    </Link>
+                  )}
+                </li>
               </ul>
             </div>
           </button>
