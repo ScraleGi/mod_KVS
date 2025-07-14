@@ -11,6 +11,7 @@ export default async function EditTrainerPage({ params }: { params: Promise<{ id
     const trainer = await prisma.trainer.findUnique({
         where: { id },
     });
+    if (!trainer) return null;
 
     // Server action to update the trainer in the database
     const changeTrainer = async (formData: FormData) => {
@@ -48,10 +49,19 @@ export default async function EditTrainerPage({ params }: { params: Promise<{ id
         });
         redirect(`/trainer/${id}`);
     };
-    
+
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-neutral-50 px-2 py-8">
+        <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-50 px-2 py-8">
+            <div className="w-full max-w-xl mx-auto">
+                <nav className="max-w-xl mx-auto mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
+                    <Link href="/trainer" className="hover:underline text-gray-700">Trainer</Link>
+                    <span>&gt;</span>
+                    <Link href={`/trainer/${trainer.id}`} className="text-gray-700 hover:underline">{trainer.name} {trainer.surname}</Link>
+                    <span>&gt;</span>
+                    <span className="text-gray-700 font-semibold">Trainer bearbeiten</span>
+                </nav>
+            </div>
             <div className="w-full max-w-xl bg-white rounded-2xl shadow-md border border-neutral-100 p-8">
 
                 <h1 className="text-2xl font-bold mb-6 text-neutral-900 text-center">Trainer bearbeiten</h1>

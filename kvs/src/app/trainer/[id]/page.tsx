@@ -61,7 +61,7 @@ export default async function TrainerDetailsPage({ params }: { params: Promise<{
     return (
         <div className="min-h-screen bg-[#f8fafd] py-14 px-4">
             <nav className="max-w-xl mx-auto mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
-                <Link href="/trainer" className="hover:underline text-gray-700">zurück zu Trainer</Link>
+                <Link href="/trainer" className="hover:underline text-gray-700">Trainer</Link>
                 <span>&gt;</span>
                 <span className="text-gray-700 font-semibold">{trainer.name} {trainer.surname}</span>
             </nav>
@@ -131,21 +131,13 @@ export default async function TrainerDetailsPage({ params }: { params: Promise<{
                         <p className="text-gray-500">Keine Nebenkurse zugeteilt.</p>
                     )}
                 </div>
-                <div className="mt-10 flex justify-end">
-                    <Link
-                        href="/trainer"
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-                        title="Back to Trainers"
-                    >
-                        Zurück zu Trainer
-                    </Link>
-                </div>
+               
                 {/* Danger Zone Section */}
                     <div className="px-6 py-4 bg-gray-50 rounded-b-sm">
                                 <div className="flex items-center justify-between">
                                   <div>
-                                    <h3 className="text-sm font-medium text-gray-700">Danger Zone</h3>
-                                    <p className="text-xs text-gray-500 mt-1">Diese Aktion wird den Trainer SoftDeleten</p>
+                                    <h3 className="text-sm font-medium text-gray-700">Archiv</h3>
+                                    <p className="text-xs text-gray-500 mt-1">In Ablage verwahren.</p>
                                   </div>
                                   <RemoveButton
                                     itemId={trainer.id}
@@ -162,7 +154,7 @@ export default async function TrainerDetailsPage({ params }: { params: Promise<{
                                           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                                           </svg>
-                                          Löschen
+                                          Archivieren
                                         </div>
                                       </button>
                                     }
