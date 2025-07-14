@@ -357,8 +357,8 @@ export default async function ParticipantPage({
                         <td className="px-3 py-2">
                           <DownloadPDFLink
                             uuidString={inv.courseRegistrationId ||  inv.id}
-                            filename={`${inv.id}.pdf`}
-                            displayName={`#${inv.invoiceNumber ?? inv.id}`}
+                            filename={`${inv.invoiceNumber}.pdf`}
+                            displayName={`${inv.invoiceNumber ?? inv.id}`}
                             className="text-blue-700 hover:text-blue-900 font-medium text-sm"
                           />
                         </td>

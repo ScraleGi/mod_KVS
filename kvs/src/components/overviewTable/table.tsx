@@ -752,8 +752,8 @@ export const trainerColumns: ColumnDef<TrainerRow>[] = [
           <span key={inv.id} className="flex items-center gap-1">
             <DownloadPDFLink
               uuidString={row.original.id}
-              filename={`${inv.id}.pdf`}
-              displayName={`#${inv.invoiceNumber}`}
+              filename={`${inv.invoiceNumber}.pdf`}
+              displayName={`${inv.invoiceNumber}`}
               className="text-blue-600 hover:text-blue-800 font-medium text-sm"
             />
             <Link
