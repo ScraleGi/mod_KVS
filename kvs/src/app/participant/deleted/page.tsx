@@ -50,12 +50,17 @@ export default async function DeletedParticipantsPage() {
       <div className="min-h-screen bg-neutral-50 py-10 px-4 flex items-center justify-center">
         <ClientToasterWrapper />
         <div className="w-full max-w-2xl">
+          <nav className="mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
+                <Link href="/participant" className="hover:underline text-gray-700">Teilnehmer</Link>
+                <span>&gt;</span>
+                <span className="text-gray-700 font-semibold">Archiv</span>
+            </nav>
           <div className="bg-white rounded-2xl shadow-md border border-neutral-100 px-8 py-10">
-            <h1 className="text-2xl font-bold text-neutral-900 mb-6 tracking-tight">Archived Participants</h1>
+            <h1 className="text-2xl font-bold text-neutral-900 mb-6 tracking-tight">Archivierte Teilnehmer</h1>
             
             {deletedParticipants.length === 0 ? (
               <div className="text-neutral-500 text-sm bg-neutral-50 p-4 rounded-lg">
-                No archived participants found.
+                Keine archivierten Teilnehmer gefunden.
               </div>
             ) : (
               <ul className="space-y-4">
@@ -72,7 +77,7 @@ export default async function DeletedParticipantsPage() {
                         {participant.email}
                       </span>
                       <div className="text-neutral-400 text-xs mt-1">
-                        Archived on: {participant.deletedAt ? new Date(participant.deletedAt).toLocaleDateString('de-DE') : 'Unknown date'}
+                        Archivert am: {participant.deletedAt ? new Date(participant.deletedAt).toLocaleDateString('de-DE') : 'Unknown date'}
                       </div>
                     </div>
                     <form action={restoreParticipant}>
@@ -81,7 +86,7 @@ export default async function DeletedParticipantsPage() {
                         type="submit"
                         className="cursor-pointer px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold rounded-lg shadow-sm transition"
                       >
-                        Restore
+                        Wiederherstellen
                       </button>
                     </form>
                   </li>
@@ -89,15 +94,7 @@ export default async function DeletedParticipantsPage() {
               </ul>
             )}
             
-            <Link
-              href="/participant"
-              className="mt-8 inline-flex items-center text-xs font-medium text-neutral-500 hover:text-blue-700 transition-colors"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-              Back to Participants
-            </Link>
+           
           </div>
         </div>
       </div>
@@ -113,10 +110,10 @@ export default async function DeletedParticipantsPage() {
         <div className="max-w-md w-full px-4 bg-white rounded-xl shadow p-8">
           <h1 className="text-xl font-bold text-red-600 mb-4">Error</h1>
           <p className="text-gray-700 mb-6">
-            An error occurred while loading the archived participants. Please try again later.
+            Beim Laden der archivierten Teilnehmer ist ein Fehler aufgetreten. Bitte versuchen Sie es später noch einmal.
           </p>
           <Link href="/participant" className="text-blue-500 hover:text-blue-700">
-            &larr; Back to Participants
+            &larr; Teilnehmer
           </Link>
         </div>
       </div>

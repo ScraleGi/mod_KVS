@@ -30,12 +30,12 @@ export default async function ParticipantPage({
       where: { id },
       include: {
         registrations: {
-          where: { 
+          where: {
             deletedAt: null,
             course: {
               deletedAt: null  // Only include registrations for active courses
             }
-          }, 
+          },
           include: {
             course: { include: { program: true } },
             invoices: {
@@ -55,9 +55,9 @@ export default async function ParticipantPage({
         <div className="min-h-screen flex items-center justify-center bg-neutral-50">
           <div className="max-w-md w-full px-4">
             <Link href="/" className="text-blue-500 hover:underline mb-6 block">
-              &larr; Back to Home
+              &larr; Home
             </Link>
-            <div className="text-red-600 text-lg font-semibold">Participant not found.</div>
+            <div className="text-red-600 text-lg font-semibold">Teilnehmer nicht gefunden.</div>
           </div>
         </div>
       )
@@ -74,26 +74,26 @@ export default async function ParticipantPage({
       },
       include: { program: true }
     })
-    
+
     // 3. Fetch all documents for this participant (not soft-deleted)
     const registrationIds = participant?.registrations
       .map(r => r.id) ?? []  // Already filtered to deletedAt: null
 
     const documents = registrationIds.length
       ? await db.document.findMany({
-          where: {
-            courseRegistrationId: { in: registrationIds },
-            deletedAt: null,
-          },
-          orderBy: { createdAt: 'desc' },
-          include: {
-            courseRegistration: {
-              include: {
-                course: { include: { program: true } }
-              }
+        where: {
+          courseRegistrationId: { in: registrationIds },
+          deletedAt: null,
+        },
+        orderBy: { createdAt: 'desc' },
+        include: {
+          courseRegistration: {
+            include: {
+              course: { include: { program: true } }
             }
           }
-        })
+        }
+      })
       : []
 
     //---------------------------------------------------
@@ -107,7 +107,7 @@ export default async function ParticipantPage({
     }
 
     // Sanitize and serialize data for client components
-    
+
     // 1. Process available courses
     availableCourses = sanitize(availableCourses)
     // Complete serialization of Decimal objects to handle pricing data
@@ -169,13 +169,13 @@ export default async function ParticipantPage({
       "use server"
       try {
         const registrationId = formData.get("registrationId") as string
-        
+
         // Change from delete to update with deletedAt timestamp
         await db.courseRegistration.update({
           where: { id: registrationId },
           data: { deletedAt: new Date() }
         })
-        
+
         revalidatePath(`/participant/${id}`)
       } catch (error) {
         console.error('Failed to remove registration:', error)
@@ -203,9 +203,18 @@ export default async function ParticipantPage({
     // RENDER UI
     //---------------------------------------------------
     return (
-      <div className="min-h-screen bg-neutral-50 flex items-center justify-center px-2 py-8">
+      <div className="min-h-screen bg-neutral-50 flex flex-col items-center justify-center px-2 py-8">
         <ParticipantToaster />
-      <div className="w-full max-w-2xl bg-white rounded-2xl shadow-md border border-neutral-100 p-0 overflow-hidden">
+
+        <div className="w-full max-w-2xl">
+          <nav className="mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
+            <Link href="/participant" className="hover:underline text-gray-700">Teilnehmer</Link>
+            <span>&gt;</span>
+            <span className="text-gray-700 font-semibold">{participant.name} {participant.surname}</span>
+          </nav>
+        </div>
+        
+        <div className="w-full max-w-2xl bg-white rounded-2xl shadow-md border border-neutral-100 p-0 overflow-hidden">
           {/* Profile Card */}
           <section className="flex flex-col sm:flex-row items-center gap-6 px-8 py-8 border-b border-neutral-200 relative">
             <div className="flex-shrink-0 w-20 h-20 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center text-3xl font-bold text-blue-700 select-none">
@@ -221,34 +230,34 @@ export default async function ParticipantPage({
                   <span className="font-medium text-neutral-700">Email:</span> {sanitizedParticipant.email}
                 </span>
                 <span>
-                  <span className="font-medium text-neutral-700">Phone:</span> {sanitizedParticipant.phoneNumber}
+                  <span className="font-medium text-neutral-700">Tel.::</span> {sanitizedParticipant.phoneNumber}
                 </span>
                 <span>
-                  <span className="font-medium text-neutral-700">Birthday:</span> {sanitizedParticipant.birthday ? new Date(sanitizedParticipant.birthday).toLocaleDateString('de-DE') : 'N/A'}
+                  <span className="font-medium text-neutral-700">Geburtstag:</span> {sanitizedParticipant.birthday ? new Date(sanitizedParticipant.birthday).toLocaleDateString('de-DE') : 'N/A'}
                 </span>
                 <span>
-                  <span className="font-medium text-neutral-700">Street:</span> {sanitizedParticipant.street}
+                  <span className="font-medium text-neutral-700">Straße:</span> {sanitizedParticipant.street}
                 </span>
                 <span>
-                  <span className="font-medium text-neutral-700">Postal Code:</span> {sanitizedParticipant.postalCode}
+                  <span className="font-medium text-neutral-700">PLZ.:</span> {sanitizedParticipant.postalCode}
                 </span>
                 <span>
-                  <span className="font-medium text-neutral-700">City:</span> {sanitizedParticipant.city}
+                  <span className="font-medium text-neutral-700">Ort:</span> {sanitizedParticipant.city}
                 </span>
                 <span>
-                  <span className="font-medium text-neutral-700">Country:</span> {sanitizedParticipant.country}
+                  <span className="font-medium text-neutral-700">Land:</span> {sanitizedParticipant.country}
                 </span>
                 <span>
-                  <span className="font-medium text-neutral-700">Participant Code:</span> {sanitizedParticipant.code}
+                  <span className="font-medium text-neutral-700">Teilnehmer Code:</span> {sanitizedParticipant.code}
                 </span>
               </div>
             </div>
-            
+
             {/* Action buttons - Edit only */}
             <Link
               href={`/participant/${sanitizedParticipant.id}/edit`}
               className="absolute top-6 right-8 text-neutral-400 hover:text-blue-600 transition"
-              title="Edit participant"
+              title="Teilnehmer bearbeiten"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -266,11 +275,11 @@ export default async function ParticipantPage({
               </svg>
             </Link>
           </section>
-          
+
           {/* Courses Registered Section */}
           <section className="px-8 py-6 border-b border-neutral-200">
             <div className="flex items-center mb-2">
-              <h2 className="text-sm font-semibold text-neutral-800">Course Registrations</h2>
+              <h2 className="text-sm font-semibold text-neutral-800">Kurs Registrationen</h2>
               <span className="ml-3">
                 <ClientCourseModalWrapper
                   registerToCourse={registerToCourse}
@@ -292,7 +301,7 @@ export default async function ParticipantPage({
                   {sanitizedParticipant.registrations.length === 0 ? (
                     <tr>
                       <td colSpan={4} className="px-3 py-2 text-neutral-400 italic text-xs bg-white rounded text-center">
-                        No courses registered
+                        Keine Kurse registriert.
                       </td>
                     </tr>
                   ) : (
@@ -303,7 +312,7 @@ export default async function ParticipantPage({
                             href={`/course/${reg.course?.id}`}
                             className="text-blue-700 hover:text-blue-900 font-medium text-sm"
                           >
-                            {reg.course?.program?.name ?? 'Unknown Course'}
+                            {reg.course?.program?.name ?? 'Unbekannter Kurs'}
                           </Link>
                         </td>
                         <td className="px-3 py-2 text-center">
@@ -315,11 +324,11 @@ export default async function ParticipantPage({
                             : <span className="text-neutral-300">—</span>}
                         </td>
                         <td className="px-3 py-2 text-center flex justify-center items-center">
-                          <RemoveButton 
-                            itemId={reg.id} 
-                            onRemove={removeRegistration} 
-                            title="Remove Course Registration"
-                            message="Are you sure you want to remove this course registration? This action cannot be undone."
+                          <RemoveButton
+                            itemId={reg.id}
+                            onRemove={removeRegistration}
+                            title="Kursanmeldung entfernen"
+                            message="Sind Sie sicher, dass Sie diesen Artikel entfernen möchten? Diese Aktion kann nicht rückgängig gemacht werden."
                             fieldName="registrationId"
                           />
                         </td>
@@ -333,14 +342,14 @@ export default async function ParticipantPage({
 
           {/* Invoices Section */}
           <section className="px-8 py-6 border-b border-neutral-200">
-            <h2 className="text-sm font-semibold text-neutral-800 mb-2">Invoices</h2>
+            <h2 className="text-sm font-semibold text-neutral-800 mb-2">Rechnungen</h2>
             <div className="overflow-x-auto">
               <table className="min-w-full text-xs border border-neutral-200 rounded">
                 <thead>
                   <tr className="bg-neutral-100">
-                    <th className="px-3 py-2 text-left font-semibold">Invoice</th>
-                    <th className="px-3 py-2 text-center font-semibold">Course Code</th>
-                    <th className="px-3 py-2 text-center font-semibold">Recipient</th>
+                    <th className="px-3 py-2 text-left font-semibold">Rechnung</th>
+                    <th className="px-3 py-2 text-center font-semibold">Kurs Code</th>
+                    <th className="px-3 py-2 text-center font-semibold">Empfänger</th>
                     <th className="px-3 py-2 text-center font-semibold">Status</th>
                   </tr>
                 </thead>
@@ -348,7 +357,7 @@ export default async function ParticipantPage({
                   {allInvoices.length === 0 ? (
                     <tr>
                       <td colSpan={4} className="px-3 py-2 text-neutral-400 italic text-xs bg-white rounded text-center">
-                        No invoices found
+                        Keine Rechnungen gefunden.
                       </td>
                     </tr>
                   ) : (
@@ -356,7 +365,7 @@ export default async function ParticipantPage({
                       <tr key={inv.id} className="border-t border-neutral-200 bg-white hover:bg-blue-50 transition">
                         <td className="px-3 py-2">
                           <DownloadPDFLink
-                            uuidString={inv.courseRegistrationId ||  inv.id}
+                            uuidString={inv.courseRegistrationId || inv.id}
                             filename={`${inv.id}.pdf`}
                             displayName={`#${inv.invoiceNumber ?? inv.id}`}
                             className="text-blue-700 hover:text-blue-900 font-medium text-sm"
@@ -372,11 +381,11 @@ export default async function ParticipantPage({
                         </td>
                         <td className="px-3 py-2 text-center">
                           {inv.isCancelled ? (
-                            <span className="px-2 py-1 rounded bg-red-100 text-red-600">Cancelled</span>
+                            <span className="px-2 py-1 rounded bg-red-100 text-red-600">Canceled</span>
                           ) : inv.transactionNumber ? (
-                            <span className="px-2 py-1 rounded bg-green-100 text-green-700">Paid</span>
+                            <span className="px-2 py-1 rounded bg-green-100 text-green-700">bezahlt</span>
                           ) : (
-                            <span className="px-2 py-1 rounded bg-yellow-100 text-yellow-700">Unpaid</span>
+                            <span className="px-2 py-1 rounded bg-yellow-100 text-yellow-700">nicht bezahlt</span>
                           )}
                         </td>
                       </tr>
@@ -387,15 +396,15 @@ export default async function ParticipantPage({
             </div>
           </section>
 
-         {/* Documents Section */}
+          {/* Documents Section */}
           <section className="px-8 py-6 border-b border-neutral-200">
-            <h2 className="text-sm font-semibold text-neutral-800 mb-2">Documents</h2>
+            <h2 className="text-sm font-semibold text-neutral-800 mb-2">Dokumente</h2>
             <div className="overflow-x-auto">
               <table className="min-w-full text-xs border border-neutral-200 rounded">
                 <thead>
                   <tr className="bg-neutral-100">
-                    <th className="px-3 py-2 text-left font-semibold">Document</th>
-                    <th className="px-3 py-2 text-center font-semibold">Course Code</th>
+                    <th className="px-3 py-2 text-left font-semibold">Dokument</th>
+                    <th className="px-3 py-2 text-center font-semibold">Kurs Code</th>
                     <th className="px-3 py-2 text-center font-semibold">Type</th>
                     <th className="px-3 py-2 text-center font-semibold">Aktion</th>
                   </tr>
@@ -404,7 +413,7 @@ export default async function ParticipantPage({
                   {sanitizedDocuments.length === 0 ? (
                     <tr>
                       <td colSpan={4} className="px-3 py-2 text-neutral-400 italic text-xs bg-white rounded text-center">
-                        No documents found
+                        Keine Dokumente gefunden.
                       </td>
                     </tr>
                   ) : (
@@ -425,11 +434,11 @@ export default async function ParticipantPage({
                           {labelMap[doc.role] || doc.role}
                         </td>
                         <td className="px-3 py-2 text-center flex justify-center items-center">
-                          <RemoveButton 
-                            itemId={doc.id} 
+                          <RemoveButton
+                            itemId={doc.id}
                             onRemove={removeDocument}
-                            title="Remove Document"
-                            message="Are you sure you want to remove this document? You will no longer have access to it."
+                            title="Dokument entfernen"
+                            message="Sind Sie sicher, dass Sie dieses Dokument entfernen möchten? Sie haben dann keinen Zugriff mehr darauf."
                             fieldName="documentId"
                           />
                         </td>
@@ -440,29 +449,18 @@ export default async function ParticipantPage({
               </table>
             </div>
           </section>
-
-          {/* Navigation Footer */}
-          <nav className="flex gap-4 justify-end px-8 py-6 border-b border-neutral-200">
-            <Link href="/participant" className="text-neutral-400 hover:text-blue-600 text-sm transition">
-              &larr; Participants
-            </Link>
-            <Link href="/" className="text-neutral-400 hover:text-blue-600 text-sm transition">
-              Home
-            </Link>
-          </nav>
-          
           {/* Danger Zone Section */}
           <div className="px-6 py-4 bg-gray-50 rounded-b-sm">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-medium text-gray-700">Danger Zone</h3>
-                <p className="text-xs text-gray-500 mt-1">This action will soft delete Participant</p>
+                <h3 className="text-sm font-medium text-gray-700">Archiv</h3>
+                <p className="text-xs text-gray-500 mt-1">In Ablage verwahren.</p>
               </div>
               <RemoveButton
                 itemId={sanitizedParticipant.id}
                 onRemove={deleteParticipant}
-                title="Delete Participant"
-                message="Are you sure you want to soft delete this participant? This will also remove all associated registrations and documents."
+                title="Teilnehmer entfernen"
+                message="Sind Sie sicher, dass Sie diesen Teilnehmer sanft löschen möchten? Dadurch werden auch alle zugehörigen Registrierungen und Dokumente entfernt."
                 fieldName="id"
                 customButton={
                   <button
@@ -473,7 +471,7 @@ export default async function ParticipantPage({
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                       </svg>
-                      Delete
+                      Archivieren
                     </div>
                   </button>
                 }
@@ -490,10 +488,10 @@ export default async function ParticipantPage({
         <div className="max-w-md w-full px-4 bg-white rounded-xl shadow p-8">
           <h1 className="text-xl font-bold text-red-600 mb-4">Error</h1>
           <p className="text-gray-700 mb-6">
-            An error occurred while loading the participant data. Please try again later.
+            Beim Laden der Teilnehmerdaten ist ein Fehler aufgetreten. Bitte versuchen Sie es später noch einmal.
           </p>
           <Link href="/participant" className="text-blue-500 hover:text-blue-700">
-            &larr; Back to Participants
+            &larr; Teilnehmer
           </Link>
         </div>
       </div>
