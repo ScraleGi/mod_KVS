@@ -1027,13 +1027,15 @@ async function seedUsers() {
   return Object.fromEntries(allUsers.map(u => [u.email, u.id]));
 }
 
-async function seedUserRoles(userMap: Record<string, string>) {
-  const roles = await db.role.findMany();
-  const roleMap = Object.fromEntries(roles.map(r => [r.name, r.id]));
-  const userRoles = [
-    { userId: userMap['leonie@dc.at'], roleId: roleMap['ADMIN'] },
-  ];
-  await db.userRole.createMany({ data: userRoles, skipDuplicates: true });
+async function assignRolesToUsers() {
+  await db.user.update({
+    where: { email: 'leonie@dc.at' },
+    data: {
+      roles: {
+        connect: [{ name: 'ADMIN' }]
+      }
+    }
+  });
 }
 
 
@@ -1051,9 +1053,24 @@ async function seedDatabase() {
   const recipientMap = await seedInvoiceRecipients(participantMap)
   await seedInvoices(programMap, courseMap, participantMap, registrationMap, recipientMap)
   await seedHoliday()
-  await seedRoles();
-  const userMap = await seedUsers();
-  await seedUserRoles(userMap);
+  await seedRoles();  async function seedDatabase() {
+    const areaMap = await seedAreas()
+    const programMap = await seedPrograms(areaMap)
+    const trainerMap = await seedTrainers()
+    const courseMap = await seedCourses(programMap, trainerMap)
+    const participantMap = await seedParticipants()
+    const registrationMap = await seedRegistrations(programMap, courseMap, participantMap)
+  
+    await seedDocuments(programMap, courseMap, registrationMap, participantMap)
+    const recipientMap = await seedInvoiceRecipients(participantMap)
+    await seedInvoices(programMap, courseMap, participantMap, registrationMap, recipientMap)
+    await seedHoliday()
+    await seedRoles();
+    await seedUsers();
+    await assignRolesToUsers(); // <--- Hier!
+  }
+  await seedUsers();
+  await assignRolesToUsers();
 }
 
 
