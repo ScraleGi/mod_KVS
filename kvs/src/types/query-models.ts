@@ -216,6 +216,7 @@ export interface SanitizedInvoice {
 export interface SanitizedInvoiceWithRelations extends SanitizedInvoice {
   invoiceNumber: string;
   dueDate: Date | string;
+  finalAmount: SerializedDecimal;
   courseRegistration?: {
     id: string;
     participant?: {
