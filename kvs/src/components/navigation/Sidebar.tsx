@@ -1,13 +1,13 @@
-import { FaHome, FaBook, FaCalendarAlt, FaCog, FaSignOutAlt, FaRegEnvelope, FaChartBar, FaThLarge, FaLayerGroup, FaUsers } from 'react-icons/fa';
+import { FaHome, FaCalendarAlt, FaCog, FaSignOutAlt, FaRegEnvelope, FaChartBar, FaThLarge, FaLayerGroup, FaUsers, FaChalkboardTeacher } from 'react-icons/fa';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const navItems = [
   { href: '/', label: 'Startseite', icon: FaHome },
-  { href: '/course', label: 'Kurse', icon: FaBook },
   { href: '/program', label: 'Programme', icon: FaLayerGroup },
   { href: '/area', label: 'Bereiche', icon: FaThLarge },
   { href: '/participant', label: 'Teilnehmer', icon: FaUsers },
+  { href: '/trainer', label: 'Trainer', icon: FaChalkboardTeacher },
   { href: '/calendar', label: 'Termine', icon: FaCalendarAlt },
   { href: '/reports', label: 'Berichte', icon: FaChartBar },
   { href: '/inbox', label: 'Posteingang', icon: FaRegEnvelope },

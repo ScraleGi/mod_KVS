@@ -5,6 +5,8 @@ import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import timeGridPlugin from '@fullcalendar/timegrid';
+import { EventContentArg, DatesSetArg } from '@fullcalendar/core'; // Add these imports
+import deLocale from '@fullcalendar/core/locales/de';
 
 type EventType = {
   id: string;
@@ -29,7 +31,7 @@ function getHolidayDates(events: EventType[]): Set<string> {
 }
 
 // highlighting Holidays 
-function renderEventContent(eventInfo: any) {
+function renderEventContent(eventInfo: EventContentArg) { // Fixed type
   const isHoliday = eventInfo.event.id.startsWith('holiday-');
   return (
     <div style={{ color: isHoliday ? 'white' : 'black' }}>
@@ -48,7 +50,7 @@ const Calendar: React.FC<{ events: EventType[] }> = ({ events }) => {
   const [userEvents, setUserEvents] = useState<EventType[]>([]); // User-Termine
 
   // Callback, wenn sich der sichtbare Bereich ändert
-  const handleDatesSet = useCallback((arg: any) => {
+  const handleDatesSet = useCallback((arg: DatesSetArg) => { // Fixed type
     const start = new Date(arg.start);
     const end = new Date(arg.end);
     const bgEvents: EventType[] = [];
@@ -72,7 +74,6 @@ const Calendar: React.FC<{ events: EventType[] }> = ({ events }) => {
         display: 'background',
         color: '#d1d5db'
       });
-
     }
     setBackgroundEvents(bgEvents);
   }, []);
@@ -140,6 +141,7 @@ const Calendar: React.FC<{ events: EventType[] }> = ({ events }) => {
           slotDuration='00:30:00'
           slotMinTime='06:00:00'
           slotMaxTime='24:00:00'
+          locale={deLocale}
           events={[...events, ...userEvents, ...backgroundEvents]}
           selectable
           editable

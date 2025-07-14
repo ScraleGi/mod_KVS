@@ -3,6 +3,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation'
+import { ToasterProvider } from "@/components/ui/toaster";
 import Sidebar from '@/components/navigation/Sidebar';
 import Navbar from '@/components/navigation/Navbar';
 import "./globals.css";
@@ -38,7 +39,8 @@ export default function RootLayout({
           setUser(null);
           router.push('/auth/login')
         }
-      } catch (_error) {
+      } catch (error) {
+        console.error("Authentication check failed:", error);
         setUser(null);
         router.push('/auth/login')
       }
@@ -48,7 +50,8 @@ export default function RootLayout({
 
   return (
     <html lang="de">
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} overflow-x-hidden`}>
+        <ToasterProvider>
         {user == null ? (
           <div className="min-h-screen flex flex-col">
             {/* Hier könntest du einen Loader anzeigen */}
@@ -58,10 +61,11 @@ export default function RootLayout({
             <Navbar isOpen={isOpen} setOpen={setOpen} user={user}/>
             <div className="flex grow">
               <Sidebar isOpen={isOpen} />
-              <main className="flex-1 transition-all duration-200">{children}</main>
+              <main className="flex-1 transition-all duration-200 overflow-x-auto">{children}</main>
             </div>
           </div>
         )}
+        </ToasterProvider>
       </body>
     </html>
   );

@@ -1,6 +1,5 @@
-import { PrismaClient, RecipientType, Prisma } from '../generated/prisma'
-
-const prisma = new PrismaClient()
+import { RecipientType, Prisma } from '../generated/prisma'
+import { db } from '../src/lib/db'
 
 // -------------------- Area Seeding --------------------
 async function seedAreas() {
@@ -13,17 +12,17 @@ async function seedAreas() {
     { code: 'ELEARN', name: 'E-Learning Lehrgänge', description: 'Online learning and remote education' },
     { code: 'DS', name: 'Digital Studies', description: 'Digital transformation and modern studies' },
   ]
-  await prisma.area.createMany({
+  await db.area.createMany({
     data: areaData,
     skipDuplicates: true,
   })
-  const areas = await prisma.area.findMany()
+  const areas = await db.area.findMany()
   return Object.fromEntries(areas.map(area => [area.name, area.id]))
 }
 
 // -------------------- Program Seeding --------------------
 async function seedPrograms(areaMap: Record<string, string>) {
-  await prisma.program.createMany({
+  await db.program.createMany({
     data: [
       { code: 'AIF', name: 'AI Fundamentals', description: 'Introduction to Artificial Intelligence.', teachingUnits: 8, price: new Prisma.Decimal('299.99'), areaId: areaMap['KI Campus'] },
       { code: 'MLB', name: 'Machine Learning Basics', teachingUnits: 10, price: new Prisma.Decimal('349.99'), areaId: areaMap['KI Campus'] },
@@ -42,13 +41,13 @@ async function seedPrograms(areaMap: Record<string, string>) {
     ],
     skipDuplicates: true,
   })
-  const programs = await prisma.program.findMany()
+  const programs = await db.program.findMany()
   return Object.fromEntries(programs.map(program => [program.name, program.id]))
 }
 
 // -------------------- Trainer Seeding --------------------
 async function seedTrainers() {
-  await prisma.trainer.createMany({
+  await db.trainer.createMany({
     data: [
       {
         code: 'TR-ANNA',
@@ -123,7 +122,7 @@ async function seedTrainers() {
     ],
     skipDuplicates: true,
   })
-  const trainers = await prisma.trainer.findMany()
+  const trainers = await db.trainer.findMany()
   return Object.fromEntries(trainers.map(t => [`${t.name} ${t.surname}`, t.id]))
 }
 
@@ -206,7 +205,7 @@ async function seedCourses(programMap: Record<string, string>, trainerMap: Recor
 
   const createdCourses = []
   for (const c of courseData) {
-    const course = await prisma.course.create({
+    const course = await db.course.create({
       data: {
         code: c.code,
         programId: programMap[c.program],
@@ -225,7 +224,7 @@ async function seedCourses(programMap: Record<string, string>, trainerMap: Recor
 
 // -------------------- Participant Seeding --------------------
 async function seedParticipants() {
-  await prisma.participant.createMany({
+  await db.participant.createMany({
     data: [
       {
         code: 'P-0001',
@@ -482,7 +481,7 @@ async function seedParticipants() {
     ],
     skipDuplicates: true,
   })
-  const participants = await prisma.participant.findMany()
+  const participants = await db.participant.findMany()
   return Object.fromEntries(participants.map(p => [p.name + ' ' + p.surname, p.id]))
 }
 
@@ -492,7 +491,7 @@ async function seedRegistrations(
   courseMap: Record<string, string>,
   participantMap: Record<string, string>
 ) {
-  await prisma.courseRegistration.createMany({
+  await db.courseRegistration.createMany({
     data: [
       // AI Fundamentals
       {
@@ -514,8 +513,8 @@ async function seedRegistrations(
         generalRemark: 'Attended info session.',
         subsidyRemark: null,
         subsidyAmount: null,
-        discountRemark: null,
-        discountAmount: null,
+        discountRemark: 'Early bird discount.',
+        discountAmount: new Prisma.Decimal('50.00'),
       },
       {
         courseId: courseMap[programMap['AI Fundamentals']],
@@ -558,8 +557,8 @@ async function seedRegistrations(
         generalRemark: 'Attended info session.',
         subsidyRemark: null,
         subsidyAmount: null,
-        discountRemark: null,
-        discountAmount: null,
+        discountRemark: 'Early bird discount.',
+        discountAmount: new Prisma.Decimal('50.00'),
       },
       // Python for Beginners
       {
@@ -602,8 +601,8 @@ async function seedRegistrations(
         generalRemark: 'Marketing background.',
         subsidyRemark: null,
         subsidyAmount: null,
-        discountRemark: null,
-        discountAmount: null,
+        discountRemark: 'Early bird discount.',
+        discountAmount: new Prisma.Decimal('50.00'),
       },
       // Cloud Computing Basics
       {
@@ -613,8 +612,8 @@ async function seedRegistrations(
         generalRemark: 'Cloud enthusiast.',
         subsidyRemark: null,
         subsidyAmount: null,
-        discountRemark: null,
-        discountAmount: null,
+        discountRemark: 'Early bird discount.',
+        discountAmount: new Prisma.Decimal('50.00'),
       },
       {
         courseId: courseMap[programMap['Cloud Computing Basics']],
@@ -697,8 +696,8 @@ async function seedRegistrations(
         generalRemark: 'Designer.',
         subsidyRemark: null,
         subsidyAmount: null,
-        discountRemark: null,
-        discountAmount: null,
+        discountRemark: 'Early bird discount.',
+        discountAmount: new Prisma.Decimal('50.00'),
       },
       {
         courseId: courseMap[programMap['UI/UX Design']],
@@ -713,130 +712,138 @@ async function seedRegistrations(
     ],
     skipDuplicates: true,
   })
-  const registrations = await prisma.courseRegistration.findMany()
+  const registrations = await db.courseRegistration.findMany()
   return Object.fromEntries(registrations.map(r => [r.participantId + '_' + r.courseId, r.id]))
 }
 
 // -------------------- InvoiceRecipient Seeding --------------------
 async function seedInvoiceRecipients(participantMap: Record<string, string>) {
   const recipients = [
-    // Company recipient
-    {
-      type: RecipientType.COMPANY,
-      companyName: "Joe's Firma",
-      recipientEmail: 'info@joesfirma.com',
-      postalCode: '12345',
-      recipientCity: 'City',
-      recipientStreet: 'Business Street 1',
-      recipientCountry: 'DE',
-      participantId: null,
-      recipientName: null,
-      recipientSurname: null,
-    },
-    // Person recipients
-    {
-      type: RecipientType.PERSON,
-      recipientName: 'Charlie',
-      recipientSurname: 'Brown',
-      recipientEmail: 'charlie.brown@example.com',
-      postalCode: '10115',
-      recipientCity: 'Berlin',
-      recipientStreet: 'Musterstraße 1',
-      recipientCountry: 'DE',
-      participantId: participantMap['Charlie Brown'],
-      companyName: null,
-    },
-    {
-      type: RecipientType.PERSON,
-      recipientName: 'Grace',
-      recipientSurname: 'Lee',
-      recipientEmail: 'grace.lee@example.com',
-      postalCode: '70173',
-      recipientCity: 'Stuttgart',
-      recipientStreet: 'Nebenstraße 5',
-      recipientCountry: 'DE',
-      participantId: participantMap['Grace Lee'],
-      companyName: null,
-    },
-    {
-      type: RecipientType.PERSON,
-      recipientName: 'Dana',
-      recipientSurname: 'White',
-      recipientEmail: 'dana.white@example.com',
-      postalCode: '20095',
-      recipientCity: 'Hamburg',
-      recipientStreet: 'Beispielweg 2',
-      recipientCountry: 'DE',
-      participantId: participantMap['Dana White'],
-      companyName: null,
-    },
-    {
-      type: RecipientType.PERSON,
-      recipientName: 'Henry',
-      recipientSurname: 'Ford',
-      recipientEmail: 'henry.ford@example.com',
-      postalCode: '80331',
-      recipientCity: 'München',
-      recipientStreet: 'Ringstraße 6',
-      recipientCountry: 'DE',
-      participantId: participantMap['Henry Ford'],
-      companyName: null,
-    },
-    {
-      type: RecipientType.PERSON,
-      recipientName: 'Eve',
-      recipientSurname: 'Adams',
-      recipientEmail: 'eve.adams@example.com',
-      postalCode: '50667',
-      recipientCity: 'Köln',
-      recipientStreet: 'Teststraße 3',
-      recipientCountry: 'DE',
-      participantId: participantMap['Eve Adams'],
-      companyName: null,
-    },
-    {
-      type: RecipientType.PERSON,
-      recipientName: 'Karen',
-      recipientSurname: 'Green',
-      recipientEmail: 'karen.green@example.com',
-      postalCode: '04109',
-      recipientCity: 'Leipzig',
-      recipientStreet: 'Gartenstraße 9',
-      recipientCountry: 'DE',
-      participantId: participantMap['Karen Green'],
-      companyName: null,
-    },
-    {
-      type: RecipientType.PERSON,
-      recipientName: 'Frank',
-      recipientSurname: 'Miller',
-      recipientEmail: 'frank.miller@example.com',
-      postalCode: '60311',
-      recipientCity: 'Frankfurt',
-      recipientStreet: 'Hauptstraße 4',
-      recipientCountry: 'DE',
-      participantId: participantMap['Frank Miller'],
-      companyName: null,
-    },
-    {
-      type: RecipientType.PERSON,
-      recipientName: 'Mona',
-      recipientSurname: 'Patel',
-      recipientEmail: 'mona.patel@example.com',
-      postalCode: '39104',
-      recipientCity: 'Magdeburg',
-      recipientStreet: 'Blumenstraße 11',
-      recipientCountry: 'DE',
-      participantId: participantMap['Mona Patel'],
-      companyName: null,
-    },
-    // Add more recipients as needed
-  ]
-  await prisma.invoiceRecipient.createMany({
+  // Company recipient (no salutation)
+  {
+    type: RecipientType.COMPANY,
+    companyName: "Joe's Firma",
+    recipientEmail: 'info@joesfirma.com',
+    postalCode: '12345',
+    recipientCity: 'City',
+    recipientStreet: 'Business Street 1',
+    recipientCountry: 'DE',
+    participantId: null,
+    recipientName: null,
+    recipientSurname: null,
+    recipientSalutation: null, // explicitly null or omit
+  },
+  // Person recipients with salutations added
+  {
+    type: RecipientType.PERSON,
+    recipientSalutation: "Herr",
+    recipientName: 'Charlie',
+    recipientSurname: 'Brown',
+    recipientEmail: 'charlie.brown@example.com',
+    postalCode: '10115',
+    recipientCity: 'Berlin',
+    recipientStreet: 'Musterstraße 1',
+    recipientCountry: 'DE',
+    participantId: participantMap['Charlie Brown'],
+    companyName: null,
+  },
+  {
+    type: RecipientType.PERSON,
+    recipientSalutation: "Frau",
+    recipientName: 'Grace',
+    recipientSurname: 'Lee',
+    recipientEmail: 'grace.lee@example.com',
+    postalCode: '70173',
+    recipientCity: 'Stuttgart',
+    recipientStreet: 'Nebenstraße 5',
+    recipientCountry: 'DE',
+    participantId: participantMap['Grace Lee'],
+    companyName: null,
+  },
+  {
+    type: RecipientType.PERSON,
+    recipientSalutation: "Frau",
+    recipientName: 'Dana',
+    recipientSurname: 'White',
+    recipientEmail: 'dana.white@example.com',
+    postalCode: '20095',
+    recipientCity: 'Hamburg',
+    recipientStreet: 'Beispielweg 2',
+    recipientCountry: 'DE',
+    participantId: participantMap['Dana White'],
+    companyName: null,
+  },
+  {
+    type: RecipientType.PERSON,
+    recipientSalutation: "Herr",
+    recipientName: 'Henry',
+    recipientSurname: 'Ford',
+    recipientEmail: 'henry.ford@example.com',
+    postalCode: '80331',
+    recipientCity: 'München',
+    recipientStreet: 'Ringstraße 6',
+    recipientCountry: 'DE',
+    participantId: participantMap['Henry Ford'],
+    companyName: null,
+  },
+  {
+    type: RecipientType.PERSON,
+    recipientSalutation: "Frau",
+    recipientName: 'Eve',
+    recipientSurname: 'Adams',
+    recipientEmail: 'eve.adams@example.com',
+    postalCode: '50667',
+    recipientCity: 'Köln',
+    recipientStreet: 'Teststraße 3',
+    recipientCountry: 'DE',
+    participantId: participantMap['Eve Adams'],
+    companyName: null,
+  },
+  {
+    type: RecipientType.PERSON,
+    recipientSalutation: "Frau",
+    recipientName: 'Karen',
+    recipientSurname: 'Green',
+    recipientEmail: 'karen.green@example.com',
+    postalCode: '04109',
+    recipientCity: 'Leipzig',
+    recipientStreet: 'Gartenstraße 9',
+    recipientCountry: 'DE',
+    participantId: participantMap['Karen Green'],
+    companyName: null,
+  },
+  {
+    type: RecipientType.PERSON,
+    recipientSalutation: "Herr",
+    recipientName: 'Frank',
+    recipientSurname: 'Miller',
+    recipientEmail: 'frank.miller@example.com',
+    postalCode: '60311',
+    recipientCity: 'Frankfurt',
+    recipientStreet: 'Hauptstraße 4',
+    recipientCountry: 'DE',
+    participantId: participantMap['Frank Miller'],
+    companyName: null,
+  },
+  {
+    type: RecipientType.PERSON,
+    recipientSalutation: "Frau",
+    recipientName: 'Mona',
+    recipientSurname: 'Patel',
+    recipientEmail: 'mona.patel@example.com',
+    postalCode: '39104',
+    recipientCity: 'Magdeburg',
+    recipientStreet: 'Blumenstraße 11',
+    recipientCountry: 'DE',
+    participantId: participantMap['Mona Patel'],
+    companyName: null,
+  },
+]
+  await db.invoiceRecipient.createMany({
     data: recipients,
     skipDuplicates: true,
   })
-  const allRecipients = await prisma.invoiceRecipient.findMany()
+  const allRecipients = await db.invoiceRecipient.findMany()
   return Object.fromEntries(
     allRecipients.map(r =>
       [r.type === RecipientType.COMPANY ? r.companyName : `${r.recipientName} ${r.recipientSurname}`, r.id]
@@ -852,7 +859,7 @@ async function seedInvoices(
   registrationMap: Record<string, string>,
   recipientMap: Record<string, string>
 ) {
-  await prisma.invoice.createMany({
+  await db.invoice.createMany({
     data: [
       {
         invoiceNumber: '2024-001',
@@ -914,8 +921,6 @@ async function seedInvoices(
   })
 }
 
-// -------------------- Document Seeding --------------------  emin
-// here are we seed documents related to course registrations
 // -------------------- Document Seeding --------------------
 async function seedDocuments(
   programMap: Record<string, string>,
@@ -923,7 +928,7 @@ async function seedDocuments(
   registrationMap: Record<string, string>,
   participantMap: Record<string, string>
 ) {
-  await prisma.document.createMany({
+  await db.document.createMany({
     data: [
       {
         role: 'Syllabus',
@@ -994,13 +999,12 @@ async function seedHoliday() {
     holidays.push({ title: 'Pfingstmontag', date: addDays(easter, 50) });
   }
 
-  await prisma.holiday.createMany({
+  await db.holiday.createMany({
     data: holidays,
     skipDuplicates: true,
   });
 
   console.log(`✅ Feiertage für ${years.length} Jahre gespeichert.`);
-
 }
 
 // -------------------- Main Seed Function --------------------
@@ -1027,5 +1031,5 @@ seedDatabase()
     process.exit(1)
   })
   .finally(async () => {
-    await prisma.$disconnect()
+    await db.$disconnect()
   })

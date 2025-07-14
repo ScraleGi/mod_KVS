@@ -1,26 +1,59 @@
-import { PrismaClient } from '../../../generated/prisma'
 import Link from 'next/link'
+import { db } from '@/lib/db'
+import { sanitize } from '@/lib/sanitize'
+import { Course  } from '@/types/models'
+import { formatDateGerman, formatFullName } from '@/lib/utils'
 
-const prisma = new PrismaClient()
+interface CourseWithRelations extends Omit<Course, 'program' | 'mainTrainer' | 'trainers' | 'registrations'> {
+  program: {
+    name: string;
+    area: {
+      name: string;
+    } | null;
+  } | null;
+  mainTrainer: {
+    name: string;
+    surname: string;
+    title?: string | null;
+  } | null;
+  trainers: {
+    name: string;
+    surname: string;
+    title?: string | null;
+  }[];
+  registrations: { id: string }[]; // Only need the ID for counting
+}
 
-export default async function Page() {
-  const courses = await prisma.course.findMany({
-    where: { deletedAt: null },
-    include: {
-      program: { include: { area: true } },
-      mainTrainer: true,
-      trainers: true,
-      registrations: true,
+export default async function CourseListPage() {
+// Fetch courses with related data
+const courses = await db.course.findMany({
+  where: { deletedAt: null },
+  orderBy: { createdAt: 'desc' }, // This should be at the top level
+  include: {
+    program: { include: { area: true } },
+    mainTrainer: true,
+    trainers: true,
+    registrations: {
+      where: { 
+        deletedAt: null, // Only include active registrations
+        participant: {
+        deletedAt: null // Also filter out registrations of soft-deleted participants
+        }
+      }, 
+      orderBy: { registeredAt: 'desc' }, 
     },
-    orderBy: { createdAt: 'desc' },
-  })
+  },
+})
+
+  // Sanitize data to handle any Decimal values
+  const sanitizedCourses = sanitize<typeof courses, CourseWithRelations[]>(courses);
 
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4">
       <div className="max-w-[1600px] mx-auto">
         {/* Dashboard Header */}
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Courses</h1>
+          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Kurse</h1>
           <div className="flex gap-2">
             <Link
               href="/course/new"
@@ -58,18 +91,19 @@ export default async function Page() {
         <div className="bg-white rounded-sm shadow border border-gray-100">
           <div className="divide-y divide-gray-100">
             <div className="hidden md:grid grid-cols-[2.2fr_2.5fr_1fr_1fr_1.5fr_1fr_0.7fr] gap-3 px-4 py-3 text-[11px] font-semibold text-gray-100 uppercase tracking-wider bg-gray-600 rounded-t-sm w-full border-b border-gray-200">
-              <div>Course</div>
-              <div>Area</div>
+              <div>Kurs</div>
+              <div>Bereich</div>
               <div>Start</div>
               <div>Trainer</div>
-              <div>Additional</div>
-              <div>Registrations</div>
-              <div className="text-right">Actions</div>
+              <div>Co-Trainer</div>
+              <div>Anmeldungen</div>
+              <div className="text-right">Bearbeiten</div>
             </div>
-            {courses.length === 0 && (
-              <div className="px-4 py-12 text-center text-gray-400 text-sm">No courses found.</div>
+
+            {sanitizedCourses.length === 0 && (
+              <div className="px-4 py-12 text-center text-gray-400 text-sm">Keine Kurse gefunden.</div>
             )}
-            {courses.map(course => (
+            {sanitizedCourses.map(course => (
               <div
                 key={course.id}
                 className="grid grid-cols-1 md:grid-cols-[2.2fr_2.5fr_1fr_1fr_1.5fr_1fr_0.7fr] gap-3 px-4 py-4 items-center hover:bg-gray-50 transition group w-full text-[13px]"
@@ -86,18 +120,18 @@ export default async function Page() {
                 </div>
                 {/* Start Date */}
                 <div className="text-gray-700 whitespace-nowrap">
-                  {course.startDate ? new Date(course.startDate).toLocaleDateString() : 'N/A'}
+                  {formatDateGerman(course.startDate)}
                 </div>
                 {/* Main Trainer */}
                 <div className="text-gray-700 truncate max-w-[120px]">
-                {course.mainTrainer
-                  ? `${course.mainTrainer.name} ${course.mainTrainer.surname}`
-                  : 'N/A'}
+                  {course.mainTrainer 
+                    ? formatFullName(course.mainTrainer)
+                    : 'N/A'}
                 </div>
                 {/* Additional Trainers */}
                 <div className="text-gray-700 truncate max-w-[160px]">
                   {course.trainers && course.trainers.length > 0
-                    ? course.trainers.map(t => `${t.name} ${t.surname}`).join(', ')
+                    ? course.trainers.map(t => formatFullName(t)).join(', ')
                     : <span className="text-gray-400">—</span>}
                 </div>
                 {/* Registrations */}

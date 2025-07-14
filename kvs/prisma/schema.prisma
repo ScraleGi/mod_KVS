@@ -78,8 +78,8 @@ model CourseRegistration {
   // Subsidy and discount fields (amounts are nullable)
   subsidyRemark       String?
   subsidyAmount       Decimal?    @db.Decimal(10, 2)
-  discountRemark      String?
-  discountAmount      Decimal?    @db.Decimal(10, 2)
+  discountRemark      String?                                                                             
+  discountAmount      Decimal?    @db.Decimal(10, 2)                                                      //!!!!!!!CHECK 
 
   @@index([deletedAt])
   @@index([courseId])
@@ -132,6 +132,7 @@ model Invoice {
   id                    String               @id @default(uuid())
   invoiceNumber         String               @unique
   amount                Decimal              @db.Decimal(10, 2)
+  finalAmount           Decimal?             @db.Decimal(10, 2) // make it optional // if participant has a Coupon this will be the End Amount that he pays else it is amount //!!!!!!!CHECK 
   courseRegistrationId  String
   courseRegistration    CourseRegistration   @relation(fields: [courseRegistrationId], references: [id])
   isCancelled           Boolean              @default(false)
@@ -142,21 +143,22 @@ model Invoice {
 }
 
 model InvoiceRecipient {
-  id                String       @id @default(uuid())
-  type              RecipientType
-  recipientName     String?      // Optional, only for PERSON required
-  recipientSurname  String?     // Optional, only for PERSON required
-  companyName       String?      // Optional, only for COMPANY required
-  recipientEmail    String
-  postalCode        String
-  recipientCity     String
-  recipientStreet   String
-  recipientCountry  String
-  createdAt         DateTime     @default(now())
-  deletedAt         DateTime?
-  participantId     String?      // Only set if PERSON
-  participant       Participant? @relation(fields: [participantId], references: [id])
-  invoices          Invoice[]
+  id                      String       @id @default(uuid())
+  type                    RecipientType
+  recipientSalutation     String?          // Optional, only for Person required
+  recipientName           String?         // Optional, only for PERSON required
+  recipientSurname        String?        // Optional, only for PERSON required
+  companyName             String?       // Optional, only for COMPANY required
+  recipientEmail          String
+  postalCode              String
+  recipientCity           String
+  recipientStreet         String
+  recipientCountry        String
+  createdAt               DateTime     @default(now())
+  deletedAt               DateTime?
+  participantId           String?      // Only set if PERSON
+  participant             Participant? @relation(fields: [participantId], references: [id])
+  invoices                Invoice[]
   @@index([deletedAt])
 }
 

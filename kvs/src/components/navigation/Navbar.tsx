@@ -123,14 +123,7 @@ const Navbar = ({ isOpen, setOpen, user }: NavbarProps) => {
           </div>
         </div>
 
-        <div className='text-white'>
-          <FaBell
-            className='w-6 h-6 cursor-pointer transition-transform duration-150 hover:scale-110 focus:scale-110'
-            tabIndex={0}
-          />
-        </div>
-
-        <div className='text-white'>{user}</div>
+        <div className='text-white italic skew-x-1'>{user}</div>
 
         <div className='relative'>
           <button className='text-white group focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-white'>
@@ -146,9 +139,27 @@ const Navbar = ({ isOpen, setOpen, user }: NavbarProps) => {
                 <li>
                   <Link href="/logout" className='block px-4 py-2 hover:bg-gray-100'>Logout</Link>
                 </li>
+                <li>
+                  {user ? (
+                    <Link href="/auth/logout" className="block px-4 py-2 text-red-500 hover:bg-gray-100 hover:text-red-600">
+                      Abmelden
+                    </Link>
+                  ) : (
+                    <Link href="/auth/login" className="block px-4 py-2 text-green-500 hover:bg-gray-100 hover:text-green-600">
+                      Anmelden
+                    </Link>
+                  )}
+                </li>
               </ul>
             </div>
           </button>
+        </div>
+
+        <div className='text-white'>
+          <FaBell
+            className='w-6 h-6 cursor-pointer transition-transform duration-150 hover:scale-110 focus:scale-110'
+            tabIndex={0}
+          />
         </div>
       </div>
     </div>
