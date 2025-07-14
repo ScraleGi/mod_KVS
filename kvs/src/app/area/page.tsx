@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { db } from '@/lib/db'
 import { Area } from '@/types/models'
 import { sanitize } from '@/lib/sanitize'
+import AreaToaster from './[id]/AreaToaster'
 
 // Define types for our program data structure
 interface ProgramWithCoursesAndRegistrations {
@@ -106,6 +107,7 @@ export default async function AreasPage() {
     
     return (
         <div className="min-h-screen bg-gray-50 py-6 px-4">
+          <AreaToaster />
             {/* Header */}
             <div className="flex items-center justify-between mb-8">
                 <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Bereiche</h1>
