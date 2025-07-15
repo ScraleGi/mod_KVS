@@ -111,7 +111,7 @@ export default function DiscountClientLogic({
       </div>
       <button
         type="submit"
-        className="bg-blue-600 text-white px-4 py-2 rounded"
+        className="cursor-pointer px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-xs font-medium transition"
         disabled={!!error}
       >
         Speichern

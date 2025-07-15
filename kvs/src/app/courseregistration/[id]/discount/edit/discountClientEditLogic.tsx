@@ -135,22 +135,22 @@ export default function DiscountClientEditLogic({
           className="border rounded px-2 py-1 w-full"
         />
       </div>
-      <div className="flex gap-4">
-        <button
-          type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded"
-          disabled={!!error}
-        >
-          Speichern
-        </button>
-        <button
-          type="button"
-          className="bg-red-600 text-white px-4 py-2 rounded"
-          onClick={handleDelete}
-        >
-          Löschen
-        </button>
-      </div>
+<div className="flex gap-4 mt-6">
+  <button
+    type="submit"
+    className="cursor-pointer px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-xs font-medium transition"
+    disabled={!!error}
+  >
+    Speichern
+  </button>
+  <button
+    type="button"
+    className="cursor-pointer px-4 py-2 bg-red-100 text-red-700 border border-red-300 rounded hover:bg-red-200 hover:border-red-400 text-xs font-medium transition"
+    onClick={handleDelete}
+  >
+    Löschen
+  </button>
+</div>
     </form>
   )
 }

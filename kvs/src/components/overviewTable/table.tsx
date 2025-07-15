@@ -802,7 +802,7 @@ export const trainerColumns: ColumnDef<TrainerRow>[] = [
   {
     accessorKey: "subsidyAmount",
     header: ({ column }) => (
-      <FilterHeader column={column} label="Subvention" placeholder="Filter Subvention..." />
+      <FilterHeader column={column} label="Gutschein" placeholder="Filter Subvention..." />
     ),
     cell: ({ row }) => {
       const value = row.original.subsidyAmount
