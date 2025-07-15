@@ -63,8 +63,8 @@ export default async function Home() {
         <Link
             href="/course/new"
             className="p-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition"
-            title="Add New Area"
-            aria-label="Add New Area"
+            title="Kurs hinzufügen"
+            aria-label="Kurs hinzufügen"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 20 20" stroke="currentColor">
             <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
@@ -73,8 +73,8 @@ export default async function Home() {
         <Link
             href="/course/deleted"
             className="p-2 rounded-md bg-red-100 text-gray-700 hover:bg-red-200 transition"
-            title="Deleted Areas"
-            aria-label="Deleted Areas"
+            title="Kurs löschen"
+            aria-label="Kurs löschen"
         >
 
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 256 256" fill="currentColor">
