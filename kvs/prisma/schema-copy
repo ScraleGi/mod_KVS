@@ -152,31 +152,34 @@ model Participant {
 }
 
 model Invoice {
-  id                    String               @id @default(uuid())
-  invoiceNumber         String               @unique
-  //courseRegistrationId  String
-  //courseRegistration    CourseRegistration   @relation(fields: [courseRegistrationId], references: [id])
+  id                    String   @id @default(uuid())
+  invoiceNumber         String   @unique
+
+  courseRegistrationId  String?
+  courseRegistration    CourseRegistration? @relation(fields: [courseRegistrationId], references: [id])
+
+  // snapshot fields (denormalized)
   courseCode            String
   programName           String
-  programPrice          Decimal             @db.Decimal(10, 2)
-  discountAmount        Decimal             @db.Decimal(10, 2)
-  discountRemark        String             
-  subsidyAmount         Decimal             @db.Decimal(10, 2)
+  programPrice          Decimal @db.Decimal(10, 2)
+  discountAmount        Decimal @db.Decimal(10, 2)
+  discountRemark        String
+  subsidyAmount         Decimal @db.Decimal(10, 2)
   subsidyRemark         String
-  finalAmount           Decimal             @db.Decimal(10, 2)  // programPrice - discountAmount - subsidyAmount
+  finalAmount           Decimal @db.Decimal(10, 2)
 
-  isCancelled           Boolean              @default(false)
+  isCancelled           Boolean  @default(false)
   dueDate               DateTime
-  transactionNumber     String?              @unique // <-- nullable
-  //recipientId           String
-  //recipient             InvoiceRecipient     @relation(fields: [recipientId], references: [id])
-  recipientName        String  // Name of person or company
-  recipientEmail       String  // Email of person or company
-  recipientStreet      String  // Street of person or company
-  recipientPostalCode  String  // Postal code of person or company
-  recipientCity        String  // City of person or company
-  recipientCountry     String  // Country of person or company
+  transactionNumber     String?  @unique
+
+  recipientName         String
+  recipientEmail        String
+  recipientStreet       String
+  recipientPostalCode   String
+  recipientCity         String
+  recipientCountry      String
 }
+
 
 model InvoiceRecipient {
   id                      String       @id @default(uuid())
@@ -189,7 +192,8 @@ model InvoiceRecipient {
   recipientCountry        String?
   createdAt               DateTime     @default(now())
   deletedAt               DateTime?
-  courseRegistrations     CourseRegistration[] // Relation: one InvoiceRecipient can have many CourseRegistrations
+
+  // courseRegistrations     CourseRegistration[] // Relation: one InvoiceRecipient can have many CourseRegistrations
   
 
   @@index([deletedAt])
