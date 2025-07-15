@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { FaBars, FaSearch, FaBell, FaUserCircle } from 'react-icons/fa';
-import { searchEntities2, SearchResult } from './searchActions';
+import { searchEntities, SearchResult } from './searchActions';
 
 type NavbarProps = {
   isOpen: boolean;
@@ -27,9 +27,8 @@ const Navbar = ({ isOpen, setOpen, user }: NavbarProps) => {
       return;
     }
 
-    const data = await searchEntities2(value);
+    const data = await searchEntities(value);
 
-    console.log('Search Result:', data)
     setResults(data);
     setShowDropdown(true);
 

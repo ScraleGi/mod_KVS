@@ -1,9 +1,7 @@
 'use server';
 
-import { PrismaClient } from '@/../generated/prisma/client';
 import { db } from '@/lib/db'; // Assuming you have a db module to handle Prisma client
 
-const prisma = new PrismaClient();
 
 export type SearchResult = {
   id: string;
@@ -20,7 +18,7 @@ export type SearchResult = {
     };
 };
 
-export async function searchEntities2(query: string): Promise<SearchResult[]> {
+export async function searchEntities(query: string): Promise<SearchResult[]> {
   if (!query) return [];
 
   const searchCriteria = query
@@ -78,38 +76,6 @@ export async function searchEntities2(query: string): Promise<SearchResult[]> {
         take: 5,
     })
 
-    // console.log('Course Registrations:', courseRegistrations)
     return courseRegistrations
 }
 
-export async function searchEntities(query: string, searchType: 'participants' | 'courses' | 'areas') {
-  if (!query) return [];
-
-  if (searchType === 'participants') {
-    return await prisma.participant.findMany({
-      where: { name: { contains: query } },
-      take: 10,
-    });
-  } else if (searchType === 'courses') {
-    return await prisma.course.findMany({
-       where: {
-        deletedAt: null,
-        program: {
-          // Filter auf das verknüpfte Programm
-          deletedAt: null,
-          name: { contains: query }
-        }
-      },
-      include: {
-        program: true, // Nur Daten laden, kein Filter!
-      },
-      take: 100
-    });
-  } else if (searchType === 'areas') {
-    return await prisma.area.findMany({
-      where: { name: { contains: query } },
-      take: 10,
-    });
-  }
-  return [];
-}
