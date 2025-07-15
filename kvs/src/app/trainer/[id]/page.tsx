@@ -55,7 +55,7 @@ export default async function TrainerDetailsPage({ params }: { params: Promise<{
                 <span>&gt;</span>
                 <span className="text-gray-700 font-semibold">{trainer.name} {trainer.surname}</span>
             </nav>
-            <div className="max-w-xl mx-auto bg-white rounded-2xl shadow-lg px-6 py-8 relative">
+            <div className="max-w-xl mx-auto bg-white rounded-2xl shadow-lg pt-8 relative">
                 <Link
                 href={`/trainer/${trainer.id}/edit`}
                 className="absolute top-6 right-6 z-20 text-gray-400 hover:text-blue-600 transition flex items-center justify-center p-2 rounded-full"
@@ -64,12 +64,15 @@ export default async function TrainerDetailsPage({ params }: { params: Promise<{
                 <Pencil className="w-5 h-5 cursor-pointer pointer-events-auto block" />
                 </Link>
 
-                <h1 className="text-3xl font-bold mb-6 text-center text-gray-900 drop-shadow-sm">{trainer.title} {trainer.name} {trainer.surname}</h1>
+
+
+
+                <div className="mx-6">
+                   <h1 className="text-3xl font-bold mb-6 text-center text-gray-900 drop-shadow-sm">{trainer.title} {trainer.name} {trainer.surname}</h1>
 
                 <div className="w-full h-48 bg-gray-100 rounded flex items-center justify-center mb-8">
                     <span className="text-gray-400">[Image Placeholder]</span>
                 </div>
-
                 <div className="mb-10">
                     <h2 className="text-xl font-bold mb-2 text-gray-600 flex items-center gap-2">
                         <Info className="w-5 h-5 text-gray-400" />
@@ -120,11 +123,12 @@ export default async function TrainerDetailsPage({ params }: { params: Promise<{
                         )}
                     </div>
                 </div>
+                </div>
 
                 {/* Danger Zone Section */}
-                <div className="border-t border-gray-200 mt-2"></div>
-                <div className="ml-1 mt-1 px-6 py-4 bg-gray-50 rounded-b-sm">
-                    <div className="flex items-center justify-between">
+                <div className="border-t border-gray-200 rounded-2xl mt-2">
+                <div className="py-4 bg-gray-50 w-full">
+                    <div className="flex items-center justify-between mx-6">
                         <div>
                             <h3 className="text-sm font-medium text-gray-700">Archiv</h3>
                             <p className="text-xs text-gray-500 mt-1">In Ablage verwahren.</p>
@@ -153,5 +157,6 @@ export default async function TrainerDetailsPage({ params }: { params: Promise<{
                 </div>
             </div>
         </div>
+    </div>
     );
 }
