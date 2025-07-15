@@ -8,6 +8,7 @@ import { db } from '@/lib/db'
  */
 async function createArea(formData: FormData) {
   'use server'
+  let area
   try {
     const code = formData.get('code') as string
     const name = formData.get('name') as string
@@ -22,7 +23,7 @@ async function createArea(formData: FormData) {
     }
 
     // Create new area in database
-    await db.area.create({
+    area = await db.area.create({
       data: { code, name, description: description || null },
     })
   } catch (error) {
@@ -31,7 +32,7 @@ async function createArea(formData: FormData) {
   }
   
   // Redirect to areas list after successful creation
-  redirect('/area')
+  redirect(`/area/${area?.id}?created=1`)
 }
 
 export default async function NewAreaPage() {
@@ -44,10 +45,15 @@ export default async function NewAreaPage() {
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4">
       <div className="max-w-md mx-auto">
+           <nav className="max-w-xl mx-auto mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
+                <Link href="/area" className="hover:underline text-gray-700">Bereiche</Link>
+                <span>&gt;</span>
+                <span className="text-gray-700 font-semibold">Bereich hinzufügen</span>
+            </nav>
         <div className="bg-white rounded-sm shadow border border-gray-100">
           <div className="px-6 py-8">
             <h1 className="text-xl font-bold text-gray-900 mb-8 tracking-tight">
-              Add New Area
+              Bereich hinzufügen
             </h1>
             <form action={createArea} className="space-y-6">
               {/* Area Code Field */}
@@ -60,7 +66,7 @@ export default async function NewAreaPage() {
                   name="code"
                   type="text"
                   className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                  placeholder="Enter unique area code"
+                  placeholder="Code einfügen"
                   required
                 />
               </div>
@@ -75,7 +81,7 @@ export default async function NewAreaPage() {
                   name="name"
                   type="text"
                   className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                  placeholder="Enter area name"
+                  placeholder="Name einfügen"
                   required
                 />
               </div>
@@ -83,34 +89,26 @@ export default async function NewAreaPage() {
               {/* Area Description Field (Optional) */}
               <div className="space-y-1">
                 <label htmlFor="description" className="block text-xs font-medium text-gray-600">
-                  Description (optional)
+                  Beschreibung (optional)
                 </label>
                 <textarea
                   id="description"
                   name="description"
                   className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                  placeholder="Enter area description"
+                  placeholder="Beschreibung einfügen"
                   rows={2}
                 />
               </div>
               
               {/* Action Buttons */}
-              <div className="pt-2 flex items-center justify-between">
+              <div className="pt-2 flex items-center justify-end">
                 <button
                   type="submit"
-                  className="inline-flex items-center px-5 py-2 border border-transparent text-xs font-semibold rounded text-white bg-blue-600 hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  className="inline-flex items-center px-5 py-2 cursor-pointer border border-transparent text-xs font-semibold rounded text-white bg-blue-600 hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
-                  Create Area
+                  Bereich erstellen
                 </button>
-                <Link
-                  href="/area"
-                  className="text-xs font-medium text-gray-500 hover:text-gray-700 transition-colors flex items-center"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                  </svg>
-                  Back to Areas
-                </Link>
+                
               </div>
             </form>
           </div>

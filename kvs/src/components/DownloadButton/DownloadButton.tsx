@@ -159,6 +159,7 @@ export function DownloadPDFLink({
     
     setIsLoading(true);
     try {
+      console.log('Downloading PDF:', uuidString, filename);
       // Load the existing PDF document
       const buffer = await loadPDF(uuidString, filename)
       if (!buffer) {

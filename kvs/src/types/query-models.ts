@@ -185,6 +185,8 @@ export interface SanitizedCourse {
 export interface SanitizedInvoiceRecipient {
   id: string;
   type: RecipientType;
+  participantId?: string | null; 
+  recipientSalutation?: string | null; 
   recipientName?: string | null;
   recipientSurname?: string | null;
   companyName?: string | null;
@@ -201,6 +203,8 @@ export interface SanitizedInvoiceRecipient {
  */
 export interface SanitizedInvoice {
   id: string;
+  invoiceNumber: string;
+  dueDate?: Date | string | null;
   amount?: SerializedDecimal;
   isCancelled: boolean;
   transactionNumber?: string | null;
@@ -214,6 +218,7 @@ export interface SanitizedInvoice {
 export interface SanitizedInvoiceWithRelations extends SanitizedInvoice {
   invoiceNumber: string;
   dueDate: Date | string;
+  finalAmount: SerializedDecimal;
   courseRegistration?: {
     id: string;
     participant?: {

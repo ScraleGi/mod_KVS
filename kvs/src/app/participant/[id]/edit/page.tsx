@@ -34,9 +34,9 @@ export default async function EditParticipantPage({
       <div className="min-h-screen flex items-center justify-center bg-neutral-50">
         <div className="max-w-md w-full px-4">
           <Link href="/participant" className="text-blue-500 hover:underline mb-6 block">
-            &larr; Back to Participants
+            &larr; Teilnehmer
           </Link>
-          <div className="text-red-600 text-lg font-semibold">Participant not found.</div>
+          <div className="text-red-600 text-lg font-semibold">Teilnehmer nicht gefunden.</div>
         </div>
       </div>
     )
@@ -82,21 +82,32 @@ export default async function EditParticipantPage({
           }
         })
 
-        redirect(`/participant/${id}?edited=1`)
+        
       } catch (error) {
         console.error('Failed to update participant:', error)
         throw error
       }
+
+        redirect(`/participant/${id}?edited=1`)
     }
 
     //---------------------------------------------------
     // RENDER UI
     //---------------------------------------------------
     return (
-      <div className="min-h-screen flex items-center justify-center bg-neutral-50 px-2 py-8">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-50 px-2 py-8">
+        <div className="w-full max-w-xl">
+                  <nav className="mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
+                    <Link href="/participant" className="hover:underline text-gray-700">Teilnehmer</Link>
+                    <span>&gt;</span>
+                    <Link href={`/participant/${participant.id}`} className="text-gray-700 hover:underline">{participant.name} {participant.surname}</Link>
+                    <span>&gt;</span>
+                    <span className="text-gray-700 font-semibold">Teilnehmer bearbeiten</span>
+                  </nav>
+                </div>
         <div className="w-full max-w-xl bg-white rounded-2xl shadow-md border border-neutral-100 p-8">
           
-          <h1 className="text-2xl font-bold mb-6 text-neutral-900 text-center">Edit Participant</h1>
+          <h1 className="text-2xl font-bold mb-6 text-neutral-900 text-center">Teilnehmer bearbeiten</h1>
           <form
             action={updateParticipant}
             className="space-y-6"
@@ -113,7 +124,7 @@ export default async function EditParticipantPage({
                 />
               </label>
               <label className="flex flex-col text-xs font-medium text-neutral-700">
-                Salutation
+                Anrede
                 <input
                   name="salutation"
                   required
@@ -122,7 +133,7 @@ export default async function EditParticipantPage({
                 />
               </label>
               <label className="flex flex-col text-xs font-medium text-neutral-700">
-                Title
+                Titel
                 <input
                   name="title"
                   defaultValue={sanitizedParticipant.title ?? ''}
@@ -139,7 +150,7 @@ export default async function EditParticipantPage({
                 />
               </label>
               <label className="flex flex-col text-xs font-medium text-neutral-700">
-                Surname
+                Nachname
                 <input
                   name="surname"
                   required
@@ -158,7 +169,7 @@ export default async function EditParticipantPage({
                 />
               </label>
               <label className="flex flex-col text-xs font-medium text-neutral-700">
-                Phone Number
+                Tel.:
                 <input
                   name="phoneNumber"
                   required
@@ -167,7 +178,7 @@ export default async function EditParticipantPage({
                 />
               </label>
               <label className="flex flex-col text-xs font-medium text-neutral-700">
-                Birthday
+                Geburtstag
                 <input
                   name="birthday"
                   type="date"
@@ -177,7 +188,7 @@ export default async function EditParticipantPage({
                 />
               </label>
               <label className="flex flex-col text-xs font-medium text-neutral-700">
-                Postal Code
+                PLZ
                 <input
                   name="postalCode"
                   required
@@ -186,7 +197,7 @@ export default async function EditParticipantPage({
                 />
               </label>
               <label className="flex flex-col text-xs font-medium text-neutral-700">
-                City
+                Ort
                 <input
                   name="city"
                   required
@@ -195,7 +206,7 @@ export default async function EditParticipantPage({
                 />
               </label>
               <label className="flex flex-col text-xs font-medium text-neutral-700">
-                Street
+                Straße
                 <input
                   name="street"
                   required
@@ -204,7 +215,7 @@ export default async function EditParticipantPage({
                 />
               </label>
               <label className="flex flex-col text-xs font-medium text-neutral-700">
-                Country
+                Land
                 <input
                   name="country"
                   required
@@ -218,13 +229,13 @@ export default async function EditParticipantPage({
                 href={`/participant/${id}`}
                 className="px-4 py-2 bg-neutral-200 text-neutral-700 rounded hover:bg-neutral-300 text-xs font-medium transition"
               >
-                Cancel
+                Abbrechen
               </Link>
               <button
                 type="submit"
                 className="cursor-pointer px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-xs font-medium transition"
               >
-                Save Changes
+                Speichern
               </button>
             </div>
           </form>
@@ -238,10 +249,10 @@ export default async function EditParticipantPage({
         <div className="max-w-md w-full px-4 bg-white rounded-xl shadow p-8">
           <h1 className="text-xl font-bold text-red-600 mb-4">Error</h1>
           <p className="text-gray-700 mb-6">
-            An error occurred while loading the participant data. Please try again later.
+            Beim Laden der Teilnehmerdaten ist ein Fehler aufgetreten. Bitte versuchen Sie es später noch einmal.
           </p>
           <Link href="/participant" className="text-blue-500 hover:text-blue-700">
-            &larr; Back to Participants
+            &larr; Teilnehmer
           </Link>
         </div>
       </div>

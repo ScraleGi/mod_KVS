@@ -12,14 +12,17 @@ export default function ParticipantToaster() {
   useEffect(() => {
     if (shownRef.current) return;
 
-    const paramMap: Record<string, string> = {
-      created: 'Programm erfolgreich hinzugefügt!',
-      edited: 'Programm erfolgreich bearbeitet!',
+    const paramMap: Record<string, { message: string; type: 'success' | 'error' }> = {
+      created: { message: 'Programm erfolgreich hinzugefügt!', type: 'success' },
+      edited: { message: 'Programm erfolgreich bearbeitet!', type: 'success' },
+      deleted: { message: 'Programm erfolgreich gelöscht!', type: 'error' },
+      restored: { message: 'Programm erfolgreich wiederhergestellt!', type: 'success' }
     };
 
     for (const key in paramMap) {
       if (searchParams.get(key)) {
-        showToast(paramMap[key], 'success');
+        console.log('showToast', key)
+        showToast(paramMap[key].message, paramMap[key].type);
         shownRef.current = true;
         const params = new URLSearchParams(searchParams.toString());
         params.delete(key);

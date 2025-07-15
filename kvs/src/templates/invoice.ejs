@@ -76,7 +76,7 @@
       font-weight: bold;
     }
     .footer {
-      margin-top: 30px;
+      margin-top: 10px;
       font-size: 13px;
       line-height: 1.5;
     }
@@ -95,10 +95,6 @@
 <%
   const formattedDate = new Date(invoice.createdAt || Date.now()).toLocaleDateString('de-DE');
   const dueDateFormatted = new Date(invoice.dueDate).toLocaleDateString('de-DE');
-  const baseAmount = Number(invoice.amount);
-  const discountAmount = Number(invoice.courseRegistration?.discountAmount || 0);
-  const nettoGesamt = baseAmount - discountAmount;
-  const menge = 1;
 %>
 
 <div class="logo-wrapper">
@@ -140,27 +136,28 @@
   </thead>
   <tbody>
     <tr>
-      <td><%= course?.program?.name || 'Kurs' %></td>
-      <td class="text-right"><%= menge %></td>
-      <td class="text-right"><%= baseAmount.toFixed(2) %></td>
+      <td><%= program?.name || 'Kurs' %></td>
+      <td class="text-right"><%= amountNumber %></td>
+      <td class="text-right"><%= (baseAmount / amountNumber).toFixed(2) %></td>
       <td class="text-right">0%</td>
-      <td class="text-right"><%= (baseAmount * menge).toFixed(2) %></td>
+      <td class="text-right"><%= baseAmount.toFixed(2) %></td>
     </tr>
 
     <% if (discountAmount > 0) { %>
       <tr>
-        <td><%= invoice.courseRegistration.discountRemark || 'Rabatt' %></td>
-        <td class="text-right"><%= menge %></td>
-        <td class="text-right">-<%= discountAmount.toFixed(2) %></td>
+        <td><%= registration.discountRemark || 'Rabatt' %></td>
+        <td class="text-right"><%= amountNumber %></td>
+        <td class="text-right">-<%= (discountAmount / amountNumber).toFixed(2) %></td>
         <td class="text-right">0%</td>
-        <td class="text-right">-<%= (discountAmount * menge).toFixed(2) %></td>
+        <td class="text-right">-<%= discountAmount.toFixed(2) %></td>
       </tr>
     <% } %>
   </tbody>
+
   <tfoot>
     <tr class="total-row">
       <td colspan="4" class="text-right">Gesamt</td>
-      <td class="text-right"><%= nettoGesamt.toFixed(2) %> €</td>
+      <td class="text-right"><%= finalAmount.toFixed(2) %> €</td>
     </tr>
   </tfoot>
 </table>

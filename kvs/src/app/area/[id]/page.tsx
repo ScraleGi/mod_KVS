@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import AreaToaster from './AreaToaster'
 import { notFound } from 'next/navigation'
 import { Info, GraduationCap, Pencil } from 'lucide-react'
 import { db } from '@/lib/db'
@@ -130,9 +131,10 @@ export default async function AreaDetailPage({
 
   return (
     <div className="min-h-screen bg-[#f8fafd] py-14 px-4">
+      <AreaToaster />
       {/* Breadcrumb navigation */}
       <nav className="max-w-xl mx-auto mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
-        <Link href="/area" className="hover:underline text-gray-700">zurück zu Bereiche</Link>
+        <Link href="/area" className="hover:underline text-gray-700">Bereiche</Link>
         <span>&gt;</span>
         <span className="text-gray-700 font-semibold">{sanitizedArea.name}</span>
       </nav>
@@ -141,7 +143,7 @@ export default async function AreaDetailPage({
         <Link
           href={`/area/${sanitizedArea.id}/edit`}
           className="absolute top-6 right-6 text-gray-400 hover:text-blue-600 transition"
-          title="Edit Area"
+          title="Bereich bearbeiten"
         >
           <Pencil className="w-5 h-5 cursor-pointer" />
         </Link>
@@ -194,19 +196,6 @@ export default async function AreaDetailPage({
               ))
             )}
           </ul>
-        </div>
-
-        {/* Back button */}
-        <div className="mt-10 flex justify-end">
-          <Link
-            href="/area"
-            className="inline-flex items-center px-4 py-2 rounded text-xs bg-gray-200 text-gray-700 hover:bg-gray-300 transition"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            zurück zu Bereiche
-          </Link>
         </div>
       </div>
     </div>
