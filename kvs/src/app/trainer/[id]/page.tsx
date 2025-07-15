@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Info, GraduationCap, Pencil } from "lucide-react";
 import { redirect } from "next/navigation";
 import RemoveButton from "@/components/RemoveButton/RemoveButton";
+import { formatDateGerman } from '@/lib/utils'
 import TrainerToaster from './TrainerToaster';
 
 const prisma = new PrismaClient();
@@ -29,17 +30,6 @@ export default async function TrainerDetailsPage({ params }: { params: Promise<{
             },
         },
     });
-
-    // Date formatting utility
-    const formatDate = (date: string | Date | null) => {
-        if (!date) return 'N/A';
-        const d = new Date(date);
-        return d.toLocaleDateString('en-GB', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-        });
-    };
 
     // Server action soft-delete the trainer
     async function deleteTrainer(formData: FormData) {
@@ -105,7 +95,7 @@ export default async function TrainerDetailsPage({ params }: { params: Promise<{
                         {trainer.mainCourses.length > 0 ? (
                             trainer.mainCourses.map(course => (
                                 <div key={course.id} className="text-gray-700">
-                                    {course.program?.name || 'N/A'} - {formatDate(course.startDate)}
+                                    {course.program?.name || 'N/A'} - {formatDateGerman(course.startDate)}
                                 </div>
                             ))
                         ) : (
@@ -122,7 +112,7 @@ export default async function TrainerDetailsPage({ params }: { params: Promise<{
                         {trainer.courses.length > 0 ? (
                             trainer.courses.map(course => (
                                 <div key={course.id} className="text-gray-700">
-                                    {course.program?.name || 'N/A'} - {formatDate(course.startDate)}
+                                    {course.program?.name || 'N/A'} - {formatDateGerman(course.startDate)}
                                 </div>
                             ))
                         ) : (
