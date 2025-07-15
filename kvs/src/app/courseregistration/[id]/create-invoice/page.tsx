@@ -5,8 +5,6 @@ import { generateInvoice } from '@/utils/generateInvoice'
 
 import RecipientSelect from '../../../../components/recipientSelect/RecipientSelect' // <-- import client component
 
-import ParticipantSelect from '../../../../components/participantSelect/ParticipantSelect'
-
 //---------------------------------------------------
 // SERVER ACTIONS
 //---------------------------------------------------
@@ -96,9 +94,8 @@ export default async function CreateInvoicePage({
           <input type="hidden" name="registrationId" value={registration.id} />
 
           {/*autofill component */}
+          
          <RecipientSelect recipients={recipients} />
-
-         <ParticipantSelect participants={participants} />
          
 
           {/* Invoice Recipient Section (UNCHANGED) */}
