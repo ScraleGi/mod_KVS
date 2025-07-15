@@ -1,29 +1,16 @@
 'use client'
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 
-export default function DiscountClientEditLogic({
+export default function SubsidyClientLogic({
   onSubmit,
   programPrice,
-  initialEuro,
-  initialRemark,
 }: {
   onSubmit: (formData: FormData) => void | Promise<void>
   programPrice: number
-  initialEuro?: string
-  initialRemark?: string
 }) {
-  const [euro, setEuro] = useState(initialEuro ?? '')
+  const [euro, setEuro] = useState('')
   const [percent, setPercent] = useState('')
-  const [remark, setRemark] = useState(initialRemark ?? '')
   const [error, setError] = useState<string | null>(null)
-
-  // Set percent when initialEuro is loaded
-  useEffect(() => {
-    if (initialEuro && !isNaN(Number(initialEuro)) && programPrice > 0) {
-      const percentValue = (parseFloat(initialEuro) / programPrice) * 100
-      setPercent(percentValue ? percentValue.toFixed(2) : '')
-    }
-  }, [initialEuro, programPrice])
 
   function format(val: string) {
     return val.replace(/[^0-9.,]/g, '').replace(',', '.')
@@ -39,7 +26,7 @@ export default function DiscountClientEditLogic({
     }
     const euroValue = parseFloat(val)
     if (euroValue > programPrice) {
-      setError('Der Rabatt darf nicht größer als der Programmpreis sein.')
+      setError('Der Gutschein darf nicht größer als der Programmpreis sein.')
       setPercent('')
       return
     }
@@ -58,7 +45,7 @@ export default function DiscountClientEditLogic({
     }
     const percentValue = parseFloat(val)
     if (percentValue > 100) {
-      setError('Der Rabatt darf nicht mehr als 100% betragen.')
+      setError('Der Gutschein darf nicht mehr als 100% betragen.')
       setEuro('')
       return
     }
@@ -67,11 +54,6 @@ export default function DiscountClientEditLogic({
     setEuro(euroValue ? euroValue.toFixed(2) : '')
   }
 
-  function handleRemarkChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setRemark(e.target.value)
-  }
-
-  // Only prevent default if there's an error, otherwise let the browser submit the form for server action/redirect
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     if (error) {
       e.preventDefault()
@@ -86,7 +68,7 @@ export default function DiscountClientEditLogic({
 
   return (
     <form action={onSubmit} onSubmit={handleSubmit} className="mt-8 space-y-4">
-      <h2 className="text-lg font-bold">Rabatt bearbeiten</h2>
+      <h2 className="text-lg font-bold">Gutschein hinzufügen</h2>
       <div className="flex gap-4">
         <div className="flex-1">
           <label className="block text-sm">Betrag (€)</label>
@@ -124,8 +106,6 @@ export default function DiscountClientEditLogic({
         <input
           name="remark"
           type="text"
-          value={remark}
-          onChange={handleRemarkChange}
           className="border rounded px-2 py-1 w-full"
         />
       </div>

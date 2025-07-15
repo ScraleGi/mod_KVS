@@ -27,8 +27,8 @@ export default async function DiscountNewPage({ params }: { params: Promise<{ id
   if (!data?.course) {
     return (
       <div className="container mx-auto py-8 px-4">
-        <Link href="/" className="text-blue-500 hover:underline mb-6 block">
-          &larr; Startseite
+        <Link href={`/courseregistration/${id}`} className="text-blue-500 hover:underline mb-6 block">
+          &larr; Kursregistrierung
         </Link>
         <div className="text-red-600 text-lg font-semibold">Kurs nicht gefunden.</div>
       </div>
@@ -50,11 +50,11 @@ export default async function DiscountNewPage({ params }: { params: Promise<{ id
       <div className="max-w-[800px] mx-auto">
         {/* Navigation */}
         <div className="flex justify-between items-center mb-8">
-          <Link href="/" className="text-blue-500 hover:underline text-sm">
-            &larr; Startseite
+          <Link href={`/courseregistration/${id}`} className="text-blue-500 hover:underline text-sm">
+            &larr; Kursregistrierung
           </Link>
           <div className="flex-1 flex justify-center items-center relative">
-            <h1 className="text-2xl font-bold text-gray-900">Rabatt hinzufügen</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Gutschein bearbeiten</h1>
           </div>
           <div />
         </div>

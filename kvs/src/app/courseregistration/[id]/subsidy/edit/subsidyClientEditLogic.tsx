@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useEffect } from 'react'
 
-export default function DiscountClientEditLogic({
+export default function SubsidyClientEditLogic({
   onSubmit,
   programPrice,
   initialEuro,
@@ -39,7 +39,7 @@ export default function DiscountClientEditLogic({
     }
     const euroValue = parseFloat(val)
     if (euroValue > programPrice) {
-      setError('Der Rabatt darf nicht größer als der Programmpreis sein.')
+      setError('Der Gutschein darf nicht größer als der Programmpreis sein.')
       setPercent('')
       return
     }
@@ -58,7 +58,7 @@ export default function DiscountClientEditLogic({
     }
     const percentValue = parseFloat(val)
     if (percentValue > 100) {
-      setError('Der Rabatt darf nicht mehr als 100% betragen.')
+      setError('Der Gutschein darf nicht mehr als 100% betragen.')
       setEuro('')
       return
     }
@@ -71,7 +71,8 @@ export default function DiscountClientEditLogic({
     setRemark(e.target.value)
   }
 
-  // Only prevent default if there's an error, otherwise let the browser submit the form for server action/redirect
+  // IMPORTANT: Do NOT call e.preventDefault() unless there's an error.
+  // Use both action and onSubmit in the form to allow server action redirect.
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     if (error) {
       e.preventDefault()
@@ -86,7 +87,7 @@ export default function DiscountClientEditLogic({
 
   return (
     <form action={onSubmit} onSubmit={handleSubmit} className="mt-8 space-y-4">
-      <h2 className="text-lg font-bold">Rabatt bearbeiten</h2>
+      <h2 className="text-lg font-bold">Gutschein bearbeiten</h2>
       <div className="flex gap-4">
         <div className="flex-1">
           <label className="block text-sm">Betrag (€)</label>

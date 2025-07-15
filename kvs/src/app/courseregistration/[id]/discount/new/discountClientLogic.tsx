@@ -59,15 +59,15 @@ export default function DiscountClientLogic({
       e.preventDefault()
       return
     }
-    // Always submit euro value
+    // Always submit euro value before native submit
     const form = e.target as HTMLFormElement
     const euroInput = form.elements.namedItem('amount') as HTMLInputElement
     euroInput.value = euro
-    onSubmit(new FormData(form))
+    // Do NOT prevent default, let the browser submit the form for server action/redirect
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+    <form action={onSubmit} onSubmit={handleSubmit} className="mt-8 space-y-4">
       <h2 className="text-lg font-bold">Rabatt hinzufügen</h2>
       <div className="flex gap-4">
         <div className="flex-1">
