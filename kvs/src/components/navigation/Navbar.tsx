@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { FaBars, FaSearch, FaBell, FaUserCircle } from 'react-icons/fa';
-import { searchEntities, SearchResult } from './searchActions';
+import { searchEntities, SearchResult } from '../../app/actions/searchActions';
 
 type NavbarProps = {
   isOpen: boolean;
