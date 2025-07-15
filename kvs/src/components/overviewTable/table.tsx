@@ -610,8 +610,8 @@ export const trainerColumns: ColumnDef<TrainerRow>[] = [
     header: ({ column }) => (
       <FilterHeader
         column={column}
-        label="Vorname"
-        placeholder="Filter Vorname..."
+        label="Name"
+        placeholder="Filter Name..."
       />
     ),
     cell: ({ row }) => (
@@ -683,8 +683,8 @@ export const trainerColumns: ColumnDef<TrainerRow>[] = [
     header: ({ column }) => (
       <FilterHeader
         column={column}
-        label="Kurse"
-        placeholder="Filter Kurse..."
+        label="Co-Kurse"
+        placeholder="Filter Co-Kurse..."
       />
     ),
     cell: ({ row }) => (
