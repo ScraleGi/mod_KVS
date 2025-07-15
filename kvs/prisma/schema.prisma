@@ -79,8 +79,11 @@ model CourseRegistration {
   subsidyRemark       String?
   subsidyAmount       Decimal?    @db.Decimal(10, 2)
   discountRemark      String?                                                                             
-  discountAmount      Decimal?    @db.Decimal(10, 2)                                                      //!!!!!!!CHECK 
-
+  discountAmount      Decimal?    @db.Decimal(10, 2)  
+  
+  companyId           String?     // Nullable for individual participants
+  company             Company?    @relation(fields: [companyId], references: [id])
+  
   @@index([deletedAt])
   @@index([courseId])
   @@index([participantId])
@@ -126,6 +129,22 @@ model Participant {
   registrations         CourseRegistration[]
   invoiceRecipients     InvoiceRecipient[]   
   @@index([deletedAt])
+}
+
+model Company {
+  id             String       @id @default(uuid())
+  name           String       @unique
+  email          String
+  phoneNumber    String?
+  street         String
+  postalCode     String
+  city           String
+  country        String?
+  createdAt      DateTime     @default(now())
+  deletedAt      DateTime?    // Soft delete: null = not deleted, date = deleted
+  
+  CourseRegistration CourseRegistration[]
+
 }
 
 model Invoice {
