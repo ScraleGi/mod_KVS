@@ -48,15 +48,17 @@ export default async function SubsidyEditPage({ params }: { params: Promise<{ id
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4">
       <div className="max-w-[800px] mx-auto">
-        {/* Navigation */}
-        <div className="flex justify-between items-center mb-8">
+        {/* Navigation Link */}
+        <div className="mb-2">
           <Link href={`/courseregistration/${id}`} className="text-blue-500 hover:underline text-sm">
             &larr; Kursregistrierung
           </Link>
-          <div className="flex-1 flex justify-center items-center relative">
-            <h1 className="text-2xl font-bold text-gray-900">Gutschein bearbeiten</h1>
-          </div>
-          <div />
+        </div>
+        {/* Centered Heading */}
+        <div className="mb-8 flex justify-center">
+          <h1 className="text-2xl font-bold text-gray-900 text-center">
+            Gutschein bearbeiten
+          </h1>
         </div>
 
         {/* Integrated Course Info Card + Subsidy Edit Form */}
@@ -116,6 +118,7 @@ export default async function SubsidyEditPage({ params }: { params: Promise<{ id
             programPrice={Number(course.program?.price ?? 0)}
             initialEuro={subsidyAmount ? String(subsidyAmount) : ''}
             initialRemark={subsidyRemark ?? ''}
+            registrationId={id}
           />
         </div>
       </div>
