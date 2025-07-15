@@ -48,6 +48,11 @@ export default async function NewProgramPage() {
     return (
       <div className="min-h-screen bg-gray-50 py-10 px-4 flex items-center justify-center">
         <div className="w-full max-w-md">
+          <nav className="max-w-xl mx-auto mb-6 text-sm  text-gray-500 flex items-center gap-2 pl-2">
+                      <Link href="/program" className="hover:underline text-gray-700">Programm</Link>
+                      <span>&gt;</span>
+                      <span className="text-gray-700 font-semibold">Programm hinzufügen</span> 
+                    </nav>
           <div className="bg-white rounded-sm shadow border border-gray-100">
             <div className="px-6 py-8">
               <h1 className="text-xl font-bold text-gray-900 mb-8 tracking-tight">
@@ -64,7 +69,7 @@ export default async function NewProgramPage() {
                     type="text"
                     required
                     className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                    placeholder="Enter unique program code"
+                    placeholder="Programm Code einfügen"
                   />
                 </div>
                 <div className="space-y-1">
@@ -77,7 +82,7 @@ export default async function NewProgramPage() {
                     type="text"
                     required
                     className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                    placeholder="Enter program name"
+                    placeholder="Programm Name einfügen"
                   />
                 </div>
                 <div className="space-y-1">
@@ -109,7 +114,7 @@ export default async function NewProgramPage() {
                     id="description"
                     name="description"
                     className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                    placeholder="Enter program description"
+                    placeholder="Programm Beschreibung einfügen"
                     rows={3}
                   />
                 </div>
@@ -123,7 +128,7 @@ export default async function NewProgramPage() {
                     type="number"
                     min={0}
                     className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                    placeholder="Enter number of units"
+                    placeholder="Unterrrichtseinheiten eingeben"
                   />
                 </div>
                 <div className="space-y-1">
@@ -137,25 +142,17 @@ export default async function NewProgramPage() {
                     min={0}
                     step="0.01"
                     className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                    placeholder="Enter price"
+                    placeholder="Preis eingeben"
                   />
                 </div>
-                <div className="pt-2 flex items-center justify-between">
+                <div className="pt-2 flex items-center justify-end">
                   <button
                     type="submit"
                     className="inline-flex cursor-pointer items-center px-5 py-2 border border-transparent text-xs font-semibold rounded text-white bg-blue-600 hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                   >
                     Programm erstellen 
                   </button>
-                  <Link
-                    href="/program"
-                    className="text-xs font-medium text-gray-500 hover:text-gray-700 transition-colors flex items-center"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                    </svg>
-                    Programme
-                  </Link>
+                  
                 </div>
               </form>
             </div>
