@@ -1014,9 +1014,6 @@ async function seedRoles() {
     { name: 'RECHNUNGSWESEN'},
     { name: 'PROGRAMMMANAGER'},
     { name: 'MARKETING'},
-    { name: 'SUPERADMIN'},
-    { name: 'USER'},
-    { name: 'GUEST'},
   ];
   await db.role.createMany({ data: roles, skipDuplicates: true });
 }
@@ -1024,6 +1021,12 @@ async function seedRoles() {
 async function seedUsers() {
   const users = [
     { email: 'leonie@dc.at' },
+    { email: 'daniela@dc.at' },
+    { email: 'gyula@dc.at' },
+    { email: 'oliver@dc.at' },
+    { email: 'carlos@dc.at' },
+    { email: 'goerkem@dc.at' },
+    { email: 'mehmet@dc.at' },
   ];
   await db.user.createMany({ data: users, skipDuplicates: true });
   // IDs für Zuordnung holen
@@ -1032,14 +1035,24 @@ async function seedUsers() {
 }
 
 async function assignRolesToUsers() {
-  await db.user.update({
-    where: { email: 'leonie@dc.at' },
-    data: {
-      roles: {
-        connect: [{ name: 'ADMIN' }]
+  // Alle User holen
+  const allUsers = await db.user.findMany();
+  // Die ADMIN-Rolle holen
+  const adminRole = await db.role.findUnique({ where: { name: 'ADMIN' } });
+  if (!adminRole) throw new Error('ADMIN role not found!');
+
+  // Für jeden User die ADMIN-Rolle zuweisen
+  for (const user of allUsers) {
+    await db.user.update({
+      where: { id: user.id },
+      data: {
+        roles: {
+          connect: { id: adminRole.id }
+        }
       }
-    }
-  });
+    });
+  }
+  console.log('✅ ADMIN-Rolle allen Usern zugewiesen.');
 }
 
 

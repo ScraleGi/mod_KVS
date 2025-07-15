@@ -4,8 +4,8 @@ import { db } from '@/lib/db'
 import { Area } from '@/types/models'
 import { sanitize } from '@/lib/sanitize'
 import { getAuthorizing } from '@/lib/getAuthorizing'
-import AuthTableTopButton from '@/components/navigation/AuthTableTopButton'
 import TableTopButton from '@/components/navigation/TableTopButton'
+import AreaToaster from './[id]/AreaToaster'
 
 // Define types for our program data structure
 interface ProgramWithCoursesAndRegistrations {
@@ -112,14 +112,15 @@ export default async function AreasPage() {
         participantCount: area.participantCount
     }))
 
-  if (roles.some(role => role.role === 'ADMIN')) {
+  if (roles.some(role => role.role === 'MARKETING')) {
         return (<div className="min-h-screen bg-gray-50 py-6 px-4">
             {/* Header */}
-            <AuthTableTopButton
+            <TableTopButton
                 title="Bereiche"
                 button1=""
                 button2="/"
                 button3=""
+                auth={true}
             />
             {/* Areas Table */}
             <CourseTable
