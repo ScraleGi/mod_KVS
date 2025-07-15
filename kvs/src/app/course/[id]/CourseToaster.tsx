@@ -15,7 +15,7 @@ export default function ParticipantToaster() {
     const paramMap: Record<string, { message: string; type: 'success' | 'error' }> = {
       created: { message: 'Kurs erfolgreich erstellt!', type: 'success' },
       edited: { message: 'Kurs erfolgreich bearbeitet!', type: 'success' },
-      deleted: { message: 'Kurs erfolgreich gelöscht!', type: 'error' },
+      deleted: { message: 'Kurs erfolgreich gelöscht!', type: 'success' },
       restored: { message: 'Kurs erfolgreich wiederhergestellt!', type: 'success' }
     };
 
