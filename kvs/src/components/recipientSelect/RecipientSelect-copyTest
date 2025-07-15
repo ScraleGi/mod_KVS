@@ -18,8 +18,6 @@ type Recipient = {
   recipientCountry?: string | null
 }
 
-
-
 export default function RecipientSelect({ recipients }: { recipients: Recipient[] }) {
   const [search, setSearch] = useState('')
   const [filtered, setFiltered] = useState<Recipient[]>([])

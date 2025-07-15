@@ -5,6 +5,8 @@ import { generateInvoice } from '@/utils/generateInvoice'
 
 import RecipientSelect from '../../../../components/recipientSelect/RecipientSelect' // <-- import client component
 
+import ParticipantSelect from '../../../../components/participantSelect/ParticipantSelect'
+
 //---------------------------------------------------
 // SERVER ACTIONS
 //---------------------------------------------------
@@ -54,6 +56,12 @@ export default async function CreateInvoicePage({
     orderBy: { createdAt: 'desc' },
   })
 
+  // Fetch participants to pass to ParticipantSelect
+  const participants = await db.participant.findMany({
+    where: { deletedAt: null },
+    orderBy: { createdAt: 'desc' },
+  })
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-neutral-50 px-2 py-8">
       <div className="w-full max-w-xl bg-white rounded-2xl shadow-md border border-neutral-100 p-8">
@@ -88,7 +96,10 @@ export default async function CreateInvoicePage({
           <input type="hidden" name="registrationId" value={registration.id} />
 
           {/*autofill component */}
-          <RecipientSelect recipients={recipients} participants={participant} />
+         <RecipientSelect recipients={recipients} />
+
+         <ParticipantSelect participants={participants} />
+         
 
           {/* Invoice Recipient Section (UNCHANGED) */}
           <fieldset className="border border-neutral-200 rounded-lg p-5">
