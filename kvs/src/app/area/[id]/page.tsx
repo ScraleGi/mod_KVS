@@ -44,7 +44,7 @@ export default async function AreaDetailPage({
   // Sanitize data to handle any Decimal values
   const sanitizedArea = sanitize<typeof area, AreaWithPrograms>(area);
 
-  if (roles.some(role => role.role === 'ADMIN' || role.role === 'RECHNUNGSWESEN' || role.role === 'TRAINER')) {
+  if (roles.some(role => role.role === 'MARKETING' || role.role === 'RECHNUNGSWESEN' || role.role === 'TRAINER')) {
         return (
         <div className="min-h-screen bg-[#f8fafd] py-14 px-4">
       {/* Breadcrumb navigation */}
