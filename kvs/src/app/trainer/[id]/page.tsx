@@ -57,11 +57,11 @@ export default async function TrainerDetailsPage({ params }: { params: Promise<{
             </nav>
             <div className="max-w-xl mx-auto bg-white rounded-2xl shadow-lg px-6 py-8 relative">
                 <Link
-                    href={`/trainer/${trainer.id}/edit`}
-                    className="absolute top-6 right-6 text-gray-400 hover:text-blue-600 transition"
-                    title="Edit Trainer"
+                href={`/trainer/${trainer.id}/edit`}
+                className="absolute top-6 right-6 z-20 text-gray-400 hover:text-blue-600 transition flex items-center justify-center p-2 rounded-full"
+                title="Edit Trainer"
                 >
-                    <Pencil className="w-5 h-5 cursor-pointer" />
+                <Pencil className="w-5 h-5 cursor-pointer pointer-events-auto block" />
                 </Link>
 
                 <h1 className="text-3xl font-bold mb-6 text-center text-gray-900 drop-shadow-sm">{trainer.title} {trainer.name} {trainer.surname}</h1>
