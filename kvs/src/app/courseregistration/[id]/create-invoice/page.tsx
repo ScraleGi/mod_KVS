@@ -54,11 +54,6 @@ export default async function CreateInvoicePage({
     orderBy: { createdAt: 'desc' },
   })
 
-  // Fetch participants to pass to ParticipantSelect
-  const participants = await db.participant.findMany({
-    where: { deletedAt: null },
-    orderBy: { createdAt: 'desc' },
-  })
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-neutral-50 px-2 py-8">
@@ -95,7 +90,7 @@ export default async function CreateInvoicePage({
 
           {/*autofill component */}
           
-         <RecipientSelect recipients={recipients} />
+         <RecipientSelect recipients={recipients} /> 
          
 
           {/* Invoice Recipient Section (UNCHANGED) */}
