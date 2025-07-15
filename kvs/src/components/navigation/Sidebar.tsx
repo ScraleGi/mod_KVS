@@ -34,6 +34,16 @@ const Tooltip = ({ children }: { children: React.ReactNode }) => (
 
 const Sidebar = ({ isOpen, roles }: SidebarProps) => {
   const pathname = usePathname();
+  const navItems = [
+  { href: '/', label: 'Startseite', icon: FaHome },
+  { href: '/program', label: 'Programme', icon: FaLayerGroup },
+  { href: '/area', label: 'Bereiche', icon: FaThLarge },
+  { href: '/participant', label: 'Teilnehmer', icon: FaUsers },
+  { href: '/calendar', label: 'Termine', icon: FaCalendarAlt },
+  { href: '/reports', label: 'Berichte', icon: FaChartBar },
+  { href: '/inbox', label: 'Posteingang', icon: FaRegEnvelope },
+  { href: '/settings', label: 'Einstellungen', icon: FaCog },
+];
 
   if (!roles || roles.length === 0) {
     return null;
@@ -42,15 +52,9 @@ const Sidebar = ({ isOpen, roles }: SidebarProps) => {
     return null;
   }
 
-  // Kopie des Arrays für jeden Render
-  let items = [...navItems];
-  if (
-    roles.some(role => role.role === 'ADMIN') &&
-    !items.some(item => item.href === '/admin')
-  ) {
-    items.push({ href: '/admin', label: 'Admin', icon: FaCog });
+  if (roles.some(role => role.role === 'ADMIN')) {
+    navItems.push({ href: '/user', label: 'Admin', icon: FaCog });
   }
-
 
   return (
     <nav 
@@ -62,7 +66,7 @@ const Sidebar = ({ isOpen, roles }: SidebarProps) => {
     ">
 
     <ul className="flex-1 space-y-2 font-bold text-white">
-      {items.map(({ href, label, icon: Icon }) => {
+      {navItems.map(({ href, label, icon: Icon }) => {
         const isActive = pathname === href;
         return (
           <li key={href} className='relative group'>

@@ -80,6 +80,12 @@ export type ProgramRow = {
   price: number | null
 }
 
+export type PrivilegesColumns = {
+  id: string
+  email: string
+  roles: string
+}
+
 // -------------------- Table Columns Definition --------------------
 export const home: ColumnDef<CourseRow>[] = [
   // Course column with sorting
@@ -562,6 +568,31 @@ export const programColumns: ColumnDef<ProgramRow>[] = [
         </Link>
       </div>
     ),
+  },
+]
+
+export const privilegesColumns: ColumnDef<PrivilegesColumns>[] = [
+  {
+    accessorKey: "id",
+    header: "ID",
+    cell: ({ row }) => <span className="block pl-2">{row.getValue("id")}</span>,
+  },
+  {
+    accessorKey: "email",
+    header: "E-Mail",
+    cell: ({ row }) => 
+      <Link
+        href={`/user/${row.original.id}`}
+        className="block pl-2 text-blue-600 hover:text-blue-800"
+        style={{ whiteSpace: "nowrap", overflowWrap: "normal" }}
+      >
+        {row.getValue("email")}
+      </Link>,
+  },
+  {
+    accessorKey: "roles",
+    header: "Rollen",
+    cell: ({ row }) => <span className="block pl-2">{row.getValue("roles")}</span>,
   },
 ]
 
