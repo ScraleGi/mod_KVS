@@ -77,7 +77,7 @@ export default async function EditAreaPage({
           <span>&gt;</span>
           <span className="text-gray-700 font-semibold">Bereich bearbeiten</span>
           <span>&gt;</span>
-          <Link href={`/area/${id}`} className="hover:underline text-gray-700">Details</Link>
+          <Link href={`/area/${id}`} className="hover:underline text-gray-700">{sanitizedArea.name}</Link>
 
         </nav>
         <div className="bg-white rounded-sm shadow border border-gray-100">
