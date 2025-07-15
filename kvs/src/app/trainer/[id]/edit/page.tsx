@@ -47,7 +47,7 @@ export default async function EditTrainerPage({ params }: { params: Promise<{ id
                 title: title ? title : null // Assuming title is optional
             }
         });
-        redirect(`/trainer/${id}`);
+        redirect(`/trainer/${id}?edited=1`);
     };
 
 
