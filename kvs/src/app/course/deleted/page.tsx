@@ -4,6 +4,7 @@ import { db } from '@/lib/db'
 import { sanitize } from '@/lib/sanitize'
 import { formatDate } from '@/lib/utils'
 import { DeletedCourseWithProgram } from '@/types/query-models'
+import { getAuthorizing } from '@/lib/getAuthorizing';
 
 /**
  * Server action to restore a soft-deleted course
@@ -24,6 +25,10 @@ async function restoreCourse(formData: FormData) {
  * Page component for displaying and managing deleted courses
  */
 export default async function DeletedCoursesPage() {
+  // Check user authorization
+    await getAuthorizing({
+      privilige: ['ADMIN', 'PROGRAMMMANAGER', 'TRAINER'],
+    })
   // Fetch all deleted courses with their program names
   const deletedCoursesData = await db.course.findMany({
     where: { deletedAt: { not: null } },

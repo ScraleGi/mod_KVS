@@ -4,6 +4,7 @@ import { auth0 } from "@/lib/auth0";
 import "./globals.css";
 import '../styles/components.css';
 import { redirect } from "next/navigation";
+import { getRolesByEmail } from "@/lib/getRoles";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,12 +32,14 @@ export default async function RootLayout({
   if (user === undefined) {
     redirect('/auth/login');
   }
+  const roles = await getRolesByEmail(user);
+
 
 
   return (
     <html lang="de">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <NavAndSidebar user={user}>
+        <NavAndSidebar user={user} userRoles={roles}>
           {children}
         </NavAndSidebar>
       </body>

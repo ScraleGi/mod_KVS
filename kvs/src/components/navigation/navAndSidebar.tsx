@@ -6,7 +6,7 @@ import Sidebar from '@/components/navigation/Sidebar';
 import { ToasterProvider } from "@/components/ui/toaster";
 
 
-export default function NavAndSidebar({ user, children }: { user: string, children: React.ReactNode }) {
+export default function NavAndSidebar({ user, userRoles, children }: { user: string, userRoles: { role: string }[], children: React.ReactNode }) {
   const [isOpen, setOpen] = useState(true);
 
   return (
@@ -19,7 +19,7 @@ export default function NavAndSidebar({ user, children }: { user: string, childr
         <div className="min-h-screen flex flex-col">
           <Navbar isOpen={isOpen} setOpen={setOpen} user={user} />
           <div className="flex grow">
-            <Sidebar isOpen={isOpen} />
+            <Sidebar isOpen={isOpen} roles={userRoles} />
             <main className="flex-1 transition-all duration-200">{children}</main>
           </div>
         </div>

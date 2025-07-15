@@ -23,5 +23,5 @@ export async function getAuthorizing({ privilige }: { privilige?: string[] } = {
     redirect("/403");
   }
 
-  return true;
+  return roles;
 }

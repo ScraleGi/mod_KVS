@@ -4,6 +4,7 @@ import CreateCourseForm from '@/components/course/CreateCourseForm'
 import { db } from '@/lib/db'
 import { sanitize } from '@/lib/sanitize'
 import { Program, Trainer } from '@/types/models'
+import { getAuthorizing } from '@/lib/getAuthorizing'
 
 /**
  * Server action to create a new course
@@ -44,6 +45,10 @@ async function createCourse(formData: FormData) {
  * New Course Page - Provides form to create a new course
  */
 export default async function NewCoursePage() {
+  // Check user authorization
+  await getAuthorizing({
+    privilige: ['ADMIN', 'PROGRAMMMANAGER', 'TRAINER'],
+  })
   // Fetch trainers and programs in parallel for better performance
   const [trainersData, programsData] = await Promise.all([
     db.trainer.findMany({

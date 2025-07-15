@@ -15,6 +15,7 @@ const navItems = [
 
 type SidebarProps = {
   isOpen: boolean;
+  roles?: { role: string }[];
 }
 
 const Tooltip = ({ children }: { children: React.ReactNode }) => (
@@ -31,8 +32,25 @@ const Tooltip = ({ children }: { children: React.ReactNode }) => (
   </span>
 );
 
-const Sidebar = ({ isOpen }: SidebarProps) => {
+const Sidebar = ({ isOpen, roles }: SidebarProps) => {
   const pathname = usePathname();
+
+  if (!roles || roles.length === 0) {
+    return null;
+  }
+  if (!roles.some(role => ['ADMIN', 'PROGRAMMMANAGER', 'TRAINER', 'RECHNUNGSWESEN', 'MARKETING'].includes(role.role))) {
+    return null;
+  }
+
+  // Kopie des Arrays für jeden Render
+  let items = [...navItems];
+  if (
+    roles.some(role => role.role === 'ADMIN') &&
+    !items.some(item => item.href === '/admin')
+  ) {
+    items.push({ href: '/admin', label: 'Admin', icon: FaCog });
+  }
+
 
   return (
     <nav 
@@ -44,7 +62,7 @@ const Sidebar = ({ isOpen }: SidebarProps) => {
     ">
 
     <ul className="flex-1 space-y-2 font-bold text-white">
-      {navItems.map(({ href, label, icon: Icon }) => {
+      {items.map(({ href, label, icon: Icon }) => {
         const isActive = pathname === href;
         return (
           <li key={href} className='relative group'>

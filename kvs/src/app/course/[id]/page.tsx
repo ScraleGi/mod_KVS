@@ -4,6 +4,8 @@ import { db } from '@/lib/db'
 import { sanitize } from '@/lib/sanitize'
 import { Course } from '@/types/models'
 import { formatFullName, formatDateGerman } from '@/lib/utils'
+import { getAuthorizing } from '@/lib/getAuthorizing'
+import { get } from 'http'
 
 /**
  * Extended Course type with nested relations for the detailed view
@@ -50,6 +52,10 @@ interface CourseWithRelations extends Omit<Course, 'program' | 'mainTrainer' | '
  */
 
 export default async function CoursePage({ params }: { params: Promise<{ id: string }> }) {
+  // Check user authorization
+    await getAuthorizing({
+      privilige: ['ADMIN', 'PROGRAMMMANAGER', 'TRAINER', 'RECHNUNGSWESEN'],
+    })
   const { id } = await params
 
   // Fetch course with related data, including generatedDocuments for each registration
