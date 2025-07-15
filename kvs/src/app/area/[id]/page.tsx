@@ -6,6 +6,7 @@ import { db } from '@/lib/db'
 import { Area } from '@/types/models'
 import { sanitize } from '@/lib/sanitize'
 import { getAuthorizing } from '@/lib/getAuthorizing'
+import EditPencil from '@/components/navigation/EditPencil'
 
 // Define interface for the area with programs that match the query select
 interface AreaWithPrograms extends Omit<Area, 'programs'> {
@@ -23,7 +24,7 @@ export default async function AreaDetailPage({
 }) {
   // Check user authorization
   const roles = await getAuthorizing({
-    privilige: ['ADMIN', 'PROGRAMMMANAGER', 'TRAINER', 'RECHNUNGSWESEN', 'MARKETING'],
+    privilige: ['ADMIN', 'PROGRAMMMANAGER', 'TRAINER'],
   })
   const { id } = await params;
   
@@ -43,24 +44,21 @@ export default async function AreaDetailPage({
   // Sanitize data to handle any Decimal values
   const sanitizedArea = sanitize<typeof area, AreaWithPrograms>(area);
 
-  if (roles.some(role => role.role === 'MARKETING' || role.role === 'RECHNUNGSWESEN' || role.role === 'TRAINER')) {
+  if (roles.some(role => role.role === 'ADMIN' || role.role === 'RECHNUNGSWESEN' || role.role === 'TRAINER')) {
         return (
         <div className="min-h-screen bg-[#f8fafd] py-14 px-4">
       {/* Breadcrumb navigation */}
       <nav className="max-w-xl mx-auto mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
-        <Link href="/area" className="hover:underline text-gray-700">zurück zu Bereiche</Link>
+        <Link href="/area" className="hover:underline text-gray-700">Bereiche</Link>
         <span>&gt;</span>
         <span className="text-gray-700 font-semibold">{sanitizedArea.name}</span>
       </nav>
       <div className="max-w-xl mx-auto bg-white rounded-2xl shadow-lg px-6 py-8 relative">
         {/* Edit button */}
-        <Link
-          href={``}
-          className="absolute top-6 right-6 text-gray-200 transition"
-          title="Edit Area"
-        >
-          <Pencil className="w-5 h-5 cursor-pointer" />
-        </Link>
+        <EditPencil
+          goTo={``}
+          auth={true}
+        />
 
         {/* Area title */}
         <h1 className="text-3xl font-bold mb-6 text-center text-gray-900 drop-shadow-sm">{sanitizedArea.name}</h1>
@@ -111,19 +109,6 @@ export default async function AreaDetailPage({
             )}
           </ul>
         </div>
-
-        {/* Back button */}
-        <div className="mt-10 flex justify-end">
-          <Link
-            href="/area"
-            className="inline-flex items-center px-4 py-2 rounded text-xs bg-gray-200 text-gray-700 hover:bg-gray-300 transition"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            zurück zu Bereiche
-          </Link>
-        </div>
       </div>
     </div>
   )
@@ -140,13 +125,9 @@ export default async function AreaDetailPage({
       </nav>
       <div className="max-w-xl mx-auto bg-white rounded-2xl shadow-lg px-6 py-8 relative">
         {/* Edit button */}
-        <Link
-          href={`/area/${sanitizedArea.id}/edit`}
-          className="absolute top-6 right-6 text-gray-400 hover:text-blue-600 transition"
-          title="Bereich bearbeiten"
-        >
-          <Pencil className="w-5 h-5 cursor-pointer" />
-        </Link>
+        <EditPencil
+          goTo={`/area/${sanitizedArea.id}/edit`}
+        />
 
         {/* Area title */}
         <h1 className="text-3xl font-bold mb-6 text-center text-gray-900 drop-shadow-sm">{sanitizedArea.name}</h1>

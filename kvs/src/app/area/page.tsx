@@ -115,6 +115,7 @@ export default async function AreasPage() {
   if (roles.some(role => role.role === 'MARKETING')) {
         return (<div className="min-h-screen bg-gray-50 py-6 px-4">
             {/* Header */}
+            <AreaToaster />
             <TableTopButton
                 title="Bereiche"
                 button1=""
@@ -127,6 +128,7 @@ export default async function AreasPage() {
                 data={tableData}
                 columns={areaColumns}
             />
+
         </div>
     )
   }
