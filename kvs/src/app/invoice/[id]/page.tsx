@@ -96,7 +96,7 @@ export default async function InvoicePage({
       value: invoice.courseRegistration?.course?.program?.name || 'N/A',
     },
     {
-      label: 'Code',
+      label: 'Course Code',
       value: invoice.courseRegistration?.course?.code || 'N/A',
     },
     {
