@@ -4,6 +4,7 @@ import { sanitize } from '@/lib/sanitize';
 import { Holiday } from '@/types/models';
 import { CourseWithCalendarRelations, CalendarEvent } from '@/types/query-models';
 import { formatDateToISO } from '@/lib/dateUtils';
+import { getAuthorizing } from '@/lib/getAuthorizing';
 
 export default async function CalendarPage() {
   // Fetch courses and their related data
@@ -44,6 +45,11 @@ export default async function CalendarPage() {
     mainTrainer: '',
     coTrainers: []
   }));
+
+  // Check user authorization
+    await getAuthorizing({
+      privilige: ['ADMIN', 'PROGRAMMMANAGER', 'TRAINER', 'RECHNUNGSWESEN', 'MARKETING'],
+    })
 
   // Combine all events and render the calendar
   return <Calendar events={[...courseEvents, ...holidayEvents]} />;

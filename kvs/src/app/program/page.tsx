@@ -8,6 +8,7 @@ import { CourseTable, programColumns } from '@/components/overviewTable/table'
 import { db } from '@/lib/db'
 import { sanitize } from '@/lib/sanitize'
 import { SanitizedProgram } from '@/types/query-models';
+import { getAuthorizing } from '@/lib/getAuthorizing';
 
 //---------------------------------------------------
 // DATA FETCHING
@@ -70,6 +71,11 @@ export default async function ProgramsPage({
     ) {
       redirect('/program/new')
     }
+
+    // Check user authorization
+      await getAuthorizing({
+        privilige: ['ADMIN', 'PROGRAMMMANAGER', 'TRAINER', 'RECHNUNGSWESEN', 'MARKETING'],
+      })
 
     //---------------------------------------------------
     // RENDER UI

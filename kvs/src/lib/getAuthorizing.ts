@@ -6,7 +6,7 @@ export async function getAuthorizing({ privilige }: { privilige?: string[] } = {
 
   const session = await auth0.getSession();
   if (!session || !session.user) {
-    redirect("/api/auth/login");
+    redirect("/auth/login");
   }
 
   const email = session.user.email;

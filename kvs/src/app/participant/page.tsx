@@ -3,6 +3,7 @@ import { sanitize } from '@/lib/sanitize'
 import { CourseTable, participantColumns, ParticipantRow } from "@/components/overviewTable/table"
 import { AddParticipantButton } from "@/components/participants/buttonAddParticipant"
 import Link from 'next/link'
+import { getAuthorizing } from '@/lib/getAuthorizing'
 
 //---------------------------------------------------
 // MAIN COMPONENT
@@ -49,6 +50,11 @@ export default async function ParticipantOverviewPage() {
           startDate: r.course.startDate,
         })),
     }))
+
+    // Check user authorization
+      await getAuthorizing({
+        privilige: ['ADMIN', 'PROGRAMMMANAGER', 'TRAINER', 'RECHNUNGSWESEN', 'MARKETING'],
+      })
 
     //---------------------------------------------------
     // RENDER UI

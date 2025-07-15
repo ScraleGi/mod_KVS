@@ -1013,6 +1013,10 @@ async function seedRoles() {
     { name: 'TRAINER'},
     { name: 'RECHNUNGSWESEN'},
     { name: 'PROGRAMMMANAGER'},
+    { name: 'MARKETING'},
+    { name: 'SUPERADMIN'},
+    { name: 'USER'},
+    { name: 'GUEST'},
   ];
   await db.role.createMany({ data: roles, skipDuplicates: true });
 }

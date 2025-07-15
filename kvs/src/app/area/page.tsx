@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { db } from '@/lib/db'
 import { Area } from '@/types/models'
 import { sanitize } from '@/lib/sanitize'
+import { getAuthorizing } from '@/lib/getAuthorizing'
 
 // Define types for our program data structure
 interface ProgramWithCoursesAndRegistrations {
@@ -81,6 +82,11 @@ async function getAreasWithPrograms(): Promise<ProcessedArea[]> {
 }
 
 export default async function AreasPage() {
+
+  // Check user authorization
+    await getAuthorizing({
+      privilige: ['ADMIN', 'PROGRAMMMANAGER', 'TRAINER', 'RECHNUNGSWESEN', 'MARKETING'],
+    })
     const areas = await getAreasWithPrograms()
     
     if (!areas || areas.length === 0) {

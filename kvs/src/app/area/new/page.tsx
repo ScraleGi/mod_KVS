@@ -38,7 +38,7 @@ export default async function NewAreaPage() {
 
   // Check user authorization
   await getAuthorizing({
-    privilige: ['TRAINER'],
+    privilige: ['ADMIN', 'PROGRAMMMANAGER', 'TRAINER', 'RECHNUNGSWESEN', 'MARKETING'],
   })
   
   return (
