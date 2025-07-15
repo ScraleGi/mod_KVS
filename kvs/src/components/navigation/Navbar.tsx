@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState, useTransition } from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { FaBars, FaSearch, FaBell, FaUserCircle } from 'react-icons/fa';
-import { searchEntities } from './searchActions';
+import { searchEntities2, SearchResult } from './searchActions';
 
 type NavbarProps = {
   isOpen: boolean;
@@ -13,13 +13,11 @@ type NavbarProps = {
 };
 
 const Navbar = ({ isOpen, setOpen, user }: NavbarProps) => {
-  const [searchType, setSearchType] = useState<'participants' | 'courses' | 'areas'>('participants');
   const [searchValue, setSearchValue] = useState('');
-  const [results, setResults] = useState<any[]>([]);
+  const [results, setResults] = useState<SearchResult[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
-  const [isPending, startTransition] = useTransition();
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchValue(value);
 
@@ -29,11 +27,12 @@ const Navbar = ({ isOpen, setOpen, user }: NavbarProps) => {
       return;
     }
 
-    startTransition(async () => {
-      const data = await searchEntities(value, searchType);
-      setResults(data);
-      setShowDropdown(true);
-    });
+    const data = await searchEntities2(value);
+
+    console.log('Search Result:', data)
+    setResults(data);
+    setShowDropdown(true);
+
   };
 
   return (
@@ -60,16 +59,6 @@ const Navbar = ({ isOpen, setOpen, user }: NavbarProps) => {
         {/* Suchfeld mit Dropdown im Input, beide exakt gleich groß */}
         <div className="relative w-80 group">
           <div className="relative flex items-center w-full z-100">
-            <select
-              value={searchType}
-              onChange={e => setSearchType(e.target.value as 'participants' | 'courses' | 'areas')}
-              className='bg-gray-100 border-r border-gray-300 text-gray-900 rounded-l px-3 py-1 text-xs h-10 focus:outline-none'
-              style={{ minWidth: '110px', maxWidth: '120px' }}
-            >
-              <option value="participants">Teilnehmer</option>
-              <option value="courses">Kurse</option>
-              <option value="areas">Areas</option>
-            </select>
             <div className="relative flex-1">
               <span className='absolute inset-y-0 left-0 flex items-center pl-3'>
                 <FaSearch className='text-gray-400' />
@@ -79,13 +68,7 @@ const Navbar = ({ isOpen, setOpen, user }: NavbarProps) => {
                 value={searchValue}
                 onChange={handleSearch}
                 className='w-full bg-white text-gray-900 rounded-r px-3 py-1 pl-10 h-10 outline-none'
-                placeholder={
-                  searchType === 'participants'
-                    ? 'Suche Teilnehmer...'
-                    : searchType === 'courses'
-                    ? 'Suche Kurs...'
-                    : 'Suche Area...'
-                }
+                placeholder='Suche Kursteilnehmer...'
                 aria-label='Suche'
                 onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
                 onFocus={() => { if (results.length > 0) setShowDropdown(true); }}
@@ -93,30 +76,19 @@ const Navbar = ({ isOpen, setOpen, user }: NavbarProps) => {
               />
 
               {showDropdown && results.length > 0 && (
-                <ul className="absolute bg-white border w-full mt-1 rounded shadow max-h-60 overflow-auto z-50">
-                  {searchType === 'participants'
-                    ? results.map((p: any) => (
-                        <li key={p.id} className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                          <Link href={`/participant/${p.id}`} onClick={() => setShowDropdown(false)}>
-                            {p.name} <span className="text-xs text-gray-400">{p.email}</span>
-                          </Link>
+                <ul className="absolute bg-white border w-full mt-1 rounded shadow overflow-auto z-50">
+                  {
+                    results.map((searchResult: SearchResult) => (
+                        <li key={searchResult.id} className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                          <Link href={`/courseregistration/${searchResult.id}`} onClick={() => setShowDropdown(false)}>
+                            {searchResult.participant.name} {searchResult.participant.surname}
+                            <br/>
+                            <span className="text-sm text-gray-400"> 
+                            {searchResult.course.code} - {searchResult.course.program.name}
+                          </span></Link>
                         </li>
                       ))
-                    : searchType === 'courses'
-                    ? results.map((c: any) => (
-                        <li key={c.id} className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                          <Link href={`/course/${c.id}`} onClick={() => setShowDropdown(false)}>
-                            {c.program.name} <span className="text-xs text-gray-400">{c.startDate ? new Date(c.startDate).toLocaleDateString() : ''}</span>
-                          </Link>
-                        </li>
-                      ))
-                    : results.map((a: any) => (
-                        <li key={a.id} className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                          <Link href={`/area/${a.id}`} onClick={() => setShowDropdown(false)}>
-                            {a.name}
-                          </Link>
-                        </li>
-                      ))}
+                  }
                 </ul>
               )}
             </div>
