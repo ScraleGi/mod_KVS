@@ -5,12 +5,15 @@ import { formatDateGerman } from '@/lib/utils';
 
 
 export default async function PrivilegesDetailsPage ({ params }: { params: { id: string } }) {
+    const user = await params;
+    if (!user || !user.id) {
+        return <div>Invalid user ID</div>;
+    }
+    const idUser= user.id;
     const userId = await db.user.findUnique({
-        where: {
-            id: params.id,
-        },
+        where: { id: idUser },
         include: {
-            roles: true, // Include roles for the user
+            roles: true, // Include roles in the query
         },
     });
 
@@ -21,13 +24,13 @@ export default async function PrivilegesDetailsPage ({ params }: { params: { id:
     return (
         <div className="min-h-screen bg-[#f8fafd] py-14 px-4">
             <nav className="max-w-xl mx-auto mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
-                <Link href="/trainer" className="hover:underline text-gray-700">Benutzer</Link>
+                <Link href="/user" className="hover:underline text-gray-700">Benutzer</Link>
                 <span>&gt;</span>
                 <span className="text-gray-700 font-semibold">{userId.email}</span>
             </nav>
             <div className="max-w-xl mx-auto bg-white rounded-2xl shadow-lg px-6 py-8 relative">
                 <Link
-                    href={`/trainer/${userId.id}/edit`}
+                    href={`/user/${userId.id}/edit`}
                     className="absolute top-6 right-6 text-gray-400 hover:text-blue-600 transition"
                     title="Edit Trainer"
                 >

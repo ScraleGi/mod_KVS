@@ -27,9 +27,9 @@ export default async function PrivilegesPage() {
                     {/* Header */}
                     <TableTopButton
                         title="Berechtigungen"
-                        button1="/privileges/new"
+                        button1="/user/new"
                         button2="/"
-                        button3="/privileges/deleted"
+                        button3="/user/deleted"
                     />
                     {/* Areas Table */}
                     <CourseTable

@@ -6,6 +6,7 @@ import { sanitize } from '@/lib/sanitize'
 import { formatFullName, formatDateGerman } from '@/lib/utils'
 import { CourseTable, courseParticipantsColumns, CourseParticipantRow } from '@/components/overviewTable/table'
 import type { CourseWithDetailedRelations } from '@/types/query-models'
+import { getAuthorizing } from '@/lib/getAuthorizing'
 
 // Extend the type locally to include email, phoneNumber, discountAmount, subsidyAmount
 type ParticipantWithContact = {
