@@ -370,7 +370,7 @@ export const areaColumns: ColumnDef<AreaRow>[] = [
     cell: ({ row }) => (
       <Link
         href={`/area/${row.original.id}`}
-        className="relative text-blue-600 hover:text-blue-800 pl-2 inline-block after:content-[''] after:absolute after:left-8 after:bottom-0 after:w-0 hover:after:w-[calc(100%-2rem)] after:h-[2px] after:bg-blue-600 after:transition-all after:duration-300"
+        className="relative text-blue-600 hover:text-blue-800 inline-block after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-0 hover:after:w-full after:h-[2px] after:bg-blue-600 after:transition-all after:duration-300"
       >
         {row.original.area}
       </Link>
@@ -488,7 +488,7 @@ export const programColumns: ColumnDef<ProgramRow>[] = [
     cell: ({ row }) => (
       <Link
         href={`/program/${row.original.id}`}
-        className="relative text-blue-600 hover:text-blue-800 pl-2 inline-block after:content-[''] after:absolute after:left-8 after:bottom-0 after:w-0 hover:after:w-[calc(100%-2rem)] after:h-[2px] after:bg-blue-600 after:transition-all after:duration-300"
+        className="relative text-blue-600 hover:text-blue-800 inline-block after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-0 hover:after:w-full after:h-[2px] after:bg-blue-600 after:transition-all after:duration-300"
       >
         {row.original.program}
       </Link>
@@ -617,7 +617,7 @@ export const trainerColumns: ColumnDef<TrainerRow>[] = [
     cell: ({ row }) => (
       <Link
         href={`/trainer/${row.original.id}`}
-        className="relative text-blue-600 hover:text-blue-800 pl-2 inline-block after:content-[''] after:absolute after:left-8 after:bottom-0 after:w-0 hover:after:w-[calc(100%-2rem)] after:h-[2px] after:bg-blue-600 after:transition-all after:duration-300"
+        className="relative text-blue-600 hover:text-blue-800 inline-block after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-0 hover:after:w-full after:h-[2px] after:bg-blue-600 after:transition-all after:duration-300"
       >
         {row.original.name} {row.original.surname}
       </Link>
@@ -720,7 +720,7 @@ export const trainerColumns: ColumnDef<TrainerRow>[] = [
       return p ? (
         <Link
           href={`/courseregistration/${row.original.id}`}
-          className="font-medium text-blue-700 hover:underline"
+          className="relative text-blue-600 hover:text-blue-800 inline-block after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-0 hover:after:w-full after:h-[2px] after:bg-blue-600 after:transition-all after:duration-300"
         >
           {formatFullName(p)}
         </Link>
