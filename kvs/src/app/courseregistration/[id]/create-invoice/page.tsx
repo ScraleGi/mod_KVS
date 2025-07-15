@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { db } from '@/lib/db'
 import { generateInvoice } from '@/utils/generateInvoice'
 
-import RecipientSelect from './RecipientSelect' // <-- import client component
+import RecipientSelect from '../../../../components/recipientSelect/RecipientSelect' // <-- import client component
 
 //---------------------------------------------------
 // SERVER ACTIONS
@@ -88,21 +88,7 @@ export default async function CreateInvoicePage({
           <input type="hidden" name="registrationId" value={registration.id} />
 
           {/*autofill component */}
-          <RecipientSelect
-            recipients={recipients.map(r => ({
-              ...r,
-              recipientSalutation: r.recipientSalutation ?? undefined,
-              recipientName: r.recipientName ?? undefined,
-              recipientSurname: r.recipientSurname ?? undefined,
-              companyName: r.companyName ?? undefined,
-              recipientEmail: r.recipientEmail ?? undefined,
-              postalCode: r.postalCode ?? undefined,
-              recipientStreet: r.recipientStreet ?? undefined,
-              recipientCity: r.recipientCity ?? undefined,
-              recipientCountry: r.recipientCountry ?? undefined,
-              participantId: r.participantId ?? undefined,
-            }))}
-          />
+          <RecipientSelect recipients={recipients} participants={participant} />
 
           {/* Invoice Recipient Section (UNCHANGED) */}
           <fieldset className="border border-neutral-200 rounded-lg p-5">
