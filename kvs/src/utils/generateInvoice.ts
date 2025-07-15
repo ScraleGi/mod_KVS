@@ -6,9 +6,9 @@ import { generatePDF } from '@/utils/generatePDF'
 import { savePDF } from '@/utils/fileStorage'
 import { Decimal } from '../../generated/prisma/runtime/library'
 
+
 export async function generateInvoice(formData: FormData) {
   try {
-    // Extract form data with validation
     const registrationId = formData.get("registrationId") as string
     if (!registrationId) throw new Error("Registration ID is required")
     
@@ -16,7 +16,7 @@ export async function generateInvoice(formData: FormData) {
     if (!type || (type !== "PERSON" && type !== "COMPANY")) {
       throw new Error("Valid recipient type (PERSON or COMPANY) is required")
     }
-    
+
     const recipientSalutation = formData.get("recipientSalutation") as string
     const recipientName = formData.get("recipientName") as string
     const recipientSurname = formData.get("recipientSurname") as string
@@ -27,89 +27,132 @@ export async function generateInvoice(formData: FormData) {
     const recipientCity = formData.get("recipientCity") as string
     const recipientCountry = formData.get("recipientCountry") as string
 
-  const recipient = await db.invoiceRecipient.create({
-    data: {
-      type,
-      recipientSalutation: type === "PERSON" ? recipientSalutation : null,
-      recipientName: type === "PERSON" ? recipientName : null,
-      recipientSurname: type === "PERSON" ? recipientSurname : null,
-      companyName: type === "COMPANY" ? companyName : null,
-      recipientEmail,
-      recipientStreet,
-      postalCode,
-      recipientCity,
-      recipientCountry,
-    }
-  })
-
-    // Get registration details
-    const registration = await db.courseRegistration.findUnique({
-      where: { id: registrationId },
-      include: { course: { include: { program: true } }, participant: true }
+    const recipient = await db.invoiceRecipient.create({
+      data: {
+        type,
+        recipientSalutation: type === "PERSON" ? recipientSalutation : null,
+        recipientName: type === "PERSON" ? recipientName : null,
+        recipientSurname: type === "PERSON" ? recipientSurname : null,
+        companyName: type === "COMPANY" ? companyName : null,
+        recipientEmail,
+        recipientStreet,
+        postalCode,
+        recipientCity,
+        recipientCountry,
+      }
     })
 
+    const registration = await db.courseRegistration.findUnique({
+      where: { id: registrationId },
+      include: {
+        course: {
+          include: {
+            program: {
+              include: {
+                area: true, // ✅ to access area.code
+              }
+            }
+          }
+        },
+        participant: true,
+      }
+    })
 
     if (!registration) {
       throw new Error(`Course registration with ID ${registrationId} not found`)
     }
 
-    // calculation logic for dicounts and final amount
-  
-  const amountNumber = 1
-  const baseAmount: Decimal = (registration.course?.program?.price ?? new Decimal(0)).mul(amountNumber)
-  const discountAmount: Decimal = (registration.discountAmount ?? new Decimal(0)).mul(amountNumber)
-  const finalAmount = baseAmount.minus(discountAmount)
+    const course = registration.course
+    const program = course?.program
+    const area = program?.area
 
-  // Use dueDate from form if provided, otherwise default to 14 days from now
-  const dueDateStr = formData.get("dueDate") as string | null
-  const dueDate = dueDateStr
-    ? new Date(dueDateStr)
-    : new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
-    
-    // hier Invocie nummer logik bearbeiten
-    // Die naming ist hier zu bearbeiten     *filestorage *savePDF *generatePDF
-  const invoiceNumber = `INV-${Date.now()}`
+    if (!course || !program || !area) {
+      throw new Error("Missing course, program, or area information")
+    }
 
-    // Create the invoice record
-    const invoice = await db.invoice.create({
-      data: {
-        invoiceNumber,
-        amount: baseAmount,
-        finalAmount,
-        dueDate,
-        courseRegistrationId: registrationId,
-        recipientId: recipient.id,
+    const amountNumber = 1
+    const baseAmount: Decimal = (program.price ?? new Decimal(0)).mul(amountNumber)
+    const discountAmount: Decimal = (registration.discountAmount ?? new Decimal(0)).mul(amountNumber)
+    const finalAmount = baseAmount.minus(discountAmount)
+
+    const dueDateStr = formData.get("dueDate") as string | null
+    const dueDate = dueDateStr
+      ? new Date(dueDateStr)
+      : new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
+
+
+
+    let invoice
+    let retries = 0
+    const maxRetries = 3
+
+    while (!invoice && retries < maxRetries) {
+      const invoiceCountForCourse = await db.invoice.count({
+        where: {
+          courseRegistration: {
+            course: {
+              code: course.code,
+            }
+          }
+        }
+      })
+     
+// debugger   
+
+// console.log("registration", registration)      
+// console.log(invoiceCountForCourse, 'invoiceCountForCourse')
+
+      const nextSequential = invoiceCountForCourse + 1
+      const paddedSequential = String(nextSequential).padStart(3, '0')
+      const invoiceNumber = `${course.code}-${paddedSequential}-${area.code}`
+
+      try {
+        invoice = await db.invoice.create({
+          data: {
+            invoiceNumber,
+            amount: baseAmount,
+            finalAmount,
+            dueDate,
+            courseRegistrationId: registrationId,
+            recipientId: recipient.id,
+          }
+        })
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : ''
+        if (msg.includes('Unique constraint') || msg.includes('unique')) {
+          retries++
+          continue
+        }
+        throw error
       }
-    })
+    }
 
+    if (!invoice) {
+      throw new Error('Failed to generate a unique invoice number after multiple attempts')
+    }
 
-
-    // Prepare data for PDF template
     const templateData = {
       invoice,
       recipient,
       registration,
       participant: registration.participant,
-      course: registration.course,
-      program: registration.course?.program,
+      course,
+      program,
       amountNumber,
       baseAmount,
-      finalAmount,                  // <-- added new
-      discountAmount,         // <-- added new  
+      finalAmount,
+      discountAmount,
     }
 
-    // Generate and save PDF
     const pdfBuffer = await generatePDF('invoice', templateData)
-    await savePDF(registrationId, `${invoice.id}.pdf`, pdfBuffer)
+    await savePDF(registrationId, `${invoice.invoiceNumber}.pdf`, pdfBuffer)
 
-    // Refresh the UI
     revalidatePath(`/courseregistration/${registrationId}`)
-    
     return { success: true, invoiceId: invoice.id }
   } catch (error) {
     console.error('Failed to generate invoice:', error)
-    return { 
-      success: false, 
+    return {
+      success: false,
       error: error instanceof Error ? error.message : 'Unknown error occurred'
     }
   }

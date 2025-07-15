@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { db } from '@/lib/db'
 import { sanitize } from '@/lib/sanitize'
 import { Area } from '@/types/models'
+import ClientToasterWrapper from './ClientToasterWrapper'
 
 interface DeletedAreaWithPrograms extends Omit<Area, 'programs'> {
   programs: {
@@ -16,17 +17,17 @@ async function restoreArea(formData: FormData) {
   'use server'
   try {
     const id = formData.get('id') as string
-    
+
     if (!id) {
       throw new Error('Area ID is required')
     }
-    
+
     // Restore the area by setting deletedAt to null
     await db.area.update({
       where: { id },
       data: { deletedAt: null }
     })
-    
+
     // Restore all programs associated with this area
     await db.program.updateMany({
       where: { areaId: id },
@@ -36,8 +37,8 @@ async function restoreArea(formData: FormData) {
     console.error('Failed to restore area:', error)
     throw error
   }
-  
-  redirect('/area/deleted')
+
+  redirect('/area?restored=1')
 }
 
 export default async function DeletedAreasPage() {
@@ -58,7 +59,13 @@ export default async function DeletedAreasPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4 flex items-center justify-center">
+      <ClientToasterWrapper />
       <div className="w-full max-w-2xl">
+        <nav className="mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
+          <Link href="/area" className="hover:underline text-gray-700">Bereiche</Link>
+          <span>&gt;</span>
+          <span className="text-gray-700 font-semibold">gelöschte Bereiche</span>
+        </nav>
         <div className="bg-white rounded-xl shadow border border-gray-100 px-8 py-10">
           <h1 className="text-2xl font-bold text-gray-900 mb-8 tracking-tight">Gelöschte Bereiche</h1>
           {sanitizedAreas.length === 0 ? (

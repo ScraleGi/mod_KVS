@@ -131,7 +131,7 @@ export default async function CreateInvoicePage({
                 Firmen Name (Empfänger)
                 <input name="companyName" className="mt-1 border rounded px-2 py-1" />
               </label>
-              <label className="flex flex-col text-xs font-medium text-neutral-700 sm:col-span-2">
+              <label className="flex flex-col text-xs font-medium text-neutral-700">
                 Email (Empfänger)
                 <input name="recipientEmail" type="email" required className="mt-1 border rounded px-2 py-1" />
               </label>
@@ -164,21 +164,6 @@ export default async function CreateInvoicePage({
             </div>
           </fieldset>
           
-          {/* Course Participant Reference Section */}
-          <fieldset className="border border-neutral-200 rounded-lg p-5">
-            <legend className="text-base font-semibold text-blue-700 px-2">Kursteilnehmer (Referenzen)</legend>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 text-xs text-neutral-600">
-              <div>
-                <span className="font-semibold">Name:</span> {registration.participant.name} {registration.participant.surname}
-              </div>
-              <div>
-                <span className="font-semibold">Email:</span> {registration.participant.email}
-              </div>
-              <div className="sm:col-span-2">
-                <span className="font-semibold">Adresse:</span> {registration.participant.street}, {registration.participant.postalCode} {registration.participant.city}, {registration.participant.country}
-              </div>
-            </div>
-          </fieldset>
           
           {/* Action Buttons */}
           <div className="flex justify-between mt-6">

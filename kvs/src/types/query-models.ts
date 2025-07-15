@@ -203,11 +203,12 @@ export interface SanitizedInvoiceRecipient {
  */
 export interface SanitizedInvoice {
   id: string;
+  invoiceNumber: string;
+  dueDate?: Date | string | null;
   amount?: SerializedDecimal;
   isCancelled: boolean;
   transactionNumber?: string | null;
   recipient?: SanitizedInvoiceRecipient | null;
-  invoiceNumber?: string; //
 }
 
 /**

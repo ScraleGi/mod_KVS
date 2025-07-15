@@ -397,8 +397,8 @@ export default async function ParticipantDetailsPage({
           >
             <DownloadPDFLink
               uuidString={sanitizedRegistration.id}
-              filename={`${inv.id}.pdf`}
-              displayName={`#${inv.invoiceNumber}`}
+              filename={`${inv.invoiceNumber}.pdf`}
+              displayName={`${inv.invoiceNumber}`}
               className="text-blue-700 hover:text-blue-900 font-medium text-sm"
             />
           </span>
