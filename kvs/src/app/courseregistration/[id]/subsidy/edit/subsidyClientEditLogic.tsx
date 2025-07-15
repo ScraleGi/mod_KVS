@@ -1,23 +1,27 @@
 'use client'
 import React, { useState, useEffect } from 'react'
+import { removeSubsidy } from '@/app/actions/discount_subsidy_remove'
+import { useRouter } from 'next/navigation'
 
 export default function SubsidyClientEditLogic({
   onSubmit,
   programPrice,
   initialEuro,
   initialRemark,
+  registrationId,
 }: {
   onSubmit: (formData: FormData) => void | Promise<void>
   programPrice: number
   initialEuro?: string
   initialRemark?: string
+  registrationId: string
 }) {
   const [euro, setEuro] = useState(initialEuro ?? '')
   const [percent, setPercent] = useState('')
   const [remark, setRemark] = useState(initialRemark ?? '')
   const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
 
-  // Set percent when initialEuro is loaded
   useEffect(() => {
     if (initialEuro && !isNaN(Number(initialEuro)) && programPrice > 0) {
       const percentValue = (parseFloat(initialEuro) / programPrice) * 100
@@ -71,18 +75,19 @@ export default function SubsidyClientEditLogic({
     setRemark(e.target.value)
   }
 
-  // IMPORTANT: Do NOT call e.preventDefault() unless there's an error.
-  // Use both action and onSubmit in the form to allow server action redirect.
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     if (error) {
       e.preventDefault()
       return
     }
-    // Always submit euro value before native submit
     const form = e.target as HTMLFormElement
     const euroInput = form.elements.namedItem('amount') as HTMLInputElement
     euroInput.value = euro
-    // Do NOT prevent default, let the browser submit the form
+  }
+
+  async function handleDelete() {
+    await removeSubsidy(registrationId)
+    router.push(`/courseregistration/${registrationId}`)
   }
 
   return (
@@ -130,13 +135,22 @@ export default function SubsidyClientEditLogic({
           className="border rounded px-2 py-1 w-full"
         />
       </div>
-      <button
-        type="submit"
-        className="bg-blue-600 text-white px-4 py-2 rounded"
-        disabled={!!error}
-      >
-        Speichern
-      </button>
+      <div className="flex gap-4">
+        <button
+          type="submit"
+          className="bg-blue-600 text-white px-4 py-2 rounded"
+          disabled={!!error}
+        >
+          Speichern
+        </button>
+        <button
+          type="button"
+          className="bg-red-600 text-white px-4 py-2 rounded"
+          onClick={handleDelete}
+        >
+          Löschen
+        </button>
+      </div>
     </form>
   )
 }

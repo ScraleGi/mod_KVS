@@ -63,7 +63,7 @@ export default function SubsidyClientLogic({
     const form = e.target as HTMLFormElement
     const euroInput = form.elements.namedItem('amount') as HTMLInputElement
     euroInput.value = euro
-    // Do NOT prevent default, let the browser submit the form
+    // Do NOT prevent default, let the browser submit the form for server action/redirect
   }
 
   return (

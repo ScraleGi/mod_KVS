@@ -14,6 +14,7 @@ import {
   SanitizedDocument,
 } from '@/types/query-models'
 import RemoveButton from '@/components/RemoveButton/RemoveButton'
+import { removeSubsidy, removeDiscount } from '@/app/actions/discount_subsidy_remove'
 
 
 //---------------------------------------------------
@@ -296,77 +297,77 @@ export default async function ParticipantDetailsPage({
         </section>
 
         {/* Subsidy & Discount Table Section */}
-        <section className="px-8 py-6 border-b border-neutral-200">
-          <h2 className="text-sm font-semibold text-neutral-800 mb-4">Gutschein & Rabatt</h2>
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-xs border border-neutral-200 rounded">
-              <thead>
-                <tr className="bg-neutral-100">
-                  <th className="px-3 py-2 text-left font-semibold">Typ</th>
-                  <th className="px-3 py-2 text-left font-semibold">Betrag (€)</th>
-                  <th className="px-3 py-2 text-left font-semibold">Bemerkung</th>
-                  <th className="px-3 py-2 text-left font-semibold">Aktion</th>
-                </tr>
-              </thead>
-              <tbody>
-                {/* Gutschein row */}
-                <tr className="border-t border-neutral-200">
-                  <td className="px-3 py-2">Gutschein</td>
-                  <td className="px-3 py-2">
-                    {sanitizedRegistration.subsidyAmountDisplay ?? <span className="text-neutral-400">-</span>}
-                  </td>
-                  <td className="px-3 py-2">
-                    {sanitizedRegistration.subsidyRemark || <span className="text-neutral-400">-</span>}
-                  </td>
-                  <td className="px-3 py-2">
-                    {sanitizedRegistration.subsidyAmount || sanitizedRegistration.subsidyRemark ? (
-                      <Link
-                        href={`/courseregistration/${sanitizedRegistration.id}/subsidy/edit`}
-                        className="text-blue-600 underline"
-                      >
-                        Bearbeiten
-                      </Link>
-                    ) : (
-                      <Link
-                        href={`/courseregistration/${sanitizedRegistration.id}/subsidy/new`}
-                        className="text-blue-600 underline"
-                      >
-                        Hinzufügen
-                      </Link>
-                    )}
-                  </td>
-                </tr>
-                {/* Rabatt row */}
-                <tr className="border-t border-neutral-200">
-                  <td className="px-3 py-2">Rabatt</td>
-                  <td className="px-3 py-2">
-                    {sanitizedRegistration.discountAmountDisplay ?? <span className="text-neutral-400">-</span>}
-                  </td>
-                  <td className="px-3 py-2">
-                    {sanitizedRegistration.discountRemark || <span className="text-neutral-400">-</span>}
-                  </td>
-                  <td className="px-3 py-2">
-                    {sanitizedRegistration.discountAmount || sanitizedRegistration.discountRemark ? (
-                      <Link
-                        href={`/courseregistration/${sanitizedRegistration.id}/discount/edit`}
-                        className="text-blue-600 underline"
-                      >
-                        Bearbeiten
-                      </Link>
-                    ) : (
-                      <Link
-                        href={`/courseregistration/${sanitizedRegistration.id}/discount/new`}
-                        className="text-blue-600 underline"
-                      >
-                        Hinzufügen
-                      </Link>
-                    )}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
+<section className="px-8 py-6 border-b border-neutral-200">
+  <h2 className="text-sm font-semibold text-neutral-800 mb-4">Gutschein & Rabatt</h2>
+  <div className="overflow-x-auto">
+    <table className="min-w-full text-xs border border-neutral-200 rounded">
+      <thead>
+        <tr className="bg-neutral-100">
+          <th className="px-3 py-2 text-left font-semibold">Typ</th>
+          <th className="px-3 py-2 text-left font-semibold">Betrag (€)</th>
+          <th className="px-3 py-2 text-left font-semibold">Bemerkung</th>
+          <th className="px-3 py-2 text-left font-semibold">Aktion</th>
+        </tr>
+      </thead>
+      <tbody>
+        {/* Gutschein row */}
+        <tr className="border-t border-neutral-200">
+          <td className="px-3 py-2">Gutschein</td>
+          <td className="px-3 py-2">
+            {sanitizedRegistration.subsidyAmountDisplay ?? <span className="text-neutral-400">-</span>}
+          </td>
+          <td className="px-3 py-2">
+            {sanitizedRegistration.subsidyRemark || <span className="text-neutral-400">-</span>}
+          </td>
+          <td className="px-3 py-2">
+            {sanitizedRegistration.subsidyAmount || sanitizedRegistration.subsidyRemark ? (
+              <Link
+                href={`/courseregistration/${sanitizedRegistration.id}/subsidy/edit`}
+                className="text-blue-600 underline"
+              >
+                Bearbeiten
+              </Link>
+            ) : (
+              <Link
+                href={`/courseregistration/${sanitizedRegistration.id}/subsidy/new`}
+                className="text-blue-600 underline"
+              >
+                Hinzufügen
+              </Link>
+            )}
+          </td>
+        </tr>
+        {/* Rabatt row */}
+        <tr className="border-t border-neutral-200">
+          <td className="px-3 py-2">Rabatt</td>
+          <td className="px-3 py-2">
+            {sanitizedRegistration.discountAmountDisplay ?? <span className="text-neutral-400">-</span>}
+          </td>
+          <td className="px-3 py-2">
+            {sanitizedRegistration.discountRemark || <span className="text-neutral-400">-</span>}
+          </td>
+          <td className="px-3 py-2">
+            {sanitizedRegistration.discountAmount || sanitizedRegistration.discountRemark ? (
+              <Link
+                href={`/courseregistration/${sanitizedRegistration.id}/discount/edit`}
+                className="text-blue-600 underline"
+              >
+                Bearbeiten
+              </Link>
+            ) : (
+              <Link
+                href={`/courseregistration/${sanitizedRegistration.id}/discount/new`}
+                className="text-blue-600 underline"
+              >
+                Hinzufügen
+              </Link>
+            )}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
 
        {/* Invoices Section */}
     <section className="px-8 py-6 border-b border-neutral-200">

@@ -48,15 +48,17 @@ export default async function DiscountNewPage({ params }: { params: Promise<{ id
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4">
       <div className="max-w-[800px] mx-auto">
-        {/* Navigation */}
-        <div className="flex justify-between items-center mb-8">
+        {/* Navigation Link */}
+        <div className="mb-2">
           <Link href={`/courseregistration/${id}`} className="text-blue-500 hover:underline text-sm">
             &larr; Kursregistrierung
           </Link>
-          <div className="flex-1 flex justify-center items-center relative">
-            <h1 className="text-2xl font-bold text-gray-900">Gutschein bearbeiten</h1>
-          </div>
-          <div />
+        </div>
+        {/* Centered Heading */}
+        <div className="mb-8 flex justify-center">
+          <h1 className="text-2xl font-bold text-gray-900 text-center">
+            Rabatt hinzufügen
+          </h1>
         </div>
 
         {/* Integrated Course Info Card + Discount Form */}
@@ -102,7 +104,7 @@ export default async function DiscountNewPage({ params }: { params: Promise<{ id
                       : <span className="text-gray-400">N/A</span>}
                   </dd>
                 </div>
-                                <div className="py-3 flex justify-between">
+                <div className="py-3 flex justify-between">
                   <dt className="font-semibold text-gray-700">Kurs-Code</dt>
                   <dd>{course.code ?? <span className="text-gray-400">N/A</span>}</dd>
                 </div>

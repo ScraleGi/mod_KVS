@@ -24,16 +24,16 @@ export default async function SubsidyNewPage({ params }: { params: Promise<{ id:
   })
   const data = sanitize(registration)
 
-if (!data?.course) {
-  return (
-    <div className="container mx-auto py-8 px-4">
-      <Link href={`/courseregistration/${id}`} className="text-blue-500 hover:underline mb-6 block">
-        &larr; Kursregistrierung
-      </Link>
-      <div className="text-red-600 text-lg font-semibold">Kurs nicht gefunden.</div>
-    </div>
-  )
-}
+  if (!data?.course) {
+    return (
+      <div className="container mx-auto py-8 px-4">
+        <Link href={`/courseregistration/${id}`} className="text-blue-500 hover:underline mb-6 block">
+          &larr; Kursregistrierung
+        </Link>
+        <div className="text-red-600 text-lg font-semibold">Kurs nicht gefunden.</div>
+      </div>
+    )
+  }
 
   const { course } = data
 
@@ -45,19 +45,21 @@ if (!data?.course) {
     redirect(`/courseregistration/${id}`)
   }
 
-return (
-  <div className="min-h-screen bg-gray-50 py-10 px-4">
-    <div className="max-w-[800px] mx-auto">
-      {/* Navigation */}
-      <div className="flex justify-between items-center mb-8">
-        <Link href={`/courseregistration/${id}`} className="text-blue-500 hover:underline text-sm">
-          &larr; Kursregistrierung
-        </Link>
-        <div className="flex-1 flex justify-center items-center relative">
-          <h1 className="text-2xl font-bold text-gray-900">Gutschein hinzufügen</h1>
+  return (
+    <div className="min-h-screen bg-gray-50 py-10 px-4">
+      <div className="max-w-[800px] mx-auto">
+        {/* Navigation Link */}
+        <div className="mb-2">
+          <Link href={`/courseregistration/${id}`} className="text-blue-500 hover:underline text-sm">
+            &larr; Kursregistrierung
+          </Link>
         </div>
-        <div />
-      </div>
+        {/* Centered Heading */}
+        <div className="mb-8 flex justify-center">
+          <h1 className="text-2xl font-bold text-gray-900 text-center">
+            Gutschein hinzufügen
+          </h1>
+        </div>
 
         {/* Integrated Course Info Card + Subsidy Form */}
         <div className="bg-white shadow rounded-lg p-8">
