@@ -6,10 +6,18 @@ import { redirect } from "next/navigation";
 import RemoveButton from "@/components/RemoveButton/RemoveButton";
 import { formatDateGerman } from '@/lib/utils'
 import TrainerToaster from './TrainerToaster';
+import { getAuthorizing } from "@/lib/getAuthorizing";
 
 const prisma = new PrismaClient();
 
 export default async function TrainerDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+    // Check user authorization
+  const roles = await getAuthorizing({
+    privilige: ['ADMIN', 'PROGRAMMMANAGER'],
+  })
+    if (roles.length === 0) {
+        redirect('/403')
+    }
     const { id } = await params;
     const trainer = await prisma.trainer.findUnique({
         where: { id, deletedAt: null },

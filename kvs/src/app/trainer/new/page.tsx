@@ -2,8 +2,16 @@ import { db } from '@/lib/db'
 import { redirect } from 'next/navigation';
 import { EditLabel } from "../../../components/trainer/EditLabel";
 import Link from 'next/link';
+import { getAuthorizing } from "@/lib/getAuthorizing";
 
 export default async function NewTrainerPage() {
+    // Check user authorization
+  const roles = await getAuthorizing({
+    privilige: ['ADMIN', 'PROGRAMMMANAGER'],
+  })
+    if (roles.length === 0) {
+        redirect('/403')
+    }
     const createTrainer = async (formData: FormData) => {
         'use server';
         const name = formData.get('name') as string;

@@ -2,9 +2,16 @@ import { PrismaClient } from "../../../generated/prisma";
 import { CourseTable, TrainerRow, trainerColumns } from "@/components/overviewTable/table";
 import Link from "next/link";
 import TrainerToaster from './[id]/TrainerToaster';
+import { redirect } from "next/navigation";
+import { getAuthorizing } from "@/lib/getAuthorizing";
 
 
 export default async function TrainerPage() {
+    // Check user authorization
+  const roles = await getAuthorizing({
+    privilige: ['ADMIN', 'PROGRAMMMANAGER', 'RECHNUNGSWESEN', 'MARKETING'],
+  })
+
     const prisma = new PrismaClient();
 
     // Fetch trainers with related data

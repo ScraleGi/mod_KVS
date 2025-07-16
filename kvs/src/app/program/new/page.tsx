@@ -41,7 +41,7 @@ async function createProgram(formData: FormData) {
 export default async function NewProgramPage() {
   // Check user authorization
   const roles = await getAuthorizing({
-    privilige: ['ADMIN', 'PROGRAMMMANAGER', 'RECHNUNGSWESEN', 'MARKETING'],
+    privilige: ['ADMIN', 'PROGRAMMMANAGER'],
   })
   if (roles.length === 0) {
     redirect('/403')
