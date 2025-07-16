@@ -13,10 +13,10 @@ export default function ParticipantToaster() {
     if (shownRef.current) return;
 
     const paramMap: Record<string, { message: string; type: 'success' | 'error' }> = {
-      created: { message: 'Bereich erfolgreich hinzugefügt!', type: 'success' },
-      edited: { message: 'Bereich erfolgreich bearbeitet!', type: 'success' },
-      deleted: { message: 'Bereich erfolgreich gelöscht!', type: 'success' },
-      restored: { message: 'Bereich erfolgreich wiederhergestellt!', type: 'success' }
+      created: { message: 'Trainer erfolgreich hinzugefügt!', type: 'success' },
+      edited: { message: 'Trainer erfolgreich bearbeitet!', type: 'success' },
+      deleted: { message: 'Trainer erfolgreich gelöscht!', type: 'success' },
+      restored: { message: 'Trainer erfolgreich wiederhergestellt!', type: 'success' }
     };
 
     for (const key in paramMap) {

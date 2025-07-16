@@ -41,18 +41,21 @@ model Program {
 }
 
 model Course { 
-  id            String    @id @default(uuid())
-  code          String    @unique
-  programId     String
-  program       Program   @relation(fields: [programId], references: [id])
-  startDate     DateTime
-  endDate       DateTime
-  createdAt     DateTime  @default(now())
-  deletedAt     DateTime?
-  mainTrainerId String
-  mainTrainer   Trainer   @relation("MainTrainer", fields: [mainTrainerId], references: [id])
-  trainers      Trainer[] @relation("CourseTrainers")
-  registrations CourseRegistration[]
+  id                                        String        @id @default(uuid())
+  code                                      String        @unique
+  programId                                 String
+  program                                   Program       @relation(fields: [programId], references: [id])
+  startDate                                 DateTime
+  endDate                                   DateTime
+  createdAt                                 DateTime      @default(now())
+  deletedAt                                 DateTime?
+  mainTrainerId                             String
+  mainTrainer                               Trainer       @relation("MainTrainer", fields: [mainTrainerId], references: [id])
+  trainers                                  Trainer[]     @relation("CourseTrainers")
+  registrations                             CourseRegistration[]
+  courseHolidays                            CourseHoliday[] // Relation: one Course has many KursHolidays
+  courseRythms                              CourseRythm[] // Relation: one Course has many KursRythmus
+  courseSpecialDays                         CourseSpecialDays[] // Relation: one Course has many KursSpecialDays
   @@index([deletedAt])
 }
 
@@ -200,11 +203,62 @@ model RoomReservation {
 }
 
 model Holiday {
-  id        String @id @default(cuid())
+  id        String @id @default(uuid())
   title     String 
   date      DateTime
-  
-    @@unique([title, date]) // verhindert doppelte Feiertage pro Jahr
+  createdAt DateTime @default(now())
+  deletedAt DateTime? // Soft delete: null = not deleted, date = deleted
 }
+
+model CourseHoliday {
+  id        String   @id @default(uuid())
+  title     String
+  date      DateTime
+  createdAt DateTime @default(now())
+  deletedAt DateTime?
+  courseId  String
+  course    Course   @relation(fields: [courseId], references: [id])
+  @@unique([courseId, date]) // Prevents duplicate holidays per course
+}
+
+model CourseSpecialDays {
+  id              String   @id @default(uuid())
+  title           String
+  startTime       DateTime   
+  endTime         DateTime   
+  pauseDuration   DateTime    
+  createdAt       DateTime @default(now())
+  deletedAt       DateTime?
+  courseId        String
+  course          Course   @relation(fields: [courseId], references: [id])
+  @@unique([courseId, startTime]) // Prevents duplicate holidays per course
+}
+
+
+model CourseRythm {
+  id            String     @id @default(uuid())
+  title         String
+  weekDay       WeekDay
+  startTime     DateTime   @db.Time
+  endTime       DateTime   @db.Time 
+  pauseDuration DateTime   @db.Time 
+  createdAt     DateTime   @default(now())
+  deletedAt     DateTime?
+  courseId      String
+  course        Course     @relation(fields: [courseId], references: [id])
+  @@unique([courseId, weekDay]) // Prevents duplicate rhythms per course
+}
+
+enum WeekDay {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+
 
 

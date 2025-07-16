@@ -19,9 +19,9 @@ export default function RemoveButton({
   onRemove,
   // Default values
   title = "Remove Item",
-  message = "Are you sure you want to remove this item? This action cannot be undone.",
-  confirmButtonText = "Remove",
-  cancelButtonText = "Cancel",
+  message = "Sind Sie sicher, dass Sie diesen Artikel entfernen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+  confirmButtonText = "Entfernen",
+  cancelButtonText = "Abbrechen",
   fieldName = "itemId",
   customButton  // Support custom button
 }: RemoveButtonProps) {

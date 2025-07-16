@@ -10,6 +10,7 @@ import React, {
 } from 'react';
 
 import { createPortal } from 'react-dom';
+import { CheckCircle2, XCircle, Info, AlertTriangle } from 'lucide-react';
 
 type ToastType = 'success' | 'error' | 'info' | 'warning';
 
@@ -31,11 +32,19 @@ export const useToaster = () => {
     return ctx
 }
 
-const typeClasses: Record<ToastType, string> = {
-  success: 'bg-green-600',
-  error: 'bg-red-600',
-  info: 'bg-blue-600',
-  warning: 'bg-yellow-500 text-black',
+
+const typeStyles: Record<ToastType, string> = {
+    success: "bg-gray-800/90 border-b-4 border-green-500",
+    error: "bg-gray-800/90 border-b-4 border-red-500",
+    warning: "bg-gray-800/90 border-b-4 border-yellow-400",
+    info: "bg-gray-800/90 border-b-4 border-blue-500",
+};
+
+const typeIcons: Record<ToastType, React.ReactElement> = {
+    success: <CheckCircle2 className="w-5 h-5 text-green-500" />,
+    error: <XCircle className="w-5 h-5 text-red-500" />,
+    info: <Info className="w-5 h-5 text-blue-500" />,
+    warning: <AlertTriangle className="w-5 h-5 text-yellow-400" />,
 };
 
 export const ToasterProvider = ({ children }: { children: ReactNode }) => {
@@ -64,23 +73,32 @@ export const ToasterProvider = ({ children }: { children: ReactNode }) => {
         };
     }, []);
 
-    const toasterPortal = (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 items-center" aria-live="assertive">
-            {toasts.map(toast => (
-                <div
-                    key={toast.id}
-                    role="alert"
-                    className={`
-                        px-4 py-2 rounded shadow-lg text-white transition-all
-                        animate-slide-in
-                        ${typeClasses[toast.type]}
-                    `}
+const toasterPortal = (
+    <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-4 items-center" aria-live="assertive">
+        {toasts.map(toast => (
+            <div
+                key={toast.id}
+                role="alert"
+                aria-label="Close"
+                className={`
+                    relative w-full max-w-md px-6 py-4 rounded-xl shadow-1xl flex items-center
+                    ${typeStyles[toast.type]}
+                `}
+            >
+                <span className="mr-4 flex-shrink-0">{typeIcons[toast.type]}</span>
+                <span className="text-white text-base flex-1 truncate pr-7">{toast.message}</span>
+                <button
+                    onClick={() => setToasts(prev => prev.filter(t => t.id !== toast.id))}
+                    className="absolute top-2 right-4 text-white/70 hover:text-white text-2xl leading-none cursor-pointer"
+                    aria-label="Close"
+                    style={{ lineHeight: 1 }}
                 >
-                    {toast.message}
-                </div>
-            ))}
-        </div>
-    );
+                    ×
+                </button>
+            </div>
+        ))}
+    </div>
+);
 
     return (
         <ToasterContext.Provider value={{ showToast }}>

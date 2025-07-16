@@ -96,12 +96,12 @@ export default async function InvoicePage({
       value: invoice.courseRegistration?.course?.program?.name || 'N/A',
     },
     {
-      label: 'Code',
+      label: 'Course Code',
       value: invoice.courseRegistration?.course?.code || 'N/A',
     },
     {
       label: 'Amount',
-      value: <>€{invoice.amount}</>,
+      value: <>€{invoice.finalAmount}</>,
     },
     {
       label: 'Due Date',

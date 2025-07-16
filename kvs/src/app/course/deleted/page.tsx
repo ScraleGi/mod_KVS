@@ -4,6 +4,7 @@ import { db } from '@/lib/db'
 import { sanitize } from '@/lib/sanitize'
 import { formatDate } from '@/lib/utils'
 import { DeletedCourseWithProgram } from '@/types/query-models'
+import ClientToasterWrapper from './ClientToasterWrapper'
 
 /**
  * Server action to restore a soft-deleted course
@@ -17,7 +18,7 @@ async function restoreCourse(formData: FormData) {
     data: { deletedAt: null },
   })
   
-  redirect('/course/deleted')
+  redirect('/course?restored=1')
 }
 
 /**
@@ -38,6 +39,7 @@ export default async function DeletedCoursesPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4 flex items-center justify-center">
+      <ClientToasterWrapper />
       <div className="w-full max-w-2xl">
         <div className="bg-white rounded-xl shadow border border-gray-100 px-8 py-10">
           <h1 className="text-2xl font-bold text-gray-900 mb-8 tracking-tight">Archivierte Kurse</h1>

@@ -2,6 +2,7 @@ import { db } from '@/lib/db'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { sanitize } from '@/lib/sanitize'
+import ClientToasterWrapper from './ClientToasterWrapper'
 
 async function restoreTrainer(formData: FormData) {
   'use server'
@@ -16,7 +17,7 @@ async function restoreTrainer(formData: FormData) {
     throw error
   }
   
-  redirect('/trainer/deleted')
+  redirect('/trainer?restored=1')
 }
 
 export default async function DeletedTrainersPage() {
@@ -31,7 +32,7 @@ export default async function DeletedTrainersPage() {
     
         return (
         <div className="min-h-screen bg-neutral-50 py-10 px-4 flex items-center justify-center">
-
+          <ClientToasterWrapper />
         <div className="w-full max-w-2xl">
           <nav className="mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
                 <Link href="/trainer" className="hover:underline text-gray-700">Trainer</Link>

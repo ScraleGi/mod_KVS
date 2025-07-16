@@ -3,6 +3,7 @@ import { db } from '@/lib/db'
 import { sanitize } from '@/lib/sanitize'
 import { Course  } from '@/types/models'
 import { formatDateGerman, formatFullName } from '@/lib/utils'
+import CourseToaster from './[id]/CourseToaster'
 
 interface CourseWithRelations extends Omit<Course, 'program' | 'mainTrainer' | 'trainers' | 'registrations'> {
   program: {
@@ -50,6 +51,7 @@ const courses = await db.course.findMany({
 
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4">
+      <CourseToaster />
       <div className="max-w-[1600px] mx-auto">
         {/* Dashboard Header */}
         <div className="flex items-center justify-between mb-8">

@@ -23,8 +23,11 @@ async function createCourse(formData: FormData) {
     throw new Error('All required fields must be filled')
   }
 
+  let course;
+  
   // Create the course
-  await db.course.create({
+  try {
+  course = await db.course.create({
     data: {
       code,
       program: { connect: { id: programId } },
@@ -34,10 +37,14 @@ async function createCourse(formData: FormData) {
       trainers: {
         connect: trainerIds.map(id => ({ id })),
       },
-    },
+    }
   })
+  } catch (error) {
+    console.error('Failed to create course:', error)
+    throw error
+  }
   
-  redirect('/course')
+  redirect(`/course/${course?.id}?created=1`)
 }
 
 /**
