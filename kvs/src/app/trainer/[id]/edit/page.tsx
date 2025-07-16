@@ -1,14 +1,11 @@
-import { PrismaClient } from "../../../../../generated/prisma";
+import { db } from '@/lib/db'
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { EditLabel } from "../../../../components/trainer/EditLabel";
 
-const prisma = new PrismaClient();
-
-
 export default async function EditTrainerPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
-    const trainer = await prisma.trainer.findUnique({
+    const trainer = await db.trainer.findUnique({
         where: { id },
     });
     if (!trainer) return null;
@@ -30,7 +27,7 @@ export default async function EditTrainerPage({ params }: { params: Promise<{ id
         const birthday = formData.get('birthday') as string;
         const title = formData.get('title') as string | null;
 
-        await prisma.trainer.update({
+        await db.trainer.update({
             where: { id },
             data: {
                 name,
@@ -49,7 +46,6 @@ export default async function EditTrainerPage({ params }: { params: Promise<{ id
         });
         redirect(`/trainer/${id}?edited=1`);
     };
-
 
     return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-50 px-2 py-8">
