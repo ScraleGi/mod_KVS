@@ -59,6 +59,11 @@ export default async function ProgramsPage({
 }: {
   searchParams?: Promise<{ open?: string; q?: string; area?: string }>
 }) {
+  // Check user authorization
+  const roles = await getAuthorizing({
+    privilige: ['ADMIN', 'PROGRAMMMANAGER', 'RECHNUNGSWESEN', 'MARKETING'],
+  })
+
   const resolvedSearchParams = searchParams ? await searchParams : undefined
 
   try {

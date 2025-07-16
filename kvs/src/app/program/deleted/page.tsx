@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { db } from '@/lib/db'
 import { sanitize } from '@/lib/sanitize'
 import ClientToasterWrapper from './ClientToasterWrapper'
+import { getAuthorizing } from '@/lib/getAuthorizing'
 
 // Server action to restore a program
 async function restoreProgram(formData: FormData) {
@@ -24,6 +25,13 @@ async function restoreProgram(formData: FormData) {
 }
 
 export default async function DeletedProgramsPage() {
+  // Check user authorization
+  const roles = await getAuthorizing({
+    privilige: ['ADMIN'],
+  })
+  if (roles.length === 0) {
+    redirect('/403')
+  }
   try {
     const deletedProgramsData = await db.program.findMany({
       where: { deletedAt: { not: null } },
