@@ -3,6 +3,8 @@ import { useState } from "react"
 import Link from "next/link"
 import { CreateCourseFormProps } from "@/types/query-models"
 import { formatDateISO } from "@/lib/utils" 
+import { useToaster } from '@/components/ui/toaster';
+
 
 export default function CreateCourseForm({
   id,
@@ -13,13 +15,29 @@ export default function CreateCourseForm({
 }: CreateCourseFormProps) {
   const [mainTrainerId, setMainTrainerId] = useState(course?.mainTrainer?.id || "")
   const [programId, setProgramId] = useState(course?.program?.id || "")
+  const { showToast } = useToaster();
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const code = form.code.value.trim();
+    const startDate = form.startDate.value;
+    const endDate = form.endDate.value;
+
+  if (!code || !programId || !startDate || !endDate || !mainTrainerId) {
+    showToast('Bitte alle Pflichtfelder ausfüllen.', 'info');
+    return;
+  }
+  // Wenn alles ausgefüllt, rufe das ursprüngliche onSubmit auf
+    onSubmit(new FormData(form));
+  };
 
   // Determine if this is a new course or an edit
   const isEditing = Boolean(id);
   const buttonText = isEditing ? "Aktualisieren" : "Kurs erstellen";
 
   return (
-    <form action={onSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6">
       {/* Course Code */}
       <div className="space-y-1">
         <label htmlFor="code" className="block text-xs font-medium text-gray-600">
@@ -29,7 +47,6 @@ export default function CreateCourseForm({
           id="code"
           name="code"
           type="text"
-          required
           defaultValue={course?.code || ""}
           placeholder="Kurs-Code einfügen"
           className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
@@ -45,7 +62,6 @@ export default function CreateCourseForm({
           name="programId"
           value={programId}
           onChange={e => setProgramId(e.target.value)}
-          required
           className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
         >
           <option value="" disabled>Programm wählen</option>
@@ -64,7 +80,6 @@ export default function CreateCourseForm({
           type="date"
           defaultValue={formatDateISO(course?.startDate)}
           className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-          required
         />
       </div>
       <div className="space-y-1">
@@ -77,7 +92,6 @@ export default function CreateCourseForm({
           type="date"
           defaultValue={formatDateISO(course?.endDate)}
           className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-          required
         />
       </div>
       <div className="space-y-1">
@@ -89,7 +103,6 @@ export default function CreateCourseForm({
           name="mainTrainerId"
           value={mainTrainerId}
           onChange={e => setMainTrainerId(e.target.value)}
-          required
           className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
         >
           <option value="" disabled>Trainer auswählen</option>

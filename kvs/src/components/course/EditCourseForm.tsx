@@ -3,6 +3,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { EditCourseFormProps } from "@/types/query-models"
 import { formatDateISO } from "@/lib/utils" 
+import { useToaster } from '@/components/ui/toaster';
 
 export default function EditCourseForm({ 
   id, 
@@ -11,10 +12,25 @@ export default function EditCourseForm({
   onSubmit 
 }: EditCourseFormProps) {
   const [mainTrainerId, setMainTrainerId] = useState(course?.mainTrainer?.id || "")
-
+  const { showToast } = useToaster();
+  
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const code = form.code.value.trim();
+    const startDate = form.startDate.value;
+    const endDate = form.endDate.value;
+  
+  if (!code || !course?.program?.name || !startDate || !endDate || !mainTrainerId) {
+    showToast('Bitte alle Pflichtfelder ausfüllen.', 'info');
+    return;
+  }
+  // Wenn alles ausgefüllt, rufe das ursprüngliche onSubmit auf
+    onSubmit(new FormData(form));
+  };
 
   return (
-    <form action={onSubmit} className="space-y-6" id="edit-course-form">
+    <form onSubmit={handleSubmit} className="space-y-6" id="edit-course-form">
       <input type="hidden" name="id" value={id} />
       {/* Course Code */}
       <div className="space-y-1">
@@ -25,7 +41,6 @@ export default function EditCourseForm({
           id="code"
           name="code"
           type="text"
-          required
           defaultValue={course?.code || ""}
           placeholder="Enter course code"
           className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
@@ -56,7 +71,6 @@ export default function EditCourseForm({
           type="date"
           defaultValue={formatDateISO(course?.startDate)}
           className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-          required
         />
       </div>
       {/* End Date */}
@@ -70,7 +84,6 @@ export default function EditCourseForm({
           type="date"
           defaultValue={formatDateISO(course?.endDate)}
           className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-          required
         />
       </div>
       {/* Main Trainer */}
@@ -83,7 +96,6 @@ export default function EditCourseForm({
           name="mainTrainerId"
           value={mainTrainerId}
           onChange={e => setMainTrainerId(e.target.value)}
-          required
           className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
         >
           <option value="" disabled>Trainer wählen</option>
