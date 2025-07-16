@@ -12,9 +12,12 @@ export default async function EditAreaPage({
   params: Promise<{ id: string }>
 }) {
   // Check user authorization
-await getAuthorizing({
+  const roles = await getAuthorizing({
     privilige: ['ADMIN', 'PROGRAMMMANAGER'],
   })
+  if (roles.length === 0) {
+    redirect('/403')
+  }
   const { id } = await params; // Await the promise
 
   // Fetch area and its programs in parallel
@@ -140,8 +143,8 @@ await getAuthorizing({
                 >
                   Änderungen speichern
                 </button>
-                
-              
+
+
               </div>
             </form>
           </div>

@@ -44,9 +44,12 @@ async function restoreArea(formData: FormData) {
 
 export default async function DeletedAreasPage() {
   // Check user authorization
- await getAuthorizing({
+ const roles = await getAuthorizing({
     privilige: ['ADMIN'],
   })
+  if (roles.length === 0) {
+    redirect('/403')
+  }
   // Fetch all soft-deleted areas with their associated programs
   const deletedAreas = await db.area.findMany({
     where: { deletedAt: { not: null } },

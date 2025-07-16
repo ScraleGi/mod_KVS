@@ -30,7 +30,7 @@ async function createArea(formData: FormData) {
     console.error('Failed to create area:', error)
     throw error
   }
-  
+
   // Redirect to areas list after successful creation
   redirect(`/area/${area?.id}?created=1`)
 }
@@ -38,18 +38,21 @@ async function createArea(formData: FormData) {
 export default async function NewAreaPage() {
 
   // Check user authorization
-  await getAuthorizing({
+  const roles = await getAuthorizing({
     privilige: ['ADMIN', 'PROGRAMMMANAGER'],
   })
-  
+  if (roles.length === 0) {
+    redirect('/403')
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4">
       <div className="max-w-md mx-auto">
-           <nav className="max-w-xl mx-auto mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
-                <Link href="/area" className="hover:underline text-gray-700">Bereiche</Link>
-                <span>&gt;</span>
-                <span className="text-gray-700 font-semibold">Bereich hinzufügen</span>
-            </nav>
+        <nav className="max-w-xl mx-auto mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
+          <Link href="/area" className="hover:underline text-gray-700">Bereiche</Link>
+          <span>&gt;</span>
+          <span className="text-gray-700 font-semibold">Bereich hinzufügen</span>
+        </nav>
         <div className="bg-white rounded-sm shadow border border-gray-100">
           <div className="px-6 py-8">
             <h1 className="text-xl font-bold text-gray-900 mb-8 tracking-tight">
@@ -70,7 +73,7 @@ export default async function NewAreaPage() {
                   required
                 />
               </div>
-              
+
               {/* Area Name Field */}
               <div className="space-y-1">
                 <label htmlFor="name" className="block text-xs font-medium text-gray-600">
@@ -85,7 +88,7 @@ export default async function NewAreaPage() {
                   required
                 />
               </div>
-              
+
               {/* Area Description Field (Optional) */}
               <div className="space-y-1">
                 <label htmlFor="description" className="block text-xs font-medium text-gray-600">
@@ -99,7 +102,7 @@ export default async function NewAreaPage() {
                   rows={2}
                 />
               </div>
-              
+
               {/* Action Buttons */}
               <div className="pt-2 flex items-center justify-end">
                 <button
@@ -108,7 +111,7 @@ export default async function NewAreaPage() {
                 >
                   Bereich erstellen
                 </button>
-                
+
               </div>
             </form>
           </div>

@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { sanitize } from '@/lib/sanitize'
 import ClientToasterWrapper from './ClientToasterWrapper'
+import { getAuthorizing } from '@/lib/getAuthorizing'
 
 //---------------------------------------------------
 // SERVER ACTIONS
@@ -31,6 +32,13 @@ async function restoreParticipant(formData: FormData) {
 // MAIN COMPONENT
 //---------------------------------------------------
 export default async function DeletedParticipantsPage() {
+  // Check user authorization
+      const roles = await getAuthorizing({
+        privilige: ['ADMIN'],
+      })
+      if (roles.length === 0) {
+        redirect('/403')
+      }
   try {
     //---------------------------------------------------
     // DATA FETCHING
