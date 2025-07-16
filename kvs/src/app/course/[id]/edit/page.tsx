@@ -5,6 +5,7 @@ import { sanitize } from '@/lib/sanitize'
 import { CourseWithEditRelations } from '@/types/query-models'
 import { formatDateISO } from '@/lib/utils'
 import RemoveButton from '@/components/RemoveButton/RemoveButton';
+import { getAuthorizing } from '@/lib/getAuthorizing';
 
 
 /**
@@ -15,6 +16,13 @@ import RemoveButton from '@/components/RemoveButton/RemoveButton';
   }: {
     params: Promise<{ id: string }>
   }) {
+    // Check user authorization
+  const roles = await getAuthorizing({
+    privilige: ['ADMIN', 'PROGRAMMMANAGER'],
+  })
+  if (roles.length === 0) {
+    redirect('/403')
+  }
   const { id } = await params
 
   // Fetch course and all available trainers in parallel

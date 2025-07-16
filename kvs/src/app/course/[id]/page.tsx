@@ -7,6 +7,7 @@ import { formatFullName, formatDateGerman } from '@/lib/utils'
 import { CourseTable, courseParticipantsColumns, CourseParticipantRow } from '@/components/overviewTable/table'
 import type { CourseWithDetailedRelations } from '@/types/query-models'
 import { getAuthorizing } from '@/lib/getAuthorizing'
+import { redirect } from 'next/navigation'
 
 // Extend the type locally to include email, phoneNumber, discountAmount, subsidyAmount
 type ParticipantWithContact = {
@@ -38,9 +39,12 @@ type CourseWithParticipants = Omit<CourseWithDetailedRelations, 'registrations'>
 
 export default async function CoursePage({ params }: { params: Promise<{ id: string }> }) {
   // Check user authorization
-    await getAuthorizing({
-      privilige: ['ADMIN', 'PROGRAMMMANAGER', 'TRAINER', 'RECHNUNGSWESEN'],
-    })
+  const roles = await getAuthorizing({
+    privilige: ['ADMIN', 'PROGRAMMMANAGER', 'RECHNUNGSWESEN'],
+  })
+  if (roles.length === 0) {
+    redirect('/403')
+  }
   const { id } = await params
 
   const courseData = await db.course.findUnique({

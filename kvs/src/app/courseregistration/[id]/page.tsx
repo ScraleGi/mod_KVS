@@ -8,6 +8,8 @@ import { db } from '@/lib/db'
 import { sanitize } from '@/lib/sanitize'
 import { formatDateGerman } from '@/lib/utils'
 import { Document } from '@/types/models'
+import { getAuthorizing } from '@/lib/getAuthorizing'
+import { redirect } from 'next/navigation'
 import { 
   SanitizedRegistration,
   SanitizedInvoice,
@@ -62,6 +64,13 @@ export default async function ParticipantDetailsPage({
 }: {
   params: Promise<{ id: string }>
 }) {
+  // Check user authorization
+  const roles = await getAuthorizing({
+    privilige: ['ADMIN', 'PROGRAMMMANAGER', 'RECHNUNGSWESEN'],
+  })
+  if (roles.length === 0) {
+    redirect('/403')
+  }
   //---------------------------------------------------
   // DATA FETCHING
   //---------------------------------------------------
