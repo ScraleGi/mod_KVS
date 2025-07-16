@@ -59,14 +59,14 @@ const Navbar = ({ isOpen, setOpen, user }: NavbarProps) => {
         <div className="relative w-80 group">
           <div className="relative flex items-center w-full z-100">
             <div className="relative flex-1">
-              <span className='absolute inset-y-0 left-0 flex items-center pl-3'>
+              <span className='absolute inset-y-0 left-0 flex items-center pl-3 ml-8'>
                 <FaSearch className='text-gray-400' />
               </span>
               <input
                 type='text'
                 value={searchValue}
                 onChange={handleSearch}
-                className='w-full bg-white text-gray-900 rounded-r px-3 py-1 pl-10 h-10 outline-none'
+                className='w-68 ml-8 transition-all duration-200 bg-white text-gray-900 rounded-xl px-3 py-1 pl-10 h-10 outline-none'
                 placeholder='Suche Kursteilnehmer...'
                 aria-label='Suche'
                 onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
@@ -108,29 +108,9 @@ const Navbar = ({ isOpen, setOpen, user }: NavbarProps) => {
                   <Link href="/settings" className='block px-4 py-2 hover:bg-gray-100'>Einstellungen</Link>
                 </li>
                 <li>
-                  <Link href="/logout" className='block px-4 py-2 hover:bg-gray-100'>Logout</Link>
-                </li>
-                <li>
-                  {user ? (
-                    <Link href="/auth/logout" className="block px-4 py-2 text-red-500 hover:bg-gray-100 hover:text-red-600">
-                      Abmelden
-                    </Link>
-                  ) : (
-                    <Link href="/auth/login" className="block px-4 py-2 text-green-500 hover:bg-gray-100 hover:text-green-600">
-                      Anmelden
-                    </Link>
-                  )}
-                </li>
-                <li>
-                  {user ? (
-                    <Link href="/auth/logout" className="block px-4 py-2 text-red-500 hover:bg-gray-100 hover:text-red-600">
-                      Abmelden
-                    </Link>
-                  ) : (
-                    <Link href="/auth/login" className="block px-4 py-2 text-green-500 hover:bg-gray-100 hover:text-green-600">
-                      Anmelden
-                    </Link>
-                  )}
+                  <Link href="/auth/logout" className="block px-4 py-2 text-red-500 hover:bg-gray-100 hover:text-red-600">
+                    Abmelden
+                  </Link>
                 </li>
               </ul>
             </div>
