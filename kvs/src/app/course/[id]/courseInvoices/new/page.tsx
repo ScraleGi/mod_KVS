@@ -6,10 +6,7 @@ async function createRecipient(formData: FormData) {
   "use server"
   const courseId = formData.get("courseId") as string
   const type = formData.get("type") as "PERSON" | "COMPANY"
-  const recipientSalutation = formData.get("recipientSalutation") as string
   const recipientName = formData.get("recipientName") as string
-  const recipientSurname = formData.get("recipientSurname") as string
-  const companyName = formData.get("companyName") as string
   const recipientEmail = formData.get("recipientEmail") as string
   const recipientStreet = formData.get("recipientStreet") as string
   const postalCode = formData.get("postalCode") as string
@@ -19,10 +16,7 @@ async function createRecipient(formData: FormData) {
   const newRecipient = await db.invoiceRecipient.create({
     data: {
       type,
-      recipientSalutation: type === "PERSON" ? recipientSalutation : null,
       recipientName: type === "PERSON" ? recipientName : null,
-      recipientSurname: type === "PERSON" ? recipientSurname : null,
-      companyName: type === "COMPANY" ? companyName : null,
       recipientEmail,
       recipientStreet,
       postalCode,

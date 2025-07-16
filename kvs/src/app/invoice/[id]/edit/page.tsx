@@ -21,7 +21,6 @@ export default async function EditInvoicePage({
           course: { include: { program: true } }
         }
       },
-      recipient: true
     }
   })
   
@@ -94,11 +93,7 @@ export default async function EditInvoicePage({
             <span className="font-medium">Course:</span> {invoice.courseRegistration.course.program?.name}
           </div>
           <div>
-            <span className="font-medium">Recipient:</span> {
-              invoice.recipient?.type === 'COMPANY' 
-                ? invoice.recipient.companyName 
-                : `${invoice.recipient?.recipientName || ''} ${invoice.recipient?.recipientSurname || ''}`.trim()
-            }
+            <span className="font-medium">Recipient:</span>
           </div>
         </div>
         
