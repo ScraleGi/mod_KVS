@@ -2,20 +2,10 @@ import { FaHome, FaCalendarAlt, FaCog, FaSignOutAlt, FaRegEnvelope, FaChartBar, 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-const navItems = [
-  { href: '/', label: 'Startseite', icon: FaHome },
-  { href: '/program', label: 'Programme', icon: FaLayerGroup },
-  { href: '/area', label: 'Bereiche', icon: FaThLarge },
-  { href: '/participant', label: 'Teilnehmer', icon: FaUsers },
-  { href: '/trainer', label: 'Trainer', icon: FaChalkboardTeacher },
-  { href: '/calendar', label: 'Termine', icon: FaCalendarAlt },
-  { href: '/reports', label: 'Berichte', icon: FaChartBar },
-  { href: '/inbox', label: 'Posteingang', icon: FaRegEnvelope },
-  { href: '/settings', label: 'Einstellungen', icon: FaCog },
-];
 
 type SidebarProps = {
   isOpen: boolean;
+  roles?: { role: string }[];
 }
 
 const Tooltip = ({ children }: { children: React.ReactNode }) => (
@@ -32,8 +22,30 @@ const Tooltip = ({ children }: { children: React.ReactNode }) => (
   </span>
 );
 
-const Sidebar = ({ isOpen }: SidebarProps) => {
+const Sidebar = ({ isOpen, roles }: SidebarProps) => {
   const pathname = usePathname();
+  const navItems = [
+  { href: '/', label: 'Startseite', icon: FaHome },
+  { href: '/program', label: 'Programme', icon: FaLayerGroup },
+  { href: '/area', label: 'Bereiche', icon: FaThLarge },
+  { href: '/participant', label: 'Teilnehmer', icon: FaUsers },
+  { href: '/trainer', label: 'Trainer', icon: FaChalkboardTeacher },
+  { href: '/calendar', label: 'Termine', icon: FaCalendarAlt },
+  { href: '/reports', label: 'Berichte', icon: FaChartBar },
+  { href: '/inbox', label: 'Posteingang', icon: FaRegEnvelope },
+  { href: '/settings', label: 'Einstellungen', icon: FaCog },
+];
+
+  if (!roles || roles.length === 0) {
+    return null;
+  }
+  if (!roles.some(role => ['ADMIN', 'PROGRAMMMANAGER', 'TRAINER', 'RECHNUNGSWESEN', 'MARKETING'].includes(role.role))) {
+    return null;
+  }
+
+  if (roles.some(role => role.role === 'ADMIN')) {
+    navItems.push({ href: '/user', label: 'Admin', icon: FaCog });
+  }
 
   return (
     <nav 

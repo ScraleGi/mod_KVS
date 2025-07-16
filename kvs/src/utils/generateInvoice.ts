@@ -17,10 +17,7 @@ export async function generateInvoice(formData: FormData) {
       throw new Error("Valid recipient type (PERSON or COMPANY) is required")
     }
 
-    const recipientSalutation = formData.get("recipientSalutation") as string
     const recipientName = formData.get("recipientName") as string
-    const recipientSurname = formData.get("recipientSurname") as string
-    const companyName = formData.get("companyName") as string
     const recipientEmail = formData.get("recipientEmail") as string
     const recipientStreet = formData.get("recipientStreet") as string
     const postalCode = formData.get("postalCode") as string
@@ -30,10 +27,7 @@ export async function generateInvoice(formData: FormData) {
     const recipient = await db.invoiceRecipient.create({
       data: {
         type,
-        recipientSalutation: type === "PERSON" ? recipientSalutation : null,
-        recipientName: type === "PERSON" ? recipientName : null,
-        recipientSurname: type === "PERSON" ? recipientSurname : null,
-        companyName: type === "COMPANY" ? companyName : null,
+        recipientName,
         recipientEmail,
         recipientStreet,
         postalCode,
@@ -114,7 +108,6 @@ export async function generateInvoice(formData: FormData) {
             finalAmount,
             dueDate,
             courseRegistrationId: registrationId,
-            recipientId: recipient.id,
           }
         })
       } catch (error) {
