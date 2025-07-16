@@ -1,10 +1,9 @@
 import { db } from '@/lib/db';
 import Link from 'next/link';
-import { Pencil, Info, GraduationCap } from 'lucide-react';
-import { formatDateGerman } from '@/lib/utils';
+import { Pencil, Info } from 'lucide-react';
 
 
-export default async function PrivilegesDetailsPage ({ params }: { params: { id: string } }) {
+export default async function PrivilegesDetailsPage ({ params }: { params: Promise<{ id: string }> }) {
     const user = await params;
     if (!user || !user.id) {
         return <div>Invalid user ID</div>;

@@ -2,17 +2,6 @@ import { FaHome, FaCalendarAlt, FaCog, FaSignOutAlt, FaRegEnvelope, FaChartBar, 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-const navItems = [
-  { href: '/', label: 'Startseite', icon: FaHome },
-  { href: '/program', label: 'Programme', icon: FaLayerGroup },
-  { href: '/area', label: 'Bereiche', icon: FaThLarge },
-  { href: '/participant', label: 'Teilnehmer', icon: FaUsers },
-  { href: '/trainer', label: 'Trainer', icon: FaChalkboardTeacher },
-  { href: '/calendar', label: 'Termine', icon: FaCalendarAlt },
-  { href: '/reports', label: 'Berichte', icon: FaChartBar },
-  { href: '/inbox', label: 'Posteingang', icon: FaRegEnvelope },
-  { href: '/settings', label: 'Einstellungen', icon: FaCog },
-];
 
 type SidebarProps = {
   isOpen: boolean;
@@ -40,6 +29,7 @@ const Sidebar = ({ isOpen, roles }: SidebarProps) => {
   { href: '/program', label: 'Programme', icon: FaLayerGroup },
   { href: '/area', label: 'Bereiche', icon: FaThLarge },
   { href: '/participant', label: 'Teilnehmer', icon: FaUsers },
+  { href: '/trainer', label: 'Trainer', icon: FaChalkboardTeacher },
   { href: '/calendar', label: 'Termine', icon: FaCalendarAlt },
   { href: '/reports', label: 'Berichte', icon: FaChartBar },
   { href: '/inbox', label: 'Posteingang', icon: FaRegEnvelope },

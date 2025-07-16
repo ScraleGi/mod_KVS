@@ -11,9 +11,8 @@ type User = {
     roles: { name: string }[];
 };
 
-
-export default async function EditUserPage({ params, }: { params: { id: string }; }) {
-    const { id } = params;
+export default async function EditUserPage({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params;
     const user = await prisma.user.findUnique({
         where: { id },
         include: { roles: true },
@@ -53,16 +52,16 @@ export default async function EditUserPage({ params, }: { params: { id: string }
         <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-50 px-2 py-8">
             <div className="w-full max-w-xl mx-auto">
                 <nav className="max-w-xl mx-auto mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
-                    <Link href="/trainer" className="hover:underline text-gray-700">Trainer</Link>
+                    <Link href="/trainer" className="hover:underline text-gray-700">Benutzer</Link>
                     <span>&gt;</span>
-                    <Link href={`/trainer/${user.id}`} className="text-gray-700 hover:underline">{user.email}</Link>
+                    <Link href={`/user/${user.id}`} className="text-gray-700 hover:underline">{user.email}</Link>
                     <span>&gt;</span>
-                    <span className="text-gray-700 font-semibold">Trainer bearbeiten</span>
+                    <span className="text-gray-700 font-semibold">Benutzer bearbeiten</span>
                 </nav>
             </div>
             <div className="w-full max-w-xl bg-white rounded-2xl shadow-md border border-neutral-100 p-8">
 
-                <h1 className="text-2xl font-bold mb-6 text-neutral-900 text-center">Trainer bearbeiten</h1>
+                <h1 className="text-2xl font-bold mb-6 text-neutral-900 text-center">Benutzer bearbeiten</h1>
                 <form
                     action={changeUser}
                     className="space-y-6"

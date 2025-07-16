@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import AreaToaster from './AreaToaster'
 import { notFound } from 'next/navigation'
-import { Info, GraduationCap, Pencil } from 'lucide-react'
+import { Info, GraduationCap } from 'lucide-react'
 import { db } from '@/lib/db'
 import { Area } from '@/types/models'
 import { sanitize } from '@/lib/sanitize'
