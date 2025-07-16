@@ -304,7 +304,7 @@ export default async function ParticipantPage({
                       <tr key={reg.id} className="border-t border-neutral-200 bg-white hover:bg-sky-50 transition">
                         <td className="px-3 py-2">
                           <Link
-                            href={`/course/${reg.course?.id}`}
+                            href={`/courseregistration/${reg.id}`}
                             className="text-blue-700 hover:text-blue-900 font-medium text-sm"
                           >
                             {reg.course?.program?.name ?? 'Unbekannter Kurs'}
