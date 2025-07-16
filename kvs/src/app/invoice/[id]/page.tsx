@@ -54,7 +54,6 @@ export default async function InvoicePage({
   const invoiceData = await db.invoice.findUnique({
     where: { id },
     include: {
-      recipient: true,
       courseRegistration: {
         include: {
           participant: true,

@@ -1,3 +1,4 @@
+import { getAuthorizing } from '@/lib/getAuthorizing'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { db } from '@/lib/db'
@@ -34,7 +35,13 @@ async function createArea(formData: FormData) {
   redirect(`/area/${area?.id}?created=1`)
 }
 
-export default function NewAreaPage() {
+export default async function NewAreaPage() {
+
+  // Check user authorization
+  await getAuthorizing({
+    privilige: ['ADMIN', 'PROGRAMMMANAGER'],
+  })
+  
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4">
       <div className="max-w-md mx-auto">
