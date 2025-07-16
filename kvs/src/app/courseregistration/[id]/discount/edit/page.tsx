@@ -42,7 +42,7 @@ export default async function DiscountEditPage({ params }: { params: Promise<{ i
     const amount = formData.get('amount') as string
     const remark = formData.get('remark') as string
     await updateDiscount(id, amount, remark)
-    redirect(`/courseregistration/${id}`)
+    redirect(`/courseregistration/${id}?discountEdited=1`)
   }
 
   return (

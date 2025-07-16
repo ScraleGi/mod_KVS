@@ -14,6 +14,7 @@ import {
   SanitizedDocument,
 } from '@/types/query-models'
 import RemoveButton from '@/components/RemoveButton/RemoveButton'
+import SubsidyToaster from './subsidy/new/SubsidyToaster'
 
 //---------------------------------------------------
 // SERVER ACTIONS
@@ -152,6 +153,7 @@ export default async function ParticipantDetailsPage({
   //---------------------------------------------------
   return (
     <div className="min-h-screen bg-neutral-50 flex items-center justify-center px-2 py-8">
+      <SubsidyToaster />
       <div className="w-full max-w-2xl bg-white rounded-2xl shadow-md border border-neutral-100 p-0 overflow-hidden">
 
         {/* Profile Card Section */}
