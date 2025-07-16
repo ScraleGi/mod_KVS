@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { FaBars, FaSearch, FaBell, FaUserCircle } from 'react-icons/fa';
+import { searchEntities, SearchResult } from '../../app/actions/searchActions';
 
 type NavbarProps = {
   isOpen: boolean;
@@ -13,9 +14,24 @@ type NavbarProps = {
 
 const Navbar = ({ isOpen, setOpen, user }: NavbarProps) => {
   const [searchValue, setSearchValue] = useState('');
+  const [results, setResults] = useState<SearchResult[]>([]);
+  const [showDropdown, setShowDropdown] = useState(false);
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchValue(e.target.value);
+  const handleSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchValue(value);
+
+    if (value.length === 0) {
+      setResults([]);
+      setShowDropdown(false);
+      return;
+    }
+
+    const data = await searchEntities(value);
+
+    setResults(data);
+    setShowDropdown(true);
+
   };
 
   return (
@@ -38,19 +54,44 @@ const Navbar = ({ isOpen, setOpen, user }: NavbarProps) => {
         </div>
       </div>
 
-      <div className='flex items-center gap-x-4'>
-        <div className='relative w-64'>
-          <span className='absolute inset-y-0 left-0 flex items-center pl-3'>
-            <FaSearch className='text-gray-400' />
-          </span>
-          <input
-            type='text'
-            value={searchValue}
-            onChange={handleSearch}
-            className='w-full bg-white text-gray-900 rounded px-4 py-1 pl-10 shadow outline-none transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white focus:shadow-lg'
-            placeholder='Suche...'
-            aria-label='Suche Kurse'
-          />
+      <div className='flex items-center gap-x-5'>
+        {/* Suchfeld mit Dropdown im Input, beide exakt gleich groß */}
+        <div className="relative w-80 group">
+          <div className="relative flex items-center w-full z-100">
+            <div className="relative flex-1">
+              <span className='absolute inset-y-0 left-0 flex items-center pl-3'>
+                <FaSearch className='text-gray-400' />
+              </span>
+              <input
+                type='text'
+                value={searchValue}
+                onChange={handleSearch}
+                className='w-full bg-white text-gray-900 rounded-r px-3 py-1 pl-10 h-10 outline-none'
+                placeholder='Suche Kursteilnehmer...'
+                aria-label='Suche'
+                onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
+                onFocus={() => { if (results.length > 0) setShowDropdown(true); }}
+                style={{ marginTop: '0px' }}
+              />
+
+              {showDropdown && results.length > 0 && (
+                <ul className="absolute bg-white border w-full mt-1 rounded shadow overflow-auto z-50">
+                  {
+                    results.map((searchResult: SearchResult) => (
+                        <li key={searchResult.id} className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                          <Link href={`/courseregistration/${searchResult.id}`} onClick={() => setShowDropdown(false)}>
+                            {searchResult.participant.name} {searchResult.participant.surname}
+                            <br/>
+                            <span className="text-sm text-gray-400"> 
+                            {searchResult.course.code} - {searchResult.course.program.name}
+                          </span></Link>
+                        </li>
+                      ))
+                  }
+                </ul>
+              )}
+            </div>
+          </div>
         </div>
 
         <div className='text-white italic skew-x-1'>{user}</div>
@@ -61,10 +102,24 @@ const Navbar = ({ isOpen, setOpen, user }: NavbarProps) => {
             <div className='z-10 hidden absolute bg-white rounded-lg shadow w-32 group-focus-within:block top-full right-0'>
               <ul className='py-2 text-sm text-gray-950'>
                 <li>
-                  <Link href="/profile" className="block px-4 py-2 hover:bg-gray-100">Profile</Link>
+                  <Link href="/profile" className='block px-4 py-2 hover:bg-gray-100'>Profil</Link>
                 </li>
                 <li>
-                  <Link href="/settings" className="block px-4 py-2 hover:bg-gray-100">Setting</Link>
+                  <Link href="/settings" className='block px-4 py-2 hover:bg-gray-100'>Einstellungen</Link>
+                </li>
+                <li>
+                  <Link href="/logout" className='block px-4 py-2 hover:bg-gray-100'>Logout</Link>
+                </li>
+                <li>
+                  {user ? (
+                    <Link href="/auth/logout" className="block px-4 py-2 text-red-500 hover:bg-gray-100 hover:text-red-600">
+                      Abmelden
+                    </Link>
+                  ) : (
+                    <Link href="/auth/login" className="block px-4 py-2 text-green-500 hover:bg-gray-100 hover:text-green-600">
+                      Anmelden
+                    </Link>
+                  )}
                 </li>
                 <li>
                   {user ? (

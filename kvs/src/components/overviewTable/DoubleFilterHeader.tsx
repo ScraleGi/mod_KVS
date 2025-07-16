@@ -2,7 +2,6 @@ import * as React from "react"
 import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react"
 import type { Column } from "@tanstack/react-table"
 
-// Use generic type parameters instead of any
 type DoubleFilterHeaderProps<TData extends Record<string, unknown>, TValue> = {
   column: Column<TData, TValue>
   label: string
@@ -11,49 +10,71 @@ type DoubleFilterHeaderProps<TData extends Record<string, unknown>, TValue> = {
   typeDefinition: "date" | "datetime-local" | "time" | "month" | "week" | "number" | "text"
 }
 
-// Make the component generic
-export function DoubleFilterHeader<TData extends Record<string, unknown>, TValue>({ 
-  column, 
-  label, 
-  placeholderFrom, 
-  placeholderTo, 
-  typeDefinition 
-}: DoubleFilterHeaderProps<TData, TValue>){
+export function DoubleFilterHeader<TData extends Record<string, unknown>, TValue>({
+  column,
+  label,
+  placeholderFrom,
+  placeholderTo,
+  typeDefinition
+}: DoubleFilterHeaderProps<TData, TValue>) {
+  const [showFilter, setShowFilter] = React.useState(false)
+  const filterRef = React.useRef<HTMLSpanElement>(null)
+  const inputFromRef = React.useRef<HTMLInputElement>(null)
+  const inputToRef = React.useRef<HTMLInputElement>(null)
 
-    const [showFilter, setShowFilter] = React.useState(false)
-    // Get current filter values (as array: [from, to])
-    const filterValue = (column.getFilterValue() as [string, string]) ?? ["", ""]
-    const filterRef = React.useRef<HTMLDivElement>(null)
-    
-    React.useEffect(() => {
-      if (!showFilter) return
-      function handleClick(e: MouseEvent) {
-        if (filterRef.current && !filterRef.current.contains(e.target as Node)) {
-          setShowFilter(false)
-        }
-      }
-      document.addEventListener("mousedown", handleClick)
-      return () => document.removeEventListener("mousedown", handleClick)
-    }, [showFilter])
+  // Click-away handler
+  const handleClick = React.useCallback((event: MouseEvent) => {
+    if (
+      filterRef.current &&
+      !filterRef.current.contains(event.target as Node)
+    ) {
+      setShowFilter(false)
+    }
+  }, [])
 
-    React.useEffect(() => {
-      if (showFilter && filterRef.current) {
-        const input = filterRef.current.querySelector("input[type='date']") as HTMLInputElement | null
-        input?.focus()
-      }
-    }, [showFilter])
+  React.useEffect(() => {
+    if (!showFilter) return
+    document.addEventListener("mousedown", handleClick)
+    return () => document.removeEventListener("mousedown", handleClick)
+  }, [showFilter, handleClick])
+
+  // Focus first input when filter opens
+  React.useEffect(() => {
+    if (showFilter && inputFromRef.current) {
+      inputFromRef.current.focus()
+    }
+  }, [showFilter])
+
+  const toggleFilter = React.useCallback(() => {
+    setShowFilter(v => !v)
+  }, [])
+
+  const filterValue = (column.getFilterValue() as [string, string]) ?? ["", ""]
+  const colId = column.id
+
+  // Handle Escape key on each input
+  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Escape") {
+      setShowFilter(false)
+    }
+  }
 
   return (
-    <span className="flex flex-col w-32 min-w-[7rem] relative">
+    <span
+      ref={filterRef}
+      className="flex flex-col w-40 min-w-[10rem] relative"
+    >
       <span className="flex items-center gap-1 select-none">
         <span
           className="cursor-pointer"
-          onClick={() => setShowFilter(s => !s)}
+          onClick={toggleFilter}
           tabIndex={0}
-          onKeyDown={e => {
-            if (e.key === "Enter" || e.key === " ") setShowFilter(s => !s)
-          }}
           role="button"
+          aria-expanded={showFilter}
+          aria-controls={`filter-${colId}`}
+          onKeyDown={e => {
+            if (e.key === "Enter" || e.key === " ") toggleFilter()
+          }}
         >
           {label}
         </span>
@@ -84,24 +105,27 @@ export function DoubleFilterHeader<TData extends Record<string, unknown>, TValue
         </span>
       </span>
       {showFilter && (
-        <div
-          ref={filterRef}
-          className="flex justify-center gap-2 w-full mt-1"
-        >
-          <input
-            type={typeDefinition}
-            value={filterValue[0]}
-            onChange={e => column.setFilterValue([e.target.value, filterValue[1]])}
-            className="rounded border px-1 py-0.5 text-xs bg-white shadow text-black w-32"
-            placeholder={placeholderFrom}
-          />
-          <input
-            type={typeDefinition}
-            value={filterValue[1]}
-            onChange={e => column.setFilterValue([filterValue[0], e.target.value])}
-            className="rounded border px-1 py-0.5 text-xs bg-white shadow text-black w-32"
-            placeholder={placeholderTo}
-          />
+        <div className="flex justify-center gap-2 w-full mt-1">
+<input
+  ref={inputFromRef}
+  type={typeDefinition}
+  value={filterValue[0]}
+  onChange={e => column.setFilterValue([e.target.value, filterValue[1]])}
+  className="rounded border px-2 py-1 text-xs bg-white shadow text-black w-32"
+  placeholder={placeholderFrom}
+  aria-label={`Filter ${label} von`}
+  onKeyDown={handleInputKeyDown}
+/>
+<input
+  ref={inputToRef}
+  type={typeDefinition}
+  value={filterValue[1]}
+  onChange={e => column.setFilterValue([filterValue[0], e.target.value])}
+  className="rounded border px-2 py-1 text-xs bg-white shadow text-black w-32"
+  placeholder={placeholderTo}
+  aria-label={`Filter ${label} bis`}
+  onKeyDown={handleInputKeyDown}
+/>
         </div>
       )}
     </span>
