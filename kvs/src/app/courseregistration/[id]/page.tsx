@@ -261,7 +261,7 @@ export default async function ParticipantDetailsPage({
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-medium text-neutral-600">Informationen:</span>
+                <span className="font-medium text-neutral-600">Info-Abend:</span>
                 <span className="text-neutral-600">
                   {sanitizedRegistration.infoSessionAt
                     ? formatDateGerman(sanitizedRegistration.infoSessionAt)
@@ -269,7 +269,7 @@ export default async function ParticipantDetailsPage({
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-medium text-neutral-600">Interesiert an:</span>
+                <span className="font-medium text-neutral-600">Vorgemerkt:</span>
                 <span className="text-neutral-600">
                   {sanitizedRegistration.interestedAt
                     ? formatDateGerman(sanitizedRegistration.interestedAt)
@@ -290,7 +290,7 @@ export default async function ParticipantDetailsPage({
                 name="remark"
                 defaultValue={sanitizedRegistration.generalRemark || ''}
                 className="bg-neutral-50 border border-neutral-200 rounded px-3 py-2 text-[13px] text-neutral-700 min-h-[64px] whitespace-pre-line break-words resize-y focus:outline-none focus:ring-2 focus:ring-blue-200"
-                placeholder="Enter a remark..."
+                placeholder="Bemerkug..."
               />
               <div className="flex justify-end">
                 <button
