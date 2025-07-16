@@ -114,7 +114,6 @@ export async function generateInvoice(formData: FormData) {
             finalAmount,
             dueDate,
             courseRegistrationId: registrationId,
-            recipientId: recipient.id,
           }
         })
       } catch (error) {

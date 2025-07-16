@@ -1,4 +1,4 @@
-import { FaHome, FaCalendarAlt, FaCog, FaSignOutAlt, FaRegEnvelope, FaChartBar, FaThLarge, FaLayerGroup, FaUsers, FaChalkboardTeacher } from 'react-icons/fa';
+import { FaHome, FaCalendarAlt, FaCog, FaSignOutAlt, FaRegEnvelope, FaChartBar, FaThLarge, FaLayerGroup, FaUsers, FaChalkboardTeacher, FaRegAddressCard } from 'react-icons/fa';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -12,6 +12,8 @@ const navItems = [
   { href: '/reports', label: 'Berichte', icon: FaChartBar },
   { href: '/inbox', label: 'Posteingang', icon: FaRegEnvelope },
   { href: '/settings', label: 'Einstellungen', icon: FaCog },
+
+  { href: '/invoiceRecipient', label: 'Empfänger', icon: FaRegAddressCard},
 ];
 
 type SidebarProps = {

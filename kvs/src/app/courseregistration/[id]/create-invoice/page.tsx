@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { db } from '@/lib/db'
 import { generateInvoice } from '@/utils/generateInvoice'
 
-import RecipientSelect from './RecipientSelect' // <-- import client component
+// import RecipientSelect from './RecipientSelect' // <-- import client component
 
 //---------------------------------------------------
 // SERVER ACTIONS
@@ -49,10 +49,12 @@ export default async function CreateInvoicePage({
   }
 
   // NEW: Fetch saved recipients to pass to client component
+  /*
   const recipients = await db.invoiceRecipient.findMany({
     where: { deletedAt: null },
     orderBy: { createdAt: 'desc' },
   })
+  */
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-neutral-50 px-2 py-8">
@@ -87,7 +89,7 @@ export default async function CreateInvoicePage({
         >
           <input type="hidden" name="registrationId" value={registration.id} />
 
-          {/*autofill component */}
+          {/*autofill component 
           <RecipientSelect
             recipients={recipients.map(r => ({
               ...r,
@@ -103,6 +105,7 @@ export default async function CreateInvoicePage({
               participantId: r.participantId ?? undefined,
             }))}
           />
+          */}
 
           {/* Invoice Recipient Section (UNCHANGED) */}
           <fieldset className="border border-neutral-200 rounded-lg p-5">

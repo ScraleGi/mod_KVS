@@ -77,7 +77,7 @@ export default async function ParticipantDetailsPage({
     include: {
       participant: true,
       course: { include: { program: true, mainTrainer: true } },
-      invoices: { include: { recipient: true } },
+      invoices: true,
     }
   })
 

@@ -38,14 +38,9 @@ export default async function ParticipantPage({
           },
           include: {
             course: { include: { program: true } },
-            invoices: {
-              include: {
-                recipient: true,
-              }
-            },
+            invoices: true,
           }
         },
-        invoiceRecipients: true,
       }
     })
 
@@ -375,9 +370,7 @@ export default async function ParticipantPage({
                           {inv.course?.code ?? <span className="text-neutral-300">—</span>}
                         </td>
                         <td className="px-3 py-2 text-center">
-                          {inv.recipient?.type === 'COMPANY'
-                            ? inv.recipient?.companyName
-                            : `${inv.recipient?.recipientName ?? ''} ${inv.recipient?.recipientSurname ?? ''}`}
+                          N/A
                         </td>
                         <td className="px-3 py-2 text-center">
                           {inv.isCancelled ? (

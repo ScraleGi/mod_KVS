@@ -852,6 +852,7 @@ async function seedInvoiceRecipients(participantMap: Record<string, string>) {
 }
 
 // -------------------- Invoice Seeding --------------------
+/*
 async function seedInvoices(
   programMap: Record<string, string>,
   courseMap: Record<string, string>,
@@ -920,7 +921,9 @@ async function seedInvoices(
     skipDuplicates: true,
   })
 }
+*/
 
+/*
 // -------------------- Document Seeding --------------------
 async function seedDocuments(
   programMap: Record<string, string>,
@@ -945,6 +948,7 @@ async function seedDocuments(
     skipDuplicates: true,
   })
 }
+*/
 
 //-------------------- Seed (public) Holiday ---------------------------------
 
@@ -1015,11 +1019,11 @@ async function seedDatabase() {
   const trainerMap = await seedTrainers()
   const courseMap = await seedCourses(programMap, trainerMap)
   const participantMap = await seedParticipants()
-  const registrationMap = await seedRegistrations(programMap, courseMap, participantMap)
 
-  await seedDocuments(programMap, courseMap, registrationMap, participantMap)
   const recipientMap = await seedInvoiceRecipients(participantMap)
-  await seedInvoices(programMap, courseMap, participantMap, registrationMap, recipientMap)
+  const registrationMap = await seedRegistrations(programMap, courseMap, participantMap)
+  // await seedInvoices(programMap, courseMap, participantMap, registrationMap, recipientMap)
+  //await seedDocuments(programMap, courseMap, registrationMap, participantMap)
   await seedHoliday()
 }
 
