@@ -65,6 +65,10 @@ model CourseRegistration {
   course              Course      @relation(fields: [courseId], references: [id])
   participantId       String
   participant         Participant @relation(fields: [participantId], references: [id])
+
+  invoiceRecipientId String?
+  invoiceRecipient   InvoiceRecipient? @relation(fields: [invoiceRecipientId], references: [id])
+
   createdAt           DateTime    @default(now())
   deletedAt           DateTime?
   invoices            Invoice[]
@@ -127,7 +131,6 @@ model Participant {
   createdAt             DateTime    @default(now())
   deletedAt             DateTime?
   registrations         CourseRegistration[]
-  invoiceRecipients     InvoiceRecipient[]   
   @@index([deletedAt])
 }
 
@@ -141,27 +144,22 @@ model Invoice {
   isCancelled           Boolean              @default(false)
   dueDate               DateTime
   transactionNumber     String?              @unique // <-- nullable
-  recipientId           String
-  recipient             InvoiceRecipient     @relation(fields: [recipientId], references: [id])
 }
 
 model InvoiceRecipient {
   id                      String       @id @default(uuid())
   type                    RecipientType
-  recipientSalutation     String?          // Optional, only for Person required
-  recipientName           String?         // Optional, only for PERSON required
-  recipientSurname        String?        // Optional, only for PERSON required
-  companyName             String?       // Optional, only for COMPANY required
-  recipientEmail          String
+  recipientName           String?         // company name of the full name of the person
+  recipientEmail          String?
   postalCode              String
   recipientCity           String
   recipientStreet         String
-  recipientCountry        String
+  recipientCountry        String?
   createdAt               DateTime     @default(now())
   deletedAt               DateTime?
-  participantId           String?      // Only set if PERSON
-  participant             Participant? @relation(fields: [participantId], references: [id])
-  invoices                Invoice[]
+  courseRegistrations     CourseRegistration[] // Relation: one InvoiceRecipient can have many CourseRegistrations
+  
+
   @@index([deletedAt])
 }
 
