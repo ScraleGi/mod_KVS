@@ -639,15 +639,15 @@ async function seedRegistrations(
 //-------------------- Seed (public) Holiday ---------------------------------
 
 const fixedHolidays = [
-  {title: 'Neujahr', month: 1, day: 1},
-  {title: 'Heilige drei Könige', month: 1, day: 6},
-  {title: 'Statsfeiertag', month: 5, day: 1},
-  {title: 'Maria Himmelfahrt', month: 8, day: 15},
-  {title: 'Nationalfeiertag', month: 10, day: 26},
-  {title: 'Allerheiligen', month: 11, day: 1},
-  {title: 'Maria Empfängniss', month: 12, day: 8},
-  {title: 'Wheinachtstag', month: 12, day: 25},
-  {title: 'Stefanitag', month: 12, day: 26},
+  { title: 'Neujahr', month: 1, day: 1 },
+  { title: 'Heilige drei Könige', month: 1, day: 6 },
+  { title: 'Statsfeiertag', month: 5, day: 1 },
+  { title: 'Maria Himmelfahrt', month: 8, day: 15 },
+  { title: 'Nationalfeiertag', month: 10, day: 26 },
+  { title: 'Allerheiligen', month: 11, day: 1 },
+  { title: 'Maria Empfängniss', month: 12, day: 8 },
+  { title: 'Wheinachtstag', month: 12, day: 25 },
+  { title: 'Stefanitag', month: 12, day: 26 },
 ];
 
 function calculateEaster(year: number): Date {
@@ -699,11 +699,11 @@ async function seedHoliday() {
 
 async function seedRoles() {
   const roles = [
-    { name: 'ADMIN'},
-    { name: 'TRAINER'},
-    { name: 'RECHNUNGSWESEN'},
-    { name: 'PROGRAMMMANAGER'},
-    { name: 'MARKETING'},
+    { name: 'ADMIN' },
+    { name: 'TRAINER' },
+    { name: 'RECHNUNGSWESEN' },
+    { name: 'PROGRAMMMANAGER' },
+    { name: 'MARKETING' },
   ];
   await db.role.createMany({ data: roles, skipDuplicates: true });
 }
@@ -756,17 +756,14 @@ async function seedDatabase() {
   const participantMap = await seedParticipants()
   await seedRegistrations(programMap, courseMap, participantMap)
   await seedHoliday()
-  await seedRoles();  async function seedDatabase() {
+  await seedRoles(); async function seedDatabase() {
     const areaMap = await seedAreas()
     const programMap = await seedPrograms(areaMap)
     const trainerMap = await seedTrainers()
     const courseMap = await seedCourses(programMap, trainerMap)
     const participantMap = await seedParticipants()
-    const registrationMap = await seedRegistrations(programMap, courseMap, participantMap)
-  
-    await seedDocuments(programMap, courseMap, registrationMap, participantMap)
-    const recipientMap = await seedInvoiceRecipients(participantMap)
-    await seedInvoices(programMap, courseMap, participantMap, registrationMap, recipientMap)
+    await seedRegistrations(programMap, courseMap, participantMap)
+
     await seedHoliday()
     await seedRoles();
     await seedUsers();
