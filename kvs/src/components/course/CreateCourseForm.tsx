@@ -1,9 +1,10 @@
 "use client"
 import { useState } from "react"
 import { CreateCourseFormProps } from "@/types/query-models"
-import { formatDateISO } from "@/lib/utils" 
+import { formatDateISO } from "@/lib/utils"
 import { useToaster } from '@/components/ui/toaster';
 
+import TrainerSearchBox from "../forms/TrainerSearchBox"
 
 export default function CreateCourseForm({
   id,
@@ -12,7 +13,10 @@ export default function CreateCourseForm({
   programs,
   onSubmit,
 }: CreateCourseFormProps) {
-  const [mainTrainerId, setMainTrainerId] = useState(course?.mainTrainer?.id || "")
+  const [mainTrainerId, setMainTrainerId] = useState<string>(course?.mainTrainer?.id || "")
+  const [additionalTrainerIds, setAdditionalTrainerIds] = useState<string[]>(
+    course?.trainers?.map(t => t.id).filter(id => id !== course?.mainTrainer?.id) || []
+  )
   const [programId, setProgramId] = useState(course?.program?.id || "")
   const { showToast } = useToaster();
 
@@ -31,9 +35,8 @@ export default function CreateCourseForm({
     onSubmit(new FormData(form));
   };
 
-  // Determine if this is a new course or an edit
-  const isEditing = Boolean(id);
-  const buttonText = isEditing ? "Aktualisieren" : "Kurs erstellen";
+  const isEditing = Boolean(id)
+  const buttonText = isEditing ? "Aktualisieren" : "Kurs erstellen"
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -93,47 +96,36 @@ export default function CreateCourseForm({
           className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
         />
       </div>
-      <div className="space-y-1">
-        <label htmlFor="mainTrainerId" className="block text-xs font-medium text-gray-600">
-          Trainer
-        </label>
-        <select
-          id="mainTrainerId"
-          name="mainTrainerId"
-          value={mainTrainerId}
-          onChange={e => setMainTrainerId(e.target.value)}
-          className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-        >
-          <option value="" disabled>Trainer auswählen</option>
-          {trainers.map((trainer) => (
-            <option key={trainer.id} value={trainer.id}>
-              {trainer.name} {trainer.surname}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div className="space-y-1">
-        <label className="block text-xs font-medium text-gray-600">
-          Co-Trainers
-        </label>
-        <div className="flex flex-wrap gap-2" id="trainer-checkboxes">
-          {trainers
-            .filter(trainer => trainer.id !== mainTrainerId)
-            .map(trainer => (
-              <label key={trainer.id} className="flex items-center space-x-2 trainer-checkbox-label" data-trainer-id={trainer.id}>
-                <input
-                  type="checkbox"
-                  name="trainerIds"
-                  value={trainer.id}
-                  defaultChecked={course?.trainers?.some((t) => t.id === trainer.id)}
-                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 trainer-checkbox"
-                />
-                <span className="text-xs">{trainer.name} {trainer.surname}</span>
-              </label>
-            ))}
-        </div>
-      </div>
-      <div className="pt-2 flex items-center justify-end">
+
+      {/* Main Trainer Searchbox */}
+      <TrainerSearchBox
+        label="Trainer (Haupttrainer)"
+        trainers={trainers}
+        selected={mainTrainerId}
+        onChange={id => {
+          setMainTrainerId(id as string)
+          setAdditionalTrainerIds(ids => ids.filter(aid => aid !== id))
+        }}
+        excludeIds={additionalTrainerIds}
+      />
+
+      {/* Additional Trainer Searchbox */}
+      <TrainerSearchBox
+        label="Co-Trainer"
+        trainers={trainers}
+        selected={additionalTrainerIds}
+        onChange={value => setAdditionalTrainerIds(Array.isArray(value) ? value : [value])}
+        multi
+        excludeIds={mainTrainerId ? [mainTrainerId] : []}
+      />
+
+      {/* Hidden Inputs for backend */}
+      <input type="hidden" name="mainTrainerId" value={mainTrainerId} />
+      {additionalTrainerIds.map(id => (
+        <input key={id} type="hidden" name="trainerIds" value={id} />
+      ))}
+
+      <div className="pt-2 flex items-center justify-between">
         <button
           type="submit"
           className="cursor-pointer inline-flex items-center px-5 py-2 border border-transparent text-xs font-semibold rounded text-white bg-blue-600 hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
