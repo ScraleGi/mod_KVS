@@ -1,4 +1,4 @@
-import { FaHome, FaCalendarAlt, FaCog, FaSignOutAlt, FaRegEnvelope, FaChartBar, FaThLarge, FaLayerGroup, FaUsers, FaChalkboardTeacher } from 'react-icons/fa';
+import { FaHome, FaCalendarAlt, FaCog, FaSignOutAlt, FaRegEnvelope, FaChartBar, FaThLarge, FaLayerGroup, FaUsers, FaChalkboardTeacher, FaUserShield } from 'react-icons/fa';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -44,7 +44,7 @@ const Sidebar = ({ isOpen, roles }: SidebarProps) => {
   }
 
   if (roles.some(role => role.role === 'ADMIN')) {
-    navItems.push({ href: '/user', label: 'Admin', icon: FaCog });
+    navItems.push({ href: '/user', label: 'Admin', icon: FaUserShield });
   }
 
   return (

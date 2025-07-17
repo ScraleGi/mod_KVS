@@ -106,7 +106,7 @@ export default async function EditParticipantPage({
       <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-50 px-2 py-8">
         <div className="w-full max-w-xl">
           <nav className="mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
-            <Link href="/participant" className="hover:underline text-gray-700">Teilnehmer</Link>
+            <Link href="/participant" className="hover:underline text-gray-700">Teilnehmerübersicht</Link>
             <span>&gt;</span>
             <Link href={`/participant/${participant.id}`} className="text-gray-700 hover:underline">{participant.name} {participant.surname}</Link>
             <span>&gt;</span>

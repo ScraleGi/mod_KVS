@@ -72,7 +72,7 @@ export default async function DeletedAreasPage() {
         <nav className="mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
           <Link href="/area" className="hover:underline text-gray-700">Bereiche</Link>
           <span>&gt;</span>
-          <span className="text-gray-700 font-semibold">gelöschte Bereiche</span>
+          <span className="text-gray-700 font-semibold">Gelöschte Bereiche</span>
         </nav>
         <div className="bg-white rounded-xl shadow border border-gray-100 px-8 py-10">
           <h1 className="text-2xl font-bold text-gray-900 mb-8 tracking-tight">Gelöschte Bereiche</h1>
@@ -106,15 +106,6 @@ export default async function DeletedAreasPage() {
               ))}
             </ul>
           )}
-          <Link
-            href="/area"
-            className="mt-8 inline-flex items-center text-xs font-medium text-gray-500 hover:text-blue-700 transition-colors"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            Bereiche
-          </Link>
         </div>
       </div>
     </div>
