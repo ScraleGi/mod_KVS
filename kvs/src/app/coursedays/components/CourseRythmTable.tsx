@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { CourseRythm } from '../types'
 import { createCourseRythm, updateCourseRythm, deleteCourseRythm } from '../actions'
 import { TableToolbar } from './TableToolbar'
@@ -54,20 +54,16 @@ function IconAdd() {
 export function CourseRythmTable({ rythms, courseId }: { rythms: CourseRythm[], courseId: string }) {
   const [editId, setEditId] = useState<string | null>(null)
   const [editValues, setEditValues] = useState<{ startTime: string, endTime: string, pauseDuration: string, weekDay: string } | null>(null)
-  const [newValues, setNewValues] = useState<Record<string, { startTime: string, endTime: string, pauseDuration: string }>>({})
-  const [weekDayFilter, setWeekDayFilter] = useState('')
+  const [newValues, setNewValues] = useState<{ weekDay: string, startTime: string, endTime: string, pauseDuration: string }>({
+    weekDay: '',
+    startTime: '',
+    endTime: '',
+    pauseDuration: ''
+  })
 
-  useEffect(() => {
-    setNewValues(prev => {
-      const updated = { ...prev }
-      WEEK_DAYS.forEach(day => {
-        if (!updated[day.key]) {
-          updated[day.key] = { startTime: '', endTime: '', pauseDuration: '' }
-        }
-      })
-      return updated
-    })
-  }, [])
+  // Get used weekdays
+  const usedWeekDays = rythms.map(r => r.weekDay)
+  const availableWeekDays = WEEK_DAYS.filter(day => !usedWeekDays.includes(day.key))
 
   function handleEdit(r: CourseRythm) {
     setEditId(r.id)
@@ -89,27 +85,39 @@ export function CourseRythmTable({ rythms, courseId }: { rythms: CourseRythm[], 
     setEditValues({ ...editValues, [e.target.name]: e.target.value })
   }
 
-  function handleNewChange(dayKey: string, field: string, value: string) {
-    setNewValues(prev => ({
-      ...prev,
-      [dayKey]: { ...prev[dayKey], [field]: value }
-    }))
+  function handleNewChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
+    setNewValues({ ...newValues, [e.target.name]: e.target.value })
   }
 
-  function getRythmForDay(dayKey: string) {
-    return rythms.find(r => r.weekDay === dayKey) || null
+  // Reset newValues after add
+  function handleAddSubmit() {
+    setTimeout(() => {
+      setNewValues({ weekDay: '', startTime: '', endTime: '', pauseDuration: '' })
+    }, 0)
   }
 
-  const visibleDays = weekDayFilter
-    ? WEEK_DAYS.filter(day => day.key === weekDayFilter)
-    : WEEK_DAYS
+  // Reset edit state after edit
+  function handleEditSubmit() {
+    setTimeout(() => {
+      setEditId(null)
+      setEditValues(null)
+    }, 0)
+  }
+
+  // Reset edit state and newValues after delete
+  function handleDelete() {
+    setEditId(null)
+    setEditValues(null)
+    setTimeout(() => {
+      setNewValues({ weekDay: '', startTime: '', endTime: '', pauseDuration: '' })
+    }, 0)
+  }
 
   return (
     <div className="mt-10 mb-10">
       <TableToolbar
-        weekDayFilter={weekDayFilter}
-        onWeekDayFilter={setWeekDayFilter}
         searchPlaceholder="Kurstag suchen…"
+        disabledWeekDays={usedWeekDays}
       />
       <div className="overflow-x-auto">
         <table className="min-w-full text-sm border border-gray-300 rounded-lg bg-white shadow-sm">
@@ -123,80 +131,101 @@ export function CourseRythmTable({ rythms, courseId }: { rythms: CourseRythm[], 
             </tr>
           </thead>
           <tbody>
-            {visibleDays.map(day => {
-              const r = getRythmForDay(day.key)
-              const isEditing = editId === r?.id && editValues
+            {/* Add new rythm row */}
+            <tr className="bg-white border-b border-gray-300">
+              <td className="py-1 px-1 align-middle border-r border-gray-200">
+                <select
+                  name="weekDay"
+                  value={newValues.weekDay}
+                  onChange={handleNewChange}
+                  className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none"
+                  required
+                >
+                  <option value="">Wochentag wählen…</option>
+                  {availableWeekDays.map(day => (
+                    <option key={day.key} value={day.key}>{day.label}</option>
+                  ))}
+                </select>
+              </td>
+              <td className="py-1 px-1 align-middle border-r border-gray-200">
+                <input name="startTime" type="time" value={newValues.startTime} onChange={handleNewChange} className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none" required />
+              </td>
+              <td className="py-1 px-1 align-middle border-r border-gray-200">
+                <input name="endTime" type="time" value={newValues.endTime} onChange={handleNewChange} className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none" required />
+              </td>
+              <td className="py-1 px-1 align-middle border-r border-gray-200">
+                <input name="pauseDuration" type="time" value={newValues.pauseDuration} onChange={handleNewChange} className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none" required />
+              </td>
+              <td className="py-1 px-1 align-middle text-center">
+                <form action={createCourseRythm} className="inline-flex items-center gap-0.5" onSubmit={handleAddSubmit}>
+                  <input type="hidden" name="weekDay" value={newValues.weekDay} />
+                  <input type="hidden" name="startTime" value={newValues.startTime} />
+                  <input type="hidden" name="endTime" value={newValues.endTime} />
+                  <input type="hidden" name="pauseDuration" value={newValues.pauseDuration} />
+                  <input type="hidden" name="courseId" value={courseId} />
+                  <button type="submit" className="mx-auto block p-0.5 text-gray-400 hover:text-green-600 rounded transition" title="Hinzufügen"><IconAdd /></button>
+                </form>
+              </td>
+            </tr>
+            {/* Existing rythms */}
+            {rythms.map(r => {
+              const isEditing = editId === r.id && editValues
+              const dayLabel = WEEK_DAYS.find(day => day.key === r.weekDay)?.label || r.weekDay
               return (
-                <tr key={day.key} className="bg-white border-b border-gray-300 hover:bg-gray-50 transition">
-                  <td className="py-1 px-1 align-middle border-r border-gray-200 font-medium">{day.label}</td>
-                  {r ? (
-                    isEditing ? (
-                      <>
-                        <td className="py-1 px-1 align-middle border-r border-gray-200">
-                          <input name="startTime" type="time" value={editValues!.startTime} onChange={handleChange} className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none" required />
-                        </td>
-                        <td className="py-1 px-1 align-middle border-r border-gray-200">
-                          <input name="endTime" type="time" value={editValues!.endTime} onChange={handleChange} className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none" required />
-                        </td>
-                        <td className="py-1 px-1 align-middle border-r border-gray-200">
-                          <input name="pauseDuration" type="time" value={editValues!.pauseDuration} onChange={handleChange} className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none" required />
-                        </td>
-                        <td className="py-1 px-1 align-middle text-center flex gap-1 justify-center">
-                          <form
-                            action={updateCourseRythm}
-                            className="inline-flex items-center gap-0.5"
-                            onSubmit={handleCancel}
-                          >
-                            <input type="hidden" name="id" value={r.id} />
-                            <input type="hidden" name="weekDay" value={editValues!.weekDay} />
-                            <input type="hidden" name="startTime" value={editValues!.startTime} />
-                            <input type="hidden" name="endTime" value={editValues!.endTime} />
-                            <input type="hidden" name="pauseDuration" value={editValues!.pauseDuration} />
-                            <input type="hidden" name="courseId" value={courseId} />
-                            <button type="submit" className="p-0.5 text-gray-400 hover:text-green-600 rounded transition" title="Speichern"><IconSave /></button>
-                          </form>
-                          <button type="button" className="p-0.5 text-gray-400 hover:text-orange-500 rounded transition" title="Abbrechen" onClick={handleCancel}><IconCancel /></button>
-                          <form action={deleteCourseRythm} className="inline-flex items-center justify-center gap-0.5">
-                            <input type="hidden" name="id" value={r.id} />
-                            <input type="hidden" name="courseId" value={courseId} />
-                            <button type="submit" className="p-0.5 text-gray-400 hover:text-red-500 rounded transition" title="Löschen"><IconTrash /></button>
-                          </form>
-                        </td>
-                      </>
-                    ) : (
-                      <>
-                        <td className="py-1 px-1 align-middle border-r border-gray-200">{r.startTime ? r.startTime.slice(11, 16) : '--:--'}</td>
-                        <td className="py-1 px-1 align-middle border-r border-gray-200">{r.endTime ? r.endTime.slice(11, 16) : '--:--'}</td>
-                        <td className="py-1 px-1 align-middle border-r border-gray-200">{r.pauseDuration ? r.pauseDuration.slice(11, 16) : '--:--'}</td>
-                        <td className="py-1 px-1 align-middle text-center flex gap-1 justify-center">
-                          <button type="button" className="p-0.5 text-gray-400 hover:text-blue-600 rounded transition" title="Bearbeiten" onClick={() => handleEdit(r)}><IconEdit /></button>
-                          <form action={deleteCourseRythm} className="inline-flex items-center justify-center gap-0.5">
-                            <input type="hidden" name="id" value={r.id} />
-                            <input type="hidden" name="courseId" value={courseId} />
-                            <button type="submit" className="p-0.5 text-gray-400 hover:text-red-500 rounded transition" title="Löschen"><IconTrash /></button>
-                          </form>
-                        </td>
-                      </>
-                    )
-                  ) : (
+                <tr key={r.id} className="bg-white border-b border-gray-300 hover:bg-gray-50 transition">
+                  <td className="py-1 px-1 align-middle border-r border-gray-200 font-medium">{dayLabel}</td>
+                  {isEditing ? (
                     <>
                       <td className="py-1 px-1 align-middle border-r border-gray-200">
-                        <input name="startTime" type="time" value={newValues[day.key]?.startTime || ''} onChange={e => handleNewChange(day.key, 'startTime', e.target.value)} className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none" required />
+                        <input name="startTime" type="time" value={editValues!.startTime} onChange={handleChange} className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none" required />
                       </td>
                       <td className="py-1 px-1 align-middle border-r border-gray-200">
-                        <input name="endTime" type="time" value={newValues[day.key]?.endTime || ''} onChange={e => handleNewChange(day.key, 'endTime', e.target.value)} className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none" required />
+                        <input name="endTime" type="time" value={editValues!.endTime} onChange={handleChange} className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none" required />
                       </td>
                       <td className="py-1 px-1 align-middle border-r border-gray-200">
-                        <input name="pauseDuration" type="time" value={newValues[day.key]?.pauseDuration || ''} onChange={e => handleNewChange(day.key, 'pauseDuration', e.target.value)} className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none" required />
+                        <input name="pauseDuration" type="time" value={editValues!.pauseDuration} onChange={handleChange} className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none" required />
                       </td>
-                      <td className="py-1 px-1 align-middle text-center">
-                        <form action={createCourseRythm} className="inline-flex items-center gap-0.5">
-                          <input type="hidden" name="weekDay" value={day.key} />
-                          <input type="hidden" name="startTime" value={newValues[day.key]?.startTime || ''} />
-                          <input type="hidden" name="endTime" value={newValues[day.key]?.endTime || ''} />
-                          <input type="hidden" name="pauseDuration" value={newValues[day.key]?.pauseDuration || ''} />
+                      <td className="py-1 px-1 align-middle text-center flex gap-1 justify-center">
+                        <form
+                          action={updateCourseRythm}
+                          className="inline-flex items-center gap-0.5"
+                          onSubmit={handleEditSubmit}
+                        >
+                          <input type="hidden" name="id" value={r.id} />
+                          <input type="hidden" name="weekDay" value={editValues!.weekDay} />
+                          <input type="hidden" name="startTime" value={editValues!.startTime} />
+                          <input type="hidden" name="endTime" value={editValues!.endTime} />
+                          <input type="hidden" name="pauseDuration" value={editValues!.pauseDuration} />
                           <input type="hidden" name="courseId" value={courseId} />
-                          <button type="submit" className="mx-auto block p-0.5 text-gray-400 hover:text-green-600 rounded transition" title="Hinzufügen"><IconAdd /></button>
+                          <button type="submit" className="p-0.5 text-gray-400 hover:text-green-600 rounded transition" title="Speichern"><IconSave /></button>
+                        </form>
+                        <button type="button" className="p-0.5 text-gray-400 hover:text-orange-500 rounded transition" title="Abbrechen" onClick={handleCancel}><IconCancel /></button>
+                        <form
+                          action={deleteCourseRythm}
+                          className="inline-flex items-center justify-center gap-0.5"
+                          onSubmit={handleDelete}
+                        >
+                          <input type="hidden" name="id" value={r.id} />
+                          <input type="hidden" name="courseId" value={courseId} />
+                          <button type="submit" className="p-0.5 text-gray-400 hover:text-red-500 rounded transition" title="Löschen"><IconTrash /></button>
+                        </form>
+                      </td>
+                    </>
+                  ) : (
+                    <>
+                      <td className="py-1 px-1 align-middle border-r border-gray-200">{r.startTime ? r.startTime.slice(11, 16) : '--:--'}</td>
+                      <td className="py-1 px-1 align-middle border-r border-gray-200">{r.endTime ? r.endTime.slice(11, 16) : '--:--'}</td>
+                      <td className="py-1 px-1 align-middle border-r border-gray-200">{r.pauseDuration ? r.pauseDuration.slice(11, 16) : '--:--'}</td>
+                      <td className="py-1 px-1 align-middle text-center flex gap-1 justify-center">
+                        <button type="button" className="p-0.5 text-gray-400 hover:text-blue-600 rounded transition" title="Bearbeiten" onClick={() => handleEdit(r)}><IconEdit /></button>
+                        <form
+                          action={deleteCourseRythm}
+                          className="inline-flex items-center justify-center gap-0.5"
+                          onSubmit={handleDelete}
+                        >
+                          <input type="hidden" name="id" value={r.id} />
+                          <input type="hidden" name="courseId" value={courseId} />
+                          <button type="submit" className="p-0.5 text-gray-400 hover:text-red-500 rounded transition" title="Löschen"><IconTrash /></button>
                         </form>
                       </td>
                     </>
