@@ -87,7 +87,7 @@ export default function DiscountClientEditLogic({
 
   async function handleDelete() {
     await removeDiscount(registrationId)
-    router.push(`/courseregistration/${registrationId}`)
+    router.push(`/courseregistration/${registrationId}?discountDeleted=1`)
   }
 
   return (

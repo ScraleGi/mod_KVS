@@ -1,10 +1,11 @@
 
 import { redirect } from 'next/navigation'
 import CreateCourseForm from '@/components/course/CreateCourseForm'
+import Link from 'next/link'
 import { db } from '@/lib/db'
 import { sanitize } from '@/lib/sanitize'
 import { Program, Trainer } from '@/types/models'
-
+import { getAuthorizing } from '@/lib/getAuthorizing'
 /**
  * Server action to create a new course
  */
@@ -51,6 +52,10 @@ async function createCourse(formData: FormData) {
  * New Course Page - Provides form to create a new course
  */
 export default async function NewCoursePage() {
+  // Check user authorization
+  await getAuthorizing({
+    privilige: ['ADMIN', 'PROGRAMMMANAGER', 'TRAINER'],
+  })
   // Fetch trainers and programs in parallel for better performance
   const [trainersData, programsData] = await Promise.all([
     db.trainer.findMany({
@@ -68,9 +73,18 @@ export default async function NewCoursePage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-blue-50 flex items-center justify-center p-4 sm:p-6 lg:p-8">
       <div className="w-full max-w-md">
+        <nav className='mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2'>
+          <Link href="/" className="hover:underline text-gray-700">
+            Kursübersicht
+          </Link>
+          <span>&gt;</span>
+          <span className="text-gray-700 font-semibold">
+            Kurs anlegen
+          </span>
+        </nav>
         <div className="backdrop-blur-sm bg-white/90 rounded-2xl shadow-xl overflow-hidden border border-gray-100 transition-all duration-300 hover:shadow-2xl">
           <div className="px-8 py-10">
-            <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-700 mb-8 tracking-tight">
+            <h1 className="text-xl font-bold text-gray-900 mb-8 tracking-tight">
               Kurs anlegen
             </h1>
               <CreateCourseForm

@@ -4,15 +4,21 @@ import { CourseTable, participantColumns, ParticipantRow } from "@/components/ov
 import { AddParticipantButton } from "@/components/participants/buttonAddParticipant"
 import ParticipantToaster from './[id]/ParticipantToaster'
 import Link from 'next/link'
+import { getAuthorizing } from '@/lib/getAuthorizing'
+import { redirect } from "next/navigation";
 
 //---------------------------------------------------
 // MAIN COMPONENT
 //---------------------------------------------------
 export default async function ParticipantOverviewPage() {
+  // Check user authorization
+      const roles = await getAuthorizing({
+        privilige: ['ADMIN', 'PROGRAMMMANAGER', 'RECHNUNGSWESEN', 'MARKETING'],
+      })
   //---------------------------------------------------
   // DATA FETCHING
   //---------------------------------------------------
-  try {
+  
     // Fetch only non-deleted participants with their registrations and courses
     const participantsData = await db.participant.findMany({
       where: {
@@ -50,6 +56,12 @@ export default async function ParticipantOverviewPage() {
           startDate: r.course.startDate,
         })),
     }))
+
+
+      if (roles.length === 0) {
+        redirect('/403') // Redirect to 403 if no roles found
+      }
+
 
     //---------------------------------------------------
     // RENDER UI
@@ -91,23 +103,4 @@ export default async function ParticipantOverviewPage() {
         />
       </div>
     )
-  } catch (error) {
-    console.error('Failed to load participants:', error)
-    
-    //---------------------------------------------------
-    // ERROR STATE
-    //---------------------------------------------------
-    return (
-      <div className="container mx-auto py-8 px-4">
-        <h1 className="text-2xl font-bold mb-4">Error</h1>
-        <p className="text-red-600 mb-6">Teilnehmerdaten konnten nicht geladen werden. Bitte versuchen Sie es später noch einmal.</p>
-        <Link 
-          href="/" 
-          className="text-blue-500 hover:text-blue-700"
-        >
-          &larr; Startseite
-        </Link>
-      </div>
-    )
-  }
 }

@@ -4,12 +4,20 @@ import { db } from '@/lib/db';
 import { Area } from '@/types/models';
 import { sanitize } from '@/lib/sanitize';
 import RemoveButton from '@/components/RemoveButton/RemoveButton';
+import { getAuthorizing } from '@/lib/getAuthorizing';
 
 export default async function EditAreaPage({
   params,
 }: {
   params: Promise<{ id: string }>
 }) {
+  // Check user authorization
+  const roles = await getAuthorizing({
+    privilige: ['ADMIN', 'PROGRAMMMANAGER'],
+  })
+  if (roles.length === 0) {
+    redirect('/403')
+  }
   const { id } = await params; // Await the promise
 
   // Fetch area and its programs in parallel
@@ -73,12 +81,17 @@ export default async function EditAreaPage({
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-10 px-4">
       <div className="w-full max-w-md">
         <nav className="mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
-          <Link href="/area" className="hover:underline text-gray-700">Bereiche</Link>
+          <Link href="/area" className="hover:underline text-gray-700">
+            Bereiche
+          </Link>
           <span>&gt;</span>
-          <span className="text-gray-700 font-semibold">Bereich bearbeiten</span>
+          <Link href={`/area/${id}`} className="hover:underline text-gray-700">
+            {sanitizedArea.name}
+          </Link>
           <span>&gt;</span>
-          <Link href={`/area/${id}`} className="hover:underline text-gray-700">{sanitizedArea.name}</Link>
-
+          <span className="text-gray-700 font-semibold">
+            Bereich bearbeiten
+          </span>
         </nav>
         <div className="bg-white rounded-sm shadow border border-gray-100">
           <div className="px-6 py-8">
@@ -135,8 +148,8 @@ export default async function EditAreaPage({
                 >
                   Änderungen speichern
                 </button>
-                
-              
+
+
               </div>
             </form>
           </div>

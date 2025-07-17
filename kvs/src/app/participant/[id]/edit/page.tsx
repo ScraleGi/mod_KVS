@@ -5,6 +5,7 @@ import { db } from '@/lib/db'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { sanitize } from '@/lib/sanitize'
+import { getAuthorizing } from '@/lib/getAuthorizing'
 
 //---------------------------------------------------
 // MAIN COMPONENT
@@ -15,6 +16,13 @@ export default async function EditParticipantPage({
   params: Promise<{ id: string }>
 }) {
   try {
+    // Check user authorization
+    const roles = await getAuthorizing({
+      privilige: ['ADMIN', 'PROGRAMMMANAGER'],
+    })
+    if (roles.length === 0) {
+      redirect('/403')
+    }
     const { id } = await params
 
     //---------------------------------------------------
@@ -29,18 +37,18 @@ export default async function EditParticipantPage({
       }
     })
 
-  if (!participant) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-neutral-50">
-        <div className="max-w-md w-full px-4">
-          <Link href="/participant" className="text-blue-500 hover:underline mb-6 block">
-            &larr; Teilnehmer
-          </Link>
-          <div className="text-red-600 text-lg font-semibold">Teilnehmer nicht gefunden.</div>
+    if (!participant) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-neutral-50">
+          <div className="max-w-md w-full px-4">
+            <Link href="/participant" className="text-blue-500 hover:underline mb-6 block">
+              &larr; Teilnehmer
+            </Link>
+            <div className="text-red-600 text-lg font-semibold">Teilnehmer nicht gefunden.</div>
+          </div>
         </div>
-      </div>
-    )
-  }
+      )
+    }
 
     // Sanitize participant data
     const sanitizedParticipant = sanitize(participant)
@@ -82,13 +90,13 @@ export default async function EditParticipantPage({
           }
         })
 
-        
+
       } catch (error) {
         console.error('Failed to update participant:', error)
         throw error
       }
 
-        redirect(`/participant/${id}?edited=1`)
+      redirect(`/participant/${id}?edited=1`)
     }
 
     //---------------------------------------------------
@@ -97,16 +105,16 @@ export default async function EditParticipantPage({
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-50 px-2 py-8">
         <div className="w-full max-w-xl">
-                  <nav className="mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
-                    <Link href="/participant" className="hover:underline text-gray-700">Teilnehmer</Link>
-                    <span>&gt;</span>
-                    <Link href={`/participant/${participant.id}`} className="text-gray-700 hover:underline">{participant.name} {participant.surname}</Link>
-                    <span>&gt;</span>
-                    <span className="text-gray-700 font-semibold">Teilnehmer bearbeiten</span>
-                  </nav>
-                </div>
+          <nav className="mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
+            <Link href="/participant" className="hover:underline text-gray-700">Teilnehmerübersicht</Link>
+            <span>&gt;</span>
+            <Link href={`/participant/${participant.id}`} className="text-gray-700 hover:underline">{participant.name} {participant.surname}</Link>
+            <span>&gt;</span>
+            <span className="text-gray-700 font-semibold">Teilnehmer bearbeiten</span>
+          </nav>
+        </div>
         <div className="w-full max-w-xl bg-white rounded-2xl shadow-md border border-neutral-100 p-8">
-          
+
           <h1 className="text-2xl font-bold mb-6 text-neutral-900 text-center">Teilnehmer bearbeiten</h1>
           <form
             action={updateParticipant}

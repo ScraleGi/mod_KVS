@@ -3,16 +3,15 @@
 import React, { useState, useTransition, useEffect } from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
-import type { SanitizedRegistration, SanitizedInvoice, SanitizedInvoiceRecipient } from "@/types/query-models"
+import type { SanitizedRegistration, SanitizedInvoice } from "@/types/query-models"
 import { generateInvoice } from "@/utils/generateInvoice"
 
 interface Props {
   registrations: SanitizedRegistration[]
-  recipients: SanitizedInvoiceRecipient[]
   courseId: string
 }
 
-export function ClientGenerateCourseInvoices({ registrations, recipients, courseId }: Props) {
+export function ClientGenerateCourseInvoices({ registrations, courseId }: Props) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [recipientType, setRecipientType] = useState<"default" | "custom">("default")
@@ -51,39 +50,6 @@ export function ClientGenerateCourseInvoices({ registrations, recipients, course
     )
   }
 
-  // Deduplicate recipients, always show the most recent, fallback to id if name empty
-  const seenNames = new Set<string>()
-  const filteredRecipients = [...recipients].reverse().filter(rec => {
-    let nameKey = ""
-    if (rec.type === "COMPANY") {
-      nameKey = (rec.companyName || "").trim().toLowerCase()
-    } else {
-      nameKey = [
-        rec.recipientSalutation || "",
-        rec.recipientName || "",
-        rec.recipientSurname || ""
-      ].join(" ").replace(/\s+/g, " ").trim().toLowerCase()
-      if (!nameKey) nameKey = rec.id
-    }
-    if (seenNames.has(nameKey)) return false
-    seenNames.add(nameKey)
-    return true
-  })
-
-  // Always show the currently selected recipient (even if just created)
-  const currentRecipient = recipients.find(r => r.id === customRecipientId)
-  const recipientOptions = [
-    ...(currentRecipient && !filteredRecipients.some(r => r.id === currentRecipient.id)
-      ? [currentRecipient]
-      : []),
-    ...filteredRecipients
-  ]
-
-  const renderRecipientName = (rec: SanitizedInvoiceRecipient) =>
-    rec.type === "COMPANY"
-      ? rec.companyName
-      : `${rec.recipientSalutation || ""} ${rec.recipientName || ""} ${rec.recipientSurname || ""}`.trim() || "(Unbenannte Person)"
-
   // Handle "Empfänger anlegen" click
   const handleCreateRecipient = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -109,35 +75,17 @@ export function ClientGenerateCourseInvoices({ registrations, recipients, course
         const formData = new FormData()
         formData.set("registrationId", regId)
 
-        if (recipientType === "default") {
-          const reg = registrations.find(r => r.id === regId)
-          if (!reg) continue
-          formData.set("type", "PERSON")
-          formData.set("recipientSalutation", reg.participant.salutation || "")
-          formData.set("recipientName", reg.participant.name || "")
-          formData.set("recipientSurname", reg.participant.surname || "")
-          formData.set("recipientEmail", reg.participant.email || "")
-          formData.set("recipientStreet", reg.participant.street || "")
-          formData.set("postalCode", reg.participant.postalCode || "")
-          formData.set("recipientCity", reg.participant.city || "")
-          formData.set("recipientCountry", reg.participant.country || "")
-        } else {
-          const rec = recipients.find(r => r.id === customRecipientId)
-          if (!rec) continue
-          formData.set("type", rec.type)
-          if (rec.type === "COMPANY") {
-            formData.set("companyName", rec.companyName || "")
-          } else {
-            formData.set("recipientSalutation", rec.recipientSalutation || "")
-            formData.set("recipientName", rec.recipientName || "")
-            formData.set("recipientSurname", rec.recipientSurname || "")
-          }
-          formData.set("recipientEmail", rec.recipientEmail || "")
-          formData.set("recipientStreet", rec.recipientStreet || "")
-          formData.set("postalCode", rec.postalCode || "")
-          formData.set("recipientCity", rec.recipientCity || "")
-          formData.set("recipientCountry", rec.recipientCountry || "")
-        }
+        const reg = registrations.find(r => r.id === regId)
+        if (!reg) continue
+        formData.set("type", "PERSON")
+        formData.set("recipientSalutation", reg.participant.salutation || "")
+        formData.set("recipientName", reg.participant.name || "")
+        formData.set("recipientSurname", reg.participant.surname || "")
+        formData.set("recipientEmail", reg.participant.email || "")
+        formData.set("recipientStreet", reg.participant.street || "")
+        formData.set("postalCode", reg.participant.postalCode || "")
+        formData.set("recipientCity", reg.participant.city || "")
+        formData.set("recipientCountry", reg.participant.country || "")
 
         const result = await generateInvoice(formData)
         if (!result.success) {
@@ -202,27 +150,7 @@ export function ClientGenerateCourseInvoices({ registrations, recipients, course
                 Neuen Empfänger anlegen
               </button>
             </span>
-            <select
-              name="customRecipientId"
-              className="ml-2 border rounded px-2 py-1 text-xs"
-              disabled={recipientType !== "custom"}
-              style={{ minWidth: 180 }}
-              value={customRecipientId}
-              onChange={e => setCustomRecipientId(e.target.value)}
-              required={recipientType === "custom"}
-            >
-              <option value="" disabled>
-                {currentRecipient
-                  ? `Empfänger: ${renderRecipientName(currentRecipient)}`
-                  : "Empfänger wählen…"}
-              </option>
-              {recipientOptions.map((rec) => (
-                <option key={rec.id} value={rec.id}>
-                  {renderRecipientName(rec)}
-                </option>
-              ))}
-            </select>
-          </label>
+           </label>
         </div>
       </div>
 

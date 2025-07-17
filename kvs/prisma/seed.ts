@@ -639,15 +639,15 @@ async function seedRegistrations(
 //-------------------- Seed (public) Holiday ---------------------------------
 
 const fixedHolidays = [
-  {title: 'Neujahr', month: 1, day: 1},
-  {title: 'Heilige drei Könige', month: 1, day: 6},
-  {title: 'Statsfeiertag', month: 5, day: 1},
-  {title: 'Maria Himmelfahrt', month: 8, day: 15},
-  {title: 'Nationalfeiertag', month: 10, day: 26},
-  {title: 'Allerheiligen', month: 11, day: 1},
-  {title: 'Maria Empfängniss', month: 12, day: 8},
-  {title: 'Wheinachtstag', month: 12, day: 25},
-  {title: 'Stefanitag', month: 12, day: 26},
+  { title: 'Neujahr', month: 1, day: 1 },
+  { title: 'Heilige drei Könige', month: 1, day: 6 },
+  { title: 'Statsfeiertag', month: 5, day: 1 },
+  { title: 'Maria Himmelfahrt', month: 8, day: 15 },
+  { title: 'Nationalfeiertag', month: 10, day: 26 },
+  { title: 'Allerheiligen', month: 11, day: 1 },
+  { title: 'Maria Empfängniss', month: 12, day: 8 },
+  { title: 'Wheinachtstag', month: 12, day: 25 },
+  { title: 'Stefanitag', month: 12, day: 26 },
 ];
 
 function calculateEaster(year: number): Date {
@@ -697,6 +697,54 @@ async function seedHoliday() {
   console.log(`✅ Feiertage für ${years.length} Jahre gespeichert.`);
 }
 
+async function seedRoles() {
+  const roles = [
+    { name: 'ADMIN' },
+    { name: 'RECHNUNGSWESEN' },
+    { name: 'PROGRAMMMANAGER' },
+    { name: 'MARKETING' },
+  ];
+  await db.role.createMany({ data: roles, skipDuplicates: true });
+}
+
+async function seedUsers() {
+  const users = [
+    { email: 'leonie@dc.at' },
+    { email: 'daniela@dc.at' },
+    { email: 'gyula@dc.at' },
+    { email: 'oliver@dc.at' },
+    { email: 'carlos@dc.at' },
+    { email: 'goerkem@dc.at' },
+    { email: 'mehmet@dc.at' },
+  ];
+  await db.user.createMany({ data: users, skipDuplicates: true });
+  // IDs für Zuordnung holen
+  const allUsers = await db.user.findMany();
+  return Object.fromEntries(allUsers.map(u => [u.email, u.id]));
+}
+
+async function assignRolesToUsers() {
+  // Alle User holen
+  const allUsers = await db.user.findMany();
+  // Die ADMIN-Rolle holen
+  const adminRole = await db.role.findUnique({ where: { name: 'ADMIN' } });
+  if (!adminRole) throw new Error('ADMIN role not found!');
+
+  // Für jeden User die ADMIN-Rolle zuweisen
+  for (const user of allUsers) {
+    await db.user.update({
+      where: { id: user.id },
+      data: {
+        roles: {
+          connect: { id: adminRole.id }
+        }
+      }
+    });
+  }
+  console.log('✅ ADMIN-Rolle allen Usern zugewiesen.');
+}
+
+
 // -------------------- Main Seed Function --------------------
 
 async function seedDatabase() {
@@ -707,6 +755,21 @@ async function seedDatabase() {
   const participantMap = await seedParticipants()
   await seedRegistrations(programMap, courseMap, participantMap)
   await seedHoliday()
+  await seedRoles(); async function seedDatabase() {
+    const areaMap = await seedAreas()
+    const programMap = await seedPrograms(areaMap)
+    const trainerMap = await seedTrainers()
+    const courseMap = await seedCourses(programMap, trainerMap)
+    const participantMap = await seedParticipants()
+    await seedRegistrations(programMap, courseMap, participantMap)
+
+    await seedHoliday()
+    await seedRoles();
+    await seedUsers();
+    await assignRolesToUsers(); // <--- Hier!
+  }
+  await seedUsers();
+  await assignRolesToUsers();
 }
 seedDatabase()
   .then(() => console.log('Dummy Data seeded.'))

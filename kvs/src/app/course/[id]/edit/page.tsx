@@ -1,10 +1,12 @@
-import { redirect } from 'next/navigation'
-import EditCourseForm from '@/components/course/EditCourseForm'
+import { redirect } from 'next/navigation';
+import EditCourseForm from '@/components/course/EditCourseForm';
+import Link from 'next/link';
 import { db } from '@/lib/db'
-import { sanitize } from '@/lib/sanitize'
-import { CourseWithEditRelations } from '@/types/query-models'
-import { formatDateISO } from '@/lib/utils'
+import { sanitize } from '@/lib/sanitize';
+import { CourseWithEditRelations } from '@/types/query-models';
+import { formatDateISO } from '@/lib/utils';
 import RemoveButton from '@/components/RemoveButton/RemoveButton';
+import { getAuthorizing } from '@/lib/getAuthorizing';
 
 
 /**
@@ -15,6 +17,13 @@ import RemoveButton from '@/components/RemoveButton/RemoveButton';
   }: {
     params: Promise<{ id: string }>
   }) {
+    // Check user authorization
+  const roles = await getAuthorizing({
+    privilige: ['ADMIN', 'PROGRAMMMANAGER'],
+  })
+  if (roles.length === 0) {
+    redirect('/403')
+  }
   const { id } = await params
 
   // Fetch course and all available trainers in parallel
@@ -50,10 +59,11 @@ import RemoveButton from '@/components/RemoveButton/RemoveButton';
     const id = formData.get('id') as string
     const code = formData.get('code') as string
     const startDate = formData.get('startDate') as string
-    const endDate = formData.get('endDate') as string 
+    const endDate = formData.get('endDate') as string
     const mainTrainerId = formData.get('mainTrainerId') as string
     const trainerIds = formData.getAll('trainerIds') as string[]
     
+
     // Exclude main trainer from additional trainers list
     const filteredTrainerIds = trainerIds.filter(tid => tid !== mainTrainerId)
 
@@ -97,6 +107,19 @@ import RemoveButton from '@/components/RemoveButton/RemoveButton';
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4 flex flex-col items-center justify-center">
       <div className="w-full max-w-md">
+        <nav className='mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2'>
+          <Link href="/course" className="hover:underline text-gray-700">
+            Kursübersicht
+          </Link>
+          <span>&gt;</span>
+          <Link href={`/course/${id}`} className="hover:underline text-gray-700">
+            {course?.program?.name ?? 'Kurs'}
+          </Link>
+          <span>&gt;</span>
+          <span className='text-gray-700 font-semibold'>
+            Kurs bearbeiten
+          </span>
+        </nav>
         <div className="bg-white rounded-sm shadow border border-gray-100">
           <div className="px-6 py-8">
             <h1 className="text-xl font-bold text-gray-900 mb-8 tracking-tight">
@@ -109,20 +132,20 @@ import RemoveButton from '@/components/RemoveButton/RemoveButton';
               onSubmit={changeCourse}
             />
           </div>
-          
+
           {/* Danger Zone Section */}
-          <div className="border-t border-gray-200 mt-2"></div>
+          <div className="border-t border-gray-200"></div>
           <div className="px-6 py-4 bg-gray-50 rounded-b-sm">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-sm font-medium text-gray-700">Archiv</h3>
-                <p className="text-xs text-gray-500 mt-1">Dadurch werden die Kurse archiviert.</p>
+                <p className="text-xs text-gray-500 mt-1">In Ablage verwahren.</p>
               </div>
               <RemoveButton
                 itemId={id}
                 onRemove={deleteCourse}
-                title="Delete Course"
-                message="Are you sure you want to soft delete this course? This will also remove all associated registrations."
+                title="Kurs löschen"
+                message="Sind Sie sicher, dass Sie diesen Kurs sanft löschen möchten? Dadurch werden auch alle zugehörigen Registrierungen entfernt."
                 fieldName="id"
                 customButton={
                   <button

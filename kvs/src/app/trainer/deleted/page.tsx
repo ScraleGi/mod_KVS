@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { sanitize } from '@/lib/sanitize'
 import ClientToasterWrapper from './ClientToasterWrapper'
+import { getAuthorizing } from '@/lib/getAuthorizing'
 
 async function restoreTrainer(formData: FormData) {
   'use server'
@@ -21,6 +22,13 @@ async function restoreTrainer(formData: FormData) {
 }
 
 export default async function DeletedTrainersPage() {
+  // Check user authorization
+  const roles = await getAuthorizing({
+    privilige: ['ADMIN'],
+  })
+  if (roles.length === 0) {
+    redirect('/403')
+  }
     try {
         const deletedTrainersData = await db.trainer.findMany({
         where: { deletedAt: { not: null } },
@@ -33,11 +41,15 @@ export default async function DeletedTrainersPage() {
         return (
         <div className="min-h-screen bg-neutral-50 py-10 px-4 flex items-center justify-center">
           <ClientToasterWrapper />
-        <div className="w-full max-w-2xl">
-          <nav className="mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
-                <Link href="/trainer" className="hover:underline text-gray-700">Trainer</Link>
+          <div className="w-full max-w-2xl">
+            <nav className="mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
+                <Link href="/trainer" className="hover:underline text-gray-700">
+                Trainerübersicht
+                </Link>
                 <span>&gt;</span>
-                <span className="text-gray-700 font-semibold">Archiv</span>
+                <span className="text-gray-700 font-semibold">
+                  Archiv
+                </span>
             </nav>
           <div className="bg-white rounded-2xl shadow-md border border-neutral-100 px-8 py-10">
             

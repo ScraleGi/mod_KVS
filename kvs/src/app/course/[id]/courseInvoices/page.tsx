@@ -1,10 +1,20 @@
 import Link from "next/link"
 import { db } from "@/lib/db"
 import { sanitize } from "@/lib/sanitize"
-import type { SanitizedRegistration, SanitizedCourse, SanitizedInvoiceRecipient } from "@/types/query-models"
+import type { SanitizedRegistration, SanitizedCourse } from "@/types/query-models"
 import { ClientGenerateCourseInvoices } from "./ClientGenerateCourseInvoices"
+import { getAuthorizing } from "@/lib/getAuthorizing"
+import { redirect } from "next/navigation"
 
 export default async function CourseInvoicesPage({ params }: { params: Promise<{ id: string }> }) {
+  // Check user authorization
+    const roles = await getAuthorizing({
+      privilige: ['ADMIN', 'PROGRAMMMANAGER'],
+    })
+  
+    if (roles.length === 0) {
+      redirect('/403')
+    }
   const { id } = await params
 
   // Fetch course, registrations, invoices, and all possible custom recipients for this course
@@ -16,54 +26,14 @@ export default async function CourseInvoicesPage({ params }: { params: Promise<{
         where: { deletedAt: null },
         include: {
           participant: true,
-          invoices: { include: { recipient: true } },
+          invoices: true,
         },
       },
       mainTrainer: true,
     },
   })
 
-  // Fetch all invoice recipients except those linked to a participant of this course
-const participantIds = course?.registrations?.map(r => r.participantId) ?? []
-const participants = course?.registrations?.map(r => r.participant) ?? []
 
-const customRecipients = await db.invoiceRecipient.findMany({
-  where: {
-    OR: [
-      { type: "COMPANY" },
-      {
-        AND: [
-          { type: "PERSON" },
-          {
-            OR: [
-              // External PERSON (participantId is null) and does not match any participant by name/surname/email
-              {
-                participantId: null,
-                NOT: {
-                  OR: participants.map(p => ({
-                    recipientName: p.name,
-                    recipientSurname: p.surname,
-                    recipientEmail: p.email,
-                  }))
-                }
-              },
-              // PERSON with participantId not in this course
-              {
-                participantId: { notIn: participantIds }
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  },
-  orderBy: [
-    { type: "asc" },
-    { companyName: "asc" },
-    { recipientSurname: "asc" },
-    { recipientName: "asc" }
-  ],
-})
 
   if (!course) {
     return (
@@ -78,7 +48,6 @@ const customRecipients = await db.invoiceRecipient.findMany({
 
   const sanitizedRegistrations = sanitize(course.registrations) as unknown as SanitizedRegistration[]
   const sanitizedCourse = sanitize(course) as unknown as SanitizedCourse
-  const sanitizedRecipients = sanitize(customRecipients) as unknown as SanitizedInvoiceRecipient[]
 
   return (
     <div className="min-h-screen bg-neutral-50 py-10 px-4">
@@ -88,7 +57,6 @@ const customRecipients = await db.invoiceRecipient.findMany({
         </h1>
         <ClientGenerateCourseInvoices
           registrations={sanitizedRegistrations}
-          recipients={sanitizedRecipients}
           courseId={sanitizedCourse.id}
         />
         <div className="mt-8">

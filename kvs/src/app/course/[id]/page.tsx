@@ -6,6 +6,8 @@ import { sanitize } from '@/lib/sanitize'
 import { formatFullName, formatDateGerman } from '@/lib/utils'
 import { CourseTable, courseParticipantsColumns, CourseParticipantRow } from '@/components/overviewTable/table'
 import type { CourseWithDetailedRelations } from '@/types/query-models'
+import { getAuthorizing } from '@/lib/getAuthorizing'
+import { redirect } from 'next/navigation'
 
 // Extend the type locally to include email, phoneNumber, discountAmount, subsidyAmount
 type ParticipantWithContact = {
@@ -36,6 +38,13 @@ type CourseWithParticipants = Omit<CourseWithDetailedRelations, 'registrations'>
 }
 
 export default async function CoursePage({ params }: { params: Promise<{ id: string }> }) {
+  // Check user authorization
+  const roles = await getAuthorizing({
+    privilige: ['ADMIN', 'PROGRAMMMANAGER', 'RECHNUNGSWESEN'],
+  })
+  if (roles.length === 0) {
+    redirect('/403')
+  }
   const { id } = await params
 
   const courseData = await db.course.findUnique({
@@ -126,12 +135,24 @@ registrations: {
     <div className="min-h-screen bg-gray-50 py-10 px-4">
       <CourseToaster />
       <div className="max-w-[1800px] mx-auto">
+        <nav className='mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2'>
+          <Link href="/" className="hover:underline text-gray-700">
+            Kursübersicht
+          </Link>
+          <span>&gt;</span>
+          <span className='text-gray-700 font-semibold'>
+            {course.program?.name ?? 'Kurs'}
+          </span>
+        </nav>
+
         {/* Navigation */}
         <div className="flex justify-between items-center mb-8">
-          <Link href="/" className="text-blue-500 hover:underline text-sm">
-            &larr; Startseite
-          </Link>
-          <div className="flex-1 flex justify-center items-center relative">
+               <nav className="max-w-xl mx-auto mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2 pb-5">
+                <Link href="/" className="hover:underline text-gray-700">Startseite</Link>
+                <span>&gt;</span>
+                <span className="text-gray-700 font-semibold">{course.program?.name}</span>
+            </nav>
+          <div className="flex-1 flex justify-center items-center relative pt-5">
             <h1 className="text-3xl font-bold text-gray-900">{course.program?.name ?? 'Course'}</h1>
             <Link
               href={`/course/${course.id}/edit`}

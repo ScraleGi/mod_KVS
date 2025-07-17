@@ -2,8 +2,16 @@ import { db } from '@/lib/db'
 import { redirect } from 'next/navigation';
 import { EditLabel } from "../../../components/trainer/EditLabel";
 import Link from 'next/link';
+import { getAuthorizing } from "@/lib/getAuthorizing";
 
 export default async function NewTrainerPage() {
+    // Check user authorization
+  const roles = await getAuthorizing({
+    privilige: ['ADMIN', 'PROGRAMMMANAGER'],
+  })
+    if (roles.length === 0) {
+        redirect('/403')
+    }
     const createTrainer = async (formData: FormData) => {
         'use server';
         const name = formData.get('name') as string;
@@ -43,7 +51,7 @@ export default async function NewTrainerPage() {
         <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-50 px-2 py-8">
             <div className="w-full max-w-xl mx-auto">
                 <nav className="mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
-                    <Link href="/trainer" className="hover:underline text-gray-700">Trainer</Link>
+                    <Link href="/trainer" className="hover:underline text-gray-700">Trainerübersicht</Link>
                     <span>&gt;</span>
                     <span className="text-gray-700 font-semibold">Trainer hinzufügen</span>
                 </nav>
