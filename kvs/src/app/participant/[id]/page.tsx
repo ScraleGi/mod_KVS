@@ -10,6 +10,7 @@ import ParticipantToaster from './ParticipantToaster'
 import { sanitize } from '@/lib/sanitize'
 import RemoveButton from '@/components/RemoveButton/RemoveButton'
 import { DownloadPDFLink } from '@/components/DownloadButton/DownloadButton'
+import { getAuthorizing } from '@/lib/getAuthorizing'
 
 //---------------------------------------------------
 // MAIN COMPONENT
@@ -19,6 +20,13 @@ export default async function ParticipantPage({
 }: {
   params: Promise<{ id: string }>
 }) {
+  // Check user authorization
+  const roles = await getAuthorizing({
+    privilige: ['ADMIN', 'PROGRAMMMANAGER'],
+  })
+  if (roles.length === 0) {
+    redirect('/403')
+  }
   try {
     const { id } = await params
 
@@ -38,14 +46,9 @@ export default async function ParticipantPage({
           },
           include: {
             course: { include: { program: true } },
-            invoices: {
-              include: {
-                recipient: true,
-              }
-            },
+            invoices: true,
           }
         },
-        invoiceRecipients: true,
       }
     })
 
@@ -213,7 +216,7 @@ export default async function ParticipantPage({
             <span className="text-gray-700 font-semibold">{participant.name} {participant.surname}</span>
           </nav>
         </div>
-        
+
         <div className="w-full max-w-2xl bg-white rounded-2xl shadow-md border border-neutral-100 p-0 overflow-hidden">
           {/* Profile Card */}
           <section className="flex flex-col sm:flex-row items-center gap-6 px-8 py-8 border-b border-neutral-200 relative">
@@ -309,7 +312,7 @@ export default async function ParticipantPage({
                       <tr key={reg.id} className="border-t border-neutral-200 bg-white hover:bg-sky-50 transition">
                         <td className="px-3 py-2">
                           <Link
-                            href={`/course/${reg.course?.id}`}
+                            href={`/courseregistration/${reg.id}`}
                             className="text-blue-700 hover:text-blue-900 font-medium text-sm"
                           >
                             {reg.course?.program?.name ?? 'Unbekannter Kurs'}
@@ -375,9 +378,7 @@ export default async function ParticipantPage({
                           {inv.course?.code ?? <span className="text-neutral-300">—</span>}
                         </td>
                         <td className="px-3 py-2 text-center">
-                          {inv.recipient?.type === 'COMPANY'
-                            ? inv.recipient?.companyName
-                            : `${inv.recipient?.recipientName ?? ''} ${inv.recipient?.recipientSurname ?? ''}`}
+                          N/A
                         </td>
                         <td className="px-3 py-2 text-center">
                           {inv.isCancelled ? (

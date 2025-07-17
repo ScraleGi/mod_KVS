@@ -6,8 +6,17 @@ import { db } from '@/lib/db'
 import { sanitize } from '@/lib/sanitize'
 import { formatDateGerman, formatFullName } from '@/lib/utils'
 import DiscountClientEditLogic from './discountClientEditLogic'
+import { getAuthorizing } from '@/lib/getAuthorizing'
 
 export default async function DiscountEditPage({ params }: { params: Promise<{ id: string }> }) {
+  // Check user authorization
+    const roles = await getAuthorizing({
+      privilige: ['ADMIN', 'PROGRAMMMANAGER', 'RECHNUNGSWESEN'],
+    })
+  
+    if (roles.length === 0) {
+      redirect('/403')
+    }
   const { id } = await params
 
   // Fetch course registration, course, program, and trainer info
@@ -42,7 +51,7 @@ export default async function DiscountEditPage({ params }: { params: Promise<{ i
     const amount = formData.get('amount') as string
     const remark = formData.get('remark') as string
     await updateDiscount(id, amount, remark)
-    redirect(`/courseregistration/${id}`)
+    redirect(`/courseregistration/${id}?discountEdited=1`)
   }
 
   return (

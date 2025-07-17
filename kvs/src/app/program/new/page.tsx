@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { db } from '@/lib/db'
+import { getAuthorizing } from '@/lib/getAuthorizing';
 
 // Server action to create a new program
 async function createProgram(formData: FormData) {
@@ -38,6 +39,13 @@ async function createProgram(formData: FormData) {
 }
 
 export default async function NewProgramPage() {
+  // Check user authorization
+  const roles = await getAuthorizing({
+    privilige: ['ADMIN', 'PROGRAMMMANAGER'],
+  })
+  if (roles.length === 0) {
+    redirect('/403')
+  }
   try {
     // Fetch all non-deleted areas for the select dropdown
     const areas = await db.area.findMany({ 

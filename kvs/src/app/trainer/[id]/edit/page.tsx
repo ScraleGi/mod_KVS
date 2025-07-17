@@ -2,8 +2,16 @@ import { db } from '@/lib/db'
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { EditLabel } from "../../../../components/trainer/EditLabel";
+import { getAuthorizing } from "@/lib/getAuthorizing";
 
 export default async function EditTrainerPage({ params }: { params: Promise<{ id: string }> }) {
+    // Check user authorization
+  const roles = await getAuthorizing({
+    privilige: ['ADMIN', 'PROGRAMMMANAGER'],
+  })
+    if (roles.length === 0) {
+        redirect('/403')
+    }
     const { id } = await params;
     const trainer = await db.trainer.findUnique({
         where: { id },

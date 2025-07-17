@@ -5,6 +5,7 @@ import { sanitize } from '@/lib/sanitize'
 import { Course } from '@/types/models'
 import { formatFullName} from '@/lib/utils'
 import Link from "next/link";
+import { getAuthorizing } from '@/lib/getAuthorizing'
 
 export default async function Home() {
   // Fetch courses with related data
@@ -53,6 +54,11 @@ export default async function Home() {
         : "No invoice",
     })) || [],
   }))
+
+  // Check user authorization
+    await getAuthorizing({
+      privilige: ['ADMIN', 'PROGRAMMMANAGER', 'TRAINER', 'RECHNUNGSWESEN', 'MARKETING'],
+    })
 
   return (
     <div className="p-8">

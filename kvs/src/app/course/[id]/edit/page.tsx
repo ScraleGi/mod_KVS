@@ -5,17 +5,25 @@ import { sanitize } from '@/lib/sanitize'
 import { CourseWithEditRelations } from '@/types/query-models'
 import { formatDateISO } from '@/lib/utils'
 import RemoveButton from '@/components/RemoveButton/RemoveButton';
+import { getAuthorizing } from '@/lib/getAuthorizing';
 import Link from 'next/link'
 
 
 /**
  * Course Edit Page - Allows editing of course details
  */
-export default async function EditCoursePage({
-  params,
-}: {
-  params: Promise<{ id: string }>
-}) {
+  export default async function EditCoursePage({
+    params,
+  }: {
+    params: Promise<{ id: string }>
+  }) {
+    // Check user authorization
+  const roles = await getAuthorizing({
+    privilige: ['ADMIN', 'PROGRAMMMANAGER'],
+  })
+  if (roles.length === 0) {
+    redirect('/403')
+  }
   const { id } = await params
 
   // Fetch course and all available trainers in parallel

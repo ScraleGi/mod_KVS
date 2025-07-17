@@ -4,12 +4,20 @@ import { db } from '@/lib/db';
 import { Area } from '@/types/models';
 import { sanitize } from '@/lib/sanitize';
 import RemoveButton from '@/components/RemoveButton/RemoveButton';
+import { getAuthorizing } from '@/lib/getAuthorizing';
 
 export default async function EditAreaPage({
   params,
 }: {
   params: Promise<{ id: string }>
 }) {
+  // Check user authorization
+  const roles = await getAuthorizing({
+    privilige: ['ADMIN', 'PROGRAMMMANAGER'],
+  })
+  if (roles.length === 0) {
+    redirect('/403')
+  }
   const { id } = await params; // Await the promise
 
   // Fetch area and its programs in parallel
@@ -135,8 +143,8 @@ export default async function EditAreaPage({
                 >
                   Änderungen speichern
                 </button>
-                
-              
+
+
               </div>
             </form>
           </div>

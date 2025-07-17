@@ -1,21 +1,11 @@
-import { FaHome, FaCalendarAlt, FaCog, FaSignOutAlt, FaRegEnvelope, FaChartBar, FaThLarge, FaLayerGroup, FaUsers, FaChalkboardTeacher } from 'react-icons/fa';
+import { FaHome, FaCalendarAlt, FaCog, FaRegEnvelope, FaChartBar, FaThLarge, FaLayerGroup, FaUsers, FaChalkboardTeacher } from 'react-icons/fa';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-const navItems = [
-  { href: '/', label: 'Startseite', icon: FaHome },
-  { href: '/program', label: 'Programme', icon: FaLayerGroup },
-  { href: '/area', label: 'Bereiche', icon: FaThLarge },
-  { href: '/participant', label: 'Teilnehmer', icon: FaUsers },
-  { href: '/trainer', label: 'Trainer', icon: FaChalkboardTeacher },
-  { href: '/calendar', label: 'Termine', icon: FaCalendarAlt },
-  { href: '/reports', label: 'Berichte', icon: FaChartBar },
-  { href: '/inbox', label: 'Posteingang', icon: FaRegEnvelope },
-  { href: '/settings', label: 'Einstellungen', icon: FaCog },
-];
 
 type SidebarProps = {
   isOpen: boolean;
+  roles?: { role: string }[];
 }
 
 const Tooltip = ({ children }: { children: React.ReactNode }) => (
@@ -32,8 +22,30 @@ const Tooltip = ({ children }: { children: React.ReactNode }) => (
   </span>
 );
 
-const Sidebar = ({ isOpen }: SidebarProps) => {
+const Sidebar = ({ isOpen, roles }: SidebarProps) => {
   const pathname = usePathname();
+  const navItems = [
+  { href: '/', label: 'Startseite', icon: FaHome },
+  { href: '/program', label: 'Programme', icon: FaLayerGroup },
+  { href: '/area', label: 'Bereiche', icon: FaThLarge },
+  { href: '/participant', label: 'Teilnehmer', icon: FaUsers },
+  { href: '/trainer', label: 'Trainer', icon: FaChalkboardTeacher },
+  { href: '/calendar', label: 'Termine', icon: FaCalendarAlt },
+  { href: '/reports', label: 'Berichte', icon: FaChartBar },
+  { href: '/inbox', label: 'Posteingang', icon: FaRegEnvelope },
+  { href: '/settings', label: 'Einstellungen', icon: FaCog },
+];
+
+  if (!roles || roles.length === 0) {
+    return null;
+  }
+  if (!roles.some(role => ['ADMIN', 'PROGRAMMMANAGER', 'TRAINER', 'RECHNUNGSWESEN', 'MARKETING'].includes(role.role))) {
+    return null;
+  }
+
+  if (roles.some(role => role.role === 'ADMIN')) {
+    navItems.push({ href: '/user', label: 'Admin', icon: FaCog });
+  }
 
   return (
     <nav 
@@ -61,21 +73,9 @@ const Sidebar = ({ isOpen }: SidebarProps) => {
         );
       })}
     </ul>
-
-    <div className="mt-4">
-      <div className="relative group">
-        <a
-          href="/auth/logout"
-          className="flex items-center px-3 py-2 text-red-400 hover:text-red-600 transition-colors"
-        >
-          <FaSignOutAlt className="w-6 h-6 mr-2" />
-          {isOpen && <span>Abmelden</span>}
-        </a>
-        {!isOpen && <Tooltip>Abmelden</Tooltip>}
-      </div>
-    </div>
-    </nav>
+  </nav>
   );
 };
 
 export default Sidebar;
+

@@ -4,6 +4,7 @@ import { db } from '@/lib/db'
 import { sanitize } from '@/lib/sanitize'
 import { Area } from '@/types/models'
 import ClientToasterWrapper from './ClientToasterWrapper'
+import { getAuthorizing } from '@/lib/getAuthorizing';
 
 interface DeletedAreaWithPrograms extends Omit<Area, 'programs'> {
   programs: {
@@ -42,6 +43,13 @@ async function restoreArea(formData: FormData) {
 }
 
 export default async function DeletedAreasPage() {
+  // Check user authorization
+ const roles = await getAuthorizing({
+    privilige: ['ADMIN'],
+  })
+  if (roles.length === 0) {
+    redirect('/403')
+  }
   // Fetch all soft-deleted areas with their associated programs
   const deletedAreas = await db.area.findMany({
     where: { deletedAt: { not: null } },

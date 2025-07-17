@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { sanitize } from '@/lib/sanitize'
 import ClientToasterWrapper from './ClientToasterWrapper'
+import { getAuthorizing } from '@/lib/getAuthorizing'
 
 async function restoreTrainer(formData: FormData) {
   'use server'
@@ -21,6 +22,13 @@ async function restoreTrainer(formData: FormData) {
 }
 
 export default async function DeletedTrainersPage() {
+  // Check user authorization
+  const roles = await getAuthorizing({
+    privilige: ['ADMIN'],
+  })
+  if (roles.length === 0) {
+    redirect('/403')
+  }
     try {
         const deletedTrainersData = await db.trainer.findMany({
         where: { deletedAt: { not: null } },

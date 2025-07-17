@@ -8,12 +8,15 @@ import { db } from '@/lib/db'
 import { sanitize } from '@/lib/sanitize'
 import { formatDateGerman } from '@/lib/utils'
 import { Document } from '@/types/models'
-import {
+import { getAuthorizing } from '@/lib/getAuthorizing'
+import { redirect } from 'next/navigation'
+import { 
   SanitizedRegistration,
   SanitizedInvoice,
   SanitizedDocument,
 } from '@/types/query-models'
 import RemoveButton from '@/components/RemoveButton/RemoveButton'
+import SubsidyToaster from './subsidy/new/SubsidyToaster'
 
 //---------------------------------------------------
 // SERVER ACTIONS
@@ -62,6 +65,13 @@ export default async function ParticipantDetailsPage({
 }: {
   params: Promise<{ id: string }>
 }) {
+  // Check user authorization
+  const roles = await getAuthorizing({
+    privilige: ['ADMIN', 'PROGRAMMMANAGER', 'RECHNUNGSWESEN'],
+  })
+  if (roles.length === 0) {
+    redirect('/403')
+  }
   //---------------------------------------------------
   // DATA FETCHING
   //---------------------------------------------------
@@ -76,7 +86,7 @@ export default async function ParticipantDetailsPage({
     include: {
       participant: true,
       course: { include: { program: true, mainTrainer: true } },
-      invoices: { include: { recipient: true } },
+      invoices: true,
     }
   })
 
@@ -151,16 +161,8 @@ export default async function ParticipantDetailsPage({
   // RENDER UI
   //---------------------------------------------------
   return (
-    <div className="min-h-screen bg-neutral-50 flex flex-col items-center justify-center px-2 py-8">
-      <nav className="mb-6 text-sm text-gray-500 flex items-start gap-2 pl-0 w-full max-w-2xl">
-        <Link href="/" className="hover:underline text-gray-700">Startseite</Link>
-        <span>&gt;</span>
-        <span className="text-gray-700 font-semibold">{sanitizedRegistration.participant.name} {sanitizedRegistration.participant.surname}</span>
-        <span>&gt;</span>
-        <Link href={`/course/${sanitizedRegistration.course?.id}`} className="hover:underline text-gray-700">{sanitizedRegistration.course?.program?.name ?? '-'}</Link>
-        <span>&gt;</span>
-        <Link href={`/participant/${sanitizedRegistration.participant.id}`} className="hover:underline text-gray-700">Teilnehmer-Details</Link>
-      </nav>
+    <div className="min-h-screen bg-neutral-50 flex items-center justify-center px-2 py-8">
+      <SubsidyToaster />
       <div className="w-full max-w-2xl bg-white rounded-2xl shadow-md border border-neutral-100 p-0 overflow-hidden">
 
         {/* Profile Card Section */}

@@ -4,12 +4,21 @@ import ProgramToaster from './ProgramToaster';
 import { Info, GraduationCap, Pencil } from 'lucide-react';
 import { db } from '@/lib/db';
 import { sanitize } from '@/lib/sanitize';
+import { getAuthorizing } from '@/lib/getAuthorizing';
+import { redirect } from 'next/navigation';
 
 export default async function ProgramPage({
   params,
 }: {
   params: Promise<{ id: string }>
 }) {
+  // Check user authorization
+  const roles = await getAuthorizing({
+    privilige: ['ADMIN', 'PROGRAMMMANAGER'],
+  })
+  if (roles.length === 0) {
+    redirect('/403');
+  }
   try {
     const { id } = await params;
 

@@ -6,8 +6,17 @@ import { db } from '@/lib/db'
 import { sanitize } from '@/lib/sanitize'
 import { formatDateGerman, formatFullName } from '@/lib/utils'
 import SubsidyClientEditLogic from './subsidyClientEditLogic'
+import { getAuthorizing } from '@/lib/getAuthorizing'
 
 export default async function SubsidyEditPage({ params }: { params: Promise<{ id: string }> }) {
+  // Check user authorization
+    const roles = await getAuthorizing({
+      privilige: ['ADMIN', 'PROGRAMMMANAGER', 'RECHNUNGSWESEN'],
+    })
+  
+    if (roles.length === 0) {
+      redirect('/403')
+    }
   const { id } = await params
 
   // Fetch course registration, course, program, and trainer info
@@ -42,7 +51,7 @@ export default async function SubsidyEditPage({ params }: { params: Promise<{ id
     const amount = formData.get('amount') as string
     const remark = formData.get('remark') as string
     await updateSubsidy(id, amount, remark)
-    redirect(`/courseregistration/${id}`)
+    redirect(`/courseregistration/${id}?edited=1`)
   }
 
   return (

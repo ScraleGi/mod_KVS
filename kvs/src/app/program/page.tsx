@@ -8,6 +8,7 @@ import { CourseTable, programColumns } from '@/components/overviewTable/table'
 import { db } from '@/lib/db'
 import { sanitize } from '@/lib/sanitize'
 import { SanitizedProgram } from '@/types/query-models';
+import { getAuthorizing } from '@/lib/getAuthorizing';
 import ProgramToaster from './[id]/ProgramToaster';
 
 //---------------------------------------------------
@@ -58,6 +59,13 @@ export default async function ProgramsPage({
 }: {
   searchParams?: Promise<{ open?: string; q?: string; area?: string }>
 }) {
+  // Check user authorization
+  const roles = await getAuthorizing({
+    privilige: ['ADMIN', 'PROGRAMMMANAGER', 'RECHNUNGSWESEN', 'MARKETING'],
+  })
+if (roles.length === 0) {
+    redirect('/403')
+  }
   const resolvedSearchParams = searchParams ? await searchParams : undefined
 
   try {
@@ -71,6 +79,11 @@ export default async function ProgramsPage({
     ) {
       redirect('/program/new')
     }
+
+    // Check user authorization
+      await getAuthorizing({
+        privilige: ['ADMIN', 'PROGRAMMMANAGER', 'TRAINER', 'RECHNUNGSWESEN', 'MARKETING'],
+      })
 
     //---------------------------------------------------
     // RENDER UI

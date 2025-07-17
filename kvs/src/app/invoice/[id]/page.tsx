@@ -3,6 +3,8 @@ import { db } from '@/lib/db'
 import { sanitize } from '@/lib/sanitize'
 import { SanitizedInvoiceWithRelations, SanitizedInvoiceRecipient } from '@/types/query-models'
 import { Pencil } from 'lucide-react' // Import the pencil icon (or use SVG if you prefer)
+import { getAuthorizing } from '@/lib/getAuthorizing'
+import { redirect } from 'next/navigation'
 
 //---------------------------------------------------
 // HELPER FUNCTIONS
@@ -46,6 +48,14 @@ export default async function InvoicePage({
 }: {
   params: Promise<{ id: string }>
 }) {
+  // Check user authorization
+    const roles = await getAuthorizing({
+      privilige: ['ADMIN', 'PROGRAMMMANAGER', 'RECHNUNGSWESEN'],
+    })
+  
+    if (roles.length === 0) {
+      redirect('/403')
+    }
   //---------------------------------------------------
   // DATA FETCHING
   //---------------------------------------------------
@@ -54,7 +64,6 @@ export default async function InvoicePage({
   const invoiceData = await db.invoice.findUnique({
     where: { id },
     include: {
-      recipient: true,
       courseRegistration: {
         include: {
           participant: true,

@@ -1,20 +1,24 @@
 'use client'
 
+// <RecipientSelect recipients={recipients} /> do this in the PAGE
+
 import React, { useState } from 'react'
 
 type Recipient = {
   id: string
   type: string
-  recipientSalutation?: string
-  recipientName?: string
-  recipientSurname?: string
-  companyName?: string
-  recipientEmail: string
-  recipientStreet: string
-  postalCode: string
-  recipientCity: string
-  recipientCountry: string
+  recipientSalutation?: string | null
+  recipientName?: string | null
+  recipientSurname?: string | null
+  companyName?: string | null
+  recipientEmail?: string | null
+  recipientStreet?: string | null
+  postalCode?: string | null
+  recipientCity?: string | null
+  recipientCountry?: string | null
 }
+
+
 
 export default function RecipientSelect({ recipients }: { recipients: Recipient[] }) {
   const [search, setSearch] = useState('')
@@ -44,11 +48,12 @@ export default function RecipientSelect({ recipients }: { recipients: Recipient[
   }
 
   function handleSelect(recipient: Recipient) {
-    setSearch(
+    const displayName =
       recipient.type === 'COMPANY'
         ? recipient.companyName ?? ''
         : `${recipient.recipientSalutation ? recipient.recipientSalutation + ' ' : ''}${recipient.recipientName ?? ''} ${recipient.recipientSurname ?? ''}`
-    )
+
+    setSearch(displayName.trim())
     setShowSuggestions(false)
 
     const form = document.getElementById('invoice-form') as HTMLFormElement | null
@@ -57,17 +62,17 @@ export default function RecipientSelect({ recipients }: { recipients: Recipient[
     const typeSelect = form.querySelector('select[name="type"]') as HTMLSelectElement | null
     if (typeSelect && recipient.type) typeSelect.value = recipient.type
 
-    const setInput = (name: string, value?: string) => {
+    const setInput = (name: string, value?: string | null) => {
       const input = form.querySelector<HTMLInputElement | HTMLSelectElement>(`[name="${name}"]`)
-      if (input && value !== undefined) {
+      if (input && value !== undefined && value !== null) {
         input.value = value
       }
     }
 
-    setInput('recipientSalutation', recipient.recipientSalutation ?? '')
-    setInput('recipientName', recipient.recipientName ?? '')
-    setInput('recipientSurname', recipient.recipientSurname ?? '')
-    setInput('companyName', recipient.companyName ?? '')
+    setInput('recipientSalutation', recipient.recipientSalutation)
+    setInput('recipientName', recipient.recipientName)
+    setInput('recipientSurname', recipient.recipientSurname)
+    setInput('companyName', recipient.companyName)
     setInput('recipientEmail', recipient.recipientEmail)
     setInput('recipientStreet', recipient.recipientStreet)
     setInput('postalCode', recipient.postalCode)
@@ -84,16 +89,16 @@ export default function RecipientSelect({ recipients }: { recipients: Recipient[
         r.recipientName ?? '',
         r.recipientSurname ?? '',
         r.companyName ?? '',
-        r.recipientEmail,
-        r.recipientStreet,
-        r.postalCode,
-        r.recipientCity,
-        r.recipientCountry,
-      ].join('|').toLowerCase()
+        r.recipientEmail ?? '',
+        r.recipientStreet ?? '',
+        r.postalCode ?? '',
+        r.recipientCity ?? '',
+        r.recipientCountry ?? '',
+      ]
+        .join('|')
+        .toLowerCase()
 
-      if (seen.has(key)) {
-        return false
-      }
+      if (seen.has(key)) return false
       seen.add(key)
       return true
     })
@@ -112,7 +117,7 @@ export default function RecipientSelect({ recipients }: { recipients: Recipient[
         placeholder="Start typing recipient name or company..."
         className="w-full border border-neutral-300 rounded px-2 py-1 text-sm"
         autoComplete="off"
-        onBlur={() => setTimeout(() => setShowSuggestions(false), 150)} // delay to allow click
+        onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
         onFocus={() => search && setShowSuggestions(true)}
       />
 
@@ -122,12 +127,12 @@ export default function RecipientSelect({ recipients }: { recipients: Recipient[
             <li
               key={r.id}
               className="px-3 py-2 hover:bg-blue-100 cursor-pointer"
-              onMouseDown={() => handleSelect(r)} // use onMouseDown to prevent blur before click
+              onMouseDown={() => handleSelect(r)}
             >
               {r.type === 'COMPANY'
                 ? r.companyName
-                : `${r.recipientSalutation ? r.recipientSalutation + ' ' : ''}${r.recipientName ?? ''} ${r.recipientSurname ?? ''}`} —{' '}
-              {r.recipientStreet}, {r.postalCode} {r.recipientCity}
+                : `${r.recipientSalutation ? r.recipientSalutation + ' ' : ''}${r.recipientName ?? ''} ${r.recipientSurname ?? ''}`}{' '}
+              — {r.recipientStreet ?? ''}, {r.postalCode ?? ''} {r.recipientCity ?? ''}
             </li>
           ))}
         </ul>
@@ -135,6 +140,7 @@ export default function RecipientSelect({ recipients }: { recipients: Recipient[
     </fieldset>
   )
 }
+
 
 
 
