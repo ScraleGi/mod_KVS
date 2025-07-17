@@ -5,11 +5,24 @@ import { format } from 'date-fns'
 import { DownloadPDFLink } from '@/components/DownloadButton/DownloadButton'
 
 //---------------------------------------------------
+// SERVER ACTION (local logic, no API route needed!)
+//---------------------------------------------------
+async function toggleInvoiceCancelled(formData: FormData) {
+  "use server";
+  const invoiceId = formData.get("invoiceId") as string;
+  const isCancelled = !!formData.get("isCancelled");
+  if (!invoiceId) return;
+  await db.invoice.update({
+    where: { id: invoiceId },
+    data: { isCancelled },
+  });
+}
+
+//---------------------------------------------------
 // DATA FETCHING
 //---------------------------------------------------
 async function getInvoices() {
   try {
-    // Include courseRegistration if you need its id for the PDF link
     return await db.invoice.findMany({
       where: { deletedAt: null },
       orderBy: { createdAt: 'desc' },
@@ -28,8 +41,6 @@ async function getInvoices() {
 //---------------------------------------------------
 export default async function InvoicePage() {
   const dbInvoices = await getInvoices()
-
-  // Sanitize to guarantee we have courseRegistration for PDF
   const sanitizedInvoices = dbInvoices
     .filter(inv => inv.courseRegistration && inv.deletedAt === null)
     .map(inv => ({
@@ -100,7 +111,9 @@ export default async function InvoicePage() {
 
                 {/* Recipient */}
                 <div className="text-gray-700 truncate">
-                  {inv.recipientName} {inv.recipientSurname}
+                  {inv.recipientSalutation ? inv.recipientSalutation + ' ' : ''}
+                  {inv.recipientName ?? ''}
+                  {inv.recipientSurname ? ' ' + inv.recipientSurname : ''}
                   {inv.companyName ? ` (${inv.companyName})` : ''}
                 </div>
 
@@ -119,13 +132,25 @@ export default async function InvoicePage() {
                   {inv.dueDate ? format(new Date(inv.dueDate), 'dd.MM.yyyy') : '-'}
                 </div>
 
-                {/* Status */}
-                <div className="text-gray-700 text-sm truncate">
-                  {inv.isCancelled ? (
-                    <span className="text-red-600 font-semibold">storniert</span>
-                  ) : (
-                    <span className="text-green-600 font-semibold">aktiv</span>
-                  )}
+                {/* Status - Clickable toggle with Server Action */}
+                <div className="text-gray-700 text-sm truncate text-center">
+                  <form action={toggleInvoiceCancelled} className="inline">
+                    <input type="hidden" name="invoiceId" value={inv.id} />
+                    <input type="hidden" name="registrationId" value={inv.courseRegistrationId ?? ""} />
+                    <button
+                      type="submit"
+                      name="isCancelled"
+                      value={inv.isCancelled ? "" : "on"}
+                      className={`px-2 py-1 rounded text-xs font-semibold transition
+                        ${inv.isCancelled
+                          ? "bg-red-100 text-red-600 hover:bg-red-200"
+                          : "bg-green-100 text-green-700 hover:bg-green-200"}
+                      `}
+                      title={inv.isCancelled ? "Reaktivieren" : "Stornieren"}
+                    >
+                      {inv.isCancelled ? "storniert" : "aktiv"}
+                    </button>
+                  </form>
                   <br />
                   {inv.transactionNumber && !inv.isCancelled ? (
                     <span className="text-green-700 font-medium">bezahlt</span>
