@@ -2,8 +2,8 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { db } from '@/lib/db'
 import { generateInvoice } from '@/utils/generateInvoice'
-
-import RecipientSelect from './RecipientSelect' // <-- import client component
+import { getAuthorizing } from '@/lib/getAuthorizing'
+import RecipientSelect from '../../../../components/recipientSelect/RecipientSelect' // <-- import client component
 
 //---------------------------------------------------
 // SERVER ACTIONS
@@ -22,6 +22,14 @@ export default async function CreateInvoicePage({
 }: {
   params: Promise<{ id: string }>
 }) {
+  // Check user authorization
+    const roles = await getAuthorizing({
+      privilige: ['ADMIN', 'PROGRAMMMANAGER'],
+    })
+  
+    if (roles.length === 0) {
+      redirect('/403')
+    }
   const { id } = await params
 
   const registration = await db.courseRegistration.findUnique({
@@ -53,6 +61,7 @@ export default async function CreateInvoicePage({
     where: { deletedAt: null },
     orderBy: { createdAt: 'desc' },
   })
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-neutral-50 px-2 py-8">
@@ -88,21 +97,9 @@ export default async function CreateInvoicePage({
           <input type="hidden" name="registrationId" value={registration.id} />
 
           {/*autofill component */}
-          <RecipientSelect
-            recipients={recipients.map(r => ({
-              ...r,
-              recipientSalutation: r.recipientSalutation ?? undefined,
-              recipientName: r.recipientName ?? undefined,
-              recipientSurname: r.recipientSurname ?? undefined,
-              companyName: r.companyName ?? undefined,
-              recipientEmail: r.recipientEmail ?? undefined,
-              postalCode: r.postalCode ?? undefined,
-              recipientStreet: r.recipientStreet ?? undefined,
-              recipientCity: r.recipientCity ?? undefined,
-              recipientCountry: r.recipientCountry ?? undefined,
-              participantId: r.participantId ?? undefined,
-            }))}
-          />
+          
+         <RecipientSelect recipients={recipients} /> 
+         
 
           {/* Invoice Recipient Section (UNCHANGED) */}
           <fieldset className="border border-neutral-200 rounded-lg p-5">
@@ -131,7 +128,7 @@ export default async function CreateInvoicePage({
                 Firmen Name (Empfänger)
                 <input name="companyName" className="mt-1 border rounded px-2 py-1" />
               </label>
-              <label className="flex flex-col text-xs font-medium text-neutral-700 sm:col-span-2">
+              <label className="flex flex-col text-xs font-medium text-neutral-700">
                 Email (Empfänger)
                 <input name="recipientEmail" type="email" required className="mt-1 border rounded px-2 py-1" />
               </label>
@@ -164,21 +161,6 @@ export default async function CreateInvoicePage({
             </div>
           </fieldset>
           
-          {/* Course Participant Reference Section */}
-          <fieldset className="border border-neutral-200 rounded-lg p-5">
-            <legend className="text-base font-semibold text-blue-700 px-2">Kursteilnehmer (Referenzen)</legend>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 text-xs text-neutral-600">
-              <div>
-                <span className="font-semibold">Name:</span> {registration.participant.name} {registration.participant.surname}
-              </div>
-              <div>
-                <span className="font-semibold">Email:</span> {registration.participant.email}
-              </div>
-              <div className="sm:col-span-2">
-                <span className="font-semibold">Adresse:</span> {registration.participant.street}, {registration.participant.postalCode} {registration.participant.city}, {registration.participant.country}
-              </div>
-            </div>
-          </fieldset>
           
           {/* Action Buttons */}
           <div className="flex justify-between mt-6">

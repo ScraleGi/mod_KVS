@@ -1,8 +1,8 @@
 "use client"
 import { useState } from "react"
-import Link from "next/link"
 import { EditCourseFormProps } from "@/types/query-models"
 import { formatDateISO } from "@/lib/utils"
+import { useToaster } from '@/components/ui/toaster';
 import TrainerSearchBox from "../forms/TrainerSearchBox"
 
 export default function EditCourseForm({
@@ -14,10 +14,26 @@ export default function EditCourseForm({
   const [mainTrainerId, setMainTrainerId] = useState<string>(course?.mainTrainer?.id || "")
   const [additionalTrainerIds, setAdditionalTrainerIds] = useState<string[]>(
     course?.trainers?.map(t => t.id).filter(id => id !== course?.mainTrainer?.id) || []
-  )
+  )  
+  const { showToast } = useToaster();
+  
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const code = form.code.value.trim();
+    const startDate = form.startDate.value;
+    const endDate = form.endDate.value;
+  
+  if (!code || !course?.program?.name || !startDate || !endDate || !mainTrainerId) {
+    showToast('Bitte alle Pflichtfelder ausfüllen.', 'info');
+    return;
+  }
+  // Wenn alles ausgefüllt, rufe das ursprüngliche onSubmit auf
+    onSubmit(new FormData(form));
+  };
 
   return (
-    <form action={onSubmit} className="space-y-6" id="edit-course-form">
+    <form onSubmit={handleSubmit} className="space-y-6" id="edit-course-form">
       <input type="hidden" name="id" value={id} />
       {/* Course Code */}
       <div className="space-y-1">
@@ -28,7 +44,6 @@ export default function EditCourseForm({
           id="code"
           name="code"
           type="text"
-          required
           defaultValue={course?.code || ""}
           placeholder="Enter course code"
           className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
@@ -59,7 +74,6 @@ export default function EditCourseForm({
           type="date"
           defaultValue={formatDateISO(course?.startDate)}
           className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-          required
         />
       </div>
       {/* End Date */}
@@ -73,7 +87,6 @@ export default function EditCourseForm({
           type="date"
           defaultValue={formatDateISO(course?.endDate)}
           className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-          required
         />
       </div>
       {/* Main Trainer Searchbox */}
@@ -104,28 +117,10 @@ export default function EditCourseForm({
       <div className="pt-2 flex items-center justify-between">
         <button
           type="submit"
-          className="inline-flex items-center px-5 py-2 border border-transparent text-xs font-semibold rounded text-white bg-blue-600 hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          className="cursor-pointer inline-flex items-center px-5 py-2 border border-transparent text-xs font-semibold rounded text-white bg-blue-600 hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 mr-2"
         >
           Speichern
         </button>
-        <Link
-          href={`/course/${id}`}
-          className="text-xs font-medium text-gray-500 hover:text-gray-700 transition-colors flex items-center"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
-          Kurs
-        </Link>
-        <Link
-          href="/course"
-          className="text-xs font-medium text-gray-500 hover:text-gray-700 transition-colors flex items-center"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
-          Startseite
-        </Link>
       </div>
     </form>
   )

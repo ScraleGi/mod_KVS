@@ -4,12 +4,21 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { InvoiceUpdateData } from '@/types/query-models' 
+import { getAuthorizing } from '@/lib/getAuthorizing'
 
 export default async function EditInvoicePage({
   params,
 }: {
   params: Promise<{ id: string }>
 }) {
+  // Check user authorization
+    const roles = await getAuthorizing({
+      privilige: ['ADMIN', 'PROGRAMMMANAGER', 'RECHNUNGSWESEN'],
+    })
+  
+    if (roles.length === 0) {
+      redirect('/403')
+    }
   const { id } = await params
   
   const invoice = await db.invoice.findUnique({
@@ -21,7 +30,6 @@ export default async function EditInvoicePage({
           course: { include: { program: true } }
         }
       },
-      recipient: true
     }
   })
   
@@ -94,11 +102,7 @@ export default async function EditInvoicePage({
             <span className="font-medium">Course:</span> {invoice.courseRegistration.course.program?.name}
           </div>
           <div>
-            <span className="font-medium">Recipient:</span> {
-              invoice.recipient?.type === 'COMPANY' 
-                ? invoice.recipient.companyName 
-                : `${invoice.recipient?.recipientName || ''} ${invoice.recipient?.recipientSurname || ''}`.trim()
-            }
+            <span className="font-medium">Recipient:</span>
           </div>
         </div>
         

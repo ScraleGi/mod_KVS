@@ -3,6 +3,8 @@ import { db } from '@/lib/db'
 import { sanitize } from '@/lib/sanitize'
 import { SanitizedInvoiceWithRelations, SanitizedInvoiceRecipient } from '@/types/query-models'
 import { Pencil } from 'lucide-react' // Import the pencil icon (or use SVG if you prefer)
+import { getAuthorizing } from '@/lib/getAuthorizing'
+import { redirect } from 'next/navigation'
 
 //---------------------------------------------------
 // HELPER FUNCTIONS
@@ -46,6 +48,14 @@ export default async function InvoicePage({
 }: {
   params: Promise<{ id: string }>
 }) {
+  // Check user authorization
+    const roles = await getAuthorizing({
+      privilige: ['ADMIN', 'PROGRAMMMANAGER', 'RECHNUNGSWESEN'],
+    })
+  
+    if (roles.length === 0) {
+      redirect('/403')
+    }
   //---------------------------------------------------
   // DATA FETCHING
   //---------------------------------------------------
@@ -54,7 +64,6 @@ export default async function InvoicePage({
   const invoiceData = await db.invoice.findUnique({
     where: { id },
     include: {
-      recipient: true,
       courseRegistration: {
         include: {
           participant: true,
@@ -96,12 +105,12 @@ export default async function InvoicePage({
       value: invoice.courseRegistration?.course?.program?.name || 'N/A',
     },
     {
-      label: 'Code',
+      label: 'Course Code',
       value: invoice.courseRegistration?.course?.code || 'N/A',
     },
     {
       label: 'Amount',
-      value: <>€{invoice.amount}</>,
+      value: <>€{invoice.finalAmount}</>,
     },
     {
       label: 'Due Date',
@@ -135,7 +144,7 @@ export default async function InvoicePage({
       <div className="bg-white rounded-xl shadow border border-gray-100 p-8 max-w-xl w-full">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
-            Invoice #{invoice.invoiceNumber}
+            Rechnung #{invoice.invoiceNumber}
           </h1>
           
           {/* Add Edit button */}

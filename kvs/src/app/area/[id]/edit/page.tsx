@@ -4,12 +4,20 @@ import { db } from '@/lib/db';
 import { Area } from '@/types/models';
 import { sanitize } from '@/lib/sanitize';
 import RemoveButton from '@/components/RemoveButton/RemoveButton';
+import { getAuthorizing } from '@/lib/getAuthorizing';
 
 export default async function EditAreaPage({
   params,
 }: {
   params: Promise<{ id: string }>
 }) {
+  // Check user authorization
+  const roles = await getAuthorizing({
+    privilige: ['ADMIN', 'PROGRAMMMANAGER'],
+  })
+  if (roles.length === 0) {
+    redirect('/403')
+  }
   const { id } = await params; // Await the promise
 
   // Fetch area and its programs in parallel
@@ -27,7 +35,7 @@ export default async function EditAreaPage({
   if (!area) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg text-red-500">Area not found.</div>
+        <div className="text-lg text-red-500">Bereich nicht gefunden.</div>
       </div>
     );
   }
@@ -72,6 +80,19 @@ export default async function EditAreaPage({
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-10 px-4">
       <div className="w-full max-w-md">
+        <nav className="mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
+          <Link href="/area" className="hover:underline text-gray-700">
+            Bereiche
+          </Link>
+          <span>&gt;</span>
+          <Link href={`/area/${id}`} className="hover:underline text-gray-700">
+            {sanitizedArea.name}
+          </Link>
+          <span>&gt;</span>
+          <span className="text-gray-700 font-semibold">
+            Bereich bearbeiten
+          </span>
+        </nav>
         <div className="bg-white rounded-sm shadow border border-gray-100">
           <div className="px-6 py-8">
             <h1 className="text-xl font-bold text-gray-900 mb-8 tracking-tight">
@@ -89,7 +110,7 @@ export default async function EditAreaPage({
                   type="text"
                   defaultValue={sanitizedArea?.code || ''}
                   className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                  placeholder="Enter unique area code"
+                  placeholder="Bereichs Code einfügen"
                   required
                 />
               </div>
@@ -103,7 +124,7 @@ export default async function EditAreaPage({
                   type="text"
                   defaultValue={sanitizedArea?.name || ''}
                   className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                  placeholder="Enter area name"
+                  placeholder="Bereichs Name einfügen"
                   required
                 />
               </div>
@@ -116,35 +137,19 @@ export default async function EditAreaPage({
                   name="description"
                   defaultValue={sanitizedArea?.description || ''}
                   className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                  placeholder="Enter area description"
+                  placeholder="Beschreibung einfügen"
                   rows={2}
                 />
               </div>
-              <div className="pt-2 flex items-center justify-between">
+              <div className="pt-2 flex items-center justify-end">
                 <button
                   type="submit"
                   className="inline-flex items-center px-5 py-2 border border-transparent cursor-pointer text-xs font-semibold rounded text-white bg-blue-600 hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
-                  Änderungen speichern 
+                  Änderungen speichern
                 </button>
-                <Link
-                  href={`/area/${id}`}
-                  className="text-xs font-medium text-gray-500 hover:text-gray-700 transition-colors flex items-center"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                  </svg>
-                  Details
-                </Link>
-                <Link
-                  href={`/area/`}
-                  className="text-xs font-medium text-gray-500 hover:text-gray-700 transition-colors flex items-center"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                  </svg>
-                  Bereiche
-                </Link>
+
+
               </div>
             </form>
           </div>
@@ -154,13 +159,13 @@ export default async function EditAreaPage({
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-sm font-medium text-gray-700">Archiv</h3>
-                <p className="text-xs text-gray-500 mt-1">Bereich archivieren</p>
+                <p className="text-xs text-gray-500 mt-1">In Ablage verwahren.</p>
               </div>
               <RemoveButton
                 itemId={id}
                 onRemove={deleteArea}
-                title="Delete Area"
-                message="Are you sure you want to soft delete this area? This will also remove all associated programs."
+                title="Bereich löschen"
+                message="Sind Sie sicher, dass Sie diesen Bereich sanft löschen wollen? Dadurch werden auch alle zugehörigen Programme entfernt."
                 fieldName="id"
                 customButton={
                   <button
