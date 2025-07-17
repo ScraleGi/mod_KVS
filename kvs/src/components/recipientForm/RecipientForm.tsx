@@ -27,8 +27,8 @@ export default function RecipientForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-neutral-50 px-2 py-8">
-      <div className="w-full max-w-xl bg-white rounded-2xl shadow-md border border-neutral-100 p-8">
+    <div className="w-full px-2 py-2">
+      <div className="w-full max-w-xl bg-white rounded-lg border-neutral-100 p-8">
         <h1 className="text-2xl font-bold mb-6 text-neutral-900 text-center">
           Rechnungsempfänger erstellen
         </h1>

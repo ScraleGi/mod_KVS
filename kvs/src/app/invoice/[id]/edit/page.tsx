@@ -87,10 +87,10 @@ export default async function EditInvoicePage({
         
         <div className="mb-6 text-sm text-gray-700 bg-blue-50 border border-blue-100 rounded-lg p-4">
           <div className="mb-2">
-            <span className="font-medium">Participant:</span> {invoice.courseRegistration.participant.name} {invoice.courseRegistration.participant.surname}
+            <span className="font-medium">Participant:</span> {invoice.courseRegistration?.participant.name} {invoice.courseRegistration?.participant?.surname}
           </div>
           <div className="mb-2">
-            <span className="font-medium">Course:</span> {invoice.courseRegistration.course.program?.name}
+            <span className="font-medium">Course:</span> {invoice.courseRegistration?.course.program?.name}
           </div>
           <div>
             <span className="font-medium">Recipient:</span> 

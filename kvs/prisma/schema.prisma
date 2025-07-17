@@ -140,29 +140,32 @@ model Invoice {
   courseRegistrationId  String?
   courseRegistration    CourseRegistration? @relation(fields: [courseRegistrationId], references: [id])
 
-  // snapshot fields (denormalized)
-  courseCode            String
-  programName           String
-  programPrice          Decimal @db.Decimal(10, 2)
-  discountAmount        Decimal @db.Decimal(10, 2)
-  discountRemark        String
-  subsidyAmount         Decimal @db.Decimal(10, 2)
-  subsidyRemark         String
-  finalAmount           Decimal @db.Decimal(10, 2)
+  // snapshot fields (now optional)
+  courseCode            String?
+  programName           String?
+  programPrice          Decimal? @db.Decimal(10, 2)
+  discountAmount        Decimal? @db.Decimal(10, 2)
+  discountRemark        String?
+  subsidyAmount         Decimal? @db.Decimal(10, 2)
+  subsidyRemark         String?
+  amount                Decimal? @db.Decimal(10, 2)
+  finalAmount           Decimal? @db.Decimal(10, 2) // already optional
 
   isCancelled           Boolean  @default(false)
   dueDate               DateTime
   transactionNumber     String?  @unique
+  createdAt             DateTime   @default(now())
+  deletedAt             DateTime?
 
-  recipientSalutation     String?          // Optional, only for Person required
-  recipientName           String?         // Optional, only for PERSON required
-  recipientSurname        String?        // Optional, only for PERSON required
-  companyName             String?       // Optional, only for COMPANY required
-  recipientEmail          String
-  postalCode              String
-  recipientCity           String
-  recipientStreet         String
-  recipientCountry        String
+  recipientSalutation   String?
+  recipientName         String?
+  recipientSurname      String?
+  companyName           String?
+  recipientEmail        String?
+  postalCode            String?
+  recipientCity         String?
+  recipientStreet       String?
+  recipientCountry      String?
 }
 
 enum RecipientType {

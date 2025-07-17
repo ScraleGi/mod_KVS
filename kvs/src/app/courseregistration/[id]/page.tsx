@@ -273,9 +273,7 @@ export default async function ParticipantDetailsPage({
           </div>
           
 
-      <div>
         <RecipientForm/>
-      </div>
 
 
           {/* Remark Form Section */}
