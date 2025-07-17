@@ -73,6 +73,7 @@ export function HolidayTable({ holidays }: { holidays: Holiday[] }) {
         onDateFilter={setDateFilter}
         year={year}
         onYearChange={setYear}
+        searchPlaceholder="Feiertag suchen…"
       />
       <div className="overflow-x-auto">
         <table className="min-w-full text-sm border-collapse table-fixed">

@@ -28,7 +28,6 @@ export type CourseSpecialDays = {
 
 export type CourseRythm = {
   id: string
-  title: string
   weekDay: string
   startTime: string
   endTime: string

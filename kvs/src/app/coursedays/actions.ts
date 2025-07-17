@@ -90,18 +90,17 @@ export async function getCourseSpecialDays(courseId: string) {
 }
 export async function createCourseSpecialDay(formData: FormData) {
   // Get values from form
-  const startTimeRaw = formData.get('startTime') as string // e.g. "2025-09-23T08:30"
-  const endTimeRaw = formData.get('endTime') as string     // e.g. "2025-09-23T12:00"
-  const pauseRaw = formData.get('pauseDuration') as string // e.g. "00:30"
+  const title = formData.get('title') as string // <-- Add this line
+  const startTimeRaw = formData.get('startTime') as string
+  const endTimeRaw = formData.get('endTime') as string
+  const pauseRaw = formData.get('pauseDuration') as string
   const courseId = formData.get('courseId') as string
 
   // Convert to ISO-8601 DateTime
   const startTime = new Date(startTimeRaw).toISOString()
   const endTime = new Date(endTimeRaw).toISOString()
-  // Convert pauseRaw ("HH:mm") to CEST time zone
   const pauseDate = new Date(`2000-01-01T${pauseRaw}:00+00:00`)
   const pauseDuration = pauseDate.toISOString()
- 
 
   // Avoid unique constraint error
   const exists = await db.courseSpecialDays.findFirst({
@@ -113,7 +112,7 @@ export async function createCourseSpecialDay(formData: FormData) {
 
   await db.courseSpecialDays.create({
     data: {
-      title: '', // If title is optional
+      title, // <-- Use the title from the form
       startTime,
       endTime,
       pauseDuration,
@@ -124,17 +123,31 @@ export async function createCourseSpecialDay(formData: FormData) {
   })
   revalidatePath(`/coursedays/${courseId}`)
 }
+// updateCourseSpecialDay
 export async function updateCourseSpecialDay(formData: FormData) {
+  const id = formData.get('id') as string
+  const title = formData.get('title') as string
+  const startTimeRaw = formData.get('startTime') as string // "YYYY-MM-DDTHH:mm"
+  const endTimeRaw = formData.get('endTime') as string     // "YYYY-MM-DDTHH:mm"
+  let pauseRaw = formData.get('pauseDuration') as string   // "HH:mm"
+  const courseId = formData.get('courseId') as string
+
+  // Convert to ISO-8601
+  const startTime = new Date(startTimeRaw).toISOString()
+  const endTime = new Date(endTimeRaw).toISOString()
+  const pauseDate = new Date(`2000-01-01T${pauseRaw}:00+00:00`)
+  const pauseDuration = pauseDate.toISOString()
+
   await db.courseSpecialDays.update({
-    where: { id: formData.get('id') as string },
+    where: { id },
     data: {
-      title: formData.get('title') as string,
-      startTime: formData.get('startTime') as string,
-      endTime: formData.get('endTime') as string,
-      pauseDuration: formData.get('pauseDuration') as string,
+      title,
+      startTime,
+      endTime,
+      pauseDuration,
     },
   })
-  revalidatePath(`/coursedays/${formData.get('courseId')}`)
+  revalidatePath(`/coursedays/${courseId}`)
 }
 export async function deleteCourseSpecialDay(formData: FormData) {
   await db.courseSpecialDays.update({
@@ -145,34 +158,76 @@ export async function deleteCourseSpecialDay(formData: FormData) {
 }
 
 // --- CourseRythm ---
+function timeToISO(time: string, baseDate = '1970-01-01') {
+  // Converts "09:00" to "1970-01-01T09:00:00.000Z"
+  return new Date(`${baseDate}T${time}:00Z`).toISOString()
+}
+
 export async function getCourseRythms(courseId: string) {
   return db.courseRythm.findMany({ where: { courseId, deletedAt: null }, orderBy: { weekDay: 'asc' } })
 }
 export async function createCourseRythm(formData: FormData) {
+  const weekDay = formData.get('weekDay') as WeekDay
+  const startTimeRaw = formData.get('startTime') as string
+  const endTimeRaw = formData.get('endTime') as string
+  const pauseRaw = formData.get('pauseDuration') as string
+  const courseId = formData.get('courseId') as string
+
+  const exists = await db.courseRythm.findFirst({
+    where: { courseId, weekDay, deletedAt: null }
+  })
+  if (exists) {
+    throw new Error('Für diesen Wochentag existiert bereits ein Kursrhythmus für diesen Kurs.')
+  }
+
+  const startTime = timeToISO(startTimeRaw)
+  const endTime = timeToISO(endTimeRaw)
+  const pauseDuration = timeToISO(pauseRaw)
+
   await db.courseRythm.create({
     data: {
-      title: formData.get('title') as string,
-      weekDay: formData.get('weekDay') as WeekDay, 
-      startTime: formData.get('startTime') as string,
-      endTime: formData.get('endTime') as string,
-      pauseDuration: formData.get('pauseDuration') as string,
-      courseId: formData.get('courseId') as string,
+      weekDay,
+      startTime,
+      endTime,
+      pauseDuration,
+      courseId,
     },
   })
-  revalidatePath(`/coursedays/${formData.get('courseId')}`)
+  revalidatePath(`/coursedays/${courseId}`)
 }
+
 export async function updateCourseRythm(formData: FormData) {
+  const id = formData.get('id') as string
+  const weekDay = formData.get('weekDay') as WeekDay
+  const startTimeRaw = formData.get('startTime') as string
+  const endTimeRaw = formData.get('endTime') as string
+  const pauseRaw = formData.get('pauseDuration') as string
+  const courseId = formData.get('courseId') as string
+
+  const current = await db.courseRythm.findUnique({ where: { id } })
+  if (current && current.weekDay !== weekDay) {
+    const exists = await db.courseRythm.findFirst({
+      where: { courseId, weekDay, deletedAt: null, NOT: { id } }
+    })
+    if (exists) {
+      throw new Error('Für diesen Wochentag existiert bereits ein Kursrhythmus für diesen Kurs.')
+    }
+  }
+
+  const startTime = timeToISO(startTimeRaw)
+  const endTime = timeToISO(endTimeRaw)
+  const pauseDuration = timeToISO(pauseRaw)
+
   await db.courseRythm.update({
-    where: { id: formData.get('id') as string },
+    where: { id },
     data: {
-      title: formData.get('title') as string,
-      weekDay: formData.get('weekDay') as WeekDay, 
-      startTime: formData.get('startTime') as string,
-      endTime: formData.get('endTime') as string,
-      pauseDuration: formData.get('pauseDuration') as string,
+      weekDay,
+      startTime,
+      endTime,
+      pauseDuration,
     },
   })
-  revalidatePath(`/coursedays/${formData.get('courseId')}`)
+  revalidatePath(`/coursedays/${courseId}`)
 }
 export async function deleteCourseRythm(formData: FormData) {
   await db.courseRythm.update({

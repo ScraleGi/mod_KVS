@@ -239,7 +239,6 @@ model CourseSpecialDays {
 
 model CourseRythm {
   id            String     @id @default(uuid())
-  title         String
   weekDay       WeekDay
   startTime     DateTime   @db.Time
   endTime       DateTime   @db.Time 

@@ -8,7 +8,15 @@ import { TableToolbar } from './TableToolbar'
 function IconEdit() {
   return (
     <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828a2 2 0 01-2.828 0L5 12l4-4z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 20h9" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 3.5a2.121 2.121 0 113 3L7 19l-4 1 1-4 12.5-12.5z" />
+    </svg>
+  )
+}
+function IconSave() {
+  return (
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
     </svg>
   )
 }
@@ -74,12 +82,13 @@ export function CourseHolidayTable({ holidays, courseId }: { holidays: CourseHol
     setEditValues({ ...editValues, [e.target.name]: e.target.value })
   }
 
-  return (
+   return (
     <div className="mt-10 mb-10">
       <TableToolbar
         onSearch={setQuery}
         dateFilter={dateFilter}
         onDateFilter={setDateFilter}
+        searchPlaceholder="Kurs-Feiertag suchen…"
       />
       <div className="overflow-x-auto">
         <table className="min-w-full text-sm border border-gray-300 rounded-lg bg-white shadow-sm">
@@ -93,7 +102,7 @@ export function CourseHolidayTable({ holidays, courseId }: { holidays: CourseHol
               {courseHolidayColumns.map((col, idx) => (
                 <th
                   key={col.key}
-                  className={`py-2 px-2 font-medium text-gray-500 border-b border-gray-200 bg-white text-left${idx === 0 ? ' border-r border-gray-200' : ''}`}
+                  className={`py-2 px-2 font-medium text-gray-500 border-b border-gray-200 bg-white text-left${idx < courseHolidayColumns.length - 1 ? ' border-r border-gray-200' : ''}`}
                 >
                   {col.label}
                 </th>
@@ -105,7 +114,7 @@ export function CourseHolidayTable({ holidays, courseId }: { holidays: CourseHol
           </thead>
           <tbody>
             <tr className="bg-white">
-              <td className="py-1 px-1 align-middle border-r border-gray-100">
+              <td className="py-1 px-1 align-middle border-r border-gray-200">
                 <input
                   name="title"
                   form="add-course-holiday-form"
@@ -114,7 +123,7 @@ export function CourseHolidayTable({ holidays, courseId }: { holidays: CourseHol
                   required
                 />
               </td>
-              <td className="py-1 px-1 align-middle border-r border-gray-100">
+              <td className="py-1 px-1 align-middle border-r border-gray-200">
                 <input
                   name="date"
                   form="add-course-holiday-form"
@@ -141,7 +150,7 @@ export function CourseHolidayTable({ holidays, courseId }: { holidays: CourseHol
               <tr key={h.id} className="border-b border-gray-100 hover:bg-gray-50 transition">
                 {editId === h.id ? (
                   <>
-                    <td className="py-1 px-1 align-middle border-r border-gray-100">
+                    <td className="py-1 px-1 align-middle border-r border-gray-200">
                       <input
                         name="title"
                         value={editValues.title}
@@ -149,7 +158,7 @@ export function CourseHolidayTable({ holidays, courseId }: { holidays: CourseHol
                         className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none"
                       />
                     </td>
-                    <td className="py-1 px-1 align-middle border-r border-gray-100">
+                    <td className="py-1 px-1 align-middle border-r border-gray-200">
                       <input
                         name="date"
                         type="date"
@@ -174,7 +183,7 @@ export function CourseHolidayTable({ holidays, courseId }: { holidays: CourseHol
                           className="p-0.5 text-gray-400 hover:text-blue-600 rounded transition"
                           title="Speichern"
                         >
-                          <IconEdit />
+                          <IconSave />
                         </button>
                       </form>
                       <button
@@ -200,7 +209,7 @@ export function CourseHolidayTable({ holidays, courseId }: { holidays: CourseHol
                   </>
                 ) : (
                   <>
-                    <td className="py-1 px-1 align-middle border-r border-gray-100">
+                    <td className="py-1 px-1 align-middle border-r border-gray-200">
                       <input
                         name="title"
                         value={h.title}
@@ -209,7 +218,7 @@ export function CourseHolidayTable({ holidays, courseId }: { holidays: CourseHol
                         onFocus={() => handleEdit(h.id, h.title, h.date)}
                       />
                     </td>
-                    <td className="py-1 px-1 align-middle border-r border-gray-100">
+                    <td className="py-1 px-1 align-middle border-r border-gray-200">
                       <input
                         name="date"
                         type="date"
