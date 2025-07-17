@@ -6,7 +6,6 @@ import { db } from '@/lib/db'
 import { sanitize } from '@/lib/sanitize'
 import { Program, Trainer } from '@/types/models'
 import { getAuthorizing } from '@/lib/getAuthorizing'
-import Link from 'next/link'
 /**
  * Server action to create a new course
  */

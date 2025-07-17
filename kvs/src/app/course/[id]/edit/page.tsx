@@ -7,7 +7,6 @@ import { CourseWithEditRelations } from '@/types/query-models';
 import { formatDateISO } from '@/lib/utils';
 import RemoveButton from '@/components/RemoveButton/RemoveButton';
 import { getAuthorizing } from '@/lib/getAuthorizing';
-import Link from 'next/link'
 
 
 /**
