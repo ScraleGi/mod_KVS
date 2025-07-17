@@ -172,12 +172,15 @@ model Invoice {
   dueDate               DateTime
   transactionNumber     String?  @unique
 
-  recipientName         String
-  recipientEmail        String
-  recipientStreet       String
-  recipientPostalCode   String
-  recipientCity         String
-  recipientCountry      String
+  recipientSalutation     String?          // Optional, only for Person required
+  recipientName           String?         // Optional, only for PERSON required
+  recipientSurname        String?        // Optional, only for PERSON required
+  companyName             String?       // Optional, only for COMPANY required
+  recipientEmail          String
+  postalCode              String
+  recipientCity           String
+  recipientStreet         String
+  recipientCountry        String
 }
 
 

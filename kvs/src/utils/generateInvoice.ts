@@ -6,12 +6,11 @@ import { generatePDF } from '@/utils/generatePDF'
 import { savePDF } from '@/utils/fileStorage'
 import { Decimal } from '../../generated/prisma/runtime/library'
 
-
 export async function generateInvoice(formData: FormData) {
   try {
     const registrationId = formData.get("registrationId") as string
     if (!registrationId) throw new Error("Registration ID is required")
-    
+
     const type = formData.get("type") as "PERSON" | "COMPANY"
     if (!type || (type !== "PERSON" && type !== "COMPANY")) {
       throw new Error("Valid recipient type (PERSON or COMPANY) is required")
@@ -27,21 +26,6 @@ export async function generateInvoice(formData: FormData) {
     const recipientCity = formData.get("recipientCity") as string
     const recipientCountry = formData.get("recipientCountry") as string
 
-    const recipient = await db.invoiceRecipient.create({
-      data: {
-        type,
-        recipientSalutation: type === "PERSON" ? recipientSalutation : null,
-        recipientName: type === "PERSON" ? recipientName : null,
-        recipientSurname: type === "PERSON" ? recipientSurname : null,
-        companyName: type === "COMPANY" ? companyName : null,
-        recipientEmail,
-        recipientStreet,
-        postalCode,
-        recipientCity,
-        recipientCountry,
-      }
-    })
-
     const registration = await db.courseRegistration.findUnique({
       where: { id: registrationId },
       include: {
@@ -49,7 +33,7 @@ export async function generateInvoice(formData: FormData) {
           include: {
             program: {
               include: {
-                area: true, // ✅ to access area.code
+                area: true,
               }
             }
           }
@@ -73,14 +57,13 @@ export async function generateInvoice(formData: FormData) {
     const amountNumber = 1
     const baseAmount: Decimal = (program.price ?? new Decimal(0)).mul(amountNumber)
     const discountAmount: Decimal = (registration.discountAmount ?? new Decimal(0)).mul(amountNumber)
-    const finalAmount = baseAmount.minus(discountAmount)
+    const subsidyAmount: Decimal = (registration.subsidyAmount ?? new Decimal(0)).mul(amountNumber)
+    const finalAmount = baseAmount.minus(discountAmount).minus(subsidyAmount)
 
     const dueDateStr = formData.get("dueDate") as string | null
     const dueDate = dueDateStr
       ? new Date(dueDateStr)
       : new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
-
-
 
     let invoice
     let retries = 0
@@ -89,18 +72,9 @@ export async function generateInvoice(formData: FormData) {
     while (!invoice && retries < maxRetries) {
       const invoiceCountForCourse = await db.invoice.count({
         where: {
-          courseRegistration: {
-            course: {
-              code: course.code,
-            }
-          }
+          courseCode: course.code
         }
       })
-     
-// debugger   
-
-// console.log("registration", registration)      
-// console.log(invoiceCountForCourse, 'invoiceCountForCourse')
 
       const nextSequential = invoiceCountForCourse + 1
       const paddedSequential = String(nextSequential).padStart(3, '0')
@@ -110,10 +84,26 @@ export async function generateInvoice(formData: FormData) {
         invoice = await db.invoice.create({
           data: {
             invoiceNumber,
-            amount: baseAmount,
+            courseRegistrationId: registrationId,
+            courseCode: course.code,
+            programName: program.name,
+            programPrice: program.price,
+            discountAmount,
+            discountRemark: registration.discountRemark ?? '',
+            subsidyAmount,
+            subsidyRemark: registration.subsidyRemark ?? '',
             finalAmount,
             dueDate,
-            courseRegistrationId: registrationId,
+            amount: baseAmount,
+            recipientSalutation: type === 'PERSON' ? recipientSalutation : null,
+            recipientName: type === 'PERSON' ? recipientName : null,
+            recipientSurname: type === 'PERSON' ? recipientSurname : null,
+            companyName: type === 'COMPANY' ? companyName : null,
+            recipientEmail,
+            recipientStreet,
+            postalCode,
+            recipientCity,
+            recipientCountry,
           }
         })
       } catch (error) {
@@ -132,7 +122,6 @@ export async function generateInvoice(formData: FormData) {
 
     const templateData = {
       invoice,
-      recipient,
       registration,
       participant: registration.participant,
       course,
