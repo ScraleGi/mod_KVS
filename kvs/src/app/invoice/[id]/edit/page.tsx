@@ -4,12 +4,21 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { InvoiceUpdateData } from '@/types/query-models' 
+import { getAuthorizing } from '@/lib/getAuthorizing'
 
 export default async function EditInvoicePage({
   params,
 }: {
   params: Promise<{ id: string }>
 }) {
+  // Check user authorization
+    const roles = await getAuthorizing({
+      privilige: ['ADMIN', 'PROGRAMMMANAGER', 'RECHNUNGSWESEN'],
+    })
+  
+    if (roles.length === 0) {
+      redirect('/403')
+    }
   const { id } = await params
   
   const invoice = await db.invoice.findUnique({
