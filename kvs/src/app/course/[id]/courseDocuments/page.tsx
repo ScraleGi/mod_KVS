@@ -3,8 +3,18 @@ import { db } from "@/lib/db"
 import { sanitize } from "@/lib/sanitize"
 import { ClientGenerateCourseDocuments } from "./ClientGenerateCourseDocuments"
 import type { SanitizedRegistration, SanitizedCourse } from "@/types/query-models"
+import { getAuthorizing } from "@/lib/getAuthorizing"
+import { redirect } from "next/navigation"
 
 export default async function CourseDocumentsPage({ params }: { params: Promise<{ id: string }> }) {
+  // Check user authorization
+    const roles = await getAuthorizing({
+      privilige: ['ADMIN', 'PROGRAMMMANAGER', 'RECHNUNGSWESEN'],
+    })
+  
+    if (roles.length === 0) {
+      redirect('/403')
+    }
   const { id } = await params;
 
   const course = await db.course.findUnique({
