@@ -1,4 +1,3 @@
-import { Holiday, CourseHoliday, CourseSpecialDays, CourseRythm } from './types'
 
 export const holidayColumns = [
   { key: 'title', label: 'Titel' },

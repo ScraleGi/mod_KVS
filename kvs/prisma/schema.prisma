@@ -225,7 +225,7 @@ model CourseHoliday {
 
 model CourseSpecialDays {
   id              String   @id @default(uuid())
-  title           String
+  title           String? // Optional title for the special day
   startTime       DateTime   
   endTime         DateTime   
   pauseDuration   DateTime    
