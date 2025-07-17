@@ -1,4 +1,4 @@
-import { FaHome, FaCalendarAlt, FaCog, FaSignOutAlt, FaRegEnvelope, FaChartBar, FaThLarge, FaLayerGroup, FaUsers, FaChalkboardTeacher } from 'react-icons/fa';
+import { FaHome, FaCalendarAlt, FaCog, FaRegEnvelope, FaChartBar, FaThLarge, FaLayerGroup, FaUsers, FaChalkboardTeacher } from 'react-icons/fa';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -73,21 +73,9 @@ const Sidebar = ({ isOpen, roles }: SidebarProps) => {
         );
       })}
     </ul>
-
-    <div className="mt-4">
-      <div className="relative group">
-        <a
-          href="/auth/logout"
-          className="flex items-center px-3 py-2 text-red-400 hover:text-red-600 transition-colors"
-        >
-          <FaSignOutAlt className="w-6 h-6 mr-2" />
-          {isOpen && <span>Abmelden</span>}
-        </a>
-        {!isOpen && <Tooltip>Abmelden</Tooltip>}
-      </div>
-    </div>
-    </nav>
+  </nav>
   );
 };
 
 export default Sidebar;
+
