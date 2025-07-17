@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { db } from '@/lib/db'
 import { generateInvoice } from '@/utils/generateInvoice'
-
+import { getAuthorizing } from '@/lib/getAuthorizing'
 import RecipientSelect from '../../../../components/recipientSelect/RecipientSelect' // <-- import client component
 
 //---------------------------------------------------
@@ -22,6 +22,14 @@ export default async function CreateInvoicePage({
 }: {
   params: Promise<{ id: string }>
 }) {
+  // Check user authorization
+    const roles = await getAuthorizing({
+      privilige: ['ADMIN', 'PROGRAMMMANAGER'],
+    })
+  
+    if (roles.length === 0) {
+      redirect('/403')
+    }
   const { id } = await params
 
   const registration = await db.courseRegistration.findUnique({

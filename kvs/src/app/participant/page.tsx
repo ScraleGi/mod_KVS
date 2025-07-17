@@ -11,6 +11,10 @@ import { redirect } from "next/navigation";
 // MAIN COMPONENT
 //---------------------------------------------------
 export default async function ParticipantOverviewPage() {
+  // Check user authorization
+      const roles = await getAuthorizing({
+        privilige: ['ADMIN', 'PROGRAMMMANAGER', 'RECHNUNGSWESEN', 'MARKETING'],
+      })
   //---------------------------------------------------
   // DATA FETCHING
   //---------------------------------------------------
@@ -53,10 +57,6 @@ export default async function ParticipantOverviewPage() {
         })),
     }))
 
-    // Check user authorization
-      const roles = await getAuthorizing({
-        privilige: ['ADMIN', 'PROGRAMMMANAGER', 'TRAINER', 'RECHNUNGSWESEN', 'MARKETING'],
-      })
 
       if (roles.length === 0) {
         redirect('/403') // Redirect to 403 if no roles found

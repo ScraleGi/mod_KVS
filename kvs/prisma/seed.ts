@@ -700,7 +700,6 @@ async function seedHoliday() {
 async function seedRoles() {
   const roles = [
     { name: 'ADMIN' },
-    { name: 'TRAINER' },
     { name: 'RECHNUNGSWESEN' },
     { name: 'PROGRAMMMANAGER' },
     { name: 'MARKETING' },

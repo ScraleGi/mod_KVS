@@ -3,8 +3,18 @@ import { db } from "@/lib/db"
 import { sanitize } from "@/lib/sanitize"
 import type { SanitizedRegistration, SanitizedCourse } from "@/types/query-models"
 import { ClientGenerateCourseInvoices } from "./ClientGenerateCourseInvoices"
+import { getAuthorizing } from "@/lib/getAuthorizing"
+import { redirect } from "next/navigation"
 
 export default async function CourseInvoicesPage({ params }: { params: Promise<{ id: string }> }) {
+  // Check user authorization
+    const roles = await getAuthorizing({
+      privilige: ['ADMIN', 'PROGRAMMMANAGER'],
+    })
+  
+    if (roles.length === 0) {
+      redirect('/403')
+    }
   const { id } = await params
 
   // Fetch course, registrations, invoices, and all possible custom recipients for this course

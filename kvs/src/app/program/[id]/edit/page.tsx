@@ -3,12 +3,20 @@ import Link from 'next/link'
 import { db } from '@/lib/db'
 import { sanitize } from '@/lib/sanitize'
 import RemoveButton from '@/components/RemoveButton/RemoveButton';
+import { getAuthorizing } from '@/lib/getAuthorizing';
 
 export default async function EditProgramPage({
   params,
 }: {
   params: Promise<{ id: string }>
 }) {
+  // Check user authorization
+  const roles = await getAuthorizing({
+    privilige: ['ADMIN', 'PROGRAMMMANAGER'],
+  })
+  if (roles.length === 0) {
+    redirect('/403')
+  }
   try {
     const { id } = await params
 
