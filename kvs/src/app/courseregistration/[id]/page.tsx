@@ -273,8 +273,10 @@ export default async function ParticipantDetailsPage({
           </div>
           
 
-    <RecipientForm/>
-   
+      <div>
+        <RecipientForm/>
+      </div>
+
 
           {/* Remark Form Section */}
           <hr className="my-6 border-t border-neutral-200" />

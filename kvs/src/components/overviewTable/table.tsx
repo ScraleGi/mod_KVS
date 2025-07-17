@@ -136,6 +136,73 @@ export type InvoiceRecipientRow = {
 }
 
 // --- Columns definition ---
+export const invoiceRecipientColumns: ColumnDef<InvoiceRecipientRow>[] = [
+  {
+    accessorKey: "type",
+    header: "Typ",
+    cell: ({ row }) => <span className="font-medium">{row.getValue("type")}</span>,
+  },
+  {
+    accessorKey: "recipientSalutation",
+    header: "Anrede",
+    cell: ({ row }) => <span>{row.getValue("recipientSalutation") || "-"}</span>,
+  },
+  {
+    accessorKey: "recipientName",
+    header: "Vorname",
+    cell: ({ row }) => <span>{row.getValue("recipientName") || "-"}</span>,
+  },
+  {
+    accessorKey: "recipientSurname",
+    header: "Nachname",
+    cell: ({ row }) => <span>{row.getValue("recipientSurname") || "-"}</span>,
+  },
+  {
+    accessorKey: "companyName",
+    header: "Firma",
+    cell: ({ row }) => <span>{row.getValue("companyName") || "-"}</span>,
+  },
+  {
+    accessorKey: "recipientEmail",
+    header: "E-Mail",
+    cell: ({ row }) => (
+      <a
+        href={`mailto:${row.getValue("recipientEmail")}`}
+        className="text-blue-600 underline decoration-dotted hover:text-blue-800 truncate"
+      >
+        {row.getValue("recipientEmail")}
+      </a>
+    ),
+  },
+  {
+    accessorKey: "postalCode",
+    header: "PLZ",
+    cell: ({ row }) => <span>{row.getValue("postalCode") || "-"}</span>,
+  },
+  {
+    accessorKey: "recipientCity",
+    header: "Ort",
+    cell: ({ row }) => <span>{row.getValue("recipientCity") || "-"}</span>,
+  },
+  {
+    accessorKey: "recipientCountry",
+    header: "Land",
+    cell: ({ row }) => <span>{row.getValue("recipientCountry") || "-"}</span>,
+  },
+  {
+    id: "actions",
+    header: "Aktionen",
+    cell: ({ row }) => (
+      <a
+        href={`/invoiceRecipient/${row.original.id}/edit`}
+        className="text-blue-600 hover:text-blue-800"
+        title="Rechnungsempfänger bearbeiten"
+      >
+        Edit
+      </a>
+    ),
+  },
+]
 
 export const home: ColumnDef<CourseRow>[] = [
   // Course column with sorting

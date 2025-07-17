@@ -80,9 +80,9 @@ model CourseRegistration {
   subsidyAmount       Decimal?    @db.Decimal(10, 2)
   discountRemark      String?                                                                             
   discountAmount      Decimal?    @db.Decimal(10, 2)  
-  
-  companyId           String?     // Nullable for individual participants
-  company             Company?    @relation(fields: [companyId], references: [id])
+
+  invoiceRecipientId  String?
+  invoiceRecipient    InvoiceRecipient? @relation(fields: [invoiceRecipientId], references: [id])
   
   @@index([deletedAt])
   @@index([courseId])
@@ -127,25 +127,11 @@ model Participant {
   createdAt             DateTime    @default(now())
   deletedAt             DateTime?
   registrations         CourseRegistration[]
-  invoiceRecipients     InvoiceRecipient[]   
+//  invoiceRecipients     InvoiceRecipient[]   
   @@index([deletedAt])
 }
 
-model Company {
-  id             String       @id @default(uuid())
-  name           String       @unique
-  email          String
-  phoneNumber    String?
-  street         String
-  postalCode     String
-  city           String
-  country        String?
-  createdAt      DateTime     @default(now())
-  deletedAt      DateTime?    // Soft delete: null = not deleted, date = deleted
-  
-  CourseRegistration CourseRegistration[]
 
-}
 
 model Invoice {
   id                    String               @id @default(uuid())
@@ -157,8 +143,13 @@ model Invoice {
   isCancelled           Boolean              @default(false)
   dueDate               DateTime
   transactionNumber     String?              @unique // <-- nullable
-  recipientId           String
-  recipient             InvoiceRecipient     @relation(fields: [recipientId], references: [id])
+//  recipientId           String
+//  recipient             InvoiceRecipient     @relation(fields: [recipientId], references: [id])
+}
+
+enum RecipientType {
+  PERSON
+  COMPANY
 }
 
 model InvoiceRecipient {
@@ -175,16 +166,11 @@ model InvoiceRecipient {
   recipientCountry        String
   createdAt               DateTime     @default(now())
   deletedAt               DateTime?
-  participantId           String?      // Only set if PERSON
-  participant             Participant? @relation(fields: [participantId], references: [id])
-  invoices                Invoice[]
+  courseRegistrations     CourseRegistration[] // Relation: one InvoiceRecipient can have many CourseRegistrations
   @@index([deletedAt])
 }
 
-enum RecipientType {
-  PERSON
-  COMPANY
-}
+
 
 model Document {
   id                    String               @id @default(uuid())
@@ -192,8 +178,8 @@ model Document {
   file                  String               // URL to the file
   courseRegistrationId  String
   courseRegistration    CourseRegistration   @relation(fields: [courseRegistrationId], references: [id])
-  createdAt        DateTime  @default(now())
-  deletedAt        DateTime? // Soft delete: null = not deleted, date = deleted 
+  createdAt             DateTime  @default(now())
+  deletedAt             DateTime? // Soft delete: null = not deleted, date = deleted 
 }
 
 model Room {
