@@ -28,7 +28,7 @@ async function seedPrograms(areaMap: Record<string, string>) {
       { code: 'MLB', name: 'Machine Learning Basics', teachingUnits: 10, price: new Prisma.Decimal('349.99'), areaId: areaMap['KI Campus'] },
       { code: 'WEBDEV', name: 'Web Development Bootcamp', description: 'Full stack web development.', teachingUnits: 12, price: new Prisma.Decimal('399.99'), areaId: areaMap['It & Coding Campus'] },
       { code: 'PYB', name: 'Python for Beginners', teachingUnits: 6, price: new Prisma.Decimal('149.99'), areaId: areaMap['It & Coding Campus'] },
-      { code: 'DM101', name: 'Digital Marketing 101', description: 'Basics of digital marketing.', teachingUnits: 7, areaId: areaMap['Digital Markeing Academy'] },
+      { code: 'DM101', name: 'Digital Marketing 101',price: new Prisma.Decimal('400.00'), description: 'Basics of digital marketing.', teachingUnits: 7, areaId: areaMap['Digital Markeing Academy'] },
       { code: 'SIB', name: 'Sustainability in Business', description: 'Green business practices.', teachingUnits: 5, areaId: areaMap['Green Campus'] },
       { code: 'BS', name: 'Business Strategy', teachingUnits: 9, price: new Prisma.Decimal('299.99'), areaId: areaMap['Business & Management Academy'] },
       { code: 'ELE', name: 'E-Learning Essentials', description: 'How to create effective e-learning courses.', areaId: areaMap['E-Learning Lehrgänge'] },
