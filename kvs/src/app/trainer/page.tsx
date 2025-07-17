@@ -8,9 +8,13 @@ import { getAuthorizing } from "@/lib/getAuthorizing";
 
 export default async function TrainerPage() {
     // Check user authorization
-  const roles = await getAuthorizing({
-    privilige: ['ADMIN', 'PROGRAMMMANAGER', 'RECHNUNGSWESEN', 'MARKETING'],
-  })
+      const roles = await getAuthorizing({
+        privilige: ['ADMIN', 'PROGRAMMMANAGER'],
+      })
+    
+      if (roles.length === 0) {
+        redirect('/403')
+      }
 
     const prisma = new PrismaClient();
 

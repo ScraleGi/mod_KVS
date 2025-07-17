@@ -24,7 +24,7 @@ async function restoreTrainer(formData: FormData) {
 export default async function DeletedTrainersPage() {
   // Check user authorization
   const roles = await getAuthorizing({
-    privilige: ['ADMIN', 'PROGRAMMMANAGER'],
+    privilige: ['ADMIN'],
   })
   if (roles.length === 0) {
     redirect('/403')
