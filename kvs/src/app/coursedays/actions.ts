@@ -129,7 +129,7 @@ export async function updateCourseSpecialDay(formData: FormData) {
   const title = formData.get('title') as string
   const startTimeRaw = formData.get('startTime') as string // "YYYY-MM-DDTHH:mm"
   const endTimeRaw = formData.get('endTime') as string     // "YYYY-MM-DDTHH:mm"
-  let pauseRaw = formData.get('pauseDuration') as string   // "HH:mm"
+  const pauseRaw = formData.get('pauseDuration') as string   // "HH:mm"
   const courseId = formData.get('courseId') as string
 
   // Convert to ISO-8601

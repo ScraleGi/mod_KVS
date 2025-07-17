@@ -106,9 +106,10 @@ export function CourseSpecialDaysTable({ specialDays, courseId }: { specialDays:
   }, [dateFilter])
 
   // Filter by date (YYYY-MM-DD)
-  const filtered = specialDays.filter(d =>
-    (dateFilter === '' || d.startTime.slice(0, 10) === dateFilter)
-  )
+const filtered = specialDays.filter(d =>
+  (dateFilter === '' || d.startTime.slice(0, 10) === dateFilter) &&
+  (query === '' || (d.title ?? '').toLowerCase().includes(query.toLowerCase()))
+)
 
   function handleEdit(d: CourseSpecialDays) {
     setEditId(d.id)
@@ -157,9 +158,9 @@ export function CourseSpecialDaysTable({ specialDays, courseId }: { specialDays:
           </thead>
           <tbody>
             {/* Add new special day row */}
-            <tr className="bg-white">
+            <tr className="bg-white border-b border-gray-200">
               <td className="py-1 px-1 align-middle border-r border-gray-200">
-                <input name="title" form="add-course-specialday-form" placeholder="Titel" className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none" />
+                <input name="title" form="add-course-specialday-form" placeholder="Neuer Sondertag" className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none" />
               </td>
               <td className="py-1 px-1 align-middle border-r border-gray-200">
                 <input name="startTime" form="add-course-specialday-form" type="datetime-local" className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none" required />
@@ -178,7 +179,7 @@ export function CourseSpecialDaysTable({ specialDays, courseId }: { specialDays:
               </td>
             </tr>
             {filtered.map(d => (
-              <tr key={d.id} className="border-b border-gray-100 hover:bg-gray-50 transition">
+              <tr key={d.id} className="border-b border-gray-200 hover:bg-gray-50 transition">
                 {editId === d.id && editValues ? (
                   <>
                     <td className="py-1 px-1 align-middle border-r border-gray-200">

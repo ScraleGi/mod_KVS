@@ -118,7 +118,7 @@ export function CourseHolidayTable({ holidays, courseId }: { holidays: CourseHol
                 <input
                   name="title"
                   form="add-course-holiday-form"
-                  placeholder="Titel"
+                  placeholder="Neuer Kurs-Feiertag"
                   className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none"
                   required
                 />
