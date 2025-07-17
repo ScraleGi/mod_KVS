@@ -173,26 +173,37 @@ export async function createCourseRythm(formData: FormData) {
   const pauseRaw = formData.get('pauseDuration') as string
   const courseId = formData.get('courseId') as string
 
-  const exists = await db.courseRythm.findFirst({
-    where: { courseId, weekDay, deletedAt: null }
+  const existingCourseRythm = await db.courseRythm.findFirst({
+    where: { courseId, weekDay }
   })
-  if (exists) {
-    throw new Error('Für diesen Wochentag existiert bereits ein Kursrhythmus für diesen Kurs.')
+  if (!existingCourseRythm) {
+    const startTime = timeToISO(startTimeRaw)
+    const endTime = timeToISO(endTimeRaw)
+    const pauseDuration = timeToISO(pauseRaw)
+
+    await db.courseRythm.create({
+      data: {
+        weekDay,
+        startTime,
+        endTime,
+        pauseDuration,
+        courseId,
+      },
+    })
+
+  } else {
+    await db.courseRythm.update({
+      where: { id: existingCourseRythm.id },
+      data: {
+        startTime: timeToISO(startTimeRaw),
+        endTime: timeToISO(endTimeRaw),
+        pauseDuration: timeToISO(pauseRaw),
+        deletedAt: null, // Restore if it was soft-deleted
+      },
+    })
   }
 
-  const startTime = timeToISO(startTimeRaw)
-  const endTime = timeToISO(endTimeRaw)
-  const pauseDuration = timeToISO(pauseRaw)
 
-  await db.courseRythm.create({
-    data: {
-      weekDay,
-      startTime,
-      endTime,
-      pauseDuration,
-      courseId,
-    },
-  })
   revalidatePath(`/coursedays/${courseId}`)
 }
 
@@ -234,5 +245,7 @@ export async function deleteCourseRythm(formData: FormData) {
     where: { id: formData.get('id') as string },
     data: { deletedAt: new Date() },
   })
-  revalidatePath(`/coursedays/${formData.get('courseId')}`)
+  console.log('Deleted course rythm:', formData.get('id'))
+  //revalidatePath(`/coursedays/${formData.get('courseId')}`)
+  //redirect(`/coursedays/${formData.get('courseId')}`)
 }

@@ -8,7 +8,15 @@ import { TableToolbar } from './TableToolbar'
 function IconEdit() {
   return (
     <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828a2 2 0 01-2.828 0L5 12l4-4z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 20h9" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 3.5a2.121 2.121 0 113 3L7 19l-4 1 1-4 12.5-12.5z" />
+    </svg>
+  )
+}
+function IconSave() {
+  return (
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
     </svg>
   )
 }
@@ -166,7 +174,7 @@ export function HolidayTable({ holidays }: { holidays: Holiday[] }) {
                           className="p-0.5 text-gray-400 hover:text-blue-600 rounded transition"
                           title="Speichern"
                         >
-                          <IconEdit />
+                          <IconSave />
                         </button>
                       </form>
                       <button

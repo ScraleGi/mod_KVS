@@ -21,6 +21,7 @@ type Props = {
   weekDayFilter?: string
   onWeekDayFilter?: (weekDay: string) => void
   searchPlaceholder?: string 
+  disabledWeekDays?: string[] // <-- Add this prop
 }
 
 export function TableToolbar({
@@ -32,6 +33,7 @@ export function TableToolbar({
   weekDayFilter,
   onWeekDayFilter,
   searchPlaceholder = 'Suche…',
+  disabledWeekDays = [], // <-- Default empty array
 }: Props) {
   const [query, setQuery] = useState('')
 
@@ -92,7 +94,13 @@ export function TableToolbar({
           className="border border-gray-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-200 focus:outline-none"
         >
           {WEEK_DAYS.map(day => (
-            <option key={day.key} value={day.key}>{day.label}</option>
+            <option
+              key={day.key}
+              value={day.key}
+              disabled={disabledWeekDays.includes(day.key) && day.key !== ''}
+            >
+              {day.label}
+            </option>
           ))}
         </select>
       )}

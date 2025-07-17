@@ -217,7 +217,7 @@ const filtered = specialDays.filter(d =>
                       <form action={deleteCourseSpecialDay} className="inline-flex items-center justify-center gap-0.5">
                         <input type="hidden" name="id" value={editValues.id} />
                         <input type="hidden" name="courseId" value={courseId} />
-                        <button type="submit" className="p-0.5 text-gray-400 hover:text-red-500 rounded transition" title="Löschen"><IconTrash /></button>
+                      <button type="submit" className="p-0.5 text-gray-400 hover:text-red-500 rounded transition" title="Löschen"><IconTrash /></button>
                       </form>
                     </td>
                   </>
