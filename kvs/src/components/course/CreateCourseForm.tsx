@@ -1,6 +1,5 @@
 "use client"
 import { useState } from "react"
-import Link from "next/link"
 import { CreateCourseFormProps } from "@/types/query-models"
 import { formatDateISO } from "@/lib/utils" 
 import { useToaster } from '@/components/ui/toaster';
@@ -134,22 +133,14 @@ export default function CreateCourseForm({
             ))}
         </div>
       </div>
-      <div className="pt-2 flex items-center justify-between">
+      <div className="pt-2 flex items-center justify-end">
         <button
           type="submit"
           className="cursor-pointer inline-flex items-center px-5 py-2 border border-transparent text-xs font-semibold rounded text-white bg-blue-600 hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
         >
           {buttonText}
         </button>
-        <Link
-          href="/course"
-          className="text-xs font-medium text-gray-500 hover:text-gray-700 transition-colors flex items-center"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
-          Abbrechen
-        </Link>
+        
       </div>
     </form>
   )

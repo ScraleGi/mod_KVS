@@ -93,12 +93,12 @@ export default async function ParticipantDetailsPage({
   // Fetch documents for this registration (not soft-deleted)
   const documents: Document[] = registration
     ? await db.document.findMany({
-        where: {
-          courseRegistrationId: registration.id,
-          deletedAt: null,
-        },
-        orderBy: { createdAt: 'desc' },
-      })
+      where: {
+        courseRegistrationId: registration.id,
+        deletedAt: null,
+      },
+      orderBy: { createdAt: 'desc' },
+    })
     : []
 
   //---------------------------------------------------
@@ -114,8 +114,8 @@ export default async function ParticipantDetailsPage({
       sanitizedRegistration.subsidyAmount !== undefined && sanitizedRegistration.subsidyAmount !== null
         ? sanitizedRegistration.subsidyAmount.toString()
         : undefined;
-      
-      // Handle discountAmount
+
+    // Handle discountAmount
     sanitizedRegistration.discountAmountDisplay =
       sanitizedRegistration.discountAmount !== undefined && sanitizedRegistration.discountAmount !== null
         ? sanitizedRegistration.discountAmount.toString()
@@ -149,7 +149,7 @@ export default async function ParticipantDetailsPage({
       <div className="min-h-screen flex items-center justify-center bg-neutral-50">
         <div className="max-w-md w-full px-4">
           <Link href={`/course/${registration?.courseId}`} className="text-blue-500 hover:text-blue-800 mb-6 block">
-            &larr; Zurück zur Startseite
+            &larr; Startseite
           </Link>
           <div className="text-red-600 text-lg font-semibold">Keine Teilnehmer für diesen Kurs gefunden.</div>
         </div>
@@ -242,7 +242,7 @@ export default async function ParticipantDetailsPage({
                 </span>
               </div>
             </div>
-            
+
             {/* Right column - Registration details */}
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-2">
@@ -262,7 +262,7 @@ export default async function ParticipantDetailsPage({
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-medium text-neutral-600">Informationen:</span>
+                <span className="font-medium text-neutral-600">Info-Abend:</span>
                 <span className="text-neutral-600">
                   {sanitizedRegistration.infoSessionAt
                     ? formatDateGerman(sanitizedRegistration.infoSessionAt)
@@ -270,17 +270,17 @@ export default async function ParticipantDetailsPage({
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-medium text-neutral-600">Interesiert an:</span>
+                <span className="font-medium text-neutral-600">Vorgemerkt:</span>
                 <span className="text-neutral-600">
                   {sanitizedRegistration.interestedAt
                     ? formatDateGerman(sanitizedRegistration.interestedAt)
                     : '-'}
                 </span>
               </div>
- 
+
             </div>
           </div>
-          
+
           {/* Remark Form Section */}
           <hr className="my-6 border-t border-neutral-200" />
           <div className="mt-6">
@@ -291,7 +291,7 @@ export default async function ParticipantDetailsPage({
                 name="remark"
                 defaultValue={sanitizedRegistration.generalRemark || ''}
                 className="bg-neutral-50 border border-neutral-200 rounded px-3 py-2 text-[13px] text-neutral-700 min-h-[64px] whitespace-pre-line break-words resize-y focus:outline-none focus:ring-2 focus:ring-blue-200"
-                placeholder="Enter a remark..."
+                placeholder="Bemerkug..."
               />
               <div className="flex justify-end">
                 <button
@@ -378,236 +378,224 @@ export default async function ParticipantDetailsPage({
   </div>
 </section>
 
-       {/* Invoices Section */}
-    <section className="px-8 py-6 border-b border-neutral-200">
-      <h2 className="text-sm font-semibold text-neutral-800 mb-4">Rechnungen</h2>
-      <div className="overflow-x-auto">
-        <table className="min-w-full text-xs border border-neutral-200 rounded">
-          <thead>
-            <tr className="bg-neutral-100">
-              <th className="px-3 py-2 text-left font-semibold">Rechnung</th>
-              <th className="px-3 py-2 text-center font-semibold">Empfänger</th>
-              <th className="px-3 py-2 text-center font-semibold">Status</th>
-              <th className="px-3 py-2 text-center font-semibold">Aktion</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sanitizedInvoices.length === 0 && (
-              <tr>
-                <td colSpan={4} className="px-3 py-2 text-neutral-400 italic text-xs bg-white rounded text-center">
-                  Keine Rechnungen gefunden.
-                </td>
-              </tr>
-            )}
-    {sanitizedInvoices.map((inv) => (
-      <tr key={inv.id} className="border-t border-neutral-200 bg-white hover:bg-blue-50 transition-colors">
-        <td className="px-3 py-2">
-          <span
-            title={`Invoice #${inv.invoiceNumber || ''} - €${inv.amount?.toString() || ''}`}
-          >
-            <DownloadPDFLink
-              uuidString={sanitizedRegistration.id}
-              filename={`${inv.invoiceNumber}.pdf`}
-              displayName={`${inv.invoiceNumber}`}
-              className="text-blue-700 hover:text-blue-900 font-medium text-sm"
-            />
-          </span>
-        </td>
-        <td className="px-3 py-2 text-center">
-          {inv.recipient?.type === 'PERSON'
-            ? `${inv.recipient.recipientName ?? ''} ${inv.recipient.recipientSurname ?? ''}`.trim() || '-'
-            : inv.recipient?.type === 'COMPANY'
-              ? inv.recipient.companyName ?? '-'
-              : '-'}
-        </td>
-        <td className="px-3 py-2 text-center">
-          <form action={toggleInvoiceCancelled} className="inline">
-            <input type="hidden" name="invoiceId" value={inv.id} />
-            <input type="hidden" name="registrationId" value={registrationId} />
-            <button
-              type="submit"
-              name="isCancelled"
-              value={inv.isCancelled ? "" : "on"}
-              className={`px-2 py-1 rounded text-xs font-semibold transition
+        {/* Invoices Section */}
+        <section className="px-8 py-6 border-b border-neutral-200">
+          <h2 className="text-sm font-semibold text-neutral-800 mb-4">Rechnungen</h2>
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-xs border border-neutral-200 rounded">
+              <thead>
+                <tr className="bg-neutral-100">
+                  <th className="px-3 py-2 text-left font-semibold">Rechnung</th>
+                  <th className="px-3 py-2 text-center font-semibold">Empfänger</th>
+                  <th className="px-3 py-2 text-center font-semibold">Status</th>
+                  <th className="px-3 py-2 text-center font-semibold">Aktion</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sanitizedInvoices.length === 0 && (
+                  <tr>
+                    <td colSpan={4} className="px-3 py-2 text-neutral-400 italic text-xs bg-white rounded text-center">
+                      Keine Rechnungen gefunden.
+                    </td>
+                  </tr>
+                )}
+                {sanitizedInvoices.map((inv) => (
+                  <tr key={inv.id} className="border-t border-neutral-200 bg-white hover:bg-blue-50 transition-colors">
+                    <td className="px-3 py-2">
+                      <span
+                        title={`Invoice #${inv.invoiceNumber || ''} - €${inv.amount?.toString() || ''}`}
+                      >
+                        <DownloadPDFLink
+                          uuidString={sanitizedRegistration.id}
+                          filename={`${inv.invoiceNumber}.pdf`}
+                          displayName={`${inv.invoiceNumber}`}
+                          className="text-blue-700 hover:text-blue-900 font-medium text-sm"
+                        />
+                      </span>
+                    </td>
+                    <td className="px-3 py-2 text-center">
+                      {inv.recipient?.type === 'PERSON'
+                        ? `${inv.recipient.recipientName ?? ''} ${inv.recipient.recipientSurname ?? ''}`.trim() || '-'
+                        : inv.recipient?.type === 'COMPANY'
+                          ? inv.recipient.companyName ?? '-'
+                          : '-'}
+                    </td>
+                    <td className="px-3 py-2 text-center">
+                      <form action={toggleInvoiceCancelled} className="inline">
+                        <input type="hidden" name="invoiceId" value={inv.id} />
+                        <input type="hidden" name="registrationId" value={registrationId} />
+                        <button
+                          type="submit"
+                          name="isCancelled"
+                          value={inv.isCancelled ? "" : "on"}
+                          className={`px-2 py-1 rounded text-xs font-semibold transition
                 ${inv.isCancelled
-                  ? "bg-red-100 text-red-600 hover:bg-red-200"
-                  : "bg-green-100 text-green-700 hover:bg-green-200"}
+                              ? "bg-red-100 text-red-600 hover:bg-red-200"
+                              : "bg-green-100 text-green-700 hover:bg-green-200"}
               `}
-            >
-              {inv.isCancelled ? "storniert" : "aktiv"}
-            </button>
-          </form>
-          {inv.transactionNumber && !inv.isCancelled && (
-            <span className="ml-2 text-green-700 font-semibold">bezahlt</span>
-          )}
-          {!inv.transactionNumber && !inv.isCancelled && (
-            <span className="ml-2 text-yellow-600 font-semibold">nicht bezahlt</span>
-          )}
-        </td>
-        <td className="px-3 py-2 text-center">
-          <Link
-            href={`/invoice/${inv.id}`}
-            className="text-neutral-400 hover:text-blue-600 transition mr-2"
-            title="View invoice details"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 16v-4m0-4h.01" />
-            </svg>
-          </Link>
-          <Link
-            href={`/invoice/${inv.id}/edit`}
-            className="text-neutral-400 hover:text-blue-600 transition"
-            title="Edit invoice"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-            </svg>
-          </Link>
-        </td>
-      </tr>
-    ))}
-      </tbody>
-    </table>
-    {/* Create Invoice Button */}
-    <div className="flex justify-end mt-4">
-      {hasActiveInvoice ? (
-        <span
-          className="px-3 py-1 rounded text-xs font-medium bg-neutral-200 text-neutral-400 cursor-not-allowed select-none"
-          tabIndex={-1}
-          aria-disabled="true"
-        >
-          Rechnung generieren
-        </span>
-      ) : (
-        <Link
-          href={`/courseregistration/${registrationId}/create-invoice`}
-          className="px-3 py-1 rounded text-xs font-medium bg-blue-600 text-white hover:bg-blue-700 transition"
-        >
-          Rechnung generieren
-        </Link>
-      )}
-    </div>
-  </div>
-</section>
+                        >
+                          {inv.isCancelled ? "storniert" : "aktiv"}
+                        </button>
+                      </form>
+                      {inv.transactionNumber && !inv.isCancelled && (
+                        <span className="ml-2 text-green-700 font-semibold">bezahlt</span>
+                      )}
+                      {!inv.transactionNumber && !inv.isCancelled && (
+                        <span className="ml-2 text-yellow-600 font-semibold">nicht bezahlt</span>
+                      )}
+                    </td>
+                    <td className="px-3 py-2 text-center">
+                      <Link
+                        href={`/invoice/${inv.id}`}
+                        className="text-neutral-400 hover:text-blue-600 transition mr-2"
+                        title="View invoice details"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 16v-4m0-4h.01" />
+                        </svg>
+                      </Link>
+                      <Link
+                        href={`/invoice/${inv.id}/edit`}
+                        className="text-neutral-400 hover:text-blue-600 transition"
+                        title="Edit invoice"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {/* Create Invoice Button */}
+            <div className="flex justify-end mt-4">
+              {hasActiveInvoice ? (
+                <span
+                  className="px-3 py-1 rounded text-xs font-medium bg-neutral-200 text-neutral-400 cursor-not-allowed select-none"
+                  tabIndex={-1}
+                  aria-disabled="true"
+                >
+                  Rechnung generieren
+                </span>
+              ) : (
+                <Link
+                  href={`/courseregistration/${registrationId}/create-invoice`}
+                  className="px-3 py-1 rounded text-xs font-medium bg-blue-600 text-white hover:bg-blue-700 transition"
+                >
+                  Rechnung generieren
+                </Link>
+              )}
+            </div>
+          </div>
+        </section>
 
-{/* Documents Section */}
-<section className="px-8 py-6 border-b border-neutral-200">
-  <h2 className="text-sm font-semibold text-neutral-800 mb-4">Dokumente</h2>
-  <div className="overflow-x-auto">
-    <table className="min-w-full text-xs border border-neutral-200 rounded">
-      <thead>
-        <tr className="bg-neutral-100">
-          <th className="px-3 py-2 text-left font-semibold">Dokument</th>
-          <th className="px-3 py-2 text-left font-semibold">Typ</th>
-          <th className="px-3 py-2 text-center font-semibold">Aktion</th>
-        </tr>
-      </thead>
-      <tbody>
-        {sanitizedDocuments.length === 0 ? (
-          <tr>
-            <td colSpan={3} className="px-3 py-2 text-neutral-400 italic text-xs bg-white rounded text-center">
-              Keine Dokumente gefunden.
-            </td>
-          </tr>
-        ) : (
-          sanitizedDocuments.map((doc) => (
-            <tr key={doc.id} className="border-t border-neutral-200 bg-white hover:bg-blue-50 transition-colors">
-              <td className="px-3 py-2">
-                <DownloadPDFLink
-                  uuidString={sanitizedRegistration.id}
-                  filename={doc.file}
-                  className="text-blue-700 hover:text-blue-900 font-medium text-sm"
-                />
-              </td>
-              <td className="px-3 py-2">{labelMap[doc.role] || doc.role}</td>
-              <td className="px-3 py-2 text-center flex justify-center items-center">
-                <RemoveButton 
-                  itemId={doc.id} 
-                  onRemove={removeDocument}
-                  title="Remove Document"
-                  message="Are you sure you want to remove this document? You will no longer have access to it."
-                  fieldName="documentId"
-                />
-              </td>
-            </tr>
-          ))
-        )}
-      </tbody>
-    </table>
-    {/* Link to deleted documents */}
-    <div className="flex justify-start mt-4">
-      <Link
-        href={`/courseregistration/${registrationId}/deletedDocuments`}
-        className="inline-flex items-center gap-1 text-neutral-400 hover:text-orange-600 text-xs transition"
-      >
-        Gelöschte Dokumente anzeigen
-        <svg
-          className="w-4 h-4 ml-1"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={2}
-          viewBox="0 0 24 24"
-          aria-hidden="true"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-        </svg>
-      </Link>
-    </div>
-  </div>
-</section>
+        {/* Documents Section */}
+        <section className="px-8 py-6 border-b border-neutral-200">
+          <h2 className="text-sm font-semibold text-neutral-800 mb-4">Dokumente</h2>
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-xs border border-neutral-200 rounded">
+              <thead>
+                <tr className="bg-neutral-100">
+                  <th className="px-3 py-2 text-left font-semibold">Dokument</th>
+                  <th className="px-3 py-2 text-left font-semibold">Typ</th>
+                  <th className="px-3 py-2 text-center font-semibold">Aktion</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sanitizedDocuments.length === 0 ? (
+                  <tr>
+                    <td colSpan={3} className="px-3 py-2 text-neutral-400 italic text-xs bg-white rounded text-center">
+                      Keine Dokumente gefunden.
+                    </td>
+                  </tr>
+                ) : (
+                  sanitizedDocuments.map((doc) => (
+                    <tr key={doc.id} className="border-t border-neutral-200 bg-white hover:bg-blue-50 transition-colors">
+                      <td className="px-3 py-2">
+                        <DownloadPDFLink
+                          uuidString={sanitizedRegistration.id}
+                          filename={doc.file}
+                          className="text-blue-700 hover:text-blue-900 font-medium text-sm"
+                        />
+                      </td>
+                      <td className="px-3 py-2">{labelMap[doc.role] || doc.role}</td>
+                      <td className="px-3 py-2 text-center flex justify-center items-center">
+                        <RemoveButton
+                          itemId={doc.id}
+                          onRemove={removeDocument}
+                          title="Dokument entfernen"
+                          message="Sind Sie sicher, dass Sie dieses Dokument entfernen möchten? Sind Sie sicher, dass Sie diesen Kurs sanft löschen möchten? Dadurch werden auch alle zugehörigen Anmeldungen entfernt."
+                          fieldName="documentId"
+                        />
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+            {/* Link to deleted documents */}
+            <div className="flex justify-start mt-4">
+              <Link
+                href={`/courseregistration/${registrationId}/deletedDocuments`}
+                className="inline-flex items-center gap-1 text-neutral-400 hover:text-orange-600 text-xs transition"
+              >
+                Gelöschte Dokumente anzeigen
+                <svg
+                  className="w-4 h-4 ml-1"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+            </div>
+          </div>
+        </section>
 
-{/* Generate Documents Section */}
-<section className="px-6 py-6 border-b border-neutral-200">
-  <h2 className="text-sm font-semibold text-neutral-800 mb-4">Dokumente generieren</h2>
-  <div className="flex gap-4 flex-wrap justify-center">
-    {/* Create a fully serialized version of the registration */}
-    {(() => {
-      // This immediately-invoked function ensures we only do this once
-      const fullySerializedRegistration = JSON.parse(JSON.stringify(sanitizedRegistration))
-      return (
-        <>
-          <GeneratePDFButton
-            uuidString={sanitizedRegistration.id}
-            registration={fullySerializedRegistration}
-            documentType="certificate"
-            filename={`certificate_${sanitizedRegistration.participant.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`}
-          />
-          <GeneratePDFButton
-            uuidString={sanitizedRegistration.id}
-            registration={fullySerializedRegistration}
-            documentType="KursRegeln"
-            filename={`KursRegeln_${sanitizedRegistration.participant.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`}
-          />
-          <GeneratePDFButton
-            uuidString={sanitizedRegistration.id}
-            registration={fullySerializedRegistration}
-            documentType="Teilnahmebestaetigung"
-            filename={`Teilnahmebestaetigung_${sanitizedRegistration.participant.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`}
-          />
-          <GeneratePDFButton
-            uuidString={sanitizedRegistration.id}
-            registration={fullySerializedRegistration}
-            documentType="vvvTicket"
-            filename={`VVV_Ticket_${sanitizedRegistration.participant.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`}
-          /> 
-        </>
-      )
-    })()}
-  </div>
-</section>
-        {/* Navigation Footer */}
-        <nav className="flex gap-4 justify-end px-8 py-6">
-          <Link
-            href={`/course/${sanitizedRegistration.course?.id}`}
-            className="text-neutral-400 hover:text-blue-600 text-sm transition"
-          >
-            &larr; Kurs
-          </Link>
-          <Link href="/" className="text-neutral-400 hover:text-blue-600 text-sm transition">
-            &larr;  Startseite
-          </Link>
-        </nav>
+        {/* Generate Documents Section */}
+        <section className="px-6 py-6 border-b border-neutral-200">
+          <h2 className="text-sm font-semibold text-neutral-800 mb-4">Dokumente generieren</h2>
+          <div className="flex gap-4 flex-wrap justify-center">
+            {/* Create a fully serialized version of the registration */}
+            {(() => {
+              // This immediately-invoked function ensures we only do this once
+              const fullySerializedRegistration = JSON.parse(JSON.stringify(sanitizedRegistration))
+              return (
+                <>
+                  <GeneratePDFButton
+                    uuidString={sanitizedRegistration.id}
+                    registration={fullySerializedRegistration}
+                    documentType="certificate"
+                    filename={`certificate_${sanitizedRegistration.participant.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`}
+                  />
+                  <GeneratePDFButton
+                    uuidString={sanitizedRegistration.id}
+                    registration={fullySerializedRegistration}
+                    documentType="KursRegeln"
+                    filename={`KursRegeln_${sanitizedRegistration.participant.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`}
+                  />
+                  <GeneratePDFButton
+                    uuidString={sanitizedRegistration.id}
+                    registration={fullySerializedRegistration}
+                    documentType="Teilnahmebestaetigung"
+                    filename={`Teilnahmebestaetigung_${sanitizedRegistration.participant.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`}
+                  />
+                  <GeneratePDFButton
+                    uuidString={sanitizedRegistration.id}
+                    registration={fullySerializedRegistration}
+                    documentType="vvvTicket"
+                    filename={`VVV_Ticket_${sanitizedRegistration.participant.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`}
+                  />
+                </>
+              )
+            })()}
+          </div>
+        </section>
       </div>
     </div>
   )
