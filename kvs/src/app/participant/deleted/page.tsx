@@ -59,7 +59,7 @@ export default async function DeletedParticipantsPage() {
         <ClientToasterWrapper />
         <div className="w-full max-w-2xl">
           <nav className="mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
-                <Link href="/participant" className="hover:underline text-gray-700">Teilnehmer</Link>
+                <Link href="/participant" className="hover:underline text-gray-700">Teilnehmerübersicht</Link>
                 <span>&gt;</span>
                 <span className="text-gray-700 font-semibold">Archiv</span>
             </nav>

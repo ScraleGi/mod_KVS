@@ -100,11 +100,17 @@ export default async function EditProgramPage({
       <div className="min-h-screen bg-gray-50 py-10 px-4 flex items-center justify-center">
         <div className="w-full max-w-md">
           <nav className="max-w-xl mx-auto mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
-            <Link href="/program" className="hover:underline text-gray-700">Programm</Link>
+            <Link href="/program" className="hover:underline text-gray-700">
+              Programm
+            </Link>
             <span>&gt;</span>
-            <span className="text-gray-700 font-semibold">Programm bearbeiten</span>
+            <Link href={`/program/${id}`} className="hover:underline text-gray-700">
+              {program.name}
+            </Link>
             <span>&gt;</span>
-            <Link href={`/program/${id}`} className="hover:underline text-gray-700">{program.name}</Link>
+            <span className="text-gray-700 font-semibold">
+              Programm bearbeiten
+            </span>
           </nav>
           <div className="bg-white rounded-sm shadow border border-gray-100">
             <div className="px-6 py-8">

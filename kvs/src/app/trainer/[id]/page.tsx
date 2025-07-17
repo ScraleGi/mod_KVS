@@ -59,7 +59,7 @@ export default async function TrainerDetailsPage({ params }: { params: Promise<{
         <div className="min-h-screen bg-[#f8fafd] py-14 px-4">
             <TrainerToaster />
             <nav className="max-w-xl mx-auto mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
-                <Link href="/trainer" className="hover:underline text-gray-700">Trainers</Link>
+                <Link href="/trainer" className="hover:underline text-gray-700">Trainerübersicht</Link>
                 <span>&gt;</span>
                 <span className="text-gray-700 font-semibold">{trainer.name} {trainer.surname}</span>
             </nav>
@@ -134,7 +134,7 @@ export default async function TrainerDetailsPage({ params }: { params: Promise<{
                 </div>
 
                 {/* Danger Zone Section */}
-                <div className="border-t border-gray-200 rounded-2xl mt-2">
+                <div className="border-t border-gray-200 rounded-2xl mt-6">
                 <div className="py-4 bg-gray-50 w-full">
                     <div className="flex items-center justify-between mx-6">
                         <div>

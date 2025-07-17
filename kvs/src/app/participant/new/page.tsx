@@ -86,7 +86,13 @@ export default async function NewParticipantPage() {
     //---------------------------------------------------
     return (
       <div className="min-h-screen flex items-center justify-center bg-neutral-50 px-2 py-8">
-        <div className="w-full max-w-xl bg-white rounded-2xl shadow-md border border-neutral-100 p-8">
+        <div className="w-full max-w-xl mx-auto">
+          <nav className='mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2'>
+            <Link href="/participant" className="hover:underline text-gray-700">Teilnehmer</Link>
+            <span>&gt;</span>
+            <span className="text-gray-700 font-semibold">Teilnehmer hinzufügen</span>
+          </nav>
+          <div className="w-full max-w-xl bg-white rounded-2xl shadow-md border border-neutral-100 p-8">
           <h1 className="text-2xl font-bold mb-6 text-neutral-900 text-center">Teilnehmer hinzufügen</h1>
           <form
             action={createParticipant}
@@ -225,6 +231,7 @@ export default async function NewParticipantPage() {
           </form>
       </div>
     </div>
+  </div>
     )
   } catch (error) {
     // ERROR STATE

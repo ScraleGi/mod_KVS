@@ -46,10 +46,12 @@ export default async function DeletedCoursesPage() {
     <div className="min-h-screen bg-gray-50 py-10 px-4 flex items-center justify-center">
       <ClientToasterWrapper />
       <div className="w-full max-w-2xl">
-        <nav className="mb-6 text-sm text-gray-500 flex items-start gap-2 pl-0 w-full max-w-2xl">
-          <Link href="/" className="hover:underline text-gray-700">Startseite</Link>
+        <nav className="mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
+          <Link href="/" className="hover:underline text-gray-700">
+            Kursübersicht
+          </Link>
           <span>&gt;</span>
-          <span className="text-gray-700 font-semibold">Archiev</span>
+          <span className="text-gray-700 font-semibold">Archivierte Kurse</span>
         </nav>
         <div className="bg-white rounded-xl shadow border border-gray-100 px-8 py-10">
           <h1 className="text-2xl font-bold text-gray-900 mb-8 tracking-tight">Archivierte Kurse</h1>

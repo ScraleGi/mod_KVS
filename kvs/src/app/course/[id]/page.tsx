@@ -135,6 +135,16 @@ registrations: {
     <div className="min-h-screen bg-gray-50 py-10 px-4">
       <CourseToaster />
       <div className="max-w-[1800px] mx-auto">
+        <nav className='mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2'>
+          <Link href="/" className="hover:underline text-gray-700">
+            Kursübersicht
+          </Link>
+          <span>&gt;</span>
+          <span className='text-gray-700 font-semibold'>
+            {course.program?.name ?? 'Kurs'}
+          </span>
+        </nav>
+
         {/* Navigation */}
         <div className="flex justify-between items-center mb-8">
                <nav className="max-w-xl mx-auto mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2 pb-5">

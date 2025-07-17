@@ -1,9 +1,10 @@
-import { redirect } from 'next/navigation'
-import EditCourseForm from '@/components/course/EditCourseForm'
+import { redirect } from 'next/navigation';
+import EditCourseForm from '@/components/course/EditCourseForm';
+import Link from 'next/link';
 import { db } from '@/lib/db'
-import { sanitize } from '@/lib/sanitize'
-import { CourseWithEditRelations } from '@/types/query-models'
-import { formatDateISO } from '@/lib/utils'
+import { sanitize } from '@/lib/sanitize';
+import { CourseWithEditRelations } from '@/types/query-models';
+import { formatDateISO } from '@/lib/utils';
 import RemoveButton from '@/components/RemoveButton/RemoveButton';
 import { getAuthorizing } from '@/lib/getAuthorizing';
 import Link from 'next/link'
@@ -107,14 +108,18 @@ import Link from 'next/link'
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4 flex flex-col items-center justify-center">
       <div className="w-full max-w-md">
-        <nav className="max-w-xl mx-auto mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
-          <Link href="/" className="hover:underline text-gray-700">Startseite</Link>
+        <nav className='mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2'>
+          <Link href="/course" className="hover:underline text-gray-700">
+            Kursübersicht
+          </Link>
           <span>&gt;</span>
-          <span className="text-gray-700 font-semibold">Kurs bearbeiten</span>
+          <Link href={`/course/${id}`} className="hover:underline text-gray-700">
+            {course?.program?.name ?? 'Kurs'}
+          </Link>
           <span>&gt;</span>
-          {course && (
-            <Link href={`/course/${course.id}`} className="hover:underline text-gray-700">{course.program?.name}</Link>
-          )}
+          <span className='text-gray-700 font-semibold'>
+            Kurs bearbeiten
+          </span>
         </nav>
         <div className="bg-white rounded-sm shadow border border-gray-100">
           <div className="px-6 py-8">
@@ -130,7 +135,7 @@ import Link from 'next/link'
           </div>
 
           {/* Danger Zone Section */}
-          <div className="border-t border-gray-200 mt-2"></div>
+          <div className="border-t border-gray-200"></div>
           <div className="px-6 py-4 bg-gray-50 rounded-b-sm">
             <div className="flex items-center justify-between">
               <div>
