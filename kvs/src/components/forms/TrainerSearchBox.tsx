@@ -23,19 +23,16 @@ export default function TrainerSearchBox({
   const [open, setOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Für Main-Trainer: Zeige den Namen im Input, wenn ausgewählt und kein Query
   const selectedTrainer =
     !multi && typeof selected === "string"
       ? trainers.find((t) => t.id === selected)
       : null;
 
-  // Für Co-Trainer: Zeige die Namen im Input, wenn ausgewählt und kein Query
   const selectedCoTrainers =
     multi && Array.isArray(selected)
       ? trainers.filter((t) => selected.includes(t.id))
       : [];
 
-  // Input-Value steuern
   useEffect(() => {
     if (!multi && typeof selected === "string" && !open) {
       setQuery(selectedTrainer ? `${selectedTrainer.name} ${selectedTrainer.surname}` : "");
@@ -50,15 +47,9 @@ export default function TrainerSearchBox({
     // eslint-disable-next-line
   }, [selected, open]);
 
-  // Wenn das Input-Feld fokussiert wird, Query leeren (damit Suche möglich)
   const handleFocus = () => {
     setOpen(true);
-    if (!multi && typeof selected === "string") {
-      setQuery("");
-    }
-    if (multi && Array.isArray(selected)) {
-      setQuery("");
-    }
+    setQuery("");
   };
 
   const filtered = trainers.filter(
@@ -74,7 +65,17 @@ export default function TrainerSearchBox({
       )
   );
 
-  // Schließt das Dropdown, wenn das Feld den Fokus verliert (mit Timeout für Klick auf Dropdown)
+  // Für das Dropdown: Ausgewählte Co-Trainer oben, Rest darunter
+  let dropdownList: Trainer[] = [];
+  if (multi && Array.isArray(selected)) {
+    const selectedIds = new Set(selected);
+    const selectedItems = filtered.filter(t => selectedIds.has(t.id));
+    const unselectedItems = filtered.filter(t => !selectedIds.has(t.id));
+    dropdownList = [...selectedItems, ...unselectedItems];
+  } else {
+    dropdownList = filtered;
+  }
+
   const handleBlur = () => setTimeout(() => setOpen(false), 120);
 
   return (
@@ -103,8 +104,8 @@ export default function TrainerSearchBox({
         }}
       />
       {open && (
-        <ul className="absolute left-0 right-0 bg-white border rounded shadow max-h-40 overflow-auto z-20">
-          {filtered.map((trainer) => {
+        <ul className="absolute left-0 right-0 bg-white border rounded shadow max-h-40 overflow-auto z-100">
+          {dropdownList.map((trainer) => {
             const isSelected =
               (!multi && typeof selected === "string" && selected === trainer.id) ||
               (multi && Array.isArray(selected) && selected.includes(trainer.id));
@@ -114,18 +115,17 @@ export default function TrainerSearchBox({
                   type="button"
                   className={`flex w-full text-left items-center px-2 py-1 cursor-pointer hover:bg-blue-100 transition
                     ${isSelected && !multi ? "bg-blue-50 font-semibold text-blue-700" : ""}
+                    ${isSelected && multi ? "bg-blue-50 font-semibold text-blue-700" : ""}
                   `}
                   onMouseDown={e => e.preventDefault()}
                   onClick={() => {
                     if (multi) {
-                      // Multi-Select (Co-Trainer)
                       if (Array.isArray(selected) && selected.includes(trainer.id)) {
                         onChange((selected as string[]).filter(id => id !== trainer.id));
                       } else {
                         onChange([...(selected as string[]), trainer.id]);
                       }
                     } else {
-                      // Single-Select (Main-Trainer)
                       onChange(trainer.id);
                       setOpen(false);
                     }
@@ -147,7 +147,7 @@ export default function TrainerSearchBox({
               </li>
             );
           })}
-          {filtered.length === 0 && (
+          {dropdownList.length === 0 && (
             <li className="px-2 py-1 text-xs text-gray-400">Kein Treffer</li>
           )}
         </ul>

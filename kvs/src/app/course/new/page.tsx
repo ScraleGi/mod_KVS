@@ -61,7 +61,7 @@ export default async function NewCoursePage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-blue-50 flex items-center justify-center p-4 sm:p-6 lg:p-8">
       <div className="w-full max-w-md">
-        <div className="backdrop-blur-sm bg-white/90 rounded-2xl shadow-xl overflow-hidden border border-gray-100 transition-all duration-300 hover:shadow-2xl">
+        <div className="backdrop-blur-sm bg-white/90 rounded-2xl shadow-xl border border-gray-100 transition-all duration-300 hover:shadow-2xl">
           <div className="px-8 py-10">
             <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-700 mb-8 tracking-tight">
               Kurs anlegen
