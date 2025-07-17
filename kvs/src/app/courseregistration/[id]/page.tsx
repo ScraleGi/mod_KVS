@@ -16,6 +16,7 @@ import {
   SanitizedDocument,
 } from '@/types/query-models'
 import RemoveButton from '@/components/RemoveButton/RemoveButton'
+import SubsidyToaster from './subsidy/new/SubsidyToaster'
 
 //---------------------------------------------------
 // SERVER ACTIONS
@@ -84,12 +85,12 @@ export default async function ParticipantDetailsPage({
 
   const documents: Document[] = registration
     ? await db.document.findMany({
-        where: {
-          courseRegistrationId: registration.id,
-          deletedAt: null,
-        },
-        orderBy: { createdAt: 'desc' },
-      })
+      where: {
+        courseRegistrationId: registration.id,
+        deletedAt: null,
+      },
+      orderBy: { createdAt: 'desc' },
+    })
     : []
 
   // DATA PROCESSING
@@ -100,6 +101,8 @@ export default async function ParticipantDetailsPage({
       sanitizedRegistration.subsidyAmount !== undefined && sanitizedRegistration.subsidyAmount !== null
         ? sanitizedRegistration.subsidyAmount.toString()
         : undefined;
+
+    // Handle discountAmount
     sanitizedRegistration.discountAmountDisplay =
       sanitizedRegistration.discountAmount !== undefined && sanitizedRegistration.discountAmount !== null
         ? sanitizedRegistration.discountAmount.toString()
@@ -127,7 +130,7 @@ export default async function ParticipantDetailsPage({
       <div className="min-h-screen flex items-center justify-center bg-neutral-50">
         <div className="max-w-md w-full px-4">
           <Link href={`/course/${registration?.courseId}`} className="text-blue-500 hover:text-blue-800 mb-6 block">
-            &larr; Zurück zur Startseite
+            &larr; Startseite
           </Link>
           <div className="text-red-600 text-lg font-semibold">Keine Teilnehmer für diesen Kurs gefunden.</div>
         </div>
@@ -138,6 +141,7 @@ export default async function ParticipantDetailsPage({
   // RENDER UI
   return (
     <div className="min-h-screen bg-neutral-50 flex items-center justify-center px-2 py-8">
+      <SubsidyToaster />
       <div className="w-full max-w-2xl mx-auto">
         {/* Breadcrumb Navigation */}
         <nav className="mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">

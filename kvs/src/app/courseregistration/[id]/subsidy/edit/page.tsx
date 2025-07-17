@@ -51,7 +51,7 @@ export default async function SubsidyEditPage({ params }: { params: Promise<{ id
     const amount = formData.get('amount') as string
     const remark = formData.get('remark') as string
     await updateSubsidy(id, amount, remark)
-    redirect(`/courseregistration/${id}`)
+    redirect(`/courseregistration/${id}?edited=1`)
   }
 
   return (

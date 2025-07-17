@@ -13,12 +13,12 @@ import ClientToasterWrapper from './ClientToasterWrapper'
 async function restoreCourse(formData: FormData) {
   'use server'
   const id = formData.get('id') as string
-  
+
   await db.course.update({
     where: { id },
     data: { deletedAt: null },
   })
-  
+
   redirect('/course?restored=1')
 }
 
@@ -55,7 +55,7 @@ export default async function DeletedCoursesPage() {
         </nav>
         <div className="bg-white rounded-xl shadow border border-gray-100 px-8 py-10">
           <h1 className="text-2xl font-bold text-gray-900 mb-8 tracking-tight">Archivierte Kurse</h1>
-          
+
           {/* Show message when no deleted courses exist */}
           {deletedCourses.length === 0 ? (
             <p className="text-gray-500 text-sm">Keine archivierten Kurse gefunden.</p>
@@ -79,7 +79,7 @@ export default async function DeletedCoursesPage() {
                       </span>
                     )}
                   </div>
-                  
+
                   {/* Restore form */}
                   <form action={restoreCourse}>
                     <input type="hidden" name="id" value={course.id} />

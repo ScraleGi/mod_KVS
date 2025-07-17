@@ -87,7 +87,7 @@ export default function SubsidyClientEditLogic({
 
   async function handleDelete() {
     await removeSubsidy(registrationId)
-    router.push(`/courseregistration/${registrationId}`)
+    router.push(`/courseregistration/${registrationId}?deleted=1`)
   }
 
   return (

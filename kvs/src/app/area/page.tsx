@@ -5,6 +5,7 @@ import { sanitize } from '@/lib/sanitize'
 import { getAuthorizing } from '@/lib/getAuthorizing'
 import TableTopButton from '@/components/navigation/TableTopButton'
 import AreaToaster from './[id]/AreaToaster'
+import { redirect } from 'next/navigation'
 
 // Define types for our program data structure
 interface ProgramWithCoursesAndRegistrations {
@@ -88,6 +89,9 @@ export default async function AreasPage() {
     const roles = await getAuthorizing({
       privilige: ['ADMIN', 'PROGRAMMMANAGER', 'RECHNUNGSWESEN', 'MARKETING'],
     })
+    if (roles.length === 0) {
+        redirect('/403')
+    }
     const areas = await getAreasWithPrograms()
     
     if (!areas || areas.length === 0) {

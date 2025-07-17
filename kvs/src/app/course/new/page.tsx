@@ -6,8 +6,7 @@ import { db } from '@/lib/db'
 import { sanitize } from '@/lib/sanitize'
 import { Program, Trainer } from '@/types/models'
 import { getAuthorizing } from '@/lib/getAuthorizing'
-
-
+import Link from 'next/link'
 /**
  * Server action to create a new course
  */
@@ -86,7 +85,7 @@ export default async function NewCoursePage() {
         </nav>
         <div className="backdrop-blur-sm bg-white/90 rounded-2xl shadow-xl overflow-hidden border border-gray-100 transition-all duration-300 hover:shadow-2xl">
           <div className="px-8 py-10">
-            <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-700 mb-8 tracking-tight">
+            <h1 className="text-xl font-bold text-gray-900 mb-8 tracking-tight">
               Kurs anlegen
             </h1>
               <CreateCourseForm

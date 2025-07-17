@@ -7,6 +7,7 @@ import { CourseWithEditRelations } from '@/types/query-models';
 import { formatDateISO } from '@/lib/utils';
 import RemoveButton from '@/components/RemoveButton/RemoveButton';
 import { getAuthorizing } from '@/lib/getAuthorizing';
+import Link from 'next/link'
 
 
 /**
@@ -59,10 +60,11 @@ import { getAuthorizing } from '@/lib/getAuthorizing';
     const id = formData.get('id') as string
     const code = formData.get('code') as string
     const startDate = formData.get('startDate') as string
-    const endDate = formData.get('endDate') as string 
+    const endDate = formData.get('endDate') as string
     const mainTrainerId = formData.get('mainTrainerId') as string
     const trainerIds = formData.getAll('trainerIds') as string[]
     
+
     // Exclude main trainer from additional trainers list
     const filteredTrainerIds = trainerIds.filter(tid => tid !== mainTrainerId)
 
@@ -131,20 +133,20 @@ import { getAuthorizing } from '@/lib/getAuthorizing';
               onSubmit={changeCourse}
             />
           </div>
-          
+
           {/* Danger Zone Section */}
           <div className="border-t border-gray-200"></div>
           <div className="px-6 py-4 bg-gray-50 rounded-b-sm">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-sm font-medium text-gray-700">Archiv</h3>
-                <p className="text-xs text-gray-500 mt-1">Dadurch werden die Kurse archiviert.</p>
+                <p className="text-xs text-gray-500 mt-1">In Ablage verwahren.</p>
               </div>
               <RemoveButton
                 itemId={id}
                 onRemove={deleteCourse}
-                title="Delete Course"
-                message="Are you sure you want to soft delete this course? This will also remove all associated registrations."
+                title="Kurs löschen"
+                message="Sind Sie sicher, dass Sie diesen Kurs sanft löschen möchten? Dadurch werden auch alle zugehörigen Registrierungen entfernt."
                 fieldName="id"
                 customButton={
                   <button
