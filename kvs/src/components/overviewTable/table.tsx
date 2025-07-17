@@ -120,7 +120,23 @@ export type CourseParticipantRow = {
   subsidyRemark?: string | null
 }
 
-// -------------------- Table Columns Definition --------------------
+// InvoiceRecipientRow type definition
+export type InvoiceRecipientRow = {
+  id: string
+  type: 'PERSON' | 'COMPANY'
+  recipientSalutation?: string | null
+  recipientName?: string | null
+  recipientSurname?: string | null
+  companyName?: string | null
+  recipientEmail: string
+  recipientStreet: string
+  postalCode: string
+  recipientCity: string
+  recipientCountry: string
+}
+
+// --- Columns definition ---
+
 export const home: ColumnDef<CourseRow>[] = [
   // Course column with sorting
   {

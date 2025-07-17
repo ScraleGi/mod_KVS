@@ -1,7 +1,7 @@
 "use client"
 import { useState, useTransition } from "react"
 import Link from "next/link"
-import { createRecipientAction } from "../../actions/createRecipientAction"
+import { createRecipientAction } from "@/app/actions/createRecipientAction"
 
 /**
  * Form UI for creating a new InvoiceRecipient.

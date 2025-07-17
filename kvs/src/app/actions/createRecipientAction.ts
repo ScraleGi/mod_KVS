@@ -13,7 +13,7 @@ export async function createRecipientAction(formData: FormData) {
     recipientName: formData.get('recipientName') || null,
     recipientSurname: formData.get('recipientSurname') || null,
     companyName: formData.get('companyName') || null,
-    recipientEmail: formData.get('recipientEmail'),
+    recipientEmail: formData.get('recipientEmail'), 
     postalCode: formData.get('postalCode'),
     recipientCity: formData.get('recipientCity'),
     recipientStreet: formData.get('recipientStreet'),
@@ -35,3 +35,6 @@ export async function createRecipientAction(formData: FormData) {
   // Redirect to the recipient detail page after successful creation
   return { redirect: `/invoiceRecipient/` }
 }
+
+// The vulnerability is in the lack of further input validation and sanitization.
+// For example, you do not validate the email format, nor do you check the length or content of strings (e.g. someone could enter <script>alert(1)</script> as a name).

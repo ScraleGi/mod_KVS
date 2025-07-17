@@ -14,6 +14,7 @@ import {
   SanitizedDocument,
 } from '@/types/query-models'
 import RemoveButton from '@/components/RemoveButton/RemoveButton'
+import RecipientForm from "@/components/recipientForm/RecipientForm"
 
 
 //---------------------------------------------------
@@ -271,6 +272,10 @@ export default async function ParticipantDetailsPage({
             </div>
           </div>
           
+
+    <RecipientForm/>
+   
+
           {/* Remark Form Section */}
           <hr className="my-6 border-t border-neutral-200" />
           <div className="mt-6">
