@@ -5,7 +5,6 @@ import { sanitize } from '@/lib/sanitize'
 import { getAuthorizing } from '@/lib/getAuthorizing'
 import TableTopButton from '@/components/navigation/TableTopButton'
 import AreaToaster from './[id]/AreaToaster'
-import { redirect } from 'next/navigation'
 
 // Define types for our program data structure
 interface ProgramWithCoursesAndRegistrations {

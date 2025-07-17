@@ -63,7 +63,9 @@ export default async function ProgramsPage({
   const roles = await getAuthorizing({
     privilige: ['ADMIN', 'PROGRAMMMANAGER', 'RECHNUNGSWESEN', 'MARKETING'],
   })
-
+if (roles.length === 0) {
+    redirect('/403')
+  }
   const resolvedSearchParams = searchParams ? await searchParams : undefined
 
   try {
