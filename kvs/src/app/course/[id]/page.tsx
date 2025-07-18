@@ -147,11 +147,6 @@ registrations: {
 
         {/* Navigation */}
         <div className="flex justify-between items-center mb-8">
-               <nav className="max-w-xl mx-auto mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2 pb-5">
-                <Link href="/" className="hover:underline text-gray-700">Startseite</Link>
-                <span>&gt;</span>
-                <span className="text-gray-700 font-semibold">{course.program?.name}</span>
-            </nav>
           <div className="flex-1 flex justify-center items-center relative pt-5">
             <h1 className="text-3xl font-bold text-gray-900">{course.program?.name ?? 'Course'}</h1>
             <Link

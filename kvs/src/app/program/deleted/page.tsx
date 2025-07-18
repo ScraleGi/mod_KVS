@@ -47,9 +47,9 @@ export default async function DeletedProgramsPage() {
         <ClientToasterWrapper />
         <div className="w-full max-w-2xl">
           <nav className=" mb-6 text-sm  text-gray-500 flex items-center gap-2 pl-2">
-            <Link href="/program" className="hover:underline text-gray-700">Programm</Link>
+            <Link href="/program" className="hover:underline text-gray-700">Programme</Link>
             <span>&gt;</span>
-            <span className="text-gray-700 font-semibold">gelöschte Programme</span>
+            <span className="text-gray-700 font-semibold">Gelöschte Programme</span>
           </nav>
           <div className="bg-white rounded-xl shadow border border-gray-100 px-8 py-10">
             <h1 className="text-2xl font-bold text-gray-900 mb-8 tracking-tight">Gelöschte Programme</h1>
