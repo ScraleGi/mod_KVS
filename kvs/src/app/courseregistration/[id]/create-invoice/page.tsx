@@ -108,6 +108,7 @@ export default async function CreateInvoicePage({
           */}
 
           {/* Invoice Recipient Section (UNCHANGED) */}
+          {/*
           <fieldset className="border border-neutral-200 rounded-lg p-5">
             <legend className="text-base font-semibold text-blue-700 px-2">Rechnungsempfänger</legend>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
@@ -166,7 +167,7 @@ export default async function CreateInvoicePage({
               </label>
             </div>
           </fieldset>
-          
+          */}
           
           {/* Action Buttons */}
           <div className="flex justify-between mt-6">

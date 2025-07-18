@@ -127,7 +127,7 @@ export function ClientGenerateCourseInvoices({ registrations, recipients, course
       for (const regId of selectedRegs) {
         const formData = new FormData()
         formData.set("registrationId", regId)
-
+/*
         if (recipientType === "default") {
           const reg = registrations.find(r => r.id === regId)
           if (!reg) continue
@@ -163,6 +163,7 @@ export function ClientGenerateCourseInvoices({ registrations, recipients, course
             }
           })
         }
+        */
 
         const result = await generateInvoice(formData)
         if (!result.success) {

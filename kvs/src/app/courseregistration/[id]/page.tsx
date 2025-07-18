@@ -273,7 +273,7 @@ export default async function ParticipantDetailsPage({
           </div>
           
 
-        <RecipientForm/>
+        <RecipientForm courseregistrationId={sanitizedRegistration.id}/>
 
 
           {/* Remark Form Section */}

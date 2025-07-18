@@ -1,14 +1,14 @@
 "use client"
 import { useState, useTransition } from "react"
 import Link from "next/link"
-import { createRecipientAction } from "@/app/actions/createRecipientAction"
+import { addRecipientToCourseRegistration, createRecipientAction } from "@/app/actions/createRecipientAction"
 
 /**
  * Form UI for creating a new InvoiceRecipient.
  * - Displays validation errors from server action.
  * - Shows loading state while submitting.
  */
-export default function RecipientForm() {
+export default function RecipientForm(params: { courseregistrationId?: string}) {
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
 
@@ -21,6 +21,12 @@ export default function RecipientForm() {
       if (result && result.error) {
         setError(result.error)
       } else if (result && result.redirect) {
+        if (params.courseregistrationId) {
+          // Redirect to course registration page if provided
+          await addRecipientToCourseRegistration(params.courseregistrationId, result.recipientId)
+        }
+
+
         window.location.href = result.redirect
       }
     })

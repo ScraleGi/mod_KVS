@@ -11,6 +11,7 @@ export async function generateInvoice(formData: FormData) {
     const registrationId = formData.get("registrationId") as string
     if (!registrationId) throw new Error("Registration ID is required")
 
+/*
     const type = formData.get("type") as "PERSON" | "COMPANY"
     if (!type || (type !== "PERSON" && type !== "COMPANY")) {
       throw new Error("Valid recipient type (PERSON or COMPANY) is required")
@@ -25,7 +26,7 @@ export async function generateInvoice(formData: FormData) {
     const postalCode = formData.get("postalCode") as string
     const recipientCity = formData.get("recipientCity") as string
     const recipientCountry = formData.get("recipientCountry") as string
-
+*/
     const registration = await db.courseRegistration.findUnique({
       where: { id: registrationId },
       include: {
@@ -39,8 +40,10 @@ export async function generateInvoice(formData: FormData) {
           }
         },
         participant: true,
+        invoiceRecipient: true,
       }
     })
+    console.log('Registration:', registration, registration?.invoiceRecipient)
 
     if (!registration) throw new Error(`Course registration with ID ${registrationId} not found`)
     const course = registration.course
@@ -50,6 +53,41 @@ export async function generateInvoice(formData: FormData) {
     if (!course || !program || !area) {
       throw new Error("Missing course, program, or area information")
     }
+
+    let recipientSalutation = ''
+    let recipientName = ''
+    let recipientSurname = ''
+    let companyName = ''
+    let recipientEmail = ''
+    let recipientStreet = ''
+    let postalCode = ''
+    let recipientCity = ''
+    let recipientCountry = ''
+    if (registration.invoiceRecipient) {
+      // Use data from recipient details
+      recipientSalutation = registration.invoiceRecipient.recipientSalutation ?? ''
+      recipientName = registration.invoiceRecipient.recipientName ?? ''
+      recipientSurname = registration.invoiceRecipient.recipientSurname ?? ''
+      companyName = registration.invoiceRecipient.companyName ?? ''
+      recipientEmail = registration.invoiceRecipient.recipientEmail ?? ''
+      recipientStreet = registration.invoiceRecipient.recipientStreet ?? ''
+      postalCode = registration.invoiceRecipient.postalCode ?? ''
+      recipientCity = registration.invoiceRecipient.recipientCity ?? ''
+      recipientCountry = registration.invoiceRecipient.recipientCountry ?? ''
+
+    } else {
+      // Use data from praticipant
+      recipientSalutation = registration.participant.salutation ?? ''
+      recipientName = registration.participant.name ?? ''
+      recipientSurname = registration.participant.surname ?? ''
+      recipientEmail = registration.participant.email ?? ''
+      recipientStreet = registration.participant.street ?? ''
+      postalCode = registration.participant.postalCode ?? ''
+      recipientCity = registration.participant.city ?? ''
+      recipientCountry = registration.participant.country ?? ''
+    
+    }
+
 
     const amountNumber = 1 // Static quantity
     const programPrice = program.price ?? new Decimal(0)
@@ -89,10 +127,10 @@ export async function generateInvoice(formData: FormData) {
             amount: baseAmount,
             finalAmount,
             dueDate,
-            recipientSalutation: type === 'PERSON' ? recipientSalutation : null,
-            recipientName: type === 'PERSON' ? recipientName : null,
-            recipientSurname: type === 'PERSON' ? recipientSurname : null,
-            companyName: type === 'COMPANY' ? companyName : null,
+            recipientSalutation,
+            recipientName,
+            recipientSurname,
+            companyName,
             recipientEmail,
             recipientStreet,
             postalCode,

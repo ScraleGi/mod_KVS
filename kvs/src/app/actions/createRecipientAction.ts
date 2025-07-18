@@ -37,13 +37,20 @@ export async function createRecipientAction(formData: FormData) {
   })
   if (existing) {
     // Already have one with identical values → just redirect to it
-    return { redirect: `/invoiceRecipient/${existing.id}` }
+    return { recipientId: existing.id , redirect: `/invoiceRecipient/${existing.id}` }
   }
 
   // Otherwise create new
   const recipient = await db.invoiceRecipient.create({ data: payload })
-  return { redirect: `/invoiceRecipient/${recipient.id}` }
+  return { recipientId: recipient.id, redirect: `/invoiceRecipient/${recipient.id}` }
 }
 
-// The vulnerability is in the lack of further input validation and sanitization.
-// For example, you do not validate the email format, nor do you check the length or content of strings (e.g. someone could enter <script>alert(1)</script> as a name).
+//very specific action to add recipient to course registration Gyula
+export async function addRecipientToCourseRegistration(registrationId: string, recipientId: string) {
+  await db.courseRegistration.update({
+    where: { id: registrationId },
+    data: { invoiceRecipientId: recipientId },
+  })
+}
+
+

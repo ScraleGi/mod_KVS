@@ -1,8 +1,9 @@
 import Link from 'next/link'
-import { ArrowLeft, Plus } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import { db } from '@/lib/db'
 import { format } from 'date-fns'
 import { DownloadPDFLink } from '@/components/DownloadButton/DownloadButton'
+import RemoveButton from '@/components/RemoveButton/RemoveButton'
 
 //---------------------------------------------------
 // SERVER ACTION (local logic, no API route needed!)
@@ -15,6 +16,16 @@ async function toggleInvoiceCancelled(formData: FormData) {
   await db.invoice.update({
     where: { id: invoiceId },
     data: { isCancelled },
+  });
+}
+
+async function deleteInvoice(formData: FormData) {
+  "use server";
+  const invoiceId = formData.get("id") as string;
+  if (!invoiceId) return;
+  await db.invoice.update({
+    where: { id: invoiceId },
+    data: { deletedAt: new Date() },
   });
 }
 
@@ -56,11 +67,14 @@ export default async function InvoicePage() {
           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Rechnungen</h1>
           <nav className="flex gap-2">
             <Link
-              href="/invoice/create"
-              className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-white text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition"
-              title="Neue Rechnung erstellen"
+              href="/invoice/deleted"
+              className="p-2 rounded-md bg-red-100 text-gray-700 hover:bg-red-200 transition"
+              title="Deleted Invoices"
+              aria-label="Deleted Invoices"
             >
-              <Plus className="h-5 w-5" />
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 256 256" fill="currentColor">
+                <path d="M96,208a8,8,0,0,1-8,8H40a24,24,0,0,1-20.77-36l34.29-59.25L39.47,124.5A8,8,0,1,1,35.33,109l32.77-8.77a8,8,0,0,1,9.8,5.66l8.79,32.77A8,8,0,0,1,81,148.5a8.37,8.37,0,0,1-2.08.27,8,8,0,0,1-7.72-5.93l-3.8-14.15L33.11,188A8,8,0,0,0,40,200H88A8,8,0,0,1,96,208Zm140.73-28-23.14-40a8,8,0,0,0-13.84,8l23.14,40A8,8,0,0,1,216,200H147.31l10.34-10.34a8,8,0,0,0-11.31-11.32l-24,24a8,8,0,0,0,0,11.32l24,24a8,8,0,0,0,11.31-11.32L147.31,216H216a24,24,0,0,0,20.77-36ZM128,32a7.85,7.85,0,0,1,6.92,4l34.29,59.25-14.08-3.78A8,8,0,0,0,151,106.92l32.78,8.79a8.23,8.23,0,0,0,2.07.27,8,8,0,0,0,7.72-5.93l8.79-32.79a8,8,0,1,0-15.45-4.14l-3.8,14.17L148.77,28a24,24,0,0,0-41.54,0L84.07,68a8,8,0,0,0,13.85,8l23.16-40A7.85,7.85,0,0,1,128,32Z"/>
+              </svg>
             </Link>
             <Link
               href="/"
@@ -77,7 +91,7 @@ export default async function InvoicePage() {
         <div className="bg-white rounded-sm shadow border border-gray-100">
           <div className="divide-y divide-gray-100">
             {/* Table header */}
-            <div className="hidden md:grid grid-cols-[1fr_1.5fr_2fr_1fr_1fr_1fr_0.5fr] gap-3 px-4 py-3 text-[11px] font-semibold text-gray-100 uppercase tracking-wider bg-gray-600 rounded-t-sm border-b border-gray-200">
+            <div className="hidden md:grid grid-cols-[1fr_1.5fr_2fr_1fr_1fr_1fr_1fr_0.7fr] gap-3 px-4 py-3 text-[11px] font-semibold text-gray-100 uppercase tracking-wider bg-gray-600 rounded-t-sm border-b border-gray-200">
               <div>Rechnungsnr</div>
               <div>Empfänger</div>
               <div>E-Mail</div>
@@ -85,6 +99,7 @@ export default async function InvoicePage() {
               <div>Fällig am</div>
               <div>Status</div>
               <div>Edit</div>
+              <div>Delete</div>
             </div>
 
             {/* Empty state */}
@@ -98,7 +113,7 @@ export default async function InvoicePage() {
             {sanitizedInvoices.map((inv) => (
               <div
                 key={inv.id}
-                className="grid grid-cols-1 md:grid-cols-[1fr_1.5fr_2fr_1fr_1fr_1fr_0.5fr] gap-3 px-4 py-4 items-center hover:bg-gray-50 transition group text-[13px]"
+                className="grid grid-cols-1 md:grid-cols-[1fr_1.5fr_2fr_1fr_1fr_1fr_1fr_0.7fr] gap-3 px-4 py-4 items-center hover:bg-gray-50 transition group text-[13px]"
               >
                 {/* Download Link */}
                 <div className="font-medium text-blue-700 hover:text-blue-900 truncate">
@@ -168,6 +183,30 @@ export default async function InvoicePage() {
                   >
                     Edit
                   </Link>
+                </div>
+
+                {/* Delete - Using RemoveButton */}
+                <div className="flex items-center space-x-2 ">
+                  <RemoveButton
+                    itemId={inv.id}
+                    onRemove={deleteInvoice}
+                    title="Delete Invoice"
+                    message="Are you sure you want to delete this invoice? It will be moved to the deleted invoices section."
+                    fieldName="id"
+                    customButton={
+                      <button
+                        type="submit"
+                        className="px-3 py-1.5 cursor-pointer bg-red-300 border border-gray-300 rounded text-sm text-gray-600 hover:bg-red-400  hover:border-gray-400 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-30"
+                      >
+                        <div className="flex items-center">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                          </svg>
+                          Archivieren
+                        </div>
+                      </button>
+                    }
+                  />
                 </div>
               </div>
             ))}
