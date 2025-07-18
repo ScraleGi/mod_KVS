@@ -1,8 +1,8 @@
 'use client'
 import { useState } from 'react'
-import { holidayColumns } from '../columns'
-import { Holiday } from '../types'
-import { createHoliday, updateHoliday, deleteHoliday } from '../actions'
+import { holidayColumns } from '../../app/coursedays/columns'
+import { Holiday } from '../../app/coursedays/types'
+import { createHoliday, updateHoliday, deleteHoliday } from '../../app/coursedays/actions'
 import { TableToolbar } from './TableToolbar'
 
 function IconEdit() {

@@ -1,8 +1,8 @@
 'use client'
 import React, { useState, useEffect } from 'react'
-import { courseSpecialDaysColumns } from '../columns'
-import { CourseSpecialDays } from '../types'
-import { createCourseSpecialDay, updateCourseSpecialDay, deleteCourseSpecialDay } from '../actions'
+import { courseSpecialDaysColumns } from '../../app/coursedays/columns'
+import { CourseSpecialDays } from '../../app/coursedays/types'
+import { createCourseSpecialDay, updateCourseSpecialDay, deleteCourseSpecialDay } from '../../app/coursedays/actions'
 import { TableToolbar } from './TableToolbar'
 
 // Helper for date/time formatting in Europe/Berlin timezone, no seconds

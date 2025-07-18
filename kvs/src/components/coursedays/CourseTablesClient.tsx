@@ -2,7 +2,7 @@
 import { CourseHolidayTable } from './CourseHolidayTable'
 import { CourseSpecialDaysTable } from './CourseSpecialDaysTable'
 import { CourseRythmTable } from './CourseRythmTable'
-import { CourseHoliday, CourseSpecialDays, CourseRythm } from '../types'
+import { CourseHoliday, CourseSpecialDays, CourseRythm } from '../../app/coursedays/types'
 
 type Props = {
   holidays: CourseHoliday[]

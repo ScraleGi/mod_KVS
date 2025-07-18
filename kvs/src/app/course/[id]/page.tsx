@@ -11,7 +11,7 @@ import { redirect } from 'next/navigation'
 
 // --- Add imports for course tables ---
 import { getCourseHolidays, getCourseSpecialDays, getCourseRythms } from '../../coursedays/actions'
-import { CourseTablesClient } from '../../coursedays/components/CourseTablesClient'
+import { CourseTablesClient } from '../../../components/coursedays/CourseTablesClient'
 
 // Extend the type locally to include email, phoneNumber, discountAmount, subsidyAmount
 type ParticipantWithContact = {
