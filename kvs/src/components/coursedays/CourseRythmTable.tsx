@@ -1,7 +1,7 @@
 'use client'
 import React, { useState } from 'react'
-import { CourseRythm } from '../types'
-import { createCourseRythm, updateCourseRythm, deleteCourseRythm } from '../actions'
+import { CourseRythm } from '../../app/coursedays/types'
+import { createCourseRythm, updateCourseRythm, deleteCourseRythm } from '../../app/coursedays/actions'
 import { TableToolbar } from './TableToolbar'
 
 const WEEK_DAYS = [
