@@ -39,8 +39,16 @@ type RegistrationWithAmounts = {
   subsidyRemark?: string | null     
 }
 
+type ProgramWithAreaAndUnits = {
+  id: string; // <-- Add this line
+  name: string
+  area: { name: string } | null
+  teachingUnits?: number | null
+}
+
 type CourseWithParticipants = Omit<CourseWithDetailedRelations, 'registrations'> & {
   registrations: RegistrationWithAmounts[]
+  program: ProgramWithAreaAndUnits
 }
 
 // --- Helper for date formatting ---
@@ -60,49 +68,70 @@ export default async function CoursePage({ params }: { params: Promise<{ id: str
   }
   const { id } = await params
 
-  const courseData = await db.course.findUnique({
-    where: { id },
-    include: {
-      program: { include: { area: true } },
-      mainTrainer: true,
-      trainers: true,
-      registrations: {
-        where: { 
-          deletedAt: null,
-          participant: { deletedAt: null }
-        },
-        select: {
-          id: true,
-          participant: {
-            select: {
-              name: true,
-              surname: true,
-              email: true,
-              phoneNumber: true,
-            }
-          },
-          invoices: {
-            select: {
-              id: true,
-              invoiceNumber: true,
-              dueDate: true,
-              isCancelled: true,
-            }
-          },
-          generatedDocuments: {
-            where: { deletedAt: null },
-            orderBy: { createdAt: 'desc' }
-          },
-          discountAmount: true,
-          subsidyAmount: true,
-          discountRemark: true,
-          subsidyRemark: true,
-        }
+const courseData = await db.course.findUnique({
+  where: { id },
+  include: {
+program: { 
+  select: { 
+    id: true, // <-- this line is required
+    name: true, 
+    area: { select: { name: true } }, 
+    teachingUnits: true 
+  }
+},
+    mainTrainer: true,
+    trainers: true,
+    registrations: {
+      where: { 
+        deletedAt: null,
+        participant: { deletedAt: null }
       },
+      select: {
+        id: true,
+        participant: {
+          select: {
+            name: true,
+            surname: true,
+            email: true,
+            phoneNumber: true,
+          }
+        },
+        invoices: {
+          select: {
+            id: true,
+            invoiceNumber: true,
+            dueDate: true,
+            isCancelled: true,
+          }
+        },
+        generatedDocuments: {
+          where: { deletedAt: null },
+          orderBy: { createdAt: 'desc' }
+        },
+        discountAmount: true,
+        subsidyAmount: true,
+        discountRemark: true,
+        subsidyRemark: true,
+      }
     },
-  })
+  },
+})
 
   const course = sanitize<typeof courseData, CourseWithParticipants>(courseData)
+
+  const courseDaysRaw = await db.courseDays.findMany({
+  where: { courseId: course.id, deletedAt: null },
+  orderBy: { startTime: 'asc' },
+})
+
+const courseDays = courseDaysRaw.map(day => ({
+  id: day.id,
+  startTime: formatDateISO(day.startTime),
+  endTime: formatDateISO(day.endTime),
+  pauseDuration: formatDateISO(day.pauseDuration),
+  title: day.title,
+}))
+
 
   if (!course) {
     return (
@@ -186,30 +215,37 @@ export default async function CoursePage({ params }: { params: Promise<{ id: str
           Startseite
         </Link>
         <span>&gt;</span>
-        <span className="text-gray-700 font-semibold">
-          {course.program?.name ?? 'Kurs'}
+      <Link
+        href={`/program/${course.program?.id ?? ''}`}
+        className="hover:underline text-gray-700"
+      >
+        {course.program?.name ?? 'Kurs'}
+      </Link>
+        <span>&gt;</span>
+        <span className="text-gray-900 font-semibold">
+          {course.code ?? 'Kurs'}
         </span>
       </nav>
 
-    <div className="flex justify-between items-center mb-8">
-      <div className="flex-1 flex items-center relative pt-5">
-        <h1 className="text-3xl font-bold text-gray-900 text-left">{course.program?.name ?? 'Course'}</h1>
-        <Link
-          href={`/course/${course.id}/edit`}
-          className="absolute right-0 text-gray-400 hover:text-blue-600 transition ml-4"
-          title="Kurs bearbeiten"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-          </svg>
-        </Link>
+      <div className="flex justify-between items-center mb-8">
+        <div className="flex-1 flex items-center relative pt-5">
+          <h1 className="text-3xl font-bold text-gray-900 text-left">{course.program?.name ?? 'Course'}</h1>
+          <Link
+            href={`/course/${course.id}/edit`}
+            className="absolute right-0 text-gray-400 hover:text-blue-600 transition ml-4"
+            title="Kurs bearbeiten"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+            </svg>
+          </Link>
+        </div>
+        <div />
       </div>
-      <div />
-    </div>
 
         {/* Organized Course Info Card */}
           <div className="bg-white shadow rounded-lg p-8 mb-10">
-                     <h2 className="text-2xl font-bold text-gray-900 mb-8 text-left border-b-2 border-blue-100 pb-2 flex items-center gap-2">
+            <h2 className="text-2xl font-bold text-gray-900 mb-8 text-left border-b-2 border-blue-100 pb-2 flex items-center gap-2">
             <FaInfoCircle className="w-6 h-6 text-blue-400" />
             Kursdetails
           </h2>
@@ -258,12 +294,14 @@ export default async function CoursePage({ params }: { params: Promise<{ id: str
                       : <span className="text-gray-400">—</span>}
                   </dd>
                 </div>
-                <div className="py-3 flex justify-between">
-                  <dt className="font-semibold text-gray-700">Ort</dt>
-                  <dd>
-                    <span className="text-gray-400">—</span>
-                  </dd>
-                </div>
+<div className="py-3 flex justify-between">
+  <dt className="font-semibold text-gray-700">Einheiten</dt>
+  <dd>
+    {course.program?.teachingUnits != null
+      ? course.program.teachingUnits
+      : <span className="text-gray-400">—</span>}
+  </dd>
+</div>
               </dl>
             </div>
           </div>
@@ -281,7 +319,6 @@ export default async function CoursePage({ params }: { params: Promise<{ id: str
         </section>
 
         {/* --- Course Dates Tables Section --- */}
-     
         
         <section>
           <div className="bg-white shadow rounded-lg p-8 mb-10">
@@ -293,6 +330,7 @@ export default async function CoursePage({ params }: { params: Promise<{ id: str
               holidays={holidays}
               specialDays={specialDays}
               rythms={rythms}
+              courseDays={courseDays}
               courseId={course.id}
             />
           </div>
