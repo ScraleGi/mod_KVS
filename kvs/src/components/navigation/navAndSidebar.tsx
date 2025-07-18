@@ -18,7 +18,7 @@ export default function NavAndSidebar({ user, userRoles, children }: { user: str
       ) : (
         <div className="h-screen flex flex-col">
           <Navbar isOpen={isOpen} setOpen={setOpen} user={user} />
-          <div className="h-full flex grow">
+          <div className="h-[calc(100%-6rem)] flex grow">
             <Sidebar isOpen={isOpen} roles={userRoles} />
             <main className="flex-1 transition-all duration-200 overflow-x-auto">{children}</main>
           </div>
