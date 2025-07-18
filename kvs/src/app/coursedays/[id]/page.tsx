@@ -1,6 +1,6 @@
 import { getCourseHolidays, getCourseSpecialDays, getCourseRythms } from '../../coursedays/actions'
 import { db } from '@/src/../lib/db'
-import { CourseTablesClient } from '../../coursedays/components/CourseTablesClient'
+import { CourseTablesClient } from '../../../components/coursedays/CourseTablesClient'
 
 function formatDateISO(date: Date | string | null | undefined) {
   if (!date) return ''
