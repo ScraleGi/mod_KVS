@@ -16,9 +16,9 @@ export default function NavAndSidebar({ user, userRoles, children }: { user: str
           {/* Hier könntest du einen Loader anzeigen */}
         </div>
       ) : (
-        <div className="min-h-screen flex flex-col">
+        <div className="h-screen flex flex-col">
           <Navbar isOpen={isOpen} setOpen={setOpen} user={user} />
-          <div className="flex grow">
+          <div className="h-full flex grow">
             <Sidebar isOpen={isOpen} roles={userRoles} />
             <main className="flex-1 transition-all duration-200 overflow-x-auto">{children}</main>
           </div>
