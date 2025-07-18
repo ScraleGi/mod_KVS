@@ -9,6 +9,10 @@ import type { CourseWithDetailedRelations } from '@/types/query-models'
 import { getAuthorizing } from '@/lib/getAuthorizing'
 import { redirect } from 'next/navigation'
 
+// --- Add imports for course tables ---
+import { getCourseHolidays, getCourseSpecialDays, getCourseRythms } from '../../coursedays/actions'
+import { CourseTablesClient } from '../../coursedays/components/CourseTablesClient'
+
 // Extend the type locally to include email, phoneNumber, discountAmount, subsidyAmount
 type ParticipantWithContact = {
   name: string
@@ -37,6 +41,13 @@ type CourseWithParticipants = Omit<CourseWithDetailedRelations, 'registrations'>
   registrations: RegistrationWithAmounts[]
 }
 
+// --- Helper for date formatting ---
+function formatDateISO(date: Date | string | null | undefined) {
+  if (!date) return ''
+  if (typeof date === 'string') return date
+  return date.toISOString()
+}
+
 export default async function CoursePage({ params }: { params: Promise<{ id: string }> }) {
   // Check user authorization
   const roles = await getAuthorizing({
@@ -53,39 +64,39 @@ export default async function CoursePage({ params }: { params: Promise<{ id: str
       program: { include: { area: true } },
       mainTrainer: true,
       trainers: true,
-registrations: {
-  where: { 
-    deletedAt: null,
-    participant: { deletedAt: null }
-  },
-  select: {
-    id: true,
-    participant: {
-      select: {
-        name: true,
-        surname: true,
-        email: true,
-        phoneNumber: true,
-      }
-    },
-    invoices: {
-      select: {
-        id: true,
-        invoiceNumber: true,
-        dueDate: true,
-        isCancelled: true, // <-- Add this!
-      }
-    },
-    generatedDocuments: {
-      where: { deletedAt: null },
-      orderBy: { createdAt: 'desc' }
-    },
-    discountAmount: true,
-    subsidyAmount: true,
-    discountRemark: true,
-    subsidyRemark: true,
-  }
-},
+      registrations: {
+        where: { 
+          deletedAt: null,
+          participant: { deletedAt: null }
+        },
+        select: {
+          id: true,
+          participant: {
+            select: {
+              name: true,
+              surname: true,
+              email: true,
+              phoneNumber: true,
+            }
+          },
+          invoices: {
+            select: {
+              id: true,
+              invoiceNumber: true,
+              dueDate: true,
+              isCancelled: true,
+            }
+          },
+          generatedDocuments: {
+            where: { deletedAt: null },
+            orderBy: { createdAt: 'desc' }
+          },
+          discountAmount: true,
+          subsidyAmount: true,
+          discountRemark: true,
+          subsidyRemark: true,
+        }
+      },
     },
   })
 
@@ -131,6 +142,37 @@ registrations: {
     subsidyRemark: reg.subsidyRemark ?? null,    
   }))
 
+  // --- Fetch course tables data ---
+  const [holidaysRaw, specialDaysRaw, rythmsRaw] = await Promise.all([
+    getCourseHolidays(course.id),
+    getCourseSpecialDays(course.id),
+    getCourseRythms(course.id)
+  ])
+
+  const holidays = holidaysRaw.map(h => ({
+    ...h,
+    date: formatDateISO(h.date),
+    createdAt: formatDateISO(h.createdAt),
+    deletedAt: h.deletedAt ? formatDateISO(h.deletedAt) : null,
+  }))
+  const specialDays = specialDaysRaw.map(d => ({
+    ...d,
+    title: d.title ?? '',
+    startTime: formatDateISO(d.startTime),
+    endTime: formatDateISO(d.endTime),
+    pauseDuration: formatDateISO(d.pauseDuration),
+    createdAt: formatDateISO(d.createdAt),
+    deletedAt: d.deletedAt ? formatDateISO(d.deletedAt) : null,
+  }))
+  const rythms = rythmsRaw.map(r => ({
+    ...r,
+    startTime: formatDateISO(r.startTime),
+    endTime: formatDateISO(r.endTime),
+    pauseDuration: formatDateISO(r.pauseDuration),
+    createdAt: formatDateISO(r.createdAt),
+    deletedAt: r.deletedAt ? formatDateISO(r.deletedAt) : null,
+  }))
+
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4">
       <CourseToaster />
@@ -147,11 +189,11 @@ registrations: {
 
         {/* Navigation */}
         <div className="flex justify-between items-center mb-8">
-               <nav className="max-w-xl mx-auto mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2 pb-5">
-                <Link href="/" className="hover:underline text-gray-700">Startseite</Link>
-                <span>&gt;</span>
-                <span className="text-gray-700 font-semibold">{course.program?.name}</span>
-            </nav>
+          <nav className="max-w-xl mx-auto mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2 pb-5">
+            <Link href="/" className="hover:underline text-gray-700">Startseite</Link>
+            <span>&gt;</span>
+            <span className="text-gray-700 font-semibold">{course.program?.name}</span>
+          </nav>
           <div className="flex-1 flex justify-center items-center relative pt-5">
             <h1 className="text-3xl font-bold text-gray-900">{course.program?.name ?? 'Course'}</h1>
             <Link
@@ -215,7 +257,7 @@ registrations: {
                   </dd>
                 </div>
                 <div className="py-3 flex justify-between">
-                  <dt className="font-semibold text-gray-700">Ort</dt>  {/* Logik fehlt noch*/}
+                  <dt className="font-semibold text-gray-700">Ort</dt>
                   <dd>
                     <span className="text-gray-400">—</span>
                   </dd>
@@ -227,6 +269,21 @@ registrations: {
 
         {/* Participants Table */}
         <CourseTable data={participantRows} columns={courseParticipantsColumns} courseId={course.id} />
+
+        {/* --- Course Dates Tables Section --- */}
+     
+        
+        <section>
+          <div className="bg-white shadow rounded-lg p-8 mb-10">
+          <h2 className="text-2xl font-bold text-center mb-8">Kurstermine verwalten</h2>
+          <CourseTablesClient
+            holidays={holidays}
+            specialDays={specialDays}
+            rythms={rythms}
+            courseId={course.id}
+          />
+          </div>
+        </section>
       </div>
     </div>
   )
