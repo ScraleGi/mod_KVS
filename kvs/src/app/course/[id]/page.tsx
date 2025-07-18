@@ -13,6 +13,7 @@ import { FaInfoCircle, FaUsers, FaCalendarAlt } from 'react-icons/fa'
 // --- Add imports for course tables ---
 import { getCourseHolidays, getCourseSpecialDays, getCourseRythms } from '../../coursedays/actions'
 import { CourseTablesClient } from '../../../components/coursedays/CourseTablesClient'
+import generateCourseDates from '@/app/actions/generateCourseDates'
 
 // Extend the type locally to include email, phoneNumber, discountAmount, subsidyAmount
 type ParticipantWithContact = {
@@ -295,6 +296,19 @@ export default async function CoursePage({ params }: { params: Promise<{ id: str
               courseId={course.id}
             />
           </div>
+              <form action={generateCourseDates} className="mt-6 flex flex-col gap-2 items-center">
+                <input
+                type="hidden"
+                name="courseId"
+                value={course.id}
+                />
+              <button
+                type="submit"
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-xs font-medium transition"
+              >
+                Kurstage generieren
+              </button>
+            </form>
         </section>
       </div>
     </div>
