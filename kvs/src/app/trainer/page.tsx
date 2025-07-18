@@ -1,6 +1,5 @@
 import { PrismaClient } from "../../../generated/prisma";
 import { CourseTable, TrainerRow, trainerColumns } from "@/components/overviewTable/table";
-import Link from "next/link";
 import TrainerToaster from './[id]/TrainerToaster';
 import { redirect } from "next/navigation";
 import { getAuthorizing } from "@/lib/getAuthorizing";

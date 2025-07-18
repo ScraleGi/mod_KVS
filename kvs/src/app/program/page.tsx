@@ -3,7 +3,7 @@
 //---------------------------------------------------
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { Plus, ArrowLeft } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { CourseTable, programColumns } from '@/components/overviewTable/table'
 import { db } from '@/lib/db'
 import { sanitize } from '@/lib/sanitize'

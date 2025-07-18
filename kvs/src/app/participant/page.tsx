@@ -3,7 +3,6 @@ import { sanitize } from '@/lib/sanitize'
 import { CourseTable, participantColumns, ParticipantRow } from "@/components/overviewTable/table"
 import { AddParticipantButton } from "@/components/participants/buttonAddParticipant"
 import ParticipantToaster from './[id]/ParticipantToaster'
-import Link from 'next/link'
 import { getAuthorizing } from '@/lib/getAuthorizing'
 import { redirect } from "next/navigation";
 import TableTopButton from '@/components/navigation/TableTopButton'
