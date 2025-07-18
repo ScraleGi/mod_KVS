@@ -3,7 +3,7 @@ import Link from 'next/link';
 export default function AuthTableTopButton({ title, button1, button2, button3, auth }: {
     title: string
     button1: string,
-    button2: string,
+    button2?: string,
     button3: string
     auth?: boolean
 }) {
@@ -23,16 +23,18 @@ export default function AuthTableTopButton({ title, button1, button2, button3, a
                             <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
                         </svg>
                     </Link>
-                    <Link
-                        href={button2}
-                        className="p-2 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300 transition"
-                        title="Back to Home"
-                        aria-label="Back to Home"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 20 20" stroke="currentColor">
-                            <path fillRule="evenodd" d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z" clipRule="evenodd" />
-                        </svg>
-                    </Link>
+                    {button2 && (
+                        <Link
+                            href={button2}
+                            className="p-2 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300 transition"
+                            title="Back to Home"
+                            aria-label="Back to Home"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 20 20" stroke="currentColor">
+                                <path fillRule="evenodd" d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z" clipRule="evenodd" />
+                            </svg>
+                        </Link>
+                    )}
                     <Link
                         href={button3}
                         className="p-2 rounded-md bg-red-100 text-gray-700 transition"
@@ -61,16 +63,18 @@ export default function AuthTableTopButton({ title, button1, button2, button3, a
                             <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
                         </svg>
                     </Link>
-                    <Link
-                        href={button2}
-                        className="p-2 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300 transition"
-                        title="Back to Home"
-                        aria-label="Back to Home"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 20 20" stroke="currentColor">
-                            <path fillRule="evenodd" d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z" clipRule="evenodd" />
-                        </svg>
-                    </Link>
+                    {button2 && (
+                        <Link
+                            href={button2}
+                            className="p-2 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300 transition"
+                            title="Back to Home"
+                            aria-label="Back to Home"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 20 20" stroke="currentColor">
+                                <path fillRule="evenodd" d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z" clipRule="evenodd" />
+                            </svg>
+                        </Link>
+                    )}
                     <Link
                         href={button3}
                         className="p-2 rounded-md bg-red-100 text-gray-700 hover:bg-red-200 transition"
