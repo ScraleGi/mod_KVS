@@ -147,7 +147,7 @@ export function CourseHolidayTable({ holidays, courseId }: { holidays: CourseHol
               </td>
             </tr>
             {filtered.map(h => (
-              <tr key={h.id} className="border-b border-gray-100 hover:bg-gray-50 transition">
+              <tr key={h.id} className="border-b border-t border-gray-200 hover:bg-gray-50 transition">
                 {editId === h.id ? (
                   <>
                     <td className="py-1 px-1 align-middle border-r border-gray-200">

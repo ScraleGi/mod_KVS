@@ -1,4 +1,4 @@
-import { FaHome, FaCalendarAlt, FaCog, FaRegEnvelope, FaChartBar, FaThLarge, FaLayerGroup, FaUsers, FaChalkboardTeacher, FaUserShield, FaCalendarDay } from 'react-icons/fa';
+import { FaHome, FaCalendarAlt, FaCog, FaRegEnvelope, FaChartBar, FaThLarge, FaLayerGroup, FaUsers, FaChalkboardTeacher, FaUserShield,} from 'react-icons/fa';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -30,7 +30,6 @@ const Sidebar = ({ isOpen, roles }: SidebarProps) => {
     { href: '/area', label: 'Bereiche', icon: FaThLarge },
     { href: '/participant', label: 'Teilnehmer', icon: FaUsers },
     { href: '/trainer', label: 'Trainer', icon: FaChalkboardTeacher },
-    { href: '/coursedays', label: 'Kurstermine', icon: FaCalendarDay },
     { href: '/calendar', label: 'Termine', icon: FaCalendarAlt },
     { href: '/reports', label: 'Berichte', icon: FaChartBar },
     { href: '/inbox', label: 'Posteingang', icon: FaRegEnvelope },

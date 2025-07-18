@@ -8,6 +8,7 @@ import { CourseTable, courseParticipantsColumns, CourseParticipantRow } from '@/
 import type { CourseWithDetailedRelations } from '@/types/query-models'
 import { getAuthorizing } from '@/lib/getAuthorizing'
 import { redirect } from 'next/navigation'
+import { FaInfoCircle, FaUsers, FaCalendarAlt } from 'react-icons/fa'
 
 // --- Add imports for course tables ---
 import { getCourseHolidays, getCourseSpecialDays, getCourseRythms } from '../../coursedays/actions'
@@ -173,45 +174,45 @@ export default async function CoursePage({ params }: { params: Promise<{ id: str
     deletedAt: r.deletedAt ? formatDateISO(r.deletedAt) : null,
   }))
 
-  return (
-    <div className="min-h-screen bg-gray-50 py-10 px-4">
-      <CourseToaster />
-      <div className="max-w-[1800px] mx-auto">
-        <nav className='mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2'>
-          <Link href="/" className="hover:underline text-gray-700">
-            Kursübersicht
-          </Link>
-          <span>&gt;</span>
-          <span className='text-gray-700 font-semibold'>
-            {course.program?.name ?? 'Kurs'}
-          </span>
-        </nav>
 
         {/* Navigation */}
-        <div className="flex justify-between items-center mb-8">
-          <nav className="max-w-xl mx-auto mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2 pb-5">
-            <Link href="/" className="hover:underline text-gray-700">Startseite</Link>
-            <span>&gt;</span>
-            <span className="text-gray-700 font-semibold">{course.program?.name}</span>
-          </nav>
-          <div className="flex-1 flex justify-center items-center relative pt-5">
-            <h1 className="text-3xl font-bold text-gray-900">{course.program?.name ?? 'Course'}</h1>
-            <Link
-              href={`/course/${course.id}/edit`}
-              className="absolute right-0 text-gray-400 hover:text-blue-600 transition ml-4"
-              title="Kurs bearbeiten"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-              </svg>
-            </Link>
-          </div>
-          <div />
-        </div>
+      return (
+      <div className="min-h-screen bg-gray-50 py-10 px-4">
+      <CourseToaster />
+      <div className="max-w-[1800px] mx-auto">
+      <nav className="mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
+        <Link href="/" className="hover:underline text-gray-700">
+          Startseite
+        </Link>
+        <span>&gt;</span>
+        <span className="text-gray-700 font-semibold">
+          {course.program?.name ?? 'Kurs'}
+        </span>
+      </nav>
+
+    <div className="flex justify-between items-center mb-8">
+      <div className="flex-1 flex items-center relative pt-5">
+        <h1 className="text-3xl font-bold text-gray-900 text-left">{course.program?.name ?? 'Course'}</h1>
+        <Link
+          href={`/course/${course.id}/edit`}
+          className="absolute right-0 text-gray-400 hover:text-blue-600 transition ml-4"
+          title="Kurs bearbeiten"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+          </svg>
+        </Link>
+      </div>
+      <div />
+    </div>
 
         {/* Organized Course Info Card */}
-        <div className="bg-white shadow rounded-lg p-8 mb-10">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="bg-white shadow rounded-lg p-8 mb-10">
+                     <h2 className="text-2xl font-bold text-gray-900 mb-8 text-left border-b-2 border-blue-100 pb-2 flex items-center gap-2">
+            <FaInfoCircle className="w-6 h-6 text-blue-400" />
+            Kursdetails
+          </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Left: Main Info */}
             <div>
               <dl className="divide-y divide-gray-200">
@@ -268,20 +269,31 @@ export default async function CoursePage({ params }: { params: Promise<{ id: str
         </div>
 
         {/* Participants Table */}
-        <CourseTable data={participantRows} columns={courseParticipantsColumns} courseId={course.id} />
+        <section>
+          <div className="bg-white shadow rounded-lg p-8 mb-10">
+            <h2 className="text-2xl font-bold text-gray-900 mb-8 text-left border-b-2 border-blue-100 pb-2 flex items-center gap-2">
+              <FaUsers className="w-6 h-6 text-blue-400" />
+              Teilnehmer-Details
+            </h2>
+            <CourseTable data={participantRows} columns={courseParticipantsColumns} courseId={course.id} />
+          </div>
+        </section>
 
         {/* --- Course Dates Tables Section --- */}
      
         
         <section>
           <div className="bg-white shadow rounded-lg p-8 mb-10">
-          <h2 className="text-2xl font-bold text-center mb-8">Kurstermine verwalten</h2>
-          <CourseTablesClient
-            holidays={holidays}
-            specialDays={specialDays}
-            rythms={rythms}
-            courseId={course.id}
-          />
+            <h2 className="text-2xl font-bold text-gray-900 mb-8 text-left border-b-2 border-blue-100 pb-2 flex items-center gap-2">
+              <FaCalendarAlt className="w-6 h-6 text-blue-400" />
+              Kurstermine Verwalten
+            </h2>
+            <CourseTablesClient
+              holidays={holidays}
+              specialDays={specialDays}
+              rythms={rythms}
+              courseId={course.id}
+            />
           </div>
         </section>
       </div>
