@@ -1,18 +1,21 @@
 import Link from 'next/link';
 
-export default function TableTopButton({ title, button1, button2, button3, auth }: {
+export default function TableTopButton({ title, button1, button2, button3, auth, children }: {
     title: string
-    button1: string,
+    button1?: string,
     button2?: string,
     button3: string
     auth?: boolean
+    children?: React.ReactNode
 }) {
-
+    
     if (auth === true) {
         return (
             <div className="flex items-center justify-between mb-8">
                 <h1 className="text-2xl font-bold text-gray-900 tracking-tight">{title}</h1>
                 <div className="flex gap-2">
+                    {children}
+                    {button1 && (
                     <Link
                         href={button1}
                         className="p-2 rounded-md bg-blue-300 text-white transition"
@@ -23,6 +26,7 @@ export default function TableTopButton({ title, button1, button2, button3, auth 
                             <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
                         </svg>
                     </Link>
+                    )}
                     {button2 && (
                         <Link
                             href={button2}
@@ -53,6 +57,8 @@ export default function TableTopButton({ title, button1, button2, button3, auth 
             <div className="flex items-center justify-between mb-8">
                 <h1 className="text-2xl font-bold text-gray-900 tracking-tight">{title}</h1>
                 <div className="flex gap-2">
+                    {children}
+                    {button1 && (
                     <Link
                         href={button1}
                         className="p-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition"
@@ -63,6 +69,7 @@ export default function TableTopButton({ title, button1, button2, button3, auth 
                             <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
                         </svg>
                     </Link>
+                    )}
                     {button2 && (
                         <Link
                             href={button2}
