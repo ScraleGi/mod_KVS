@@ -2,6 +2,7 @@ import { getAuthorizing } from '@/lib/getAuthorizing'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { db } from '@/lib/db'
+import CancelButton from '@/components/cancle-Button/cnacleButton';
 
 /**
  * Server action to create a new area
@@ -104,7 +105,8 @@ export default async function NewAreaPage() {
               </div>
 
               {/* Action Buttons */}
-              <div className="pt-2 flex items-center justify-end">
+              <div className="pt-2 flex items-center justify-between">
+                <CancelButton href="/area">Abbrechen</CancelButton>
                 <button
                   type="submit"
                   className="inline-flex items-center px-5 py-2 cursor-pointer border border-transparent text-xs font-semibold rounded text-white bg-blue-600 hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"

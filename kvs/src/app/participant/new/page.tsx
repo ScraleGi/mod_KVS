@@ -5,6 +5,7 @@ import { db } from '@/lib/db'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { sanitize } from '@/lib/sanitize'
+import CancelButton from '@/components/cancle-Button/cnacleButton'
 
 //---------------------------------------------------
 // SERVER ACTIONS
@@ -215,12 +216,7 @@ export default async function NewParticipantPage() {
               </label>
             </div>
             <div className="flex justify-between mt-6">
-              <Link
-                href="/participant"
-                className="px-4 py-2 bg-neutral-200 text-neutral-700 rounded hover:bg-neutral-300 text-xs font-medium transition"
-              >
-                Abbrechen
-              </Link>
+             <CancelButton href="/participant">Abbrechen</CancelButton>
               <button
                 type="submit"
                 className="cursor-pointer px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-xs font-medium transition"
