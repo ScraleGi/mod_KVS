@@ -4,7 +4,6 @@ import { db } from '@/lib/db'
 import { sanitize } from '@/lib/sanitize'
 import { Course } from '@/types/models'
 import { formatFullName } from '@/lib/utils'
-import Link from "next/link";
 import { getAuthorizing } from '@/lib/getAuthorizing'
 import { redirect } from 'next/navigation'
 import TableTopButton from '@/components/navigation/TableTopButton'
