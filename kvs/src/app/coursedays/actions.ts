@@ -30,9 +30,8 @@ export async function updateHoliday(formData: FormData) {
   revalidatePath('/coursedays')
 }
 export async function deleteHoliday(formData: FormData) {
-  await db.holiday.update({
+  await db.holiday.delete({
     where: { id: formData.get('id') as string },
-    data: { deletedAt: new Date() },
   })
   revalidatePath('/coursedays')
 }
@@ -77,9 +76,8 @@ export async function updateCourseHoliday(formData: FormData) {
   revalidatePath(`/coursedays/${courseId}`)
 }
 export async function deleteCourseHoliday(formData: FormData) {
-  await db.courseHoliday.update({
+  await db.courseHoliday.delete({
     where: { id: formData.get('id') as string },
-    data: { deletedAt: new Date() },
   })
   revalidatePath(`/coursedays/${formData.get('courseId')}`)
 }
@@ -151,9 +149,8 @@ export async function updateCourseSpecialDay(formData: FormData) {
   revalidatePath(`/coursedays/${courseId}`)
 }
 export async function deleteCourseSpecialDay(formData: FormData) {
-  await db.courseSpecialDays.update({
+  await db.courseSpecialDays.delete({
     where: { id: formData.get('id') as string },
-    data: { deletedAt: new Date() },
   })
   revalidatePath(`/coursedays/${formData.get('courseId')}`)
 }
@@ -242,9 +239,8 @@ export async function updateCourseRythm(formData: FormData) {
   revalidatePath(`/coursedays/${courseId}`)
 }
 export async function deleteCourseRythm(formData: FormData) {
-  await db.courseRythm.update({
+  await db.courseRythm.delete({
     where: { id: formData.get('id') as string },
-    data: { deletedAt: new Date() },
   })
   console.log('Deleted course rythm:', formData.get('id'))
   //revalidatePath(`/coursedays/${formData.get('courseId')}`)
