@@ -34,5 +34,6 @@ export function CourseTablesClient({ holidays, specialDays, rythms, courseDays, 
         <CourseDaysTable courseDays={courseDays}/>
       </section>
     </div>
+    
   )
 }
