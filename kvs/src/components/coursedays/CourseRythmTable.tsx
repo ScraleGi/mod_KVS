@@ -61,7 +61,6 @@ export function CourseRythmTable({ rythms, courseId }: { rythms: CourseRythm[], 
     pauseDuration: ''
   })
 
-  // Get used weekdays
   const usedWeekDays = rythms.map(r => r.weekDay)
   const availableWeekDays = WEEK_DAYS.filter(day => !usedWeekDays.includes(day.key))
 
@@ -89,14 +88,12 @@ export function CourseRythmTable({ rythms, courseId }: { rythms: CourseRythm[], 
     setNewValues({ ...newValues, [e.target.name]: e.target.value })
   }
 
-  // Reset newValues after add
   function handleAddSubmit() {
     setTimeout(() => {
       setNewValues({ weekDay: '', startTime: '', endTime: '', pauseDuration: '' })
     }, 0)
   }
 
-  // Reset edit state after edit
   function handleEditSubmit() {
     setTimeout(() => {
       setEditId(null)
@@ -104,7 +101,6 @@ export function CourseRythmTable({ rythms, courseId }: { rythms: CourseRythm[], 
     }, 0)
   }
 
-  // Reset edit state and newValues after delete
   function handleDelete() {
     setEditId(null)
     setEditValues(null)
@@ -123,11 +119,11 @@ export function CourseRythmTable({ rythms, courseId }: { rythms: CourseRythm[], 
         <table className="min-w-full text-sm border border-gray-300 rounded-lg bg-white shadow-sm">
           <thead>
             <tr>
-              <th className="py-2 px-2 font-medium text-gray-500 border-b border-r border-gray-300 bg-white text-left">Wochentag</th>
-              <th className="py-2 px-2 font-medium text-gray-500 border-b border-r border-gray-300 bg-white text-left">Beginn</th>
-              <th className="py-2 px-2 font-medium text-gray-500 border-b border-r border-gray-300 bg-white text-left">Ende</th>
-              <th className="py-2 px-2 font-medium text-gray-500 border-b border-r border-gray-300 bg-white text-left">Pause</th>
-              <th className="py-2 px-2 font-medium text-gray-500 border-b bg-white text-center border-gray-300">Aktionen</th>
+              <th className="py-2 px-2 font-medium text-white border-b border-r border-gray-300 bg-gray-600 text-left">Wochentag</th>
+              <th className="py-2 px-2 font-medium text-white border-b border-r border-gray-300 bg-gray-600 text-left">Beginn</th>
+              <th className="py-2 px-2 font-medium text-white border-b border-r border-gray-300 bg-gray-600 text-left">Ende</th>
+              <th className="py-2 px-2 font-medium text-white border-b border-r border-gray-300 bg-gray-600 text-left">Pause</th>
+              <th className="py-2 px-2 font-medium text-white border-b bg-gray-600 text-center border-gray-300">Aktionen</th>
             </tr>
           </thead>
           <tbody>
@@ -138,7 +134,7 @@ export function CourseRythmTable({ rythms, courseId }: { rythms: CourseRythm[], 
                   name="weekDay"
                   value={newValues.weekDay}
                   onChange={handleNewChange}
-                  className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none"
+                  className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none cursor-pointer"
                   required
                 >
                   <option value="">Wochentag wählen…</option>
@@ -148,13 +144,13 @@ export function CourseRythmTable({ rythms, courseId }: { rythms: CourseRythm[], 
                 </select>
               </td>
               <td className="py-1 px-1 align-middle border-r border-gray-200">
-                <input name="startTime" type="time" value={newValues.startTime} onChange={handleNewChange} className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none" required />
+                <input name="startTime" type="time" value={newValues.startTime} onChange={handleNewChange} className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none cursor-pointer" required />
               </td>
               <td className="py-1 px-1 align-middle border-r border-gray-200">
-                <input name="endTime" type="time" value={newValues.endTime} onChange={handleNewChange} className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none" required />
+                <input name="endTime" type="time" value={newValues.endTime} onChange={handleNewChange} className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none cursor-pointer" required />
               </td>
               <td className="py-1 px-1 align-middle border-r border-gray-200">
-                <input name="pauseDuration" type="time" value={newValues.pauseDuration} onChange={handleNewChange} className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none" required />
+                <input name="pauseDuration" type="time" value={newValues.pauseDuration} onChange={handleNewChange} className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none cursor-pointer" required />
               </td>
               <td className="py-1 px-1 align-middle text-center">
                 <form action={createCourseRythm} className="inline-flex items-center gap-0.5" onSubmit={handleAddSubmit}>
@@ -163,7 +159,7 @@ export function CourseRythmTable({ rythms, courseId }: { rythms: CourseRythm[], 
                   <input type="hidden" name="endTime" value={newValues.endTime} />
                   <input type="hidden" name="pauseDuration" value={newValues.pauseDuration} />
                   <input type="hidden" name="courseId" value={courseId} />
-                  <button type="submit" className="mx-auto block p-0.5 text-gray-400 hover:text-green-600 rounded transition" title="Hinzufügen"><IconAdd /></button>
+                  <button type="submit" className="mx-auto block p-0.5 text-gray-400 hover:text-green-600 rounded transition cursor-pointer" title="Hinzufügen"><IconAdd /></button>
                 </form>
               </td>
             </tr>
@@ -177,13 +173,13 @@ export function CourseRythmTable({ rythms, courseId }: { rythms: CourseRythm[], 
                   {isEditing ? (
                     <>
                       <td className="py-1 px-1 align-middle border-r border-gray-200">
-                        <input name="startTime" type="time" value={editValues!.startTime} onChange={handleChange} className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none" required />
+                        <input name="startTime" type="time" value={editValues!.startTime} onChange={handleChange} className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none cursor-pointer" required />
                       </td>
                       <td className="py-1 px-1 align-middle border-r border-gray-200">
-                        <input name="endTime" type="time" value={editValues!.endTime} onChange={handleChange} className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none" required />
+                        <input name="endTime" type="time" value={editValues!.endTime} onChange={handleChange} className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none cursor-pointer" required />
                       </td>
                       <td className="py-1 px-1 align-middle border-r border-gray-200">
-                        <input name="pauseDuration" type="time" value={editValues!.pauseDuration} onChange={handleChange} className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none" required />
+                        <input name="pauseDuration" type="time" value={editValues!.pauseDuration} onChange={handleChange} className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none cursor-pointer" required />
                       </td>
                       <td className="py-1 px-1 align-middle text-center flex gap-1 justify-center">
                         <form
@@ -197,9 +193,9 @@ export function CourseRythmTable({ rythms, courseId }: { rythms: CourseRythm[], 
                           <input type="hidden" name="endTime" value={editValues!.endTime} />
                           <input type="hidden" name="pauseDuration" value={editValues!.pauseDuration} />
                           <input type="hidden" name="courseId" value={courseId} />
-                          <button type="submit" className="p-0.5 text-gray-400 hover:text-green-600 rounded transition" title="Speichern"><IconSave /></button>
+                          <button type="submit" className="p-0.5 text-gray-400 hover:text-green-600 rounded transition cursor-pointer" title="Speichern"><IconSave /></button>
                         </form>
-                        <button type="button" className="p-0.5 text-gray-400 hover:text-orange-500 rounded transition" title="Abbrechen" onClick={handleCancel}><IconCancel /></button>
+                        <button type="button" className="p-0.5 text-gray-400 hover:text-orange-500 rounded transition cursor-pointer" title="Abbrechen" onClick={handleCancel}><IconCancel /></button>
                         <form
                           action={deleteCourseRythm}
                           className="inline-flex items-center justify-center gap-0.5"
@@ -207,7 +203,7 @@ export function CourseRythmTable({ rythms, courseId }: { rythms: CourseRythm[], 
                         >
                           <input type="hidden" name="id" value={r.id} />
                           <input type="hidden" name="courseId" value={courseId} />
-                          <button type="submit" className="p-0.5 text-gray-400 hover:text-red-500 rounded transition" title="Löschen"><IconTrash /></button>
+                          <button type="submit" className="p-0.5 text-gray-400 hover:text-red-500 rounded transition cursor-pointer" title="Löschen"><IconTrash /></button>
                         </form>
                       </td>
                     </>
@@ -217,7 +213,7 @@ export function CourseRythmTable({ rythms, courseId }: { rythms: CourseRythm[], 
                       <td className="py-1 px-1 align-middle border-r border-gray-200">{r.endTime ? r.endTime.slice(11, 16) : '--:--'}</td>
                       <td className="py-1 px-1 align-middle border-r border-gray-200">{r.pauseDuration ? r.pauseDuration.slice(11, 16) : '--:--'}</td>
                       <td className="py-1 px-1 align-middle text-center flex gap-1 justify-center">
-                        <button type="button" className="p-0.5 text-gray-400 hover:text-blue-600 rounded transition" title="Bearbeiten" onClick={() => handleEdit(r)}><IconEdit /></button>
+                        <button type="button" className="p-0.5 text-gray-400 hover:text-blue-600 rounded transition cursor-pointer" title="Bearbeiten" onClick={() => handleEdit(r)}><IconEdit /></button>
                         <form
                           action={deleteCourseRythm}
                           className="inline-flex items-center justify-center gap-0.5"
@@ -225,7 +221,7 @@ export function CourseRythmTable({ rythms, courseId }: { rythms: CourseRythm[], 
                         >
                           <input type="hidden" name="id" value={r.id} />
                           <input type="hidden" name="courseId" value={courseId} />
-                          <button type="submit" className="p-0.5 text-gray-400 hover:text-red-500 rounded transition" title="Löschen"><IconTrash /></button>
+                          <button type="submit" className="p-0.5 text-gray-400 hover:text-red-500 rounded transition cursor-pointer" title="Löschen"><IconTrash /></button>
                         </form>
                       </td>
                     </>
