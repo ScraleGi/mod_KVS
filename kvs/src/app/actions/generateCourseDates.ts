@@ -100,6 +100,7 @@ export default async function generateCourseDates(formData: FormData) {
         remainingCourseHours -= calculateCourseDuration(specialDay.startTime, specialDay.endTime, specialDay.pauseDuration)
     })
 
+    // eslint-disable-next-line prefer-const
     let testDay = new Date(course.startDate)
     const courseSpecialDays = course.courseSpecialDays.map(day => new Date(day.startTime))
     const holidays = globalHolidays.map(holiday => new Date(holiday.date))

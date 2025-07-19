@@ -52,19 +52,19 @@ export function CourseDaysTable({ courseDays }: Props) {
                 <td className="px-3 py-2 text-gray-900">
                   {parseLocalDate(day.startTime).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                 </td>
-                <td className={`px-3 py-2 ${isSpecial ? "text-orange-500 font-semibold" : "text-gray-900"}`}>
+                <td className={`px-3 py-2 ${isSpecial ? "text-orange-500 font-semibold" : "text-gray-500"}`}>
                   {day.title ?? 'Kurstag'}
                 </td>
                 <td className="px-3 py-2 text-gray-500">
                   {parseLocalDate(day.startTime).toLocaleDateString('de-DE', { weekday: 'long' })}
                 </td>
-                <td className="px-3 py-2 font-mono text-blue-600">
-                  {parseLocalDate(day.startTime).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr
+                <td className="px-3 py-2 text-gray-500">
+                  <span className="font-mono">{parseLocalDate(day.startTime).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}</span> Uhr
                 </td>
-                <td className="px-3 py-2 font-mono text-blue-600">
-                  {parseLocalDate(day.endTime).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr
+                <td className="px-3 py-2 text-gray-500">
+                  <span className="font-mono">{parseLocalDate(day.endTime).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}</span> Uhr
                 </td>
-                <td className="px-3 py-2 font-mono text-blue-600">
+                <td className="px-3 py-2 font-mono text-gray-500">
                   {new Date(day.pauseDuration).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })}
                 </td>
               </tr>
