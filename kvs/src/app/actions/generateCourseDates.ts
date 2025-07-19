@@ -143,7 +143,20 @@ export default async function generateCourseDates(formData: FormData) {
             }
         }
         testDay.setDate(testDay.getDate() + 1)
+    
     }
+      // Update course endDate to last generated course day
+      const lastCourseDay = await db.courseDays.findFirst({
+          where: { courseId, deletedAt: null },
+          orderBy: { endTime: 'desc' },
+      })
 
-    return
+      if (lastCourseDay) {
+          await db.course.update({
+              where: { id: courseId },
+              data: { endDate: lastCourseDay.endTime },
+          })
+      }
+
+      return
 }
