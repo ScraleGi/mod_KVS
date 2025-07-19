@@ -1,7 +1,5 @@
 import { db } from '@/lib/db'
-import test from 'node:test'
 import { $Enums } from '../../../generated/prisma'
-
 
 function calculateCourseDuration(start: Date, end: Date, pause: Date): number {
     const msPerMinute = 1000 * 60
@@ -15,8 +13,6 @@ function calculateCourseDuration(start: Date, end: Date, pause: Date): number {
     return durationHours
 }
 
-
-
 function isCourseAllowedOnDay(date: Date, checkDays: Date[]): boolean {
     for (const checkDate of checkDays) {
         if (date.getFullYear() === checkDate.getFullYear() &&
@@ -28,7 +24,6 @@ function isCourseAllowedOnDay(date: Date, checkDays: Date[]): boolean {
     return true
 }
 
-
 const weekDayNames = [
     'SUNDAY',
     'MONDAY',
@@ -39,37 +34,40 @@ const weekDayNames = [
     'SATURDAY',
 ]
 function getCourseDayFromRhythm(testDay: Date, courseRythms: { courseId: string; id: string; createdAt: Date; deletedAt: Date | null; weekDay: $Enums.WeekDay; startTime: Date; endTime: Date; pauseDuration: Date }[]) {
-    const weekDay = testDay.getDay() // Get the day of the week (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
+    const weekDay = testDay.getDay()
     for (let i = 0; i < courseRythms.length; i++) {
         const rhythm = courseRythms[i];
         if (rhythm.weekDay.toString() === weekDayNames[weekDay]) {
             return rhythm;
         }
     }
-
-    return null // No matching rhythm found for the day 
+    return null
 }
 
+// Helper to create ISO string in UTC
+function toISODate(year: number, month: number, day: number, hour: number, minute: number) {
+    return new Date(Date.UTC(year, month, day, hour, minute)).toISOString()
+}
 
 export default async function generateCourseDates(formData: FormData) {
-  'use server'
+    'use server'
     const courseId = formData.get('courseId') as string
     const course = await db.course.findUnique({
-      where: { id: courseId },
-      include: {
-        courseRythms: true,
-        courseHolidays: true,
-        courseSpecialDays: true,
-        program: {
-          select: {
-            teachingUnits: true,
-          },
+        where: { id: courseId },
+        include: {
+            courseRythms: true,
+            courseHolidays: true,
+            courseSpecialDays: true,
+            program: {
+                select: {
+                    teachingUnits: true,
+                },
+            },
         },
-      },
     })
     if (!course) {
         return
-    }   
+    }
 
     if (course.courseRythms.length === 0 && course?.courseSpecialDays.length === 0) {
         console.error('No course rhythms or special days found for this course.')
@@ -77,16 +75,16 @@ export default async function generateCourseDates(formData: FormData) {
     }
 
     await db.courseDays.deleteMany({
-      where: {
-        courseId: courseId,
-      },
+        where: {
+            courseId: courseId,
+        },
     })
     const globalHolidays = await db.holiday.findMany()
 
     let remainingCourseHours = course.program.teachingUnits ?? 0
 
     // Take over special days into courseDays
-    course.courseSpecialDays.forEach(async (specialDay) => {
+    for (const specialDay of course.courseSpecialDays) {
         await db.courseDays.create({
             data: {
                 courseId: courseId,
@@ -96,45 +94,70 @@ export default async function generateCourseDates(formData: FormData) {
                 title: specialDay.title || null,
             },
         })
-    })
+    }
 
     course.courseSpecialDays.forEach(specialDay => {
         remainingCourseHours -= calculateCourseDuration(specialDay.startTime, specialDay.endTime, specialDay.pauseDuration)
     })
 
-      let testDay = new Date(course.startDate)
-      const courseSpecialDays = course.courseSpecialDays.map(day => new Date(day.startTime))
-      const holidays = globalHolidays.map(holiday => new Date(holiday.date))
-      const courseHolidays = course.courseHolidays.map(holiday => new Date(holiday.date))
-      while (remainingCourseHours > 0 && course.courseRythms.length > 0) {
-        if (isCourseAllowedOnDay(testDay, courseSpecialDays) &&
-            isCourseAllowedOnDay(testDay, holidays) && 
-            isCourseAllowedOnDay(testDay, courseHolidays)){
+    // eslint-disable-next-line prefer-const
+    let testDay = new Date(course.startDate)
+    const courseSpecialDays = course.courseSpecialDays.map(day => new Date(day.startTime))
+    const holidays = globalHolidays.map(holiday => new Date(holiday.date))
+    const courseHolidays = course.courseHolidays.map(holiday => new Date(holiday.date))
 
+    while (remainingCourseHours > 0 && course.courseRythms.length > 0) {
+        if (
+            isCourseAllowedOnDay(testDay, courseSpecialDays) &&
+            isCourseAllowedOnDay(testDay, holidays) &&
+            isCourseAllowedOnDay(testDay, courseHolidays)
+        ) {
             const courseDay = getCourseDayFromRhythm(testDay, course.courseRythms)
             if (courseDay) {
-                const courseDayStart = new Date(testDay.getFullYear(), testDay.getMonth(), testDay.getDate(), courseDay.startTime.getHours(), courseDay.startTime.getMinutes())
-                const courseDayEnd = new Date(testDay.getFullYear(), testDay.getMonth(), testDay.getDate(), courseDay.endTime.getHours(), courseDay.endTime.getMinutes())
-                const courseDayPause = new Date(2000, 1, 1, courseDay.pauseDuration.getHours(), courseDay.pauseDuration.getMinutes())
+                const startHour = courseDay.startTime.getUTCHours()
+                const startMinute = courseDay.startTime.getUTCMinutes()
+                const endHour = courseDay.endTime.getUTCHours()
+                const endMinute = courseDay.endTime.getUTCMinutes()
+                const pauseHour = courseDay.pauseDuration.getUTCHours()
+                const pauseMinute = courseDay.pauseDuration.getUTCMinutes()
+
+                const courseDayStartISO = toISODate(testDay.getFullYear(), testDay.getMonth(), testDay.getDate(), startHour, startMinute)
+                const courseDayEndISO = toISODate(testDay.getFullYear(), testDay.getMonth(), testDay.getDate(), endHour, endMinute)
+                const courseDayPauseISO = toISODate(2000, 1, 1, pauseHour, pauseMinute)
 
                 await db.courseDays.create({
-                data: {
-                    courseId: courseId,
-                    startTime: courseDayStart,
-                    endTime: courseDayEnd,
-                    pauseDuration: courseDayPause,
-                    title: 'Kurstag',
-                }})
+                    data: {
+                        courseId: courseId,
+                        startTime: courseDayStartISO,
+                        endTime: courseDayEndISO,
+                        pauseDuration: courseDayPauseISO,
+                        title: 'Kurstag',
+                    }
+                })
 
-                remainingCourseHours -= calculateCourseDuration(courseDayStart, courseDayEnd, courseDayPause)
-                console.log(`Added course day: ${courseDayStart.toISOString()} REMAINS: ${remainingCourseHours} hours`)
+                remainingCourseHours -= calculateCourseDuration(
+                    new Date(courseDayStartISO),
+                    new Date(courseDayEndISO),
+                    new Date(courseDayPauseISO)
+                )
+                console.log(`Added course day: ${courseDayStartISO} REMAINS: ${remainingCourseHours} hours`)
             }
         }
-        testDay.setDate(testDay.getDate() + 1) // Move to the next day
+        testDay.setDate(testDay.getDate() + 1)
+    
+    }
+      // Update course endDate to last generated course day
+      const lastCourseDay = await db.courseDays.findFirst({
+          where: { courseId, deletedAt: null },
+          orderBy: { endTime: 'desc' },
+      })
+
+      if (lastCourseDay) {
+          await db.course.update({
+              where: { id: courseId },
+              data: { endDate: lastCourseDay.endTime },
+          })
       }
 
-
-  return 
+      return
 }
-
-

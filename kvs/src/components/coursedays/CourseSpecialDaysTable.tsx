@@ -8,20 +8,18 @@ import { TableToolbar } from './TableToolbar'
 // Helper for date/time formatting in Europe/Berlin timezone, no seconds
 function formatDateTimeBerlin(dateString: string) {
   if (!dateString) return '--:--'
-  const date = new Date(dateString)
+  const localString = dateString.replace('Z', '')
+  const date = new Date(localString)
   return date.toLocaleDateString('de-DE', {
-    timeZone: 'Europe/Berlin',
     day: '2-digit',
     month: '2-digit',
     year: 'numeric'
   }) + ', ' + date.toLocaleTimeString('de-DE', {
-    timeZone: 'Europe/Berlin',
     hour: '2-digit',
     minute: '2-digit'
   })
 }
 
-// Helper for pause duration (shows HH:mm)
 function formatPauseBerlin(dateString: string) {
   if (!dateString) return '--:--'
   const date = new Date(dateString)
@@ -30,10 +28,10 @@ function formatPauseBerlin(dateString: string) {
   return `${hours}:${minutes}`
 }
 
-// Helper for local datetime input value
 function toLocalDateTimeInputValue(isoString: string) {
   if (!isoString) return ''
-  const date = new Date(isoString)
+  const localString = isoString.replace('Z', '')
+  const date = new Date(localString)
   const year = date.getFullYear()
   const month = String(date.getMonth() + 1).padStart(2, '0')
   const day = String(date.getDate()).padStart(2, '0')
@@ -105,11 +103,10 @@ export function CourseSpecialDaysTable({ specialDays, courseId }: { specialDays:
     localStorage.setItem('courseSpecialDaysDateFilter', dateFilter)
   }, [dateFilter])
 
-  // Filter by date (YYYY-MM-DD)
-const filtered = specialDays.filter(d =>
-  (dateFilter === '' || d.startTime.slice(0, 10) === dateFilter) &&
-  (query === '' || (d.title ?? '').toLowerCase().includes(query.toLowerCase()))
-)
+  const filtered = specialDays.filter(d =>
+    (dateFilter === '' || d.startTime.slice(0, 10) === dateFilter) &&
+    (query === '' || (d.title ?? '').toLowerCase().includes(query.toLowerCase()))
+  )
 
   function handleEdit(d: CourseSpecialDays) {
     setEditId(d.id)
@@ -148,12 +145,12 @@ const filtered = specialDays.filter(d =>
               {courseSpecialDaysColumns.map((col, idx) => (
                 <th
                   key={col.key}
-                  className={`py-2 px-2 font-medium text-gray-500 border-b border-gray-200 bg-white text-left${idx < courseSpecialDaysColumns.length - 1 ? ' border-r border-gray-200' : ''}`}
+                  className={`py-2 px-2 font-medium text-white border-b border-gray-200 bg-gray-600 text-left${idx < courseSpecialDaysColumns.length - 1 ? ' border-r border-gray-200' : ''}`}
                 >
                   {col.label}
                 </th>
               ))}
-              <th className="py-2 px-2 font-medium text-gray-500 border-b bg-white text-center border-l border-gray-200">Aktionen</th>
+              <th className="py-2 px-2 font-medium text-white border-b bg-gray-600 text-center border-l border-gray-200">Aktionen</th>
             </tr>
           </thead>
           <tbody>
@@ -163,18 +160,18 @@ const filtered = specialDays.filter(d =>
                 <input name="title" form="add-course-specialday-form" placeholder="Neuer Sondertag" className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none" />
               </td>
               <td className="py-1 px-1 align-middle border-r border-gray-200">
-                <input name="startTime" form="add-course-specialday-form" type="datetime-local" className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none" required />
+                <input name="startTime" form="add-course-specialday-form" type="datetime-local" className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none cursor-pointer" required />
               </td>
               <td className="py-1 px-1 align-middle border-r border-gray-200">
-                <input name="endTime" form="add-course-specialday-form" type="datetime-local" className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none" required />
+                <input name="endTime" form="add-course-specialday-form" type="datetime-local" className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none cursor-pointer" required />
               </td>
               <td className="py-1 px-1 align-middle border-r border-gray-200">
-                <input name="pauseDuration" form="add-course-specialday-form" type="time" className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none" required />
+                <input name="pauseDuration" form="add-course-specialday-form" type="time" className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none cursor-pointer" required />
                 <input type="hidden" name="courseId" form="add-course-specialday-form" value={courseId} />
               </td>
               <td className="py-1 px-1 align-middle text-center">
                 <form action={createCourseSpecialDay} id="add-course-specialday-form">
-                  <button type="submit" className="mx-auto block p-0.5 text-gray-400 hover:text-green-600 rounded transition" title="Hinzufügen"><IconAdd /></button>
+                  <button type="submit" className="mx-auto block p-0.5 text-gray-400 hover:text-green-600 rounded transition cursor-pointer" title="Hinzufügen"><IconAdd /></button>
                 </form>
               </td>
             </tr>
@@ -183,13 +180,13 @@ const filtered = specialDays.filter(d =>
                 {editId === d.id && editValues ? (
                   <>
                     <td className="py-1 px-1 align-middle border-r border-gray-200">
-                      <input name="title" value={editValues.title} onChange={handleChange} className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none" />
+                      <input name="title" value={editValues.title} onChange={handleChange} className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none cursor-pointer" />
                     </td>
                     <td className="py-1 px-1 align-middle border-r border-gray-200">
-                      <input name="startTime" type="datetime-local" value={editValues.startTime} onChange={handleChange} className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none" />
+                      <input name="startTime" type="datetime-local" value={editValues.startTime} onChange={handleChange} className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none cursor-pointer" />
                     </td>
                     <td className="py-1 px-1 align-middle border-r border-gray-200">
-                      <input name="endTime" type="datetime-local" value={editValues.endTime} onChange={handleChange} className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none" />
+                      <input name="endTime" type="datetime-local" value={editValues.endTime} onChange={handleChange} className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none cursor-pointer" />
                     </td>
                     <td className="py-1 px-1 align-middle border-r border-gray-200">
                       <input
@@ -197,7 +194,7 @@ const filtered = specialDays.filter(d =>
                         type="time"
                         value={editValues.pauseDuration}
                         onChange={handleChange}
-                        className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none"
+                        className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none cursor-pointer"
                       />
                       <input type="hidden" name="courseId" value={courseId} />
                     </td>
@@ -209,15 +206,15 @@ const filtered = specialDays.filter(d =>
                         <input type="hidden" name="endTime" value={editValues.endTime} />
                         <input type="hidden" name="pauseDuration" value={editValues.pauseDuration} />
                         <input type="hidden" name="courseId" value={courseId} />
-                          <button type="submit" className="p-0.5 text-gray-400 hover:text-blue-600 rounded transition" title="Speichern">
-                        <IconSave />
-                      </button>
+                        <button type="submit" className="p-0.5 text-gray-400 hover:text-blue-600 rounded transition cursor-pointer" title="Speichern">
+                          <IconSave />
+                        </button>
                       </form>
-                      <button type="button" className="p-0.5 text-gray-400 hover:text-orange-500 rounded transition" title="Abbrechen" onClick={handleCancel}><IconCancel /></button>
+                      <button type="button" className="p-0.5 text-gray-400 hover:text-orange-500 rounded transition cursor-pointer" title="Abbrechen" onClick={handleCancel}><IconCancel /></button>
                       <form action={deleteCourseSpecialDay} className="inline-flex items-center justify-center gap-0.5">
                         <input type="hidden" name="id" value={editValues.id} />
                         <input type="hidden" name="courseId" value={courseId} />
-                      <button type="submit" className="p-0.5 text-gray-400 hover:text-red-500 rounded transition" title="Löschen"><IconTrash /></button>
+                        <button type="submit" className="p-0.5 text-gray-400 hover:text-red-500 rounded transition cursor-pointer" title="Löschen"><IconTrash /></button>
                       </form>
                     </td>
                   </>
@@ -229,27 +226,20 @@ const filtered = specialDays.filter(d =>
                         value={d.title ?? ''}
                         readOnly
                         className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none"
-                        onFocus={() => handleEdit(d)}
                       />
                     </td>
+                    <td className="py-1 px-1 align-middle border-r border-gray-200">{formatDateTimeBerlin(d.startTime)}</td>
+                    <td className="py-1 px-1 align-middle border-r border-gray-200">{formatDateTimeBerlin(d.endTime)}</td>
                     <td className="py-1 px-1 align-middle border-r border-gray-200">
-                      {formatDateTimeBerlin(d.startTime)}
-                    </td>
-                    <td className="py-1 px-1 align-middle border-r border-gray-200">
-                      {formatDateTimeBerlin(d.endTime)}
-                    </td>
-                    <td className="py-1 px-1 align-middle border-r border-gray-200">
-                      {d.pauseDuration
-                        ? formatPauseBerlin(d.pauseDuration)
-                        : '--:--'}
+                      {d.pauseDuration ? formatPauseBerlin(d.pauseDuration) : '--:--'}
                       <input type="hidden" name="courseId" value={courseId} />
                     </td>
                     <td className="py-1 px-1 align-middle text-center flex gap-1 justify-center">
-                      <button type="button" className="p-0.5 text-gray-400 hover:text-blue-600 rounded transition" title="Bearbeiten" onClick={() => handleEdit(d)}><IconEdit /></button>
+                      <button type="button" className="p-0.5 text-gray-400 hover:text-blue-600 rounded transition cursor-pointer" title="Bearbeiten" onClick={() => handleEdit(d)}><IconEdit /></button>
                       <form action={deleteCourseSpecialDay} className="inline-flex items-center justify-center gap-0.5">
                         <input type="hidden" name="id" value={d.id} />
                         <input type="hidden" name="courseId" value={courseId} />
-                        <button type="submit" className="p-0.5 text-gray-400 hover:text-red-500 rounded transition" title="Löschen"><IconTrash /></button>
+                        <button type="submit" className="p-0.5 text-gray-400 hover:text-red-500 rounded transition cursor-pointer" title="Löschen"><IconTrash /></button>
                       </form>
                     </td>
                   </>
