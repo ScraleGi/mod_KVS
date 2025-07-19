@@ -8,14 +8,15 @@ import { TableToolbar } from './TableToolbar'
 // Helper for date/time formatting in Europe/Berlin timezone, no seconds
 function formatDateTimeBerlin(dateString: string) {
   if (!dateString) return '--:--'
-  const date = new Date(dateString)
+  // Parse as local time, not UTC
+  // Remove the trailing 'Z' if present
+  const localString = dateString.replace('Z', '')
+  const date = new Date(localString)
   return date.toLocaleDateString('de-DE', {
-    timeZone: 'Europe/Berlin',
     day: '2-digit',
     month: '2-digit',
     year: 'numeric'
   }) + ', ' + date.toLocaleTimeString('de-DE', {
-    timeZone: 'Europe/Berlin',
     hour: '2-digit',
     minute: '2-digit'
   })
@@ -33,7 +34,9 @@ function formatPauseBerlin(dateString: string) {
 // Helper for local datetime input value
 function toLocalDateTimeInputValue(isoString: string) {
   if (!isoString) return ''
-  const date = new Date(isoString)
+  // Remove 'Z' so it's parsed as local time
+  const localString = isoString.replace('Z', '')
+  const date = new Date(localString)
   const year = date.getFullYear()
   const month = String(date.getMonth() + 1).padStart(2, '0')
   const day = String(date.getDate()).padStart(2, '0')

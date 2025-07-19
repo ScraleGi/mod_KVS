@@ -88,21 +88,23 @@ export async function deleteCourseHoliday(formData: FormData) {
 export async function getCourseSpecialDays(courseId: string) {
   return db.courseSpecialDays.findMany({ where: { courseId, deletedAt: null }, orderBy: { startTime: 'asc' } })
 }
+function localDateTimeToISO(datetimeLocal: string) {
+  return `${datetimeLocal}:00.000Z`
+}
+
 export async function createCourseSpecialDay(formData: FormData) {
-  // Get values from form
-  const title = formData.get('title') as string // <-- Add this line
+  const title = formData.get('title') as string
   const startTimeRaw = formData.get('startTime') as string
   const endTimeRaw = formData.get('endTime') as string
   const pauseRaw = formData.get('pauseDuration') as string
   const courseId = formData.get('courseId') as string
 
-  // Convert to ISO-8601 DateTime
-  const startTime = new Date(startTimeRaw).toISOString()
-  const endTime = new Date(endTimeRaw).toISOString()
-  const pauseDate = new Date(`2000-01-01T${pauseRaw}:00+00:00`)
+  const startTime = localDateTimeToISO(startTimeRaw)
+  const endTime = localDateTimeToISO(endTimeRaw)
+  const pauseDate = new Date(`2000-01-01T${pauseRaw}:00Z`)
   const pauseDuration = pauseDate.toISOString()
+  
 
-  // Avoid unique constraint error
   const exists = await db.courseSpecialDays.findFirst({
     where: { courseId, startTime }
   })
@@ -112,7 +114,7 @@ export async function createCourseSpecialDay(formData: FormData) {
 
   await db.courseSpecialDays.create({
     data: {
-      title, // <-- Use the title from the form
+      title,
       startTime,
       endTime,
       pauseDuration,
@@ -123,19 +125,18 @@ export async function createCourseSpecialDay(formData: FormData) {
   })
   revalidatePath(`/coursedays/${courseId}`)
 }
-// updateCourseSpecialDay
+
 export async function updateCourseSpecialDay(formData: FormData) {
   const id = formData.get('id') as string
   const title = formData.get('title') as string
-  const startTimeRaw = formData.get('startTime') as string // "YYYY-MM-DDTHH:mm"
-  const endTimeRaw = formData.get('endTime') as string     // "YYYY-MM-DDTHH:mm"
-  const pauseRaw = formData.get('pauseDuration') as string   // "HH:mm"
+  const startTimeRaw = formData.get('startTime') as string
+  const endTimeRaw = formData.get('endTime') as string
+  const pauseRaw = formData.get('pauseDuration') as string
   const courseId = formData.get('courseId') as string
 
-  // Convert to ISO-8601
-  const startTime = new Date(startTimeRaw).toISOString()
-  const endTime = new Date(endTimeRaw).toISOString()
-  const pauseDate = new Date(`2000-01-01T${pauseRaw}:00+00:00`)
+  const startTime = localDateTimeToISO(startTimeRaw)
+  const endTime = localDateTimeToISO(endTimeRaw)
+  const pauseDate = new Date(`2000-01-01T${pauseRaw}:00Z`)
   const pauseDuration = pauseDate.toISOString()
 
   await db.courseSpecialDays.update({

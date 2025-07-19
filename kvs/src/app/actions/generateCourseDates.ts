@@ -1,6 +1,6 @@
 import { db } from '@/lib/db'
 import { $Enums } from '../../../generated/prisma'
-import { redirect } from 'next/navigation'
+
 
 function calculateCourseDuration(start: Date, end: Date, pause: Date): number {
     const msPerMinute = 1000 * 60
@@ -84,7 +84,7 @@ export default async function generateCourseDates(formData: FormData) {
 
     let remainingCourseHours = course.program.teachingUnits ?? 0
 
-    // Take over special days into courseDays (serial, not parallel)
+    // Take over special days into courseDays
     for (const specialDay of course.courseSpecialDays) {
       await db.courseDays.create({
         data: {
@@ -96,40 +96,56 @@ export default async function generateCourseDates(formData: FormData) {
         },
       })
     }
+    /*course.courseSpecialDays.forEach(async (specialDay) => {
+        await db.courseDays.create({
+            data: {
+                courseId: courseId,
+                startTime: specialDay.startTime,
+                endTime: specialDay.endTime,
+                pauseDuration: specialDay.pauseDuration,
+                title: specialDay.title || null,
+            },
+        })
+    })*/
 
-    for (const specialDay of course.courseSpecialDays) {
-      remainingCourseHours -= calculateCourseDuration(specialDay.startTime, specialDay.endTime, specialDay.pauseDuration)
-    }
 
-    let testDay = new Date(course.startDate)
-    const courseSpecialDays = course.courseSpecialDays.map(day => new Date(day.startTime))
-    const holidays = globalHolidays.map(holiday => new Date(holiday.date))
-    const courseHolidays = course.courseHolidays.map(holiday => new Date(holiday.date))
-    while (remainingCourseHours > 0 && course.courseRythms.length > 0) {
-      if (isCourseAllowedOnDay(testDay, courseSpecialDays) &&
-          isCourseAllowedOnDay(testDay, holidays) && 
-          isCourseAllowedOnDay(testDay, courseHolidays)){
+    course.courseSpecialDays.forEach(specialDay => {
+        remainingCourseHours -= calculateCourseDuration(specialDay.startTime, specialDay.endTime, specialDay.pauseDuration)
+    })
 
-          const courseDay = getCourseDayFromRhythm(testDay, course.courseRythms)
-          if (courseDay) {
-              const courseDayStart = new Date(testDay.getFullYear(), testDay.getMonth(), testDay.getDate(), courseDay.startTime.getHours(), courseDay.startTime.getMinutes())
-              const courseDayEnd = new Date(testDay.getFullYear(), testDay.getMonth(), testDay.getDate(), courseDay.endTime.getHours(), courseDay.endTime.getMinutes())
-              const courseDayPause = new Date(2000, 1, 1, courseDay.pauseDuration.getHours(), courseDay.pauseDuration.getMinutes())
+      let testDay = new Date(course.startDate)
+      const courseSpecialDays = course.courseSpecialDays.map(day => new Date(day.startTime))
+      const holidays = globalHolidays.map(holiday => new Date(holiday.date))
+      const courseHolidays = course.courseHolidays.map(holiday => new Date(holiday.date))
+      while (remainingCourseHours > 0 && course.courseRythms.length > 0) {
+        if (isCourseAllowedOnDay(testDay, courseSpecialDays) &&
+            isCourseAllowedOnDay(testDay, holidays) && 
+            isCourseAllowedOnDay(testDay, courseHolidays)){
 
-              await db.courseDays.create({
-              data: {
-                  courseId: courseId,
-                  startTime: courseDayStart,
-                  endTime: courseDayEnd,
-                  pauseDuration: courseDayPause,
-                  title: 'Kurstag',
-              }})
+            const courseDay = getCourseDayFromRhythm(testDay, course.courseRythms)
+            if (courseDay) {
+                const courseDayStart = new Date(testDay.getFullYear(), testDay.getMonth(), testDay.getDate(), courseDay.startTime.getHours(), courseDay.startTime.getMinutes())
+                const courseDayEnd = new Date(testDay.getFullYear(), testDay.getMonth(), testDay.getDate(), courseDay.endTime.getHours(), courseDay.endTime.getMinutes())
+                const courseDayPause = new Date(2000, 1, 1, courseDay.pauseDuration.getHours(), courseDay.pauseDuration.getMinutes())
 
-              remainingCourseHours -= calculateCourseDuration(courseDayStart, courseDayEnd, courseDayPause)
-              console.log(`Added course day: ${courseDayStart.toISOString()} REMAINS: ${remainingCourseHours} hours`)
-          }
+                await db.courseDays.create({
+                data: {
+                    courseId: courseId,
+                    startTime: courseDayStart,
+                    endTime: courseDayEnd,
+                    pauseDuration: courseDayPause,
+                    title: 'Kurstag',
+                }})
+
+                remainingCourseHours -= calculateCourseDuration(courseDayStart, courseDayEnd, courseDayPause)
+                console.log(`Added course day: ${courseDayStart.toISOString()} REMAINS: ${remainingCourseHours} hours`)
+            }
+        }
+        testDay.setDate(testDay.getDate() + 1) // Move to the next day
       }
-      testDay.setDate(testDay.getDate() + 1) // Move to the next day
-    }
-    redirect(`/course/${courseId}`) 
+
+
+  return 
 }
+
+
