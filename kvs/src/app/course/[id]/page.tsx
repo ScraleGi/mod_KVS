@@ -130,6 +130,7 @@ const courseDays = courseDaysRaw.map(day => ({
   endTime: formatDateISO(day.endTime),
   pauseDuration: formatDateISO(day.pauseDuration),
   title: day.title,
+  isCourseDay: day.isCourseDay
 }))
 
 

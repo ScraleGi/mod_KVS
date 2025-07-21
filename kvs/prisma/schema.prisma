@@ -267,6 +267,7 @@ model CourseDays {
   endTime       DateTime   
   pauseDuration DateTime   
   title         String?
+  isCourseDay  Boolean    @default(true) // Indicates if this is a regular course day
   createdAt     DateTime   @default(now())
   deletedAt     DateTime? // Soft delete: null = not deleted, date = deleted 
   @@unique([courseId, startTime]) // Prevents duplicate course days per course

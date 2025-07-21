@@ -24,6 +24,26 @@ function isCourseAllowedOnDay(date: Date, checkDays: Date[]): boolean {
     return true
 }
 
+function getTitleForHoliday(date: Date, globalHolidays: 
+    {
+        id: string;
+        createdAt: Date;
+        deletedAt: Date | null;
+        title: string;
+        date: Date;
+    }[]): string | null {
+    for (const holiday of globalHolidays) {
+        if (date.getFullYear() === holiday.date.getFullYear() &&
+            date.getMonth() === holiday.date.getMonth() &&
+            date.getDate() === holiday.date.getDate()) {
+            return holiday.title
+        }
+    }
+    return null
+}
+
+
+
 const weekDayNames = [
     'SUNDAY',
     'MONDAY',
@@ -92,6 +112,7 @@ export default async function generateCourseDates(formData: FormData) {
                 endTime: specialDay.endTime,
                 pauseDuration: specialDay.pauseDuration,
                 title: specialDay.title || null,
+                isCourseDay: true, // Mark as special course day
             },
         })
     }
@@ -107,40 +128,64 @@ export default async function generateCourseDates(formData: FormData) {
     const courseHolidays = course.courseHolidays.map(holiday => new Date(holiday.date))
 
     while (remainingCourseHours > 0 && course.courseRythms.length > 0) {
-        if (
-            isCourseAllowedOnDay(testDay, courseSpecialDays) &&
-            isCourseAllowedOnDay(testDay, holidays) &&
-            isCourseAllowedOnDay(testDay, courseHolidays)
-        ) {
+        if (isCourseAllowedOnDay(testDay, courseSpecialDays)) {
             const courseDay = getCourseDayFromRhythm(testDay, course.courseRythms)
             if (courseDay) {
-                const startHour = courseDay.startTime.getUTCHours()
-                const startMinute = courseDay.startTime.getUTCMinutes()
-                const endHour = courseDay.endTime.getUTCHours()
-                const endMinute = courseDay.endTime.getUTCMinutes()
-                const pauseHour = courseDay.pauseDuration.getUTCHours()
-                const pauseMinute = courseDay.pauseDuration.getUTCMinutes()
 
-                const courseDayStartISO = toISODate(testDay.getFullYear(), testDay.getMonth(), testDay.getDate(), startHour, startMinute)
-                const courseDayEndISO = toISODate(testDay.getFullYear(), testDay.getMonth(), testDay.getDate(), endHour, endMinute)
-                const courseDayPauseISO = toISODate(2000, 1, 1, pauseHour, pauseMinute)
+                if (!isCourseAllowedOnDay(testDay, holidays)) {
+                    await db.courseDays.create({
+                        data: {
+                            courseId: courseId,
+                            startTime: toISODate(testDay.getFullYear(), testDay.getMonth(), testDay.getDate(), 0, 0),
+                            endTime: toISODate(testDay.getFullYear(), testDay.getMonth(), testDay.getDate(), 0, 0),
+                            pauseDuration: toISODate(2000, 1, 1, 0, 0),
+                            title: getTitleForHoliday(testDay, globalHolidays) || '',
+                            isCourseDay: false, // Mark as holiday
+                        }
+                    })
+                } else if (!isCourseAllowedOnDay(testDay, courseHolidays)) {
+                    console.log(`Adding course day on ${testDay.toISOString()}`)
+                    await db.courseDays.create({
+                        data: {
+                            courseId: courseId,
+                            startTime: toISODate(testDay.getFullYear(), testDay.getMonth(), testDay.getDate(), 0, 0),
+                            endTime: toISODate(testDay.getFullYear(), testDay.getMonth(), testDay.getDate(), 0, 0),
+                            pauseDuration: toISODate(2000, 1, 1, 0, 0),
+                            title: getTitleForHoliday(testDay, course.courseHolidays) || '',
+                            isCourseDay: false, // Mark as holiday
+                        }
+                    })
+                } else {
+                    // Create course day in UTC
+                    const startHour = courseDay.startTime.getUTCHours()
+                    const startMinute = courseDay.startTime.getUTCMinutes()
+                    const endHour = courseDay.endTime.getUTCHours()
+                    const endMinute = courseDay.endTime.getUTCMinutes()
+                    const pauseHour = courseDay.pauseDuration.getUTCHours()
+                    const pauseMinute = courseDay.pauseDuration.getUTCMinutes()
 
-                await db.courseDays.create({
-                    data: {
-                        courseId: courseId,
-                        startTime: courseDayStartISO,
-                        endTime: courseDayEndISO,
-                        pauseDuration: courseDayPauseISO,
-                        title: 'Kurstag',
-                    }
-                })
+                    const courseDayStartISO = toISODate(testDay.getFullYear(), testDay.getMonth(), testDay.getDate(), startHour, startMinute)
+                    const courseDayEndISO = toISODate(testDay.getFullYear(), testDay.getMonth(), testDay.getDate(), endHour, endMinute)
+                    const courseDayPauseISO = toISODate(2000, 1, 1, pauseHour, pauseMinute)
 
-                remainingCourseHours -= calculateCourseDuration(
-                    new Date(courseDayStartISO),
-                    new Date(courseDayEndISO),
-                    new Date(courseDayPauseISO)
-                )
-                console.log(`Added course day: ${courseDayStartISO} REMAINS: ${remainingCourseHours} hours`)
+                    await db.courseDays.create({
+                        data: {
+                            courseId: courseId,
+                            startTime: courseDayStartISO,
+                            endTime: courseDayEndISO,
+                            pauseDuration: courseDayPauseISO,
+                            title: 'Kurstag',
+                            isCourseDay: true, // Mark as regular course day
+                        }
+                    })
+
+                    remainingCourseHours -= calculateCourseDuration(
+                        new Date(courseDayStartISO),
+                        new Date(courseDayEndISO),
+                        new Date(courseDayPauseISO)
+                    )
+                    console.log(`Added course day: ${courseDayStartISO} REMAINS: ${remainingCourseHours} hours`)
+                }
             }
         }
         testDay.setDate(testDay.getDate() + 1)
