@@ -205,6 +205,12 @@ const courseDays = courseDaysRaw.map(day => ({
     deletedAt: r.deletedAt ? formatDateISO(r.deletedAt) : null,
   }))
 
+  const globalHolidaysRaw = await db.holiday.findMany({
+  where: { deletedAt: null },
+  select: { title: true }
+  })
+  const globalHolidayTitles = globalHolidaysRaw.map(h => h.title)
+
 
         {/* Navigation */}
       return (
@@ -333,6 +339,7 @@ const courseDays = courseDaysRaw.map(day => ({
               rythms={rythms}
               courseDays={courseDays}
               courseId={course.id}
+              globalHolidayTitles={globalHolidayTitles}
             />
           </div>
               <form action={generateCourseDates} className="mt-6 flex flex-col gap-2 items-center">

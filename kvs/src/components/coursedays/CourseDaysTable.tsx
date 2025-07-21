@@ -12,6 +12,8 @@ export type CourseDay = {
 
 type Props = {
   courseDays: CourseDay[]
+  globalHolidayTitles: string[]
+  courseHolidayTitles: string[]
 }
 
 function parseLocalDate(dateString: string) {
@@ -21,7 +23,10 @@ function parseLocalDate(dateString: string) {
   return new Date(localString)
 }
 
-export function CourseDaysTable({ courseDays }: Props) {
+export function CourseDaysTable({
+  courseDays,
+  globalHolidayTitles = [],
+}: Props) {
   if (courseDays.length === 0) {
     return <div className="text-gray-400 text-sm">Noch keine Kurstage generiert.</div>
   }
@@ -40,23 +45,16 @@ export function CourseDaysTable({ courseDays }: Props) {
         </thead>
         <tbody>
           {courseDays.map((day, idx) => {
-            // Color logic for title
             let titleClass = "text-gray-500"
-            if (!day.isCourseDay && day.title) {
-              // Holiday: GlobalHoliday (red) or CourseHoliday (orange)
-              // If the day was generated from the global holidays table, mark red
-              // If from course holidays, mark orange
-              // Since both have a title, you need to distinguish by source.
-              // If you can't, default all holidays to orange, or pass a prop with globalHolidayTitles.
-              titleClass = "text-orange-500 font-semibold"
-            }
-            if (!day.isCourseDay && day.title && day.title !== "" && day.title?.toLowerCase().includes("montag")) {
-              // Example: Ostermontag, Pfingstmontag, etc. (assuming global holidays contain "montag" in title)
+            if (!day.isCourseDay && day.title && globalHolidayTitles.includes(day.title)) {
+              // GlobalHoliday
               titleClass = "text-red-600 font-semibold"
-            }
-            if (day.isCourseDay && day.title && day.title !== "Kurstag") {
+            } else if (!day.isCourseDay && day.title) {
+              // CourseHoliday
+              titleClass = "text-orange-500 font-semibold"
+            } else if (day.isCourseDay && day.title && day.title !== "Kurstag") {
               // CourseSpecialDay
-              titleClass = "text-blue-600 font-semibold"
+              titleClass = "text-green-400 font-semibold"
             }
 
             return (
