@@ -4,8 +4,6 @@ import { db } from '@/lib/db'
 import { sanitize } from '@/lib/sanitize'
 import RemoveButton from '@/components/RemoveButton/RemoveButton';
 import { getAuthorizing } from '@/lib/getAuthorizing';
-import CancelButton from '@/components/cancle-Button/cnacleButton';
-
 
 export default async function EditProgramPage({
   params,
@@ -103,7 +101,7 @@ export default async function EditProgramPage({
         <div className="w-full max-w-md">
           <nav className="max-w-xl mx-auto mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
             <Link href="/program" className="hover:underline text-gray-700">
-              Programm
+              Programme
             </Link>
             <span>&gt;</span>
             <Link href={`/program/${id}`} className="hover:underline text-gray-700">

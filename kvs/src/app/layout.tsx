@@ -38,7 +38,7 @@ export default async function RootLayout({
 
   return (
     <html lang="de">
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} overflow-y-hidden`}>
         <NavAndSidebar user={user} userRoles={roles}>
           {children}
         </NavAndSidebar>

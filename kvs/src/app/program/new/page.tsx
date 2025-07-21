@@ -58,7 +58,7 @@ export default async function NewProgramPage() {
       <div className="min-h-screen bg-gray-50 py-10 px-4 flex items-center justify-center">
         <div className="w-full max-w-md">
           <nav className="max-w-xl mx-auto mb-6 text-sm  text-gray-500 flex items-center gap-2 pl-2">
-                      <Link href="/program" className="hover:underline text-gray-700">Programm</Link>
+                      <Link href="/program" className="hover:underline text-gray-700">Programme</Link>
                       <span>&gt;</span>
                       <span className="text-gray-700 font-semibold">Programm hinzufügen</span> 
                     </nav>

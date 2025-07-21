@@ -66,9 +66,9 @@ export default async function ProgramPage({
         <ProgramToaster />
         {/* Breadcrumb navigation */}
         <nav className="w-full max-w-3xl mb-6 text-sm text-gray-500 flex items-center gap-2 px-2">
-          <Link href="/area" className="hover:underline">Bereich</Link>
+          <Link href="/area" className="hover:underline">Bereiche</Link>
           <span>&gt;</span>
-          <Link href="/program" className="hover:underline">Programm</Link>
+          <Link href="/program" className="hover:underline">Programme</Link>
           <span>&gt;</span>
           <span className="text-gray-700 font-semibold">{program.name}</span>
         </nav>

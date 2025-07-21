@@ -3,11 +3,17 @@ import Link from 'next/link'
 import CourseToaster from './CourseToaster'
 import { db } from '@/lib/db'
 import { sanitize } from '@/lib/sanitize'
-import { formatFullName, formatDateGerman } from '@/lib/utils'
+import { formatFullName } from '@/lib/utils'
 import { CourseTable, courseParticipantsColumns, CourseParticipantRow } from '@/components/overviewTable/table'
 import type { CourseWithDetailedRelations } from '@/types/query-models'
 import { getAuthorizing } from '@/lib/getAuthorizing'
 import { redirect } from 'next/navigation'
+import { FaInfoCircle, FaUsers, FaCalendarAlt } from 'react-icons/fa'
+
+// --- Add imports for course tables ---
+import { getCourseHolidays, getCourseSpecialDays, getCourseRythms } from '../../coursedays/actions'
+import { CourseTablesClient } from '../../../components/coursedays/CourseTablesClient'
+import generateCourseDates from '@/app/actions/generateCourseDates'
 
 // Extend the type locally to include email, phoneNumber, discountAmount, subsidyAmount
 type ParticipantWithContact = {
@@ -33,8 +39,23 @@ type RegistrationWithAmounts = {
   subsidyRemark?: string | null     
 }
 
+type ProgramWithAreaAndUnits = {
+  id: string; // <-- Add this line
+  name: string
+  area: { name: string } | null
+  teachingUnits?: number | null
+}
+
 type CourseWithParticipants = Omit<CourseWithDetailedRelations, 'registrations'> & {
   registrations: RegistrationWithAmounts[]
+  program: ProgramWithAreaAndUnits
+}
+
+// --- Helper for date formatting ---
+function formatDateISO(date: Date | string | null | undefined) {
+  if (!date) return ''
+  if (typeof date === 'string') return date
+  return date.toISOString()
 }
 
 export default async function CoursePage({ params }: { params: Promise<{ id: string }> }) {
@@ -47,49 +68,71 @@ export default async function CoursePage({ params }: { params: Promise<{ id: str
   }
   const { id } = await params
 
-  const courseData = await db.course.findUnique({
-    where: { id },
-    include: {
-      program: { include: { area: true } },
-      mainTrainer: true,
-      trainers: true,
-registrations: {
-  where: { 
-    deletedAt: null,
-    participant: { deletedAt: null }
-  },
-  select: {
-    id: true,
-    participant: {
-      select: {
-        name: true,
-        surname: true,
-        email: true,
-        phoneNumber: true,
-      }
-    },
-    invoices: {
-      select: {
-        id: true,
-        invoiceNumber: true,
-        dueDate: true,
-        isCancelled: true, // <-- Add this!
-      }
-    },
-    generatedDocuments: {
-      where: { deletedAt: null },
-      orderBy: { createdAt: 'desc' }
-    },
-    discountAmount: true,
-    subsidyAmount: true,
-    discountRemark: true,
-    subsidyRemark: true,
+const courseData = await db.course.findUnique({
+  where: { id },
+  include: {
+program: { 
+  select: { 
+    id: true, // <-- this line is required
+    name: true, 
+    area: { select: { name: true } }, 
+    teachingUnits: true 
   }
 },
+    mainTrainer: true,
+    trainers: true,
+    registrations: {
+      where: { 
+        deletedAt: null,
+        participant: { deletedAt: null }
+      },
+      select: {
+        id: true,
+        participant: {
+          select: {
+            name: true,
+            surname: true,
+            email: true,
+            phoneNumber: true,
+          }
+        },
+        invoices: {
+          select: {
+            id: true,
+            invoiceNumber: true,
+            dueDate: true,
+            isCancelled: true,
+          }
+        },
+        generatedDocuments: {
+          where: { deletedAt: null },
+          orderBy: { createdAt: 'desc' }
+        },
+        discountAmount: true,
+        subsidyAmount: true,
+        discountRemark: true,
+        subsidyRemark: true,
+      }
     },
-  })
+  },
+})
 
   const course = sanitize<typeof courseData, CourseWithParticipants>(courseData)
+
+  const courseDaysRaw = await db.courseDays.findMany({
+  where: { courseId: course.id, deletedAt: null },
+  orderBy: { startTime: 'asc' },
+})
+
+const courseDays = courseDaysRaw.map(day => ({
+  id: day.id,
+  startTime: formatDateISO(day.startTime),
+  endTime: formatDateISO(day.endTime),
+  pauseDuration: formatDateISO(day.pauseDuration),
+  title: day.title,
+  isCourseDay: day.isCourseDay
+}))
+
 
   if (!course) {
     return (
@@ -131,45 +174,82 @@ registrations: {
     subsidyRemark: reg.subsidyRemark ?? null,    
   }))
 
-  return (
-    <div className="min-h-screen bg-gray-50 py-10 px-4">
-      <CourseToaster />
-      <div className="max-w-[1800px] mx-auto">
-        <nav className='mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2'>
-          <Link href="/" className="hover:underline text-gray-700">
-            Kursübersicht
-          </Link>
-          <span>&gt;</span>
-          <span className='text-gray-700 font-semibold'>
-            {course.program?.name ?? 'Kurs'}
-          </span>
-        </nav>
+  // --- Fetch course tables data ---
+  const [holidaysRaw, specialDaysRaw, rythmsRaw] = await Promise.all([
+    getCourseHolidays(course.id),
+    getCourseSpecialDays(course.id),
+    getCourseRythms(course.id)
+  ])
+
+  const holidays = holidaysRaw.map(h => ({
+    ...h,
+    date: formatDateISO(h.date),
+    createdAt: formatDateISO(h.createdAt),
+    deletedAt: h.deletedAt ? formatDateISO(h.deletedAt) : null,
+  }))
+  const specialDays = specialDaysRaw.map(d => ({
+    ...d,
+    title: d.title ?? '',
+    startTime: formatDateISO(d.startTime),
+    endTime: formatDateISO(d.endTime),
+    pauseDuration: formatDateISO(d.pauseDuration),
+    createdAt: formatDateISO(d.createdAt),
+    deletedAt: d.deletedAt ? formatDateISO(d.deletedAt) : null,
+  }))
+  const rythms = rythmsRaw.map(r => ({
+    ...r,
+    startTime: formatDateISO(r.startTime),
+    endTime: formatDateISO(r.endTime),
+    pauseDuration: formatDateISO(r.pauseDuration),
+    createdAt: formatDateISO(r.createdAt),
+    deletedAt: r.deletedAt ? formatDateISO(r.deletedAt) : null,
+  }))
+
+  const globalHolidaysRaw = await db.holiday.findMany({
+  where: { deletedAt: null },
+  select: { title: true }
+  })
+  const globalHolidayTitles = globalHolidaysRaw.map(h => h.title)
 
         {/* Navigation */}
-        <div className="flex justify-between items-center mb-8">
-               <nav className="max-w-xl mx-auto mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2 pb-5">
-                <Link href="/" className="hover:underline text-gray-700">Startseite</Link>
-                <span>&gt;</span>
-                <span className="text-gray-700 font-semibold">{course.program?.name}</span>
-            </nav>
-          <div className="flex-1 flex justify-center items-center relative pt-5">
+  return (
+    <div>
+       <div className="flex flex-col justify-between items-center mb-2 mt-10">
+        <nav className="w-full mx-auto text-sm text-gray-500 flex items-center gap-2 p-8">
+            <Link href="/" className="hover:underline text-gray-700">
+              Kursübersicht
+            </Link>
+            <span>&gt;</span>
+            <span className="text-gray-700 font-semibold">
+              {course.program.name}
+            </span>
+          </nav>
+        <div className="w-full flex justify-between items-center ">
+          <CourseToaster />
+          <div className="w-full flex-1 flex justify-center items-center relative pt-5">
             <h1 className="text-3xl font-bold text-gray-900">{course.program?.name ?? 'Course'}</h1>
+            <div className='absolute right-6'>
             <Link
               href={`/course/${course.id}/edit`}
-              className="absolute right-0 text-gray-400 hover:text-blue-600 transition ml-4"
+              className="text-gray-400 hover:text-blue-600 transition"
               title="Kurs bearbeiten"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
               </svg>
             </Link>
+            </div>
           </div>
-          <div />
         </div>
+      </div>
 
         {/* Organized Course Info Card */}
-        <div className="bg-white shadow rounded-lg p-8 mb-10">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="bg-white shadow rounded-lg p-8 mb-10">
+            <h2 className="text-2xl font-bold text-gray-900 mb-8 text-left border-b-2 border-blue-100 pb-2 flex items-center gap-2">
+            <FaInfoCircle className="w-6 h-6 text-blue-400" />
+            Kursdetails
+          </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Left: Main Info */}
             <div>
               <dl className="divide-y divide-gray-200">
@@ -181,14 +261,14 @@ registrations: {
                   <dt className="font-semibold text-gray-700">Bereich</dt>
                   <dd>{course.program?.area?.name ?? <span className="text-gray-400">Unbekannt</span>}</dd>
                 </div>
-                <div className="py-3 flex justify-between">
-                  <dt className="font-semibold text-gray-700">Start</dt>
-                  <dd>{formatDateGerman(course.startDate)}</dd>
-                </div>
-                <div className="py-3 flex justify-between">
-                  <dt className="font-semibold text-gray-700">Ende</dt>
-                  <dd>{formatDateGerman(course.endDate)}</dd>
-                </div>
+            <div className="py-3 flex justify-between">
+              <dt className="font-semibold text-gray-700">Start</dt>
+              <dd>{course.startDate ? new Date(course.startDate).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) : ''}</dd>
+            </div>
+            <div className="py-3 flex justify-between">
+              <dt className="font-semibold text-gray-700">Ende</dt>
+              <dd>{course.endDate ? new Date(course.endDate).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) : ''}</dd>
+            </div>
               </dl>
             </div>
             {/* Right: Trainer Info */}
@@ -214,20 +294,61 @@ registrations: {
                       : <span className="text-gray-400">—</span>}
                   </dd>
                 </div>
-                <div className="py-3 flex justify-between">
-                  <dt className="font-semibold text-gray-700">Ort</dt>  {/* Logik fehlt noch*/}
-                  <dd>
-                    <span className="text-gray-400">—</span>
-                  </dd>
-                </div>
+              <div className="py-3 flex justify-between">
+                <dt className="font-semibold text-gray-700">Einheiten</dt>
+                <dd>
+                  {course.program?.teachingUnits != null
+                    ? course.program.teachingUnits
+                    : <span className="text-gray-400">—</span>}
+                </dd>
+              </div>
               </dl>
             </div>
           </div>
         </div>
 
         {/* Participants Table */}
-        <CourseTable data={participantRows} columns={courseParticipantsColumns} courseId={course.id} />
+        <section>
+          <div className="bg-white shadow rounded-lg p-8 mb-10">
+            <h2 className="text-2xl font-bold text-gray-900 mb-8 text-left border-b-2 border-blue-100 pb-2 flex items-center gap-2">
+              <FaUsers className="w-6 h-6 text-blue-400" />
+              Teilnehmer-Details
+            </h2>
+            <CourseTable data={participantRows} columns={courseParticipantsColumns} courseId={course.id} />
+          </div>
+        </section>
+
+        {/* --- Course Dates Tables Section --- */}
+        
+        <section className='mb-10'>
+          <div className="bg-white shadow rounded-lg p-8 mb-10">
+            <h2 className="text-2xl font-bold text-gray-900 mb-8 te xt-left border-b-2 border-blue-100 pb-2 flex items-center gap-2">
+              <FaCalendarAlt className="w-6 h-6 text-blue-400" />
+              Kurstermine Verwalten
+            </h2>
+            <CourseTablesClient
+              holidays={holidays}
+              specialDays={specialDays}
+              rythms={rythms}
+              courseDays={courseDays}
+              courseId={course.id}
+              globalHolidayTitles={globalHolidayTitles}
+            />
+          </div>
+              <form action={generateCourseDates} className="mt-6 flex flex-col gap-2 items-center">
+                <input
+                type="hidden"
+                name="courseId"
+                value={course.id}
+                />
+              <button
+                type="submit"
+                className="cursor-pointer px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-xs font-medium transition"
+              >
+                Kurstage generieren
+              </button>
+            </form>
+        </section>
       </div>
-    </div>
   )
 }
