@@ -211,43 +211,36 @@ const courseDays = courseDaysRaw.map(day => ({
   })
   const globalHolidayTitles = globalHolidaysRaw.map(h => h.title)
 
-
         {/* Navigation */}
-      return (
-      <div className="min-h-screen bg-gray-50 py-10 px-4">
-      <CourseToaster />
-      <div className="max-w-[1800px] mx-auto">
-      <nav className="mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
-        <Link href="/" className="hover:underline text-gray-700">
-          Startseite
-        </Link>
-        <span>&gt;</span>
-      <Link
-        href={`/program/${course.program?.id ?? ''}`}
-        className="hover:underline text-gray-700"
-      >
-        {course.program?.name ?? 'Kurs'}
-      </Link>
-        <span>&gt;</span>
-        <span className="text-gray-900 font-semibold">
-          {course.code ?? 'Kurs'}
-        </span>
-      </nav>
-
-      <div className="flex justify-between items-center mb-8">
-        <div className="flex-1 flex items-center relative pt-5">
-          <h1 className="text-3xl font-bold text-gray-900 text-left">{course.program?.name ?? 'Course'}</h1>
-          <Link
-            href={`/course/${course.id}/edit`}
-            className="absolute right-0 text-gray-400 hover:text-blue-600 transition ml-4"
-            title="Kurs bearbeiten"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-            </svg>
-          </Link>
+  return (
+    <div>
+       <div className="flex flex-col justify-between items-center mb-2 mt-10">
+        <nav className="w-full mx-auto text-sm text-gray-500 flex items-center gap-2 p-8">
+            <Link href="/" className="hover:underline text-gray-700">
+              Kursübersicht
+            </Link>
+            <span>&gt;</span>
+            <span className="text-gray-700 font-semibold">
+              {course.program.name}
+            </span>
+          </nav>
+        <div className="w-full flex justify-between items-center ">
+          <CourseToaster />
+          <div className="w-full flex-1 flex justify-center items-center relative pt-5">
+            <h1 className="text-3xl font-bold text-gray-900">{course.program?.name ?? 'Course'}</h1>
+            <div className='absolute right-6'>
+            <Link
+              href={`/course/${course.id}/edit`}
+              className="text-gray-400 hover:text-blue-600 transition"
+              title="Kurs bearbeiten"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              </svg>
+            </Link>
+            </div>
+          </div>
         </div>
-        <div />
       </div>
 
         {/* Organized Course Info Card */}
@@ -327,9 +320,9 @@ const courseDays = courseDaysRaw.map(day => ({
 
         {/* --- Course Dates Tables Section --- */}
         
-        <section>
+        <section className='mb-10'>
           <div className="bg-white shadow rounded-lg p-8 mb-10">
-            <h2 className="text-2xl font-bold text-gray-900 mb-8 text-left border-b-2 border-blue-100 pb-2 flex items-center gap-2">
+            <h2 className="text-2xl font-bold text-gray-900 mb-8 te xt-left border-b-2 border-blue-100 pb-2 flex items-center gap-2">
               <FaCalendarAlt className="w-6 h-6 text-blue-400" />
               Kurstermine Verwalten
             </h2>
@@ -357,6 +350,5 @@ const courseDays = courseDaysRaw.map(day => ({
             </form>
         </section>
       </div>
-    </div>
   )
 }
