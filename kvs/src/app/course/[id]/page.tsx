@@ -117,6 +117,18 @@ export default async function CoursePage({ params }: { params: Promise<{ id: str
     },
   })
 
+    // Add the null check here!
+  if (!courseData) {
+    return (
+      <div className="container mx-auto py-8 px-4">
+        <Link href="/" className="text-blue-500 hover:underline mb-6 block">
+          &larr; Startseite
+        </Link>
+        <div className="text-red-600 text-lg font-semibold">Kurs nicht gefunden.</div>
+      </div>
+    )
+  }
+
   const course = sanitize<typeof courseData, CourseWithParticipants>(courseData)
 
   const courseDaysRaw = await db.courseDays.findMany({
