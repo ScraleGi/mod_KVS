@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { EditLabel } from "../../../../components/trainer/EditLabel";
 import { getAuthorizing } from "@/lib/getAuthorizing";
+import CancelButton from '@/components/cancle-Button/cnacleButton';
 
 export default async function EditTrainerPage({ params }: { params: Promise<{ id: string }> }) {
     // Check user authorization
@@ -139,12 +140,7 @@ export default async function EditTrainerPage({ params }: { params: Promise<{ id
                         />
                     </div>
                     <div className="flex justify-between mt-6">
-                        <Link
-                            href={`/trainer/${id}`}
-                            className="px-4 py-2 bg-neutral-200 text-neutral-700 rounded hover:bg-neutral-300 text-xs font-medium transition"
-                        >
-                            Abbrechen
-                        </Link>
+                       <CancelButton href="/trainer">Abbrechen</CancelButton>
                         <button
                             type="submit"
                             className="cursor-pointer px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-xs font-medium transition"

@@ -1,4 +1,5 @@
 'use client'
+import CancelButton from '@/components/cancle-Button/cnacleButton'
 import React, { useState } from 'react'
 
 export default function SubsidyClientLogic({
@@ -109,6 +110,8 @@ export default function SubsidyClientLogic({
           className="border rounded px-2 py-1 w-full"
         />
       </div>
+      <div className="flex justify-between mt-6">
+      <CancelButton href="/">Abbrechen</CancelButton>
       <button
         type="submit"
         className="cursor-pointer px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-xs font-medium transition"
@@ -116,6 +119,7 @@ export default function SubsidyClientLogic({
       >
         Speichern
       </button>
-    </form>
+    </div>
+    </form >
   )
 }
