@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { db } from '@/lib/db'
 import { EditLabel } from '../../../components/trainer/EditLabel'
 import { NewAndEditForm } from '../../../components/forms/NewAndEditForm'
+import { NewAndEditButton } from '@/components/forms/NewAndEditButton'
 
 /**
  * Server action to create a new area
@@ -53,7 +54,6 @@ export default async function NewAreaPage() {
       navHref="/area"
       navHrefText="Bereiche"
       navTitle="Bereich hinzufügen"
-      buttonText="Bereich erstellen"
     >
       <EditLabel
         name="code"
@@ -77,7 +77,10 @@ export default async function NewAreaPage() {
         value=""
         type="textarea"
         rows={2}
-      />      
+      /> 
+      <NewAndEditButton
+      buttonText='Bereich erstellen'  
+      />   
     </NewAndEditForm>
 
   )
