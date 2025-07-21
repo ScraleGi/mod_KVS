@@ -50,14 +50,14 @@ export default async function AreaDetailPage({
 
   if (roles.some(role => role.role === 'MARKETING' || role.role === 'RECHNUNGSWESEN' || role.role === 'TRAINER')) {
     return (
-      <div className="min-h-screen bg-[#f8fafd] py-14 px-4">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#f8fafd] py-14 px-4">
         {/* Breadcrumb navigation */}
         <nav className="max-w-xl mx-auto mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
           <Link href="/area" className="hover:underline text-gray-700">Bereiche</Link>
           <span>&gt;</span>
           <span className="text-gray-700 font-semibold">{sanitizedArea.name}</span>
         </nav>
-        <div className="max-w-xl mx-auto bg-white rounded-2xl shadow-lg px-6 py-8 relative">
+        <div className="w-full max-w-xl mx-auto bg-white rounded-2xl shadow-lg px-6 py-8 relative">
           {/* Edit button */}
           <EditPencil
             goTo={``}
@@ -119,7 +119,7 @@ export default async function AreaDetailPage({
   }
 
   return (
-    <div className="min-h-screen bg-[#f8fafd] py-14 px-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#f8fafd] py-14 px-4">
       <AreaToaster />
       {/* Breadcrumb navigation */}
       <nav className="max-w-xl mx-auto mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
@@ -127,7 +127,7 @@ export default async function AreaDetailPage({
         <span>&gt;</span>
         <span className="text-gray-700 font-semibold">{sanitizedArea.name}</span>
       </nav>
-      <div className="max-w-xl mx-auto bg-white rounded-2xl shadow-lg px-6 py-8 relative">
+      <div className="w-full max-w-xl mx-auto bg-white rounded-2xl shadow-lg px-6 py-8 relative">
         {/* Edit button */}
         <EditPencil
           goTo={`/area/${sanitizedArea.id}/edit`}
