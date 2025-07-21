@@ -51,7 +51,7 @@ export default async function DeletedCoursesPage() {
             Kursübersicht
           </Link>
           <span>&gt;</span>
-          <span className="text-gray-700 font-semibold">Archivierte Kurse</span>
+          <span className="text-gray-700 font-semibold">Archiv</span>
         </nav>
         <div className="bg-white rounded-xl shadow border border-gray-100 px-8 py-10">
           <h1 className="text-2xl font-bold text-gray-900 mb-8 tracking-tight">Archivierte Kurse</h1>

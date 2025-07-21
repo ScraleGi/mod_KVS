@@ -12,9 +12,18 @@ type Props = {
   rythms: CourseRythm[]
   courseDays: CourseDay[]
   courseId: string
+  globalHolidayTitles: string[] 
 }
 
-export function CourseTablesClient({ holidays, specialDays, rythms, courseDays, courseId }: Props) {
+export function CourseTablesClient({
+  holidays,
+  specialDays,
+  rythms,
+  courseDays,
+  courseId,
+  globalHolidayTitles,
+}: Props) {
+  const courseHolidayTitles = holidays.map(h => h.title)
   return (
     <div className="flex flex-col gap-8">
       <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 w-full">
@@ -31,9 +40,12 @@ export function CourseTablesClient({ holidays, specialDays, rythms, courseDays, 
       </section>
       <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 w-full">
         <h2 className="text-lg font-semibold mb-6 text-gray-800 tracking-tight">Generierte Kurstage</h2>
-        <CourseDaysTable courseDays={courseDays}/>
+        <CourseDaysTable
+          courseDays={courseDays}
+          globalHolidayTitles={globalHolidayTitles}
+          courseHolidayTitles={courseHolidayTitles}
+        />
       </section>
     </div>
-    
   )
 }

@@ -85,7 +85,6 @@ export default async function Home() {
       <TableTopButton
         title="Kursübersicht"
         button1="/course/new"
-        button2="/"
         button3="/course/deleted"
       />
       <CourseTable data={tableData} columns={home} />
