@@ -130,6 +130,7 @@ const courseDays = courseDaysRaw.map(day => ({
   endTime: formatDateISO(day.endTime),
   pauseDuration: formatDateISO(day.pauseDuration),
   title: day.title,
+  isCourseDay: day.isCourseDay
 }))
 
 
@@ -261,14 +262,14 @@ const courseDays = courseDaysRaw.map(day => ({
                   <dt className="font-semibold text-gray-700">Bereich</dt>
                   <dd>{course.program?.area?.name ?? <span className="text-gray-400">Unbekannt</span>}</dd>
                 </div>
-                <div className="py-3 flex justify-between">
-                  <dt className="font-semibold text-gray-700">Start</dt>
-                  <dd>{formatDateGerman(course.startDate)}</dd>
-                </div>
-                <div className="py-3 flex justify-between">
-                  <dt className="font-semibold text-gray-700">Ende</dt>
-                  <dd>{formatDateGerman(course.endDate)}</dd>
-                </div>
+            <div className="py-3 flex justify-between">
+              <dt className="font-semibold text-gray-700">Start</dt>
+              <dd>{course.startDate ? new Date(course.startDate).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) : ''}</dd>
+            </div>
+            <div className="py-3 flex justify-between">
+              <dt className="font-semibold text-gray-700">Ende</dt>
+              <dd>{course.endDate ? new Date(course.endDate).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) : ''}</dd>
+            </div>
               </dl>
             </div>
             {/* Right: Trainer Info */}
@@ -294,14 +295,14 @@ const courseDays = courseDaysRaw.map(day => ({
                       : <span className="text-gray-400">—</span>}
                   </dd>
                 </div>
-<div className="py-3 flex justify-between">
-  <dt className="font-semibold text-gray-700">Einheiten</dt>
-  <dd>
-    {course.program?.teachingUnits != null
-      ? course.program.teachingUnits
-      : <span className="text-gray-400">—</span>}
-  </dd>
-</div>
+              <div className="py-3 flex justify-between">
+                <dt className="font-semibold text-gray-700">Einheiten</dt>
+                <dd>
+                  {course.program?.teachingUnits != null
+                    ? course.program.teachingUnits
+                    : <span className="text-gray-400">—</span>}
+                </dd>
+              </div>
               </dl>
             </div>
           </div>

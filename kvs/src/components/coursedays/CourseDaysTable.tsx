@@ -7,6 +7,7 @@ export type CourseDay = {
   endTime: string
   pauseDuration: string
   title?: string | null
+  isCourseDay: boolean
 }
 
 type Props = {
@@ -39,7 +40,25 @@ export function CourseDaysTable({ courseDays }: Props) {
         </thead>
         <tbody>
           {courseDays.map((day, idx) => {
-            const isSpecial = day.title && day.title !== 'Kurstag'
+            // Color logic for title
+            let titleClass = "text-gray-500"
+            if (!day.isCourseDay && day.title) {
+              // Holiday: GlobalHoliday (red) or CourseHoliday (orange)
+              // If the day was generated from the global holidays table, mark red
+              // If from course holidays, mark orange
+              // Since both have a title, you need to distinguish by source.
+              // If you can't, default all holidays to orange, or pass a prop with globalHolidayTitles.
+              titleClass = "text-orange-500 font-semibold"
+            }
+            if (!day.isCourseDay && day.title && day.title !== "" && day.title?.toLowerCase().includes("montag")) {
+              // Example: Ostermontag, Pfingstmontag, etc. (assuming global holidays contain "montag" in title)
+              titleClass = "text-red-600 font-semibold"
+            }
+            if (day.isCourseDay && day.title && day.title !== "Kurstag") {
+              // CourseSpecialDay
+              titleClass = "text-blue-600 font-semibold"
+            }
+
             return (
               <tr
                 key={day.id}
@@ -52,7 +71,7 @@ export function CourseDaysTable({ courseDays }: Props) {
                 <td className="px-3 py-2 text-gray-900">
                   {parseLocalDate(day.startTime).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                 </td>
-                <td className={`px-3 py-2 ${isSpecial ? "text-orange-500 font-semibold" : "text-gray-500"}`}>
+                <td className={`px-3 py-2 ${titleClass}`}>
                   {day.title ?? 'Kurstag'}
                 </td>
                 <td className="px-3 py-2 text-gray-500">
