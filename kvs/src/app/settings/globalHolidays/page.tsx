@@ -1,5 +1,5 @@
-import { getHolidays } from '../actions'
-import { HolidayTable } from '../components/HolidayTable'
+import { getHolidays } from '../../coursedays/actions'
+import { HolidayTable } from '../../../components/coursedays/HolidayTable'
 import { formatDateISO } from '../../../lib/utils'
 
 export default async function GlobalHolidaysPage() {

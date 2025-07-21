@@ -269,8 +269,8 @@ export const home: ColumnDef<CourseRow>[] = [
             <Link
             href={`/course/${row.original.id}/edit`}
             className="p-2 rounded hover:bg-blue-100 text-blue-600 transition"
-            title="Edit"
-            aria-label="Edit"
+            title="Bearbeiten"
+            aria-label="Bearbeiten"
             >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -469,8 +469,8 @@ export const areaColumns: ColumnDef<AreaRow>[] = [
         <Link
           href={`/area/${row.original.id}/edit`}
           className="p-2 rounded hover:bg-blue-100 text-blue-600 transition"
-          title="Edit"
-          aria-label="Edit"
+          title="Bearbeiten"
+          aria-label="Bearbeiten"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -599,8 +599,8 @@ export const programColumns: ColumnDef<ProgramRow>[] = [
         <Link
           href={`/program/${row.original.id}/edit`}
           className="p-2 rounded hover:bg-blue-100 text-blue-600 transition"
-          title="Edit"
-          aria-label="Edit"
+          title="Bearbeiten"
+          aria-label="Bearbeiten"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -1090,7 +1090,7 @@ export function CourseTable<T>({
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center text-gray-400">
-                  No results.
+                  Keine Resultate.
                 </TableCell>
               </TableRow>
             )}

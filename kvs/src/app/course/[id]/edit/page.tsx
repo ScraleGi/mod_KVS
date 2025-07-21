@@ -9,6 +9,7 @@ import RemoveButton from '@/components/RemoveButton/RemoveButton';
 import { getAuthorizing } from '@/lib/getAuthorizing';
 
 
+
 /**
  * Course Edit Page - Allows editing of course details
  */

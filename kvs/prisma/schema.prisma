@@ -56,6 +56,7 @@ model Course {
   courseHolidays                            CourseHoliday[] // Relation: one Course has many KursHolidays
   courseRythms                              CourseRythm[] // Relation: one Course has many KursRythmus
   courseSpecialDays                         CourseSpecialDays[] // Relation: one Course has many KursSpecialDays
+  courseDays                                CourseDays[] // Relation: one Course has many KursDays
   @@index([deletedAt])
 }
 
@@ -240,7 +241,7 @@ model CourseRythm {
   weekDay       WeekDay
   startTime     DateTime   @db.Time
   endTime       DateTime   @db.Time 
-  pauseDuration DateTime   @db.Time 
+  pauseDuration DateTime   @db.Time
   createdAt     DateTime   @default(now())
   deletedAt     DateTime?
   courseId      String
@@ -256,6 +257,20 @@ enum WeekDay {
   FRIDAY
   SATURDAY
   SUNDAY
+}
+
+model CourseDays {
+  id            String     @id @default(uuid())
+  courseId      String
+  course        Course     @relation(fields: [courseId], references: [id])
+  startTime     DateTime   
+  endTime       DateTime   
+  pauseDuration DateTime   
+  title         String?
+  isCourseDay  Boolean    @default(true) // Indicates if this is a regular course day
+  createdAt     DateTime   @default(now())
+  deletedAt     DateTime? // Soft delete: null = not deleted, date = deleted 
+  @@unique([courseId, startTime]) // Prevents duplicate course days per course
 }
 
 model Role {
