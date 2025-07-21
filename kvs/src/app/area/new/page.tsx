@@ -1,8 +1,8 @@
 import { getAuthorizing } from '@/lib/getAuthorizing'
 import { redirect } from 'next/navigation'
-import Link from 'next/link'
 import { db } from '@/lib/db'
 import { EditLabel } from '../../../components/trainer/EditLabel'
+import { NewAndEditForm } from '../../../components/forms/NewAndEditForm'
 
 /**
  * Server action to create a new area
@@ -47,57 +47,38 @@ export default async function NewAreaPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 py-10 px-4">
-      <div className="w-full max-w-md mx-auto">
-        <nav className="max-w-xl mx-auto mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
-          <Link href="/area" className="hover:underline text-gray-700">Bereiche</Link>
-          <span>&gt;</span>
-          <span className="text-gray-700 font-semibold">Bereich hinzufügen</span>
-        </nav>
-        <div className="bg-white rounded-sm shadow border border-gray-100">
-          <div className="px-6 py-8">
-            <h1 className="text-xl font-bold text-gray-900 mb-8 tracking-tight">
-              Bereich hinzufügen
-            </h1>
-            <form action={createArea} className="space-y-6">
-              {/* Area Code Field */}
-                <EditLabel
-                  name="code"
-                  labelName="Bereichscode"
-                  value=""
-                  type="text"
-                  required={true}
-                />
-              {/* Area Name Field */}
-              <EditLabel
-                name="name"
-                labelName="Name"
-                value=""
-                type="text"
-                required={true}
-              />
-              {/* Area Description Field (Optional) */}
-              <EditLabel
-                name="description"
-                labelName="Beschreibung"
-                value=""
-                type="textarea"
-                rows={2}
-              />
-              {/* Action Buttons */}
-              <div className="pt-2 flex items-center justify-end">
-                <button
-                  type="submit"
-                  className="inline-flex items-center px-5 py-2 cursor-pointer border border-transparent text-xs font-semibold rounded text-white bg-blue-600 hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                >
-                  Bereich erstellen
-                </button>
+    <NewAndEditForm
+      title="Bereich hinzufügen"
+      formAction={createArea}
+      navHref="/area"
+      navHrefText="Bereiche"
+      navTitle="Bereich hinzufügen"
+      buttonText="Bereich erstellen"
+    >
+      <EditLabel
+        name="code"
+        labelName="Bereichscode"
+        value=""
+        type="text"
+        required={true}
+      />
+      {/* Area Name Field */}
+      <EditLabel
+        name="name"
+        labelName="Name"
+        value=""
+        type="text"
+        required={true}
+      />
+      {/* Area Description Field (Optional) */}
+      <EditLabel
+        name="description"
+        labelName="Beschreibung"
+        value=""
+        type="textarea"
+        rows={2}
+      />      
+    </NewAndEditForm>
 
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
   )
 }
