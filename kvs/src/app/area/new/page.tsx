@@ -2,6 +2,7 @@ import { getAuthorizing } from '@/lib/getAuthorizing'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { db } from '@/lib/db'
+import { EditLabel } from '../../../components/trainer/EditLabel'
 
 /**
  * Server action to create a new area
@@ -46,8 +47,8 @@ export default async function NewAreaPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-10 px-4">
-      <div className="max-w-md mx-auto">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 py-10 px-4">
+      <div className="w-full max-w-md mx-auto">
         <nav className="max-w-xl mx-auto mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
           <Link href="/area" className="hover:underline text-gray-700">Bereiche</Link>
           <span>&gt;</span>
@@ -60,49 +61,29 @@ export default async function NewAreaPage() {
             </h1>
             <form action={createArea} className="space-y-6">
               {/* Area Code Field */}
-              <div className="space-y-1">
-                <label htmlFor="code" className="block text-xs font-medium text-gray-600">
-                  Code
-                </label>
-                <input
-                  id="code"
+                <EditLabel
                   name="code"
+                  labelName="Bereichscode"
+                  value=""
                   type="text"
-                  className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                  placeholder="Code einfügen"
-                  required
+                  required={true}
                 />
-              </div>
-
               {/* Area Name Field */}
-              <div className="space-y-1">
-                <label htmlFor="name" className="block text-xs font-medium text-gray-600">
-                  Name
-                </label>
-                <input
-                  id="name"
-                  name="name"
-                  type="text"
-                  className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                  placeholder="Name einfügen"
-                  required
-                />
-              </div>
-
+              <EditLabel
+                name="name"
+                labelName="Name"
+                value=""
+                type="text"
+                required={true}
+              />
               {/* Area Description Field (Optional) */}
-              <div className="space-y-1">
-                <label htmlFor="description" className="block text-xs font-medium text-gray-600">
-                  Beschreibung (optional)
-                </label>
-                <textarea
-                  id="description"
-                  name="description"
-                  className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                  placeholder="Beschreibung einfügen"
-                  rows={2}
-                />
-              </div>
-
+              <EditLabel
+                name="description"
+                labelName="Beschreibung"
+                value=""
+                type="textarea"
+                rows={2}
+              />
               {/* Action Buttons */}
               <div className="pt-2 flex items-center justify-end">
                 <button
