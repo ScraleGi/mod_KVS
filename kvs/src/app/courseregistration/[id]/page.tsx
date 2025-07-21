@@ -286,6 +286,27 @@ export default async function ParticipantDetailsPage({
           <hr className="my-6 border-t border-neutral-200" />
           
         <ShowIAndSelectnvoiceRecipient sanitizedRegistration={sanitizedRegistration}  />
+            <div className="flex justify-end mt-4">
+      {hasActiveInvoice ? (
+        <span
+          className="px-3 py-1 rounded text-xs font-medium bg-neutral-200 text-neutral-400 cursor-not-allowed select-none"
+          tabIndex={-1}
+          aria-disabled="true"
+        >
+          Rechnung generieren
+        </span>
+      ) : (
+    <form action={createInvoiceAction}>
+      <input type="hidden" name="registrationId" value={registrationId} />
+      <button
+        type="submit"
+        className="px-3 py-1 rounded text-xs font-medium bg-blue-600 text-white hover:bg-blue-700 transition"
+      >
+        Rechnung generieren
+      </button>
+    </form>
+      )}
+    </div>
 
 {/* 
 <SelfPayer />
@@ -487,27 +508,7 @@ export default async function ParticipantDetailsPage({
       </tbody>
     </table>
     {/* Create Invoice Button */}
-    <div className="flex justify-end mt-4">
-      {hasActiveInvoice ? (
-        <span
-          className="px-3 py-1 rounded text-xs font-medium bg-neutral-200 text-neutral-400 cursor-not-allowed select-none"
-          tabIndex={-1}
-          aria-disabled="true"
-        >
-          Rechnung generieren
-        </span>
-      ) : (
-    <form action={createInvoiceAction}>
-      <input type="hidden" name="registrationId" value={registrationId} />
-      <button
-        type="submit"
-        className="px-3 py-1 rounded text-xs font-medium bg-blue-600 text-white hover:bg-blue-700 transition"
-      >
-        Rechnung generieren
-      </button>
-    </form>
-      )}
-    </div>
+
   </div>
 </section>
 

@@ -6,6 +6,7 @@ import RecipientForm from "./recipientForm/RecipientForm"
 import { deleteRecipientFromRegistration } from "@/app/actions/createRecipientAction"
 
 
+
 export default function ShowIAndSelectnvoiceRecipient(  params: { sanitizedRegistration: SanitizedRegistration }) {
     const { sanitizedRegistration } = params
 
@@ -54,7 +55,6 @@ function SelectOrNewInvoiceRecipient(params: { sanitizedRegistration: SanitizedR
 
     return (
         <>
-        <SelectRecipientWithAutocomplete />
         <RecipientForm courseregistrationId={sanitizedRegistration.id} />
         </>
     )
@@ -63,7 +63,9 @@ function SelectOrNewInvoiceRecipient(params: { sanitizedRegistration: SanitizedR
 
 function SelectRecipientWithAutocomplete() {
     return (
-        <div>Select an invoice recipient for this registration with autocomplete.</div>
+        <div>
+
+        </div>
     )
 }
 

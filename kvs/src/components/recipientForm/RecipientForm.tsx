@@ -2,6 +2,7 @@
 import { useState, useTransition } from "react"
 import Link from "next/link"
 import { addRecipientToCourseRegistration, createRecipientAction } from "@/app/actions/createRecipientAction"
+import { Receipt } from "lucide-react"
 
 /**
  * Form UI for creating a new InvoiceRecipient.
@@ -9,6 +10,7 @@ import { addRecipientToCourseRegistration, createRecipientAction } from "@/app/a
  * - Shows loading state while submitting.
  */
 export default function RecipientForm(params: { courseregistrationId?: string}) {
+  
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
 
@@ -45,6 +47,10 @@ export default function RecipientForm(params: { courseregistrationId?: string}) 
             {error}
           </div>
         )}
+ {/* TODO: Replace the empty array with actual recipients data */}
+
+
+        {/* Main form for creating a new recipient */}
 
         <form
           id="invoice-recipient-form"
