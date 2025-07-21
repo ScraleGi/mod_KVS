@@ -12,9 +12,13 @@ import {
   SanitizedRegistration,
   SanitizedInvoice,
   SanitizedDocument,
+  SanitizedCourse
 } from '@/types/query-models'
 import RemoveButton from '@/components/RemoveButton/RemoveButton'
 import RecipientForm from "@/components/recipientForm/RecipientForm"
+import { generateInvoice } from '@/utils/generateInvoice'
+import { ClientGenerateCourseInvoices } from '@/app/course/[id]/courseInvoices/ClientGenerateCourseInvoices'
+
 
 
 //---------------------------------------------------
@@ -149,6 +153,12 @@ export default async function ParticipantDetailsPage({
     )
   }
 
+    async function createInvoiceAction(formData: FormData) {
+  'use server'
+  await generateInvoice(formData)
+}
+
+
   //---------------------------------------------------
   // RENDER UI
   //---------------------------------------------------
@@ -272,8 +282,9 @@ export default async function ParticipantDetailsPage({
             </div>
           </div>
           
-
-        <RecipientForm courseregistrationId={sanitizedRegistration.id}/>
+         HEERE the logik
+                 
+        {/* <RecipientForm courseregistrationId={sanitizedRegistration.id}/> */}
 
 
           {/* Remark Form Section */}
@@ -475,12 +486,15 @@ export default async function ParticipantDetailsPage({
           Rechnung generieren
         </span>
       ) : (
-        <Link
-          href={`/courseregistration/${registrationId}/create-invoice`}
-          className="px-3 py-1 rounded text-xs font-medium bg-blue-600 text-white hover:bg-blue-700 transition"
-        >
-          Rechnung generieren
-        </Link>
+    <form action={createInvoiceAction}>
+      <input type="hidden" name="registrationId" value={registrationId} />
+      <button
+        type="submit"
+        className="px-3 py-1 rounded text-xs font-medium bg-blue-600 text-white hover:bg-blue-700 transition"
+      >
+        Rechnung generieren
+      </button>
+    </form>
       )}
     </div>
   </div>
