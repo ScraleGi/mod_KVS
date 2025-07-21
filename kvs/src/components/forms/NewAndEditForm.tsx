@@ -7,7 +7,8 @@ export async function NewAndEditForm(
         navHref,
         navHrefText,
         navTitle,
-        buttonText,
+        nav2Href,
+        nav2HrefText,
     }: {
         title: string;
         formAction: string | ((formData: FormData) => Promise<void>);
@@ -15,7 +16,8 @@ export async function NewAndEditForm(
         navHref: string;
         navHrefText: string;
         navTitle: string;
-        buttonText: string;
+        nav2Href?: string;
+        nav2HrefText?: string;
     }
 ) {
     return (
@@ -24,6 +26,12 @@ export async function NewAndEditForm(
                 <nav className="max-w-xl mx-auto mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
                     <Link href={navHref} className="hover:underline text-gray-700">{navHrefText}</Link>
                     <span>&gt;</span>
+                    {nav2Href && (
+                        <>
+                            <Link href={nav2Href} className="hover:underline text-gray-700">{nav2HrefText}</Link>
+                            <span>&gt;</span>
+                        </>
+                    )}
                     <span className="text-gray-700 font-semibold">{navTitle}</span>
                 </nav>
                 <div className="bg-white rounded-sm shadow border border-gray-100">
@@ -33,15 +41,6 @@ export async function NewAndEditForm(
                         </h1>
                         <form action={formAction} className="space-y-6">
                             {children}
-                            <div className="pt-2 flex items-center justify-end">
-                                <button
-                                    type="submit"
-                                    className="inline-flex items-center px-5 py-2 cursor-pointer border border-transparent text-xs font-semibold rounded text-white bg-blue-600 hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                                >
-                                    {buttonText}
-                                </button>
-
-                            </div>
                         </form>
                     </div>
                 </div>
