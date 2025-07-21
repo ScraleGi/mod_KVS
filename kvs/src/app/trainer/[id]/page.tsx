@@ -58,7 +58,7 @@ export default async function TrainerDetailsPage({ params }: { params: Promise<{
     return (
         <div className="min-h-screen bg-neutral-50 flex flex-col items-center justify-center py-14 px-4">
             <TrainerToaster />
-            <nav className="max-w-xl mx-auto mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
+            <nav className="w-full max-w-2xl mx-auto mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
                 <Link href="/trainer" className="hover:underline text-gray-700">Trainerübersicht</Link>
                 <span>&gt;</span>
                 <span className="text-gray-700 font-semibold">{trainer.name} {trainer.surname}</span>
