@@ -43,7 +43,8 @@ export async function generateInvoice(formData: FormData) {
         invoiceRecipient: true,
       }
     })
-    console.log('Registration:', registration, registration?.invoiceRecipient)
+    
+    // DEBUG console.log('Registration:', registration, registration?.invoiceRecipient)
 
     if (!registration) throw new Error(`Course registration with ID ${registrationId} not found`)
     const course = registration.course

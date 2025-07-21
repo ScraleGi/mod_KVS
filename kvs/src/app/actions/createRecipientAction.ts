@@ -56,7 +56,6 @@ export async function addRecipientToCourseRegistration(registrationId: string, r
 
 
 
-
 export async function deleteRecipientFromRegistration(registrationId: string){
   await db.courseRegistration.update({
     where: { id: registrationId },
