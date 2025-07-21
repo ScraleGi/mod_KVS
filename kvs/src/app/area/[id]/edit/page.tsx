@@ -5,6 +5,7 @@ import { Area } from '@/types/models';
 import { sanitize } from '@/lib/sanitize';
 import RemoveButton from '@/components/RemoveButton/RemoveButton';
 import { getAuthorizing } from '@/lib/getAuthorizing';
+import CancelButton from '@/components/cancle-Button/cnacleButton';
 
 export default async function EditAreaPage({
   params,
@@ -141,7 +142,8 @@ export default async function EditAreaPage({
                   rows={2}
                 />
               </div>
-              <div className="pt-2 flex items-center justify-end">
+              <div className="pt-2 flex items-center justify-between">
+                <CancelButton href="/area">Abbrechen</CancelButton>
                 <button
                   type="submit"
                   className="inline-flex items-center px-5 py-2 border border-transparent cursor-pointer text-xs font-semibold rounded text-white bg-blue-600 hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"

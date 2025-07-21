@@ -89,7 +89,7 @@ export default async function TrainerDetailsPage({ params }: { params: Promise<{
                     <div className="text-gray-700 text-base ml-7">
                         Email: {trainer.email || 'N/A'}<br />
                         Tel: {trainer.phoneNumber || 'N/A'}<br />
-                        Addresse: {trainer.street || 'No address provided.'}
+                        Adresse: {trainer.street || 'Keine Adresse angegeben.'}
                         {trainer.postalCode && trainer.city ? (
                             <span>, {trainer.postalCode} {trainer.city}</span>
                         ) : (
@@ -144,8 +144,8 @@ export default async function TrainerDetailsPage({ params }: { params: Promise<{
                         <RemoveButton
                             itemId={trainer.id}
                             onRemove={deleteTrainer}
-                            title="Delete Trainer"
-                            message="Are you sure you want to archive this trainer?"
+                            title="Trainer löschen?"
+                            message="Sind Sie sicher, dass Sie diesen Trainer archivieren wollen?"
                             fieldName="id"
                             customButton={
                                 <button

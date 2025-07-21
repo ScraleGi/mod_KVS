@@ -49,12 +49,12 @@ export default async function DeletedProgramsPage() {
           <nav className=" mb-6 text-sm  text-gray-500 flex items-center gap-2 pl-2">
             <Link href="/program" className="hover:underline text-gray-700">Programm</Link>
             <span>&gt;</span>
-            <span className="text-gray-700 font-semibold">gelöschte Programme</span>
+            <span className="text-gray-700 font-semibold">Archiv</span>
           </nav>
           <div className="bg-white rounded-xl shadow border border-gray-100 px-8 py-10">
-            <h1 className="text-2xl font-bold text-gray-900 mb-8 tracking-tight">Gelöschte Programme</h1>
+            <h1 className="text-2xl font-bold text-gray-900 mb-8 tracking-tight">Archivierte Programme</h1>
             {deletedPrograms.length === 0 ? (
-              <p className="text-gray-500 text-sm">Keine gelöschten Programme gefunden.</p>
+              <p className="text-gray-500 text-sm">Keine archivierten Programme gefunden.</p>
             ) : (
               <ul className="space-y-4">
                 {deletedPrograms.map(program => (
