@@ -4,6 +4,7 @@ export async function NewAndEditForm(
         title,
         formAction,
         children,
+        children2,
         navHref,
         navHrefText,
         navTitle,
@@ -13,6 +14,7 @@ export async function NewAndEditForm(
         title: string;
         formAction: string | ((formData: FormData) => Promise<void>);
         children: React.ReactNode;
+        children2?: React.ReactNode;
         navHref: string;
         navHrefText: string;
         navTitle: string;
@@ -43,6 +45,7 @@ export async function NewAndEditForm(
                             {children}
                         </form>
                     </div>
+                    {children2}
                 </div>
             </div>
         </div>
