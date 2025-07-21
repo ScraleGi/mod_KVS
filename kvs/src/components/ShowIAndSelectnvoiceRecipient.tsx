@@ -54,7 +54,10 @@ function SelectOrNewInvoiceRecipient(params: { sanitizedRegistration: SanitizedR
     const { sanitizedRegistration } = params
 
     return (
+        
         <>
+        <SelectRecipientWithAutocomplete/>
+
         <RecipientForm courseregistrationId={sanitizedRegistration.id} />
         </>
     )
@@ -64,7 +67,7 @@ function SelectOrNewInvoiceRecipient(params: { sanitizedRegistration: SanitizedR
 function SelectRecipientWithAutocomplete() {
     return (
         <div>
-
+         HERE WILL BE THE RECIPIENT SELECT COMPONENT
         </div>
     )
 }
