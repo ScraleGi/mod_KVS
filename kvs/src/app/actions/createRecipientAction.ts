@@ -45,7 +45,7 @@ export async function createRecipientAction(formData: FormData) {
   return { recipientId: recipient.id, redirect: `/invoiceRecipient/${recipient.id}` }
 }
 
-//very specific action to add recipient to course registration Gyula
+//very specific action to add recipient to course registration
 export async function addRecipientToCourseRegistration(registrationId: string, recipientId: string) {
   await db.courseRegistration.update({
     where: { id: registrationId },
@@ -54,3 +54,12 @@ export async function addRecipientToCourseRegistration(registrationId: string, r
 }
 
 
+
+
+
+export async function deleteRecipientFromRegistration(registrationId: string){
+  await db.courseRegistration.update({
+    where: { id: registrationId },
+    data: { invoiceRecipientId: null },
+  })
+}

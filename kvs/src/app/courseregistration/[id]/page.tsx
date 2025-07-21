@@ -12,12 +12,11 @@ import {
   SanitizedRegistration,
   SanitizedInvoice,
   SanitizedDocument,
-  SanitizedCourse
 } from '@/types/query-models'
 import RemoveButton from '@/components/RemoveButton/RemoveButton'
-import RecipientForm from "@/components/recipientForm/RecipientForm"
 import { generateInvoice } from '@/utils/generateInvoice'
-import { ClientGenerateCourseInvoices } from '@/app/course/[id]/courseInvoices/ClientGenerateCourseInvoices'
+import ShowIAndSelectnvoiceRecipient from '@/components/ShowIAndSelectnvoiceRecipient'
+
 
 
 
@@ -83,6 +82,7 @@ export default async function ParticipantDetailsPage({
       participant: true,
       course: { include: { program: true, mainTrainer: true } },
       invoices: true,
+      invoiceRecipient: true,
     }
   })
 
@@ -282,10 +282,21 @@ export default async function ParticipantDetailsPage({
             </div>
           </div>
           
-         HEERE the logik
-                 
-        {/* <RecipientForm courseregistrationId={sanitizedRegistration.id}/> */}
+          {/* Invoice Recipient Form Section */}
+          <hr className="my-6 border-t border-neutral-200" />
+          
+        <ShowIAndSelectnvoiceRecipient sanitizedRegistration={sanitizedRegistration}  />
 
+{/* 
+<SelfPayer />
+             <div>
+              invoice Recipient 
+              </div>       
+                    
+          <div className="mt-4">
+            <RecipientForm courseregistrationId={sanitizedRegistration.id} />
+          </div>
+*/}
 
           {/* Remark Form Section */}
           <hr className="my-6 border-t border-neutral-200" />

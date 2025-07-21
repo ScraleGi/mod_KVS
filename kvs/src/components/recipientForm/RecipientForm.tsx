@@ -26,7 +26,7 @@ export default function RecipientForm(params: { courseregistrationId?: string}) 
           await addRecipientToCourseRegistration(params.courseregistrationId, result.recipientId)
         }
 
-
+         console.log("Recipient created, redirecting to:", result.redirect)
         window.location.href = result.redirect
       }
     })
