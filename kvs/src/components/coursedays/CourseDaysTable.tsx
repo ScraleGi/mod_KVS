@@ -54,7 +54,7 @@ export function CourseDaysTable({
               titleClass = "text-orange-500 font-semibold"
             } else if (day.isCourseDay && day.title && day.title !== "Kurstag") {
               // CourseSpecialDay
-              titleClass = "text-green-400 font-semibold"
+              titleClass = "text-blue-500 font-semibold"
             }
 
             return (
