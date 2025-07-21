@@ -7,7 +7,6 @@ import { getAuthorizing } from '@/lib/getAuthorizing';
 import { EditLabel } from '../../../../components/trainer/EditLabel';
 import { NewAndEditForm } from '../../../../components/forms/NewAndEditForm';
 import { NewAndEditButton } from '../../../../components/forms/NewAndEditButton';
-import CancelButton from '@/components/cancle-Button/cnacleButton';
 
 export default async function EditAreaPage({
   params,

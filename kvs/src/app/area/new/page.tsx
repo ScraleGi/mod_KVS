@@ -4,7 +4,6 @@ import { db } from '@/lib/db'
 import { EditLabel } from '../../../components/trainer/EditLabel'
 import { NewAndEditForm } from '../../../components/forms/NewAndEditForm'
 import { NewAndEditButton } from '@/components/forms/NewAndEditButton'
-import CancelButton from '@/components/cancle-Button/cnacleButton';
 
 /**
  * Server action to create a new area
