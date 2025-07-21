@@ -105,7 +105,7 @@ export default async function AreaDetailPage({
                         {program.name}
                       </Link>
                       <div className="text-sm text-gray-500">
-                        {program.description || 'No description.'}
+                        {program.description || 'Keine Beschreibung.'}
                       </div>
                     </div>
                   </li>

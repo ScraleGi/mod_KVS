@@ -382,7 +382,7 @@ export default async function ParticipantPage({
                         </td>
                         <td className="px-3 py-2 text-center">
                           {inv.isCancelled ? (
-                            <span className="px-2 py-1 rounded bg-red-100 text-red-600">Canceled</span>
+                            <span className="px-2 py-1 rounded bg-red-100 text-red-600">abgebrochen</span>
                           ) : inv.transactionNumber ? (
                             <span className="px-2 py-1 rounded bg-green-100 text-green-700">bezahlt</span>
                           ) : (

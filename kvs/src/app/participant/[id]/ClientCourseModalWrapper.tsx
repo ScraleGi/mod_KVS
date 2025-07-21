@@ -23,7 +23,7 @@ export default function ClientCourseModalWrapper({
       <button
         onClick={() => setOpen(true)}
         className="cursor-pointer flex items-center justify-center w-7 h-7 rounded-full bg-neutral-100 text-blue-600 hover:bg-blue-50 transition"
-        title="Register to new course"
+        title="Anmeldung zum neuen Kurs."
         type="button"
       >
         <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">

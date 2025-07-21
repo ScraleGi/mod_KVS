@@ -107,14 +107,14 @@ export default function RecipientSelect({ recipients }: { recipients: Recipient[
   return (
     <fieldset className="border border-neutral-200 rounded-lg p-5 mb-4 mt-4 relative">
       <legend className="text-base font-semibold text-blue-700 px-2">
-        Search Previous Recipient to Autofill
+        Vorherigen Empfänger zum automatischen Ausfüllen
       </legend>
 
       <input
         type="text"
         value={search}
         onChange={handleSearchChange}
-        placeholder="Start typing recipient name or company..."
+        placeholder="Empfängername oder der Firma eingeben..."
         className="w-full border border-neutral-300 rounded px-2 py-1 text-sm"
         autoComplete="off"
         onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}

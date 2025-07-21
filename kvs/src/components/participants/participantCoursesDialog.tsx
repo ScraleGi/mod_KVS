@@ -20,7 +20,7 @@ export function CoursesDialog({
       <DialogContent>
         <DialogTitle className="text-lg font-bold mb-2">Registrierte Kurse</DialogTitle>
         {courses.length === 0 ? (
-          <div className="text-gray-400 italic">No courses</div>
+          <div className="text-gray-400 italic">Keine Kurse</div>
         ) : (
           <ul>
             {courses.map(course => (

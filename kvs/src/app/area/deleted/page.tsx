@@ -72,12 +72,12 @@ export default async function DeletedAreasPage() {
         <nav className="mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
           <Link href="/area" className="hover:underline text-gray-700">Bereiche</Link>
           <span>&gt;</span>
-          <span className="text-gray-700 font-semibold">Gelöschte Bereiche</span>
+          <span className="text-gray-700 font-semibold">Archiv</span>
         </nav>
         <div className="bg-white rounded-xl shadow border border-gray-100 px-8 py-10">
-          <h1 className="text-2xl font-bold text-gray-900 mb-8 tracking-tight">Gelöschte Bereiche</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-8 tracking-tight">Archivierte Bereiche</h1>
           {sanitizedAreas.length === 0 ? (
-            <p className="text-gray-500 text-sm">Keine gelöschten Bereiche gefunden.</p>
+            <p className="text-gray-500 text-sm">Keine archivierten Bereiche gefunden.</p>
           ) : (
             <ul className="space-y-4">
               {sanitizedAreas.map(area => (
