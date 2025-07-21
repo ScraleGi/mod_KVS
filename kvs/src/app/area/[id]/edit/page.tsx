@@ -1,5 +1,4 @@
 import { redirect } from 'next/navigation';
-import Link from 'next/link';
 import { db } from '@/lib/db';
 import { Area } from '@/types/models';
 import { sanitize } from '@/lib/sanitize';
