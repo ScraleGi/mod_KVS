@@ -636,33 +636,46 @@ async function seedRegistrations(
   return Object.fromEntries(registrations.map(r => [r.participantId + '_' + r.courseId, r.id]))
 }
 
-//-------------------- Seed (public) Holiday ---------------------------------
+//-------------------- Seed (public) Holiday + Schulferien ---------------------------------
 
 const fixedHolidays = [
   { title: 'Neujahr', month: 1, day: 1 },
   { title: 'Heilige drei Könige', month: 1, day: 6 },
-  { title: 'Statsfeiertag', month: 5, day: 1 },
+  { title: 'Staatsfeiertag', month: 5, day: 1 },
   { title: 'Maria Himmelfahrt', month: 8, day: 15 },
   { title: 'Nationalfeiertag', month: 10, day: 26 },
   { title: 'Allerheiligen', month: 11, day: 1 },
-  { title: 'Maria Empfängniss', month: 12, day: 8 },
-  { title: 'Wheinachtstag', month: 12, day: 25 },
+  { title: 'Maria Empfängnis', month: 12, day: 8 },
+  { title: 'Weihnachtstag', month: 12, day: 25 },
   { title: 'Stefanitag', month: 12, day: 26 },
+];
+
+// Schulferien für Vorarlberg 2025/26
+const schoolHolidays = [
+  // Kalenderjahr 2025 (bis Sommer)
+  { title: 'Semesterferien', start: new Date('2025-02-10'), end: new Date('2025-02-15') },
+  { title: 'Josefstag (schulfrei, kein gesetzlicher Feiertag)', start: new Date('2025-03-19'), end: new Date('2025-03-19') },
+  { title: 'Osterferien', start: new Date('2025-04-12'), end: new Date('2025-04-21') },
+  { title: 'Pfingstferien', start: new Date('2025-06-07'), end: new Date('2025-06-09') },
+  { title: 'Sommerferien', start: new Date('2025-07-05'), end: new Date('2025-09-07') },
+  // Schuljahr 2025/26 (ab Herbst)
+  { title: 'Herbstferien', start: new Date('2025-10-27'), end: new Date('2025-10-31') },
+  { title: 'Weihnachtsferien', start: new Date('2025-12-24'), end: new Date('2026-01-06') },
 ];
 
 function calculateEaster(year: number): Date {
   // Gaußsche Osterformel
   const f = Math.floor,
-    G = year % 19,     // G = Golden-Number 
-    C = f(year / 100), // C = Century 
-    H = (C - f(C / 4) - f((8 * C + 13) / 25) + 19 * G + 15) % 30,   //Mond-Vollmond-Formel
-    I = H - f(H / 28) * (1 - f(29 / (H + 1)) * f((21 - G) / 11)),   // mathematische Korrektur
-    J = (year + f(year / 4) + I + 2 - C + f(C / 4)) % 7,            // Sonntag-Korrektur
-    L = I - J,      // Abstand zum Ostersonntag
+    G = year % 19,
+    C = f(year / 100),
+    H = (C - f(C / 4) - f((8 * C + 13) / 25) + 19 * G + 15) % 30,
+    I = H - f(H / 28) * (1 - f(29 / (H + 1)) * f((21 - G) / 11)),
+    J = (year + f(year / 4) + I + 2 - C + f(C / 4)) % 7,
+    L = I - J,
     month = 3 + f((L + 40) / 44),
     day = L + 28 - 31 * f(month / 4);
 
-  return new Date(year, month - 1, day); // JS months = 0-based
+  return new Date(year, month - 1, day);
 }
 
 function addDays(date: Date, days: number): Date {
@@ -687,6 +700,18 @@ async function seedHoliday() {
     holidays.push({ title: 'Ostermontag', date: addDays(easter, 1) });
     holidays.push({ title: 'Christi Himmelfahrt', date: addDays(easter, 39) });
     holidays.push({ title: 'Pfingstmontag', date: addDays(easter, 50) });
+
+    // Fronleichnam (60 Tage nach Ostersonntag)
+    holidays.push({ title: 'Fronleichnam', date: addDays(easter, 60) });
+  }
+
+  // Schulferien als eigene Holiday-Einträge (nur für 2025/26)
+  for (const ferien of schoolHolidays) {
+    let current = new Date(ferien.start);
+    while (current <= ferien.end) {
+      holidays.push({ title: ferien.title, date: new Date(current) });
+      current.setDate(current.getDate() + 1);
+    }
   }
 
   await db.holiday.createMany({
@@ -694,8 +719,10 @@ async function seedHoliday() {
     skipDuplicates: true,
   });
 
-  console.log(`✅ Feiertage für ${years.length} Jahre gespeichert.`);
+  console.log(`✅ Feiertage und Schulferien für ${years.length} Jahre gespeichert.`);
 }
+
+// -------------------- Role and User Seeding --------------------
 
 async function seedRoles() {
   const roles = [
