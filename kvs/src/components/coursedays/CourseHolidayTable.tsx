@@ -127,8 +127,10 @@ export function CourseHolidayTable({ holidays, courseId }: { holidays: CourseHol
                 <input
                   name="date"
                   form="add-course-holiday-form"
-                  type="date"
-                  placeholder="Datum"
+                  type="text"
+                  pattern="\d{2}\.\d{2}\.\d{4}"
+                  placeholder="TT.MM.JJJJ"
+                  title="Bitte TT.MM.JJJJ eingeben"
                   className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none cursor-pointer"
                   required
                 />
