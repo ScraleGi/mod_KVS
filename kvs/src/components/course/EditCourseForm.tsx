@@ -117,7 +117,7 @@ export default function EditCourseForm({
         <input key={id} type="hidden" name="trainerIds" value={id} />
       ))}
       <div className="pt-2 flex items-center justify-between">
-           <CancelButton href="/">Abbrechen</CancelButton>
+           <CancelButton>Abbrechen</CancelButton>
         <button
 
           type="submit"
