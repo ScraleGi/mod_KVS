@@ -252,7 +252,7 @@ export default async function ParticipantDetailsPage({
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="font-medium text-neutral-600">Informationen:</span>
+                  <span className="font-medium text-neutral-600">Infoabend:</span>
                   <span className="text-neutral-600">
                     {sanitizedRegistration.infoSessionAt
                       ? formatDateGerman(sanitizedRegistration.infoSessionAt)
@@ -260,7 +260,7 @@ export default async function ParticipantDetailsPage({
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="font-medium text-neutral-600">Interesiert an:</span>
+                  <span className="font-medium text-neutral-600">Vormerkung:</span>
                   <span className="text-neutral-600">
                     {sanitizedRegistration.interestedAt
                       ? formatDateGerman(sanitizedRegistration.interestedAt)

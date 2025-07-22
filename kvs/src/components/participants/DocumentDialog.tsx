@@ -1,5 +1,5 @@
 import * as React from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog"
 import { DownloadPDFLink } from "@/components/DownloadButton/DownloadButton"
 import { formatDateTimeGerman } from "@/lib/utils"
 
@@ -7,12 +7,12 @@ export function DocumentDialog({
   documents,
   trigger,
   registrationId,
-  participantName, // <-- Add participantName prop
+  participantName,
 }: {
   documents: { id: string; file: string; role: string; createdAt: string | Date }[]
   trigger: React.ReactNode
   registrationId: string
-  participantName: string // <-- Add participantName prop type
+  participantName: string
 }) {
   return (
     <Dialog>
@@ -24,6 +24,9 @@ export function DocumentDialog({
           <DialogTitle>
             Dokumente für {participantName}
           </DialogTitle>
+          <DialogDescription>
+            Hier finden Sie alle zugehörigen Dokumente für diesen Teilnehmer.
+          </DialogDescription>
         </DialogHeader>
         <ul className="space-y-2">
           {documents.length === 0 && <li className="text-gray-400">Keine Dokumente</li>}

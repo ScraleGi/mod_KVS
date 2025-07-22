@@ -883,7 +883,7 @@ export const trainerColumns: ColumnDef<TrainerRow>[] = [
     header: ({ column }) => (
       <FilterHeader
         column={column}
-        label="Kurse"
+        label="Co-Kurse"
         placeholder="Filter Kurse..."
       />
     ),
@@ -962,7 +962,7 @@ export function CourseTable<T>({
   const table = useReactTable({
     data,
     columns,
-    initialState: { pagination: { pageSize: 10 } },
+    initialState: { pagination: { pageSize: 15 } },
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),

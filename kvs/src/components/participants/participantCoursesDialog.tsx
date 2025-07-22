@@ -1,7 +1,7 @@
- "use client"
+"use client"
 
 import * as React from "react"
-import { Dialog, DialogContent, DialogTrigger, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import Link from "next/link"
 
 export function CoursesDialog({
@@ -19,6 +19,9 @@ export function CoursesDialog({
       </DialogTrigger>
       <DialogContent>
         <DialogTitle className="text-lg font-bold mb-2">Registrierte Kurse</DialogTitle>
+        <DialogDescription>
+          Hier sehen Sie alle Kurse, für die dieser Teilnehmer registriert ist.
+        </DialogDescription>
         {courses.length === 0 ? (
           <div className="text-gray-400 italic">Keine Kurse</div>
         ) : (
