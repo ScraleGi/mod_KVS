@@ -2,21 +2,35 @@ import * as React from "react"
 import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react"
 import type { Column } from "@tanstack/react-table"
 
-// Use generic type parameters instead of any
 type FilterHeaderProps<TData extends Record<string, unknown>, TValue> = {
   column: Column<TData, TValue>
-
   label: string
   placeholder?: string
 }
 
-// Make the component generic
-export function FilterHeader<TData extends Record<string, unknown>, TValue>({ 
-  column, 
-  label, 
-  placeholder = "Filter..." 
+export function FilterHeader<TData extends Record<string, unknown>, TValue>({
+  column,
+  label,
+  placeholder = "Filter...",
 }: FilterHeaderProps<TData, TValue>) {
   const [showFilter, setShowFilter] = React.useState(false)
+  const filterRef = React.useRef<HTMLSpanElement>(null)
+
+  // Click-away handler
+  const handleClick = React.useCallback((event: MouseEvent) => {
+    if (
+      filterRef.current &&
+      !filterRef.current.contains(event.target as Node)
+    ) {
+      setShowFilter(false)
+    }
+  }, [])
+
+  React.useEffect(() => {
+    if (!showFilter) return
+    document.addEventListener("mousedown", handleClick)
+    return () => document.removeEventListener("mousedown", handleClick)
+  }, [showFilter, handleClick])
 
   const toggleFilter = React.useCallback(() => {
     setShowFilter(v => !v)
@@ -25,7 +39,10 @@ export function FilterHeader<TData extends Record<string, unknown>, TValue>({
   const colId = column.id
 
   return (
-    <span className="flex flex-col w-56 min-w-[12rem] pl-2 relative">
+    <span
+      ref={filterRef}
+      className="flex flex-col w-56 min-w-[12rem] pl-2 relative"
+    >
       <span className="flex items-center gap-1 select-none">
         <span
           className="cursor-pointer truncate"
@@ -76,7 +93,9 @@ export function FilterHeader<TData extends Record<string, unknown>, TValue>({
           onChange={e => column.setFilterValue(e.target.value)}
           className="block rounded border px-2 py-1 text-xs bg-white shadow text-black w-32 truncate"
           aria-label={`Filter ${label}`}
-          onBlur={() => setShowFilter(false)}
+          onKeyDown={e => {
+            if (e.key === "Escape") setShowFilter(false)
+          }}
         />
       )}
     </span>

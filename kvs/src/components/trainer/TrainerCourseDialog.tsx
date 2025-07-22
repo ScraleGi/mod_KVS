@@ -20,9 +20,9 @@ export function TrainerCourseDialog({
         </button>
       </DialogTrigger>
       <DialogContent>
-        <DialogTitle className="text-lg font-bold mb-2">Courses</DialogTitle>
+        <DialogTitle className="text-lg font-bold mb-2">Kurse</DialogTitle>
         {courses.length === 0 ? (
-          <div className="text-gray-400 italic">No courses</div>
+          <div className="text-gray-400 italic">keine Kurse</div>
         ) : (
           <ul>
             {courses.map(course => (

@@ -5,6 +5,7 @@ import { db } from '@/lib/db'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { sanitize } from '@/lib/sanitize'
+import CancelButton from '@/components/cancle-Button/cnacleButton'
 
 //---------------------------------------------------
 // SERVER ACTIONS
@@ -86,7 +87,13 @@ export default async function NewParticipantPage() {
     //---------------------------------------------------
     return (
       <div className="min-h-screen flex items-center justify-center bg-neutral-50 px-2 py-8">
-        <div className="w-full max-w-xl bg-white rounded-2xl shadow-md border border-neutral-100 p-8">
+        <div className="w-full max-w-xl mx-auto">
+          <nav className='mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2'>
+            <Link href="/participant" className="hover:underline text-gray-700">Teilnehmerübersicht</Link>
+            <span>&gt;</span>
+            <span className="text-gray-700 font-semibold">Teilnehmer hinzufügen</span>
+          </nav>
+          <div className="w-full max-w-xl bg-white rounded-2xl shadow-md border border-neutral-100 p-8">
           <h1 className="text-2xl font-bold mb-6 text-neutral-900 text-center">Teilnehmer hinzufügen</h1>
           <form
             action={createParticipant}
@@ -209,12 +216,7 @@ export default async function NewParticipantPage() {
               </label>
             </div>
             <div className="flex justify-between mt-6">
-              <Link
-                href="/participant"
-                className="px-4 py-2 bg-neutral-200 text-neutral-700 rounded hover:bg-neutral-300 text-xs font-medium transition"
-              >
-                Abbrechen
-              </Link>
+             <CancelButton href="/participant">Abbrechen</CancelButton>
               <button
                 type="submit"
                 className="cursor-pointer px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-xs font-medium transition"
@@ -225,6 +227,7 @@ export default async function NewParticipantPage() {
           </form>
       </div>
     </div>
+  </div>
     )
   } catch (error) {
     // ERROR STATE

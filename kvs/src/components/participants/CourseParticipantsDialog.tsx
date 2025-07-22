@@ -20,9 +20,9 @@ export function CourseParticipantsDialog({
         </button>
       </DialogTrigger>
       <DialogContent>
-        <DialogTitle className="text-lg font-bold mb-2">Participants</DialogTitle>
+        <DialogTitle className="text-lg font-bold mb-2">Teilnehmer</DialogTitle>
         {participants.length === 0 ? (
-          <div className="text-gray-400 italic">No participants</div>
+          <div className="text-gray-400 italic">Keine Teilnehmer</div>
         ) : (
           <ul>
             {participants.map(p => (

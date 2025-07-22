@@ -120,6 +120,13 @@ export type CourseParticipantRow = {
   subsidyRemark?: string | null
 }
 
+export type PrivilegesColumns = {
+  id: string
+  email: string
+  roles: string
+}
+
+
 // InvoiceRecipientRow type definition
 export type InvoiceRecipientRow = {
   id: string
@@ -346,8 +353,8 @@ export const home: ColumnDef<CourseRow>[] = [
             <Link
             href={`/course/${row.original.id}/edit`}
             className="p-2 rounded hover:bg-blue-100 text-blue-600 transition"
-            title="Edit"
-            aria-label="Edit"
+            title="Bearbeiten"
+            aria-label="Bearbeiten"
             >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -453,7 +460,7 @@ export const areaColumns: ColumnDef<AreaRow>[] = [
     cell: ({ row }) => (
       <Link
         href={`/area/${row.original.id}`}
-        className="relative text-blue-600 hover:text-blue-800 pl-2 inline-block after:content-[''] after:absolute after:left-8 after:bottom-0 after:w-0 hover:after:w-[calc(100%-2rem)] after:h-[2px] after:bg-blue-600 after:transition-all after:duration-300"
+        className="relative text-blue-600 hover:text-blue-800 inline-block after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-0 hover:after:w-full after:h-[2px] after:bg-blue-600 after:transition-all after:duration-300"
       >
         {row.original.area}
       </Link>
@@ -546,8 +553,8 @@ export const areaColumns: ColumnDef<AreaRow>[] = [
         <Link
           href={`/area/${row.original.id}/edit`}
           className="p-2 rounded hover:bg-blue-100 text-blue-600 transition"
-          title="Edit"
-          aria-label="Edit"
+          title="Bearbeiten"
+          aria-label="Bearbeiten"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -571,7 +578,7 @@ export const programColumns: ColumnDef<ProgramRow>[] = [
     cell: ({ row }) => (
       <Link
         href={`/program/${row.original.id}`}
-        className="relative text-blue-600 hover:text-blue-800 pl-2 inline-block after:content-[''] after:absolute after:left-8 after:bottom-0 after:w-0 hover:after:w-[calc(100%-2rem)] after:h-[2px] after:bg-blue-600 after:transition-all after:duration-300"
+        className="relative text-blue-600 hover:text-blue-800 inline-block after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-0 hover:after:w-full after:h-[2px] after:bg-blue-600 after:transition-all after:duration-300"
       >
         {row.original.program}
       </Link>
@@ -676,8 +683,8 @@ export const programColumns: ColumnDef<ProgramRow>[] = [
         <Link
           href={`/program/${row.original.id}/edit`}
           className="p-2 rounded hover:bg-blue-100 text-blue-600 transition"
-          title="Edit"
-          aria-label="Edit"
+          title="Bearbeiten"
+          aria-label="Bearbeiten"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -685,110 +692,6 @@ export const programColumns: ColumnDef<ProgramRow>[] = [
         </Link>
       </div>
     ),
-  },
-]
-export const trainerColumns: ColumnDef<TrainerRow>[] = [
-  {
-    accessorKey: "name",
-    header: ({ column }) => (
-      <FilterHeader
-        column={column}
-        label="Vorname"
-        placeholder="Filter Vorname..."
-      />
-    ),
-    cell: ({ row }) => (
-      <Link
-        href={`/trainer/${row.original.id}`}
-        className="relative text-blue-600 hover:text-blue-800 pl-2 inline-block after:content-[''] after:absolute after:left-8 after:bottom-0 after:w-0 hover:after:w-[calc(100%-2rem)] after:h-[2px] after:bg-blue-600 after:transition-all after:duration-300"
-      >
-        {row.original.name} {row.original.surname}
-      </Link>
-    ),
-  },
-  {
-    accessorKey: "email",
-    header: ({ column }) => (
-      <FilterHeader
-        column={column}
-        label="E-Mail"
-        placeholder="Filter E-Mail..."
-      />
-    ),
-    cell: ({ row }) => (
-      <span className="block pl-2">{row.getValue("email")}</span>
-    ),
-  },
-  {
-    accessorKey: "phoneNumber",
-    header: ({ column }) => (
-      <FilterHeader
-        column={column}
-        label="Telefon"
-        placeholder="Filter Telefon..."
-      />
-    ),
-    cell: ({ row }) => (
-      <span className="block pl-2">{row.getValue("phoneNumber")}</span>
-    ),
-  },
-  {
-    accessorKey: "mainCourses",
-    header: ({ column }) => (
-      <FilterHeader
-        column={column}
-        label="Hauptkurse"
-        placeholder="Filter Hauptkurse..."
-      />
-    ),
-    cell: ({ row }) => (
-      <span className="block pl-2">
-        <TrainerCourseDialog courses={row.original.mainCourses ?? []}>
-          {row.original.mainCourses?.length ?? 0}
-        </TrainerCourseDialog>
-      </span>
-    ),
-    filterFn: (row, columnId, filterValue) => {
-      const value = row.getValue(columnId)
-      if (!value || !Array.isArray(value)) return false
-      const count = value.length
-      if (typeof filterValue === "number") {
-        return count === filterValue
-      } else if (typeof filterValue === "string") {
-        const num = parseInt(filterValue, 10)
-        return !isNaN(num) && count === num
-      }
-      return false
-    },
-  },
-  {
-    accessorKey: "courses",
-    header: ({ column }) => (
-      <FilterHeader
-        column={column}
-        label="Kurse"
-        placeholder="Filter Kurse..."
-      />
-    ),
-    cell: ({ row }) => (
-     <span className="block pl-2">
-      <TrainerCourseDialog courses={row.original.courses ?? []}>
-        {row.original.courses?.length ?? 0}
-      </TrainerCourseDialog>
-      </span>
-    ),
-    filterFn: (row, columnId, filterValue) => {
-      const value = row.getValue(columnId)
-      if (!value || !Array.isArray(value)) return false
-      const count = value.length
-      if (typeof filterValue === "number") {
-        return count === filterValue
-      } else if (typeof filterValue === "string") {
-        const num = parseInt(filterValue, 10)
-        return !isNaN(num) && count === num
-      }
-      return false
-    },
   },
 ]
 
@@ -803,7 +706,7 @@ export const trainerColumns: ColumnDef<TrainerRow>[] = [
       return p ? (
         <Link
           href={`/courseregistration/${row.original.id}`}
-          className="font-medium text-blue-700 hover:underline"
+          className="relative text-blue-600 hover:text-blue-800 inline-block after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-0 hover:after:w-full after:h-[2px] after:bg-blue-600 after:transition-all after:duration-300"
         >
           {formatFullName(p)}
         </Link>
@@ -885,7 +788,7 @@ export const trainerColumns: ColumnDef<TrainerRow>[] = [
   {
     accessorKey: "subsidyAmount",
     header: ({ column }) => (
-      <FilterHeader column={column} label="Subvention" placeholder="Filter Subvention..." />
+      <FilterHeader column={column} label="Gutschein" placeholder="Filter Subvention..." />
     ),
     cell: ({ row }) => {
       const value = row.original.subsidyAmount
@@ -984,6 +887,136 @@ export const trainerColumns: ColumnDef<TrainerRow>[] = [
     </div>
   ),
 },
+]
+export const trainerColumns: ColumnDef<TrainerRow>[] = [
+  {
+    accessorKey: "name",
+    header: ({ column }) => (
+      <FilterHeader
+        column={column}
+        label="Vorname"
+        placeholder="Filter Vorname..."
+      />
+    ),
+    cell: ({ row }) => (
+      <Link
+        href={`/trainer/${row.original.id}`}
+        className="relative text-blue-600 hover:text-blue-800 pl-8 inline-block after:content-[''] after:absolute after:left-8 after:bottom-0 after:w-0 hover:after:w-[calc(100%-2rem)] after:h-[2px] after:bg-blue-600 after:transition-all after:duration-300"
+      >
+        {row.original.name} {row.original.surname}
+      </Link>
+    ),
+  },
+  {
+    accessorKey: "email",
+    header: ({ column }) => (
+      <FilterHeader
+        column={column}
+        label="E-Mail"
+        placeholder="Filter E-Mail..."
+      />
+    ),
+    cell: ({ row }) => (
+      <span className="block pl-2">{row.getValue("email")}</span>
+    ),
+  },
+  {
+    accessorKey: "phoneNumber",
+    header: ({ column }) => (
+      <FilterHeader
+        column={column}
+        label="Telefon"
+        placeholder="Filter Telefon..."
+      />
+    ),
+    cell: ({ row }) => (
+      <span className="block pl-2">{row.getValue("phoneNumber")}</span>
+    ),
+  },
+  {
+    accessorKey: "mainCourses",
+    header: ({ column }) => (
+      <FilterHeader
+        column={column}
+        label="Hauptkurse"
+        placeholder="Filter Hauptkurse..."
+      />
+    ),
+    cell: ({ row }) => (
+      <span className="block pl-2">
+        <TrainerCourseDialog courses={row.original.mainCourses ?? []}>
+          {row.original.mainCourses?.length ?? 0}
+        </TrainerCourseDialog>
+      </span>
+    ),
+    filterFn: (row, columnId, filterValue) => {
+      const value = row.getValue(columnId)
+      if (!value || !Array.isArray(value)) return false
+      const count = value.length
+      if (typeof filterValue === "number") {
+        return count === filterValue
+      } else if (typeof filterValue === "string") {
+        const num = parseInt(filterValue, 10)
+        return !isNaN(num) && count === num
+      }
+      return false
+    },
+  },
+  {
+    accessorKey: "courses",
+    header: ({ column }) => (
+      <FilterHeader
+        column={column}
+        label="Kurse"
+        placeholder="Filter Kurse..."
+      />
+    ),
+    cell: ({ row }) => (
+     <span className="block pl-2">
+      <TrainerCourseDialog courses={row.original.courses ?? []}>
+        {row.original.courses?.length ?? 0}
+      </TrainerCourseDialog>
+      </span>
+    ),
+    filterFn: (row, columnId, filterValue) => {
+      const value = row.getValue(columnId)
+      if (!value || !Array.isArray(value)) return false
+      const count = value.length
+      if (typeof filterValue === "number") {
+        return count === filterValue
+      } else if (typeof filterValue === "string") {
+        const num = parseInt(filterValue, 10)
+        return !isNaN(num) && count === num
+      }
+      return false
+    },
+  },
+]
+
+
+export const privilegesColumns: ColumnDef<PrivilegesColumns>[] = [
+  {
+    accessorKey: "id",
+    header: "ID",
+    cell: ({ row }) => <span className="block pl-2">{row.getValue("id")}</span>,
+  },
+  {
+    accessorKey: "email",
+    header: "E-Mail",
+    cell: ({ row }) => 
+      <Link
+        href={`/user/${row.original.id}`}
+        className="block pl-2 text-blue-600 hover:text-blue-800"
+        style={{ whiteSpace: "nowrap", overflowWrap: "normal" }}
+      >
+        {row.getValue("email")}
+      </Link>,
+  },
+  {
+    accessorKey: "roles",
+    header: "Rollen",
+    cell: ({ row }) => <span className="block pl-2">{row.getValue("roles")}</span>,
+  },
 ]
 
 
@@ -1141,7 +1174,7 @@ export function CourseTable<T>({
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center text-gray-400">
-                  No results.
+                  Keine Resultate.
                 </TableCell>
               </TableRow>
             )}

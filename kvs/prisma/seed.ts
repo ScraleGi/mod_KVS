@@ -1,4 +1,4 @@
-import { RecipientType, Prisma } from '../generated/prisma'
+import { Prisma } from '../generated/prisma'
 import { db } from '../src/lib/db'
 
 // -------------------- Area Seeding --------------------
@@ -500,10 +500,6 @@ async function seedRegistrations(
         registeredAt: new Date('2024-08-15'),
         infoSessionAt: new Date('2024-08-01'),
         generalRemark: 'Attended info session and registered early.',
-        subsidyRemark: 'Eligible for 50% subsidy.',
-        subsidyAmount: new Prisma.Decimal('149.99'),
-        discountRemark: null,
-        discountAmount: null,
       },
       {
         courseId: courseMap[programMap['AI Fundamentals']],
@@ -511,20 +507,12 @@ async function seedRegistrations(
         registeredAt: new Date('2024-08-20'),
         infoSessionAt: new Date('2024-08-01'),
         generalRemark: 'Attended info session.',
-        subsidyRemark: null,
-        subsidyAmount: null,
-        discountRemark: 'Early bird discount.',
-        discountAmount: new Prisma.Decimal('50.00'),
       },
       {
         courseId: courseMap[programMap['AI Fundamentals']],
         participantId: participantMap['Isabel Turner'],
         registeredAt: new Date('2024-08-22'),
         generalRemark: 'Registered late.',
-        subsidyRemark: 'Special subsidy.',
-        subsidyAmount: new Prisma.Decimal('100.00'),
-        discountRemark: null,
-        discountAmount: null,
       },
       // Web Development Bootcamp
       {
@@ -533,10 +521,6 @@ async function seedRegistrations(
         registeredAt: new Date('2024-09-10'),
         interestedAt: new Date('2024-09-01'),
         generalRemark: 'Expressed interest before registering.',
-        subsidyRemark: null,
-        subsidyAmount: null,
-        discountRemark: 'Early bird discount.',
-        discountAmount: new Prisma.Decimal('50.00'),
       },
       {
         courseId: courseMap[programMap['Web Development Bootcamp']],
@@ -544,10 +528,6 @@ async function seedRegistrations(
         registeredAt: new Date('2024-09-15'),
         unregisteredAt: new Date('2024-09-20'),
         generalRemark: 'Unregistered after initial registration.',
-        subsidyRemark: null,
-        subsidyAmount: null,
-        discountRemark: null,
-        discountAmount: null,
       },
       {
         courseId: courseMap[programMap['Web Development Bootcamp']],
@@ -555,10 +535,6 @@ async function seedRegistrations(
         registeredAt: new Date('2024-09-18'),
         infoSessionAt: new Date('2024-09-05'),
         generalRemark: 'Attended info session.',
-        subsidyRemark: null,
-        subsidyAmount: null,
-        discountRemark: 'Early bird discount.',
-        discountAmount: new Prisma.Decimal('50.00'),
       },
       // Python for Beginners
       {
@@ -567,20 +543,12 @@ async function seedRegistrations(
         registeredAt: new Date('2024-10-01'),
         infoSessionAt: new Date('2024-09-20'),
         generalRemark: 'Attended info session.',
-        subsidyRemark: null,
-        subsidyAmount: null,
-        discountRemark: null,
-        discountAmount: null,
       },
       {
         courseId: courseMap[programMap['Python for Beginners']],
         participantId: participantMap['Karen Green'],
         registeredAt: new Date('2024-10-02'),
         generalRemark: 'Very motivated.',
-        subsidyRemark: null,
-        subsidyAmount: null,
-        discountRemark: 'Student discount.',
-        discountAmount: new Prisma.Decimal('20.00'),
       },
       // Digital Marketing 101
       {
@@ -589,20 +557,12 @@ async function seedRegistrations(
         registeredAt: new Date('2024-11-15'),
         interestedAt: new Date('2024-11-01'),
         generalRemark: 'Very interested in marketing.',
-        subsidyRemark: null,
-        subsidyAmount: null,
-        discountRemark: 'Group discount.',
-        discountAmount: new Prisma.Decimal('30.00'),
       },
       {
         courseId: courseMap[programMap['Digital Marketing 101']],
         participantId: participantMap['Mona Patel'],
         registeredAt: new Date('2024-11-18'),
         generalRemark: 'Marketing background.',
-        subsidyRemark: null,
-        subsidyAmount: null,
-        discountRemark: 'Early bird discount.',
-        discountAmount: new Prisma.Decimal('50.00'),
       },
       // Cloud Computing Basics
       {
@@ -610,20 +570,12 @@ async function seedRegistrations(
         participantId: participantMap['Liam Young'],
         registeredAt: new Date('2025-01-10'),
         generalRemark: 'Cloud enthusiast.',
-        subsidyRemark: null,
-        subsidyAmount: null,
-        discountRemark: 'Early bird discount.',
-        discountAmount: new Prisma.Decimal('50.00'),
       },
       {
         courseId: courseMap[programMap['Cloud Computing Basics']],
         participantId: participantMap['Olga Schmidt'],
         registeredAt: new Date('2025-01-12'),
         generalRemark: 'Interested in cloud.',
-        subsidyRemark: null,
-        subsidyAmount: null,
-        discountRemark: 'Early bird.',
-        discountAmount: new Prisma.Decimal('25.00'),
       },
       // Project Management
       {
@@ -631,20 +583,12 @@ async function seedRegistrations(
         participantId: participantMap['Paul Weber'],
         registeredAt: new Date('2025-02-01'),
         generalRemark: 'Project manager.',
-        subsidyRemark: null,
-        subsidyAmount: null,
-        discountRemark: null,
-        discountAmount: null,
       },
       {
         courseId: courseMap[programMap['Project Management']],
         participantId: participantMap['Quentin Bauer'],
         registeredAt: new Date('2025-02-03'),
         generalRemark: 'Interested in PM.',
-        subsidyRemark: null,
-        subsidyAmount: null,
-        discountRemark: 'Referral.',
-        discountAmount: new Prisma.Decimal('40.00'),
       },
       // Data Visualization
       {
@@ -652,20 +596,12 @@ async function seedRegistrations(
         participantId: participantMap['Rita Hoffmann'],
         registeredAt: new Date('2025-03-01'),
         generalRemark: 'Data analyst.',
-        subsidyRemark: null,
-        subsidyAmount: null,
-        discountRemark: null,
-        discountAmount: null,
       },
       {
         courseId: courseMap[programMap['Data Visualization']],
         participantId: participantMap['Stefan König'],
         registeredAt: new Date('2025-03-02'),
         generalRemark: 'Visualization expert.',
-        subsidyRemark: null,
-        subsidyAmount: null,
-        discountRemark: 'Company discount.',
-        discountAmount: new Prisma.Decimal('35.00'),
       },
       // Agile Methodologies
       {
@@ -673,20 +609,12 @@ async function seedRegistrations(
         participantId: participantMap['Tina Schulz'],
         registeredAt: new Date('2025-04-01'),
         generalRemark: 'Agile coach.',
-        subsidyRemark: null,
-        subsidyAmount: null,
-        discountRemark: null,
-        discountAmount: null,
       },
       {
         courseId: courseMap[programMap['Agile Methodologies']],
         participantId: participantMap['Nina Rossi'],
         registeredAt: new Date('2025-04-02'),
         generalRemark: 'Scrum master.',
-        subsidyRemark: null,
-        subsidyAmount: null,
-        discountRemark: 'Early bird.',
-        discountAmount: new Prisma.Decimal('15.00'),
       },
       // UI/UX Design
       {
@@ -694,20 +622,12 @@ async function seedRegistrations(
         participantId: participantMap['Karen Green'],
         registeredAt: new Date('2025-05-01'),
         generalRemark: 'Designer.',
-        subsidyRemark: null,
-        subsidyAmount: null,
-        discountRemark: 'Early bird discount.',
-        discountAmount: new Prisma.Decimal('50.00'),
       },
       {
         courseId: courseMap[programMap['UI/UX Design']],
         participantId: participantMap['Mona Patel'],
         registeredAt: new Date('2025-05-02'),
         generalRemark: 'UX enthusiast.',
-        subsidyRemark: null,
-        subsidyAmount: null,
-        discountRemark: 'Student discount.',
-        discountAmount: new Prisma.Decimal('30.00'),
       },
     ],
     skipDuplicates: true,
@@ -934,30 +854,43 @@ async function seedDocuments(
 //-------------------- Seed (public) Holiday ---------------------------------
 
 const fixedHolidays = [
-  {title: 'Neujahr', month: 1, day: 1},
-  {title: 'Heilige drei Könige', month: 1, day: 6},
-  {title: 'Statsfeiertag', month: 5, day: 1},
-  {title: 'Maria Himmelfahrt', month: 8, day: 15},
-  {title: 'Nationalfeiertag', month: 10, day: 26},
-  {title: 'Allerheiligen', month: 11, day: 1},
-  {title: 'Maria Empfängniss', month: 12, day: 8},
-  {title: 'Wheinachtstag', month: 12, day: 25},
-  {title: 'Stefanitag', month: 11, day: 26},
+  { title: 'Neujahr', month: 1, day: 1 },
+  { title: 'Heilige drei Könige', month: 1, day: 6 },
+  { title: 'Staatsfeiertag', month: 5, day: 1 },
+  { title: 'Maria Himmelfahrt', month: 8, day: 15 },
+  { title: 'Nationalfeiertag', month: 10, day: 26 },
+  { title: 'Allerheiligen', month: 11, day: 1 },
+  { title: 'Maria Empfängnis', month: 12, day: 8 },
+  { title: 'Weihnachtstag', month: 12, day: 25 },
+  { title: 'Stefanitag', month: 12, day: 26 },
+];
+
+// Schulferien für Vorarlberg 2025/26
+const schoolHolidays = [
+  // Kalenderjahr 2025 (bis Sommer)
+  { title: 'Semesterferien', start: new Date('2025-02-10'), end: new Date('2025-02-15') },
+  { title: 'Josefstag (schulfrei, kein gesetzlicher Feiertag)', start: new Date('2025-03-19'), end: new Date('2025-03-19') },
+  { title: 'Osterferien', start: new Date('2025-04-12'), end: new Date('2025-04-21') },
+  { title: 'Pfingstferien', start: new Date('2025-06-07'), end: new Date('2025-06-09') },
+  { title: 'Sommerferien', start: new Date('2025-07-05'), end: new Date('2025-09-07') },
+  // Schuljahr 2025/26 (ab Herbst)
+  { title: 'Herbstferien', start: new Date('2025-10-27'), end: new Date('2025-10-31') },
+  { title: 'Weihnachtsferien', start: new Date('2025-12-24'), end: new Date('2026-01-06') },
 ];
 
 function calculateEaster(year: number): Date {
   // Gaußsche Osterformel
   const f = Math.floor,
-    G = year % 19,     // G = Golden-Number 
-    C = f(year / 100), // C = Century 
-    H = (C - f(C / 4) - f((8 * C + 13) / 25) + 19 * G + 15) % 30,   //Mond-Vollmond-Formel
-    I = H - f(H / 28) * (1 - f(29 / (H + 1)) * f((21 - G) / 11)),   // mathematische Korrektur
-    J = (year + f(year / 4) + I + 2 - C + f(C / 4)) % 7,            // Sonntag-Korrektur
-    L = I - J,      // Abstand zum Ostersonntag
+    G = year % 19,
+    C = f(year / 100),
+    H = (C - f(C / 4) - f((8 * C + 13) / 25) + 19 * G + 15) % 30,
+    I = H - f(H / 28) * (1 - f(29 / (H + 1)) * f((21 - G) / 11)),
+    J = (year + f(year / 4) + I + 2 - C + f(C / 4)) % 7,
+    L = I - J,
     month = 3 + f((L + 40) / 44),
     day = L + 28 - 31 * f(month / 4);
 
-  return new Date(year, month - 1, day); // JS months = 0-based
+  return new Date(year, month - 1, day);
 }
 
 function addDays(date: Date, days: number): Date {
@@ -967,7 +900,7 @@ function addDays(date: Date, days: number): Date {
 }
 
 async function seedHoliday() {
-  const years = [2025, 2026, 2027, 2028, 2029, 2030, 2031, 2032, 2032, 2033, 2034, 2035];
+  const years = [2025, 2026, 2027, 2028, 2029, 2030, 2031, 2032, 2033, 2034, 2035];
   const holidays: { title: string; date: Date }[] = [];
 
   for (const year of years) {
@@ -982,6 +915,18 @@ async function seedHoliday() {
     holidays.push({ title: 'Ostermontag', date: addDays(easter, 1) });
     holidays.push({ title: 'Christi Himmelfahrt', date: addDays(easter, 39) });
     holidays.push({ title: 'Pfingstmontag', date: addDays(easter, 50) });
+
+    // Fronleichnam (60 Tage nach Ostersonntag)
+    holidays.push({ title: 'Fronleichnam', date: addDays(easter, 60) });
+  }
+
+  // Schulferien als eigene Holiday-Einträge (nur für 2025/26)
+  for (const ferien of schoolHolidays) {
+    let current = new Date(ferien.start);
+    while (current <= ferien.end) {
+      holidays.push({ title: ferien.title, date: new Date(current) });
+      current.setDate(current.getDate() + 1);
+    }
   }
 
   await db.holiday.createMany({
@@ -989,8 +934,58 @@ async function seedHoliday() {
     skipDuplicates: true,
   });
 
-  console.log(`✅ Feiertage für ${years.length} Jahre gespeichert.`);
+  console.log(`✅ Feiertage und Schulferien für ${years.length} Jahre gespeichert.`);
 }
+
+// -------------------- Role and User Seeding --------------------
+
+async function seedRoles() {
+  const roles = [
+    { name: 'ADMIN' },
+    { name: 'RECHNUNGSWESEN' },
+    { name: 'PROGRAMMMANAGER' },
+    { name: 'MARKETING' },
+  ];
+  await db.role.createMany({ data: roles, skipDuplicates: true });
+}
+
+async function seedUsers() {
+  const users = [
+    { email: 'leonie@dc.at' },
+    { email: 'daniela@dc.at' },
+    { email: 'gyula@dc.at' },
+    { email: 'oliver@dc.at' },
+    { email: 'carlos@dc.at' },
+    { email: 'goerkem@dc.at' },
+    { email: 'mehmet@dc.at' },
+  ];
+  await db.user.createMany({ data: users, skipDuplicates: true });
+  // IDs für Zuordnung holen
+  const allUsers = await db.user.findMany();
+  return Object.fromEntries(allUsers.map(u => [u.email, u.id]));
+}
+
+async function assignRolesToUsers() {
+  // Alle User holen
+  const allUsers = await db.user.findMany();
+  // Die ADMIN-Rolle holen
+  const adminRole = await db.role.findUnique({ where: { name: 'ADMIN' } });
+  if (!adminRole) throw new Error('ADMIN role not found!');
+
+  // Für jeden User die ADMIN-Rolle zuweisen
+  for (const user of allUsers) {
+    await db.user.update({
+      where: { id: user.id },
+      data: {
+        roles: {
+          connect: { id: adminRole.id }
+        }
+      }
+    });
+  }
+  console.log('✅ ADMIN-Rolle allen Usern zugewiesen.');
+}
+
 
 // -------------------- Main Seed Function --------------------
 
@@ -1000,15 +995,24 @@ async function seedDatabase() {
   const trainerMap = await seedTrainers()
   const courseMap = await seedCourses(programMap, trainerMap)
   const participantMap = await seedParticipants()
-
-  const recipientMap = await seedInvoiceRecipients(participantMap)
-  const registrationMap = await seedRegistrations(programMap, courseMap, participantMap)
-  // await seedInvoices(programMap, courseMap, participantMap, registrationMap, recipientMap)
-  //await seedDocuments(programMap, courseMap, registrationMap, participantMap)
+  await seedRegistrations(programMap, courseMap, participantMap)
   await seedHoliday()
+  await seedRoles(); async function seedDatabase() {
+    const areaMap = await seedAreas()
+    const programMap = await seedPrograms(areaMap)
+    const trainerMap = await seedTrainers()
+    const courseMap = await seedCourses(programMap, trainerMap)
+    const participantMap = await seedParticipants()
+    await seedRegistrations(programMap, courseMap, participantMap)
+
+    await seedHoliday()
+    await seedRoles();
+    await seedUsers();
+    await assignRolesToUsers(); // <--- Hier!
+  }
+  await seedUsers();
+  await assignRolesToUsers();
 }
-
-
 seedDatabase()
   .then(() => console.log('Dummy Data seeded.'))
   .catch((e) => {

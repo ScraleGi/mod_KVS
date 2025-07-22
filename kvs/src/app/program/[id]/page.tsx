@@ -4,12 +4,21 @@ import ProgramToaster from './ProgramToaster';
 import { Info, GraduationCap, Pencil } from 'lucide-react';
 import { db } from '@/lib/db';
 import { sanitize } from '@/lib/sanitize';
+import { getAuthorizing } from '@/lib/getAuthorizing';
+import { redirect } from 'next/navigation';
 
 export default async function ProgramPage({
   params,
 }: {
   params: Promise<{ id: string }>
 }) {
+  // Check user authorization
+  const roles = await getAuthorizing({
+    privilige: ['ADMIN', 'PROGRAMMMANAGER'],
+  })
+  if (roles.length === 0) {
+    redirect('/403');
+  }
   try {
     const { id } = await params;
 
@@ -57,11 +66,11 @@ export default async function ProgramPage({
         <ProgramToaster />
         {/* Breadcrumb navigation */}
         <nav className="w-full max-w-3xl mb-6 text-sm text-gray-500 flex items-center gap-2 px-2">
-          <Link href="/area" className="hover:underline">Bereich</Link>
+          <Link href="/area" className="hover:underline">Bereiche</Link>
           <span>&gt;</span>
-          <Link href="/program" className="hover:underline">Programm</Link>
+          <Link href="/program" className="hover:underline">Programme</Link>
           <span>&gt;</span>
-          <span className="text-gray-700">{program.name}</span>
+          <span className="text-gray-700 font-semibold">{program.name}</span>
         </nav>
         
         <div className="w-full max-w-3xl bg-white rounded-2xl shadow-lg px-8 py-10 relative">

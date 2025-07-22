@@ -1,10 +1,13 @@
 import Link from 'next/link'
 import AreaToaster from './AreaToaster'
 import { notFound } from 'next/navigation'
-import { Info, GraduationCap, Pencil } from 'lucide-react'
+import { Info, GraduationCap } from 'lucide-react'
 import { db } from '@/lib/db'
 import { Area } from '@/types/models'
 import { sanitize } from '@/lib/sanitize'
+import { getAuthorizing } from '@/lib/getAuthorizing'
+import EditPencil from '@/components/navigation/EditPencil'
+import { redirect } from 'next/navigation';
 
 // Define interface for the area with programs that match the query select
 interface AreaWithPrograms extends Omit<Area, 'programs'> {
@@ -20,8 +23,15 @@ export default async function AreaDetailPage({
 }: {
   params: Promise<{ id: string }>
 }) {
+  // Check user authorization
+  const roles = await getAuthorizing({
+    privilige: ['ADMIN', 'PROGRAMMMANAGER'],
+  })
+  if (roles.length === 0) {
+    redirect('/403')
+  }
   const { id } = await params;
-  
+
   const area = await db.area.findUnique({
     where: { id, deletedAt: null },
     include: {
@@ -33,29 +43,42 @@ export default async function AreaDetailPage({
     }
   });
 
+
+    
+  
+
   if (!area) return notFound();
 
   // Sanitize data to handle any Decimal values
   const sanitizedArea = sanitize<typeof area, AreaWithPrograms>(area);
 
+  const editPencilComponent = 
+    (roles.some(role => role.role === 'ADMIN' || role.role === 'PROGRAMMANAGER')) ?
+    (
+        <EditPencil
+          goTo={`/area/${sanitizedArea.id}/edit`}
+        />          
+    )
+    :
+    (
+        <EditPencil
+            goTo={``}
+            auth={true}
+          />
+    );
+
   return (
-    <div className="min-h-screen bg-[#f8fafd] py-14 px-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#f8fafd] py-14 px-4">
       <AreaToaster />
       {/* Breadcrumb navigation */}
-      <nav className="max-w-xl mx-auto mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
+      <nav className="w-full max-w-2xl mx-auto mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
         <Link href="/area" className="hover:underline text-gray-700">Bereiche</Link>
         <span>&gt;</span>
         <span className="text-gray-700 font-semibold">{sanitizedArea.name}</span>
       </nav>
-      <div className="max-w-xl mx-auto bg-white rounded-2xl shadow-lg px-6 py-8 relative">
+      <div className="w-full max-w-2xl mx-auto bg-white rounded-2xl shadow-lg px-6 py-8 relative">
         {/* Edit button */}
-        <Link
-          href={`/area/${sanitizedArea.id}/edit`}
-          className="absolute top-6 right-6 text-gray-400 hover:text-blue-600 transition"
-          title="Bereich bearbeiten"
-        >
-          <Pencil className="w-5 h-5 cursor-pointer" />
-        </Link>
+        { editPencilComponent}
 
         {/* Area title */}
         <h1 className="text-3xl font-bold mb-6 text-center text-gray-900 drop-shadow-sm">{sanitizedArea.name}</h1>
@@ -69,7 +92,7 @@ export default async function AreaDetailPage({
         <div className="mb-10">
           <h2 className="text-xl font-bold mb-2 text-gray-600 flex items-center gap-2">
             <Info className="w-5 h-5 text-gray-400" />
-            Bereichsbeschreibung 
+            Bereichsbeschreibung
           </h2>
           <div className="text-gray-700 text-base ml-7">
 

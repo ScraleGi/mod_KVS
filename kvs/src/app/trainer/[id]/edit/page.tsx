@@ -1,14 +1,20 @@
-import { PrismaClient } from "../../../../../generated/prisma";
+import { db } from '@/lib/db'
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { EditLabel } from "../../../../components/trainer/EditLabel";
-
-const prisma = new PrismaClient();
-
+import { getAuthorizing } from "@/lib/getAuthorizing";
+import CancelButton from '@/components/cancle-Button/cnacleButton';
 
 export default async function EditTrainerPage({ params }: { params: Promise<{ id: string }> }) {
+    // Check user authorization
+  const roles = await getAuthorizing({
+    privilige: ['ADMIN', 'PROGRAMMMANAGER'],
+  })
+    if (roles.length === 0) {
+        redirect('/403')
+    }
     const { id } = await params;
-    const trainer = await prisma.trainer.findUnique({
+    const trainer = await db.trainer.findUnique({
         where: { id },
     });
     if (!trainer) return null;
@@ -30,7 +36,7 @@ export default async function EditTrainerPage({ params }: { params: Promise<{ id
         const birthday = formData.get('birthday') as string;
         const title = formData.get('title') as string | null;
 
-        await prisma.trainer.update({
+        await db.trainer.update({
             where: { id },
             data: {
                 name,
@@ -50,12 +56,11 @@ export default async function EditTrainerPage({ params }: { params: Promise<{ id
         redirect(`/trainer/${id}?edited=1`);
     };
 
-
     return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-50 px-2 py-8">
             <div className="w-full max-w-xl mx-auto">
                 <nav className="max-w-xl mx-auto mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
-                    <Link href="/trainer" className="hover:underline text-gray-700">Trainer</Link>
+                    <Link href="/trainer" className="hover:underline text-gray-700">Trainerübersicht</Link>
                     <span>&gt;</span>
                     <Link href={`/trainer/${trainer.id}`} className="text-gray-700 hover:underline">{trainer.name} {trainer.surname}</Link>
                     <span>&gt;</span>
@@ -135,12 +140,7 @@ export default async function EditTrainerPage({ params }: { params: Promise<{ id
                         />
                     </div>
                     <div className="flex justify-between mt-6">
-                        <Link
-                            href={`/trainer/${id}`}
-                            className="px-4 py-2 bg-neutral-200 text-neutral-700 rounded hover:bg-neutral-300 text-xs font-medium transition"
-                        >
-                            Abbrechen
-                        </Link>
+                       <CancelButton href="/trainer">Abbrechen</CancelButton>
                         <button
                             type="submit"
                             className="cursor-pointer px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-xs font-medium transition"

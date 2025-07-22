@@ -1,13 +1,10 @@
-'use client';
-
 import { Geist, Geist_Mono } from "next/font/google";
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation'
-import { ToasterProvider } from "@/components/ui/toaster";
-import Sidebar from '@/components/navigation/Sidebar';
-import Navbar from '@/components/navigation/Navbar';
+import NavAndSidebar from "@/components/navigation/navAndSidebar";
+import { auth0 } from "@/lib/auth0";
 import "./globals.css";
 import '../styles/components.css';
+import { redirect } from "next/navigation";
+import { getRolesByEmail } from "@/lib/getRoles";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,53 +16,32 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [isOpen, setOpen] = useState(true);
-  const [user, setUser] = useState<string | null>(null);
-  const router = useRouter();
+  let user = undefined
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const res = await fetch('/api/session');
-        const data = await res.json();
-        if (data.user){
-          setUser(data.user.email);
-        } else {
-          setUser(null);
-          router.push('/auth/login')
-        }
-      } catch (error) {
-        console.error("Authentication check failed:", error);
-        setUser(null);
-        router.push('/auth/login')
-      }
-    };
-    checkAuth();
-  }, [router]);
+  const session = await auth0.getSession();
+  if (session && session.user) {
+    user = session.user.email; // Nur die E-Mail speichern
+  } else {
+    redirect('/auth/login');
+  }
+  if (user === undefined) {
+    redirect('/auth/login');
+  }
+  const roles = await getRolesByEmail(user);
+
+
 
   return (
     <html lang="de">
-      <body className={`${geistSans.variable} ${geistMono.variable} overflow-x-hidden`}>
-        <ToasterProvider>
-        {user == null ? (
-          <div className="min-h-screen flex flex-col">
-            {/* Hier könntest du einen Loader anzeigen */}
-          </div>
-        ) : (
-          <div className="min-h-screen flex flex-col">
-            <Navbar isOpen={isOpen} setOpen={setOpen} user={user}/>
-            <div className="flex grow">
-              <Sidebar isOpen={isOpen} />
-              <main className="flex-1 transition-all duration-200 overflow-x-auto">{children}</main>
-            </div>
-          </div>
-        )}
-        </ToasterProvider>
+      <body className={`${geistSans.variable} ${geistMono.variable} overflow-y-hidden`}>
+        <NavAndSidebar user={user} userRoles={roles}>
+          {children}
+        </NavAndSidebar>
       </body>
     </html>
   );

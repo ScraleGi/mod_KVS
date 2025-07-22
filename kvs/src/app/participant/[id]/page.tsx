@@ -10,6 +10,7 @@ import ParticipantToaster from './ParticipantToaster'
 import { sanitize } from '@/lib/sanitize'
 import RemoveButton from '@/components/RemoveButton/RemoveButton'
 import { DownloadPDFLink } from '@/components/DownloadButton/DownloadButton'
+import { getAuthorizing } from '@/lib/getAuthorizing'
 
 //---------------------------------------------------
 // MAIN COMPONENT
@@ -19,6 +20,13 @@ export default async function ParticipantPage({
 }: {
   params: Promise<{ id: string }>
 }) {
+  // Check user authorization
+  const roles = await getAuthorizing({
+    privilige: ['ADMIN', 'PROGRAMMMANAGER'],
+  })
+  if (roles.length === 0) {
+    redirect('/403')
+  }
   try {
     const { id } = await params
 
@@ -203,12 +211,12 @@ export default async function ParticipantPage({
 
         <div className="w-full max-w-2xl">
           <nav className="mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
-            <Link href="/participant" className="hover:underline text-gray-700">Teilnehmer</Link>
+            <Link href="/participant" className="hover:underline text-gray-700">Teilnehmerübersicht</Link>
             <span>&gt;</span>
             <span className="text-gray-700 font-semibold">{participant.name} {participant.surname}</span>
           </nav>
         </div>
-        
+
         <div className="w-full max-w-2xl bg-white rounded-2xl shadow-md border border-neutral-100 p-0 overflow-hidden">
           {/* Profile Card */}
           <section className="flex flex-col sm:flex-row items-center gap-6 px-8 py-8 border-b border-neutral-200 relative">
@@ -304,7 +312,7 @@ export default async function ParticipantPage({
                       <tr key={reg.id} className="border-t border-neutral-200 bg-white hover:bg-sky-50 transition">
                         <td className="px-3 py-2">
                           <Link
-                            href={`/course/${reg.course?.id}`}
+                            href={`/courseregistration/${reg.id}`}
                             className="text-blue-700 hover:text-blue-900 font-medium text-sm"
                           >
                             {reg.course?.program?.name ?? 'Unbekannter Kurs'}
@@ -360,9 +368,9 @@ export default async function ParticipantPage({
                       <tr key={inv.id} className="border-t border-neutral-200 bg-white hover:bg-blue-50 transition">
                         <td className="px-3 py-2">
                           <DownloadPDFLink
-                            uuidString={inv.courseRegistrationId ||  inv.id}
-                            filename={`${inv.invoiceNumber}.pdf`}
-                            displayName={`${inv.invoiceNumber ?? inv.id}`}
+                            uuidString={inv.courseRegistrationId || inv.id}
+                            filename={`${inv.id}.pdf`}
+                            displayName={`#${inv.invoiceNumber ?? inv.id}`}
                             className="text-blue-700 hover:text-blue-900 font-medium text-sm"
                           />
                         </td>
@@ -374,7 +382,7 @@ export default async function ParticipantPage({
                         </td>
                         <td className="px-3 py-2 text-center">
                           {inv.isCancelled ? (
-                            <span className="px-2 py-1 rounded bg-red-100 text-red-600">Canceled</span>
+                            <span className="px-2 py-1 rounded bg-red-100 text-red-600">storniert</span>
                           ) : inv.transactionNumber ? (
                             <span className="px-2 py-1 rounded bg-green-100 text-green-700">bezahlt</span>
                           ) : (

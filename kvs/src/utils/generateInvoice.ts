@@ -17,10 +17,7 @@ export async function generateInvoice(formData: FormData) {
       throw new Error("Valid recipient type (PERSON or COMPANY) is required")
     }
 
-    const recipientSalutation = formData.get("recipientSalutation") as string
     const recipientName = formData.get("recipientName") as string
-    const recipientSurname = formData.get("recipientSurname") as string
-    const companyName = formData.get("companyName") as string
     const recipientEmail = formData.get("recipientEmail") as string
     const recipientStreet = formData.get("recipientStreet") as string
     const postalCode = formData.get("postalCode") as string

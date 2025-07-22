@@ -6,10 +6,18 @@ import { redirect } from "next/navigation";
 import RemoveButton from "@/components/RemoveButton/RemoveButton";
 import { formatDateGerman } from '@/lib/utils'
 import TrainerToaster from './TrainerToaster';
+import { getAuthorizing } from "@/lib/getAuthorizing";
 
 const prisma = new PrismaClient();
 
 export default async function TrainerDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+    // Check user authorization
+  const roles = await getAuthorizing({
+    privilige: ['ADMIN', 'PROGRAMMMANAGER'],
+  })
+    if (roles.length === 0) {
+        redirect('/403')
+    }
     const { id } = await params;
     const trainer = await prisma.trainer.findUnique({
         where: { id, deletedAt: null },
@@ -48,28 +56,31 @@ export default async function TrainerDetailsPage({ params }: { params: Promise<{
     if (!trainer) return notFound();
 
     return (
-        <div className="min-h-screen bg-[#f8fafd] py-14 px-4">
+        <div className="min-h-screen bg-neutral-50 flex flex-col items-center justify-center py-14 px-4">
             <TrainerToaster />
-            <nav className="max-w-xl mx-auto mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
-                <Link href="/trainer" className="hover:underline text-gray-700">Trainers</Link>
+            <nav className="w-full max-w-2xl mx-auto mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
+                <Link href="/trainer" className="hover:underline text-gray-700">Trainerübersicht</Link>
                 <span>&gt;</span>
                 <span className="text-gray-700 font-semibold">{trainer.name} {trainer.surname}</span>
             </nav>
-            <div className="max-w-xl mx-auto bg-white rounded-2xl shadow-lg px-6 py-8 relative">
+            <div className="w-full max-w-2xl mx-auto bg-white border border-neutral-100 p-0 overflow-hidden rounded-2xl shadow-lg pt-8 relative">
                 <Link
-                    href={`/trainer/${trainer.id}/edit`}
-                    className="absolute top-6 right-6 text-gray-400 hover:text-blue-600 transition"
-                    title="Edit Trainer"
+                href={`/trainer/${trainer.id}/edit`}
+                className="absolute top-6 right-6 z-20 text-gray-400 hover:text-blue-600 transition flex items-center justify-center p-2 rounded-full"
+                title="Edit Trainer"
                 >
-                    <Pencil className="w-5 h-5 cursor-pointer" />
+                <Pencil className="w-5 h-5 cursor-pointer pointer-events-auto block" />
                 </Link>
 
-                <h1 className="text-3xl font-bold mb-6 text-center text-gray-900 drop-shadow-sm">{trainer.title} {trainer.name} {trainer.surname}</h1>
+
+
+
+                <div className="mx-6">
+                   <h1 className="text-3xl font-bold mb-6 text-center text-gray-900 drop-shadow-sm">{trainer.title} {trainer.name} {trainer.surname}</h1>
 
                 <div className="w-full h-48 bg-gray-100 rounded flex items-center justify-center mb-8">
                     <span className="text-gray-400">[Image Placeholder]</span>
                 </div>
-
                 <div className="mb-10">
                     <h2 className="text-xl font-bold mb-2 text-gray-600 flex items-center gap-2">
                         <Info className="w-5 h-5 text-gray-400" />
@@ -78,7 +89,7 @@ export default async function TrainerDetailsPage({ params }: { params: Promise<{
                     <div className="text-gray-700 text-base ml-7">
                         Email: {trainer.email || 'N/A'}<br />
                         Tel: {trainer.phoneNumber || 'N/A'}<br />
-                        Addresse: {trainer.street || 'No address provided.'}
+                        Adresse: {trainer.street || 'Keine Adresse angegeben.'}
                         {trainer.postalCode && trainer.city ? (
                             <span>, {trainer.postalCode} {trainer.city}</span>
                         ) : (
@@ -120,11 +131,12 @@ export default async function TrainerDetailsPage({ params }: { params: Promise<{
                         )}
                     </div>
                 </div>
+                </div>
 
                 {/* Danger Zone Section */}
-                <div className="border-t border-gray-200 mt-2"></div>
-                <div className="ml-1 mt-1 px-6 py-4 bg-gray-50 rounded-b-sm">
-                    <div className="flex items-center justify-between">
+                <div className="border-t border-gray-200 rounded-2xl mt-6">
+                <div className="py-4 bg-gray-50 w-full">
+                    <div className="flex items-center justify-between mx-6">
                         <div>
                             <h3 className="text-sm font-medium text-gray-700">Archiv</h3>
                             <p className="text-xs text-gray-500 mt-1">In Ablage verwahren.</p>
@@ -132,8 +144,8 @@ export default async function TrainerDetailsPage({ params }: { params: Promise<{
                         <RemoveButton
                             itemId={trainer.id}
                             onRemove={deleteTrainer}
-                            title="Delete Trainer"
-                            message="Are you sure you want to archive this trainer?"
+                            title="Trainer löschen?"
+                            message="Sind Sie sicher, dass Sie diesen Trainer archivieren wollen?"
                             fieldName="id"
                             customButton={
                                 <button
@@ -153,5 +165,6 @@ export default async function TrainerDetailsPage({ params }: { params: Promise<{
                 </div>
             </div>
         </div>
+    </div>
     );
 }

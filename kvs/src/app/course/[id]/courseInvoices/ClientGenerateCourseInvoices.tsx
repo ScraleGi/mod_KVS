@@ -3,7 +3,7 @@
 import React, { useState, useTransition, useEffect } from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
-import type { SanitizedRegistration, SanitizedInvoice, SanitizedInvoiceRecipient } from "@/types/query-models"
+import type { SanitizedRegistration, SanitizedInvoice } from "@/types/query-models"
 import { generateInvoice } from "@/utils/generateInvoice"
 
 // Utility to map recipient values to the InvoiceRecipient schema
@@ -27,11 +27,10 @@ function getInvoiceRecipientSchemaValues(rec: SanitizedInvoiceRecipient) {
 
 interface Props {
   registrations: SanitizedRegistration[]
-  recipients: SanitizedInvoiceRecipient[]
   courseId: string
 }
 
-export function ClientGenerateCourseInvoices({ registrations, recipients, courseId }: Props) {
+export function ClientGenerateCourseInvoices({ registrations, courseId }: Props) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [recipientType, setRecipientType] = useState<"default" | "custom">("default")
@@ -69,39 +68,6 @@ export function ClientGenerateCourseInvoices({ registrations, recipients, course
       checked ? [...prev, id] : prev.filter(rid => rid !== id)
     )
   }
-
-  // Deduplicate recipients, always show the most recent, fallback to id if name empty
-  const seenNames = new Set<string>()
-  const filteredRecipients = [...recipients].reverse().filter(rec => {
-    let nameKey = ""
-    if (rec.type === "COMPANY") {
-      nameKey = (rec.companyName || "").trim().toLowerCase()
-    } else {
-      nameKey = [
-        rec.recipientSalutation || "",
-        rec.recipientName || "",
-        rec.recipientSurname || ""
-      ].join(" ").replace(/\s+/g, " ").trim().toLowerCase()
-      if (!nameKey) nameKey = rec.id
-    }
-    if (seenNames.has(nameKey)) return false
-    seenNames.add(nameKey)
-    return true
-  })
-
-  // Always show the currently selected recipient (even if just created)
-  const currentRecipient = recipients.find(r => r.id === customRecipientId)
-  const recipientOptions = [
-    ...(currentRecipient && !filteredRecipients.some(r => r.id === currentRecipient.id)
-      ? [currentRecipient]
-      : []),
-    ...filteredRecipients
-  ]
-
-  const renderRecipientName = (rec: SanitizedInvoiceRecipient) =>
-    rec.type === "COMPANY"
-      ? rec.companyName
-      : `${rec.recipientSalutation || ""} ${rec.recipientName || ""} ${rec.recipientSurname || ""}`.trim() || "(Unbenannte Person)"
 
   // Handle "Empfänger anlegen" click
   const handleCreateRecipient = (e: React.MouseEvent) => {
@@ -228,27 +194,7 @@ export function ClientGenerateCourseInvoices({ registrations, recipients, course
                 Neuen Empfänger anlegen
               </button>
             </span>
-            <select
-              name="customRecipientId"
-              className="ml-2 border rounded px-2 py-1 text-xs"
-              disabled={recipientType !== "custom"}
-              style={{ minWidth: 180 }}
-              value={customRecipientId}
-              onChange={e => setCustomRecipientId(e.target.value)}
-              required={recipientType === "custom"}
-            >
-              <option value="" disabled>
-                {currentRecipient
-                  ? `Empfänger: ${renderRecipientName(currentRecipient)}`
-                  : "Empfänger wählen…"}
-              </option>
-              {recipientOptions.map((rec) => (
-                <option key={rec.id} value={rec.id}>
-                  {renderRecipientName(rec)}
-                </option>
-              ))}
-            </select>
-          </label>
+           </label>
         </div>
       </div>
 

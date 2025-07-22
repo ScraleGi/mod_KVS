@@ -1,11 +1,18 @@
-import { PrismaClient } from "../../../../generated/prisma";
+import { db } from '@/lib/db'
 import { redirect } from 'next/navigation';
 import { EditLabel } from "../../../components/trainer/EditLabel";
 import Link from 'next/link';
-
-const prisma = new PrismaClient();
+import { getAuthorizing } from "@/lib/getAuthorizing";
+import CancelButton from '@/components/cancle-Button/cnacleButton';
 
 export default async function NewTrainerPage() {
+    // Check user authorization
+  const roles = await getAuthorizing({
+    privilige: ['ADMIN', 'PROGRAMMMANAGER'],
+  })
+    if (roles.length === 0) {
+        redirect('/403')
+    }
     const createTrainer = async (formData: FormData) => {
         'use server';
         const name = formData.get('name') as string;
@@ -21,7 +28,7 @@ export default async function NewTrainerPage() {
         const birthday = formData.get('birthday') as string;
         const title = formData.get('title') as string | null;
 
-        const trainer = await prisma.trainer.create({
+        const trainer = await db.trainer.create({
             data: {
                 name,
                 surname,
@@ -45,15 +52,13 @@ export default async function NewTrainerPage() {
         <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-50 px-2 py-8">
             <div className="w-full max-w-xl mx-auto">
                 <nav className="mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
-
-                    <Link href="/trainer" className="hover:underline text-gray-700">Trainer</Link>
+                    <Link href="/trainer" className="hover:underline text-gray-700">Trainerübersicht</Link>
                     <span>&gt;</span>
                     <span className="text-gray-700 font-semibold">Trainer hinzufügen</span>
                 </nav>
             </div>
 
             <div className="w-full max-w-xl bg-white rounded-2xl shadow-md border border-neutral-100 p-8">
-
                 <h1 className="text-2xl font-bold mb-6 text-neutral-900 text-center">Trainer hinzufügen</h1>
                 <form
                     action={createTrainer}
@@ -82,7 +87,7 @@ export default async function NewTrainerPage() {
                             name="title"
                             value=""
                             type="text"
-                            required={false} // Assuming title is optional
+                            required={false}
                         />
                         <EditLabel
                             labelName="Vorname"
@@ -133,15 +138,10 @@ export default async function NewTrainerPage() {
                         />
                     </div>
                     <div className="flex justify-between mt-6">
-                        <Link
-                            href="/trainer"
-                            className="px-4 py-2 bg-neutral-200 text-neutral-700 rounded hover:bg-neutral-300 text-xs font-medium transition"
-                        >
-                            Abbrechen
-                        </Link>
+                       <CancelButton href="/trainer">Abbrechen</CancelButton>
                         <button
                             type="submit"
-                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition cursor-pointer"
+                            className="cursor-pointer px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-xs font-medium transition"
                         >
                             Trainer erstellen
                         </button>
@@ -149,6 +149,5 @@ export default async function NewTrainerPage() {
                 </form>
             </div>
         </div>
-
     )
 }

@@ -4,6 +4,7 @@ import { db } from '@/lib/db'
 import { sanitize } from '@/lib/sanitize'
 import { formatDate } from '@/lib/utils'
 import { DeletedCourseWithProgram } from '@/types/query-models'
+import { getAuthorizing } from '@/lib/getAuthorizing';
 import ClientToasterWrapper from './ClientToasterWrapper'
 
 /**
@@ -12,12 +13,12 @@ import ClientToasterWrapper from './ClientToasterWrapper'
 async function restoreCourse(formData: FormData) {
   'use server'
   const id = formData.get('id') as string
-  
+
   await db.course.update({
     where: { id },
     data: { deletedAt: null },
   })
-  
+
   redirect('/course?restored=1')
 }
 
@@ -25,6 +26,10 @@ async function restoreCourse(formData: FormData) {
  * Page component for displaying and managing deleted courses
  */
 export default async function DeletedCoursesPage() {
+  // Check user authorization
+    await getAuthorizing({
+      privilige: ['ADMIN', 'PROGRAMMMANAGER', 'TRAINER'],
+    })
   // Fetch all deleted courses with their program names
   const deletedCoursesData = await db.course.findMany({
     where: { deletedAt: { not: null } },
@@ -41,9 +46,16 @@ export default async function DeletedCoursesPage() {
     <div className="min-h-screen bg-gray-50 py-10 px-4 flex items-center justify-center">
       <ClientToasterWrapper />
       <div className="w-full max-w-2xl">
+        <nav className="mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
+          <Link href="/" className="hover:underline text-gray-700">
+            Kursübersicht
+          </Link>
+          <span>&gt;</span>
+          <span className="text-gray-700 font-semibold">Archiv</span>
+        </nav>
         <div className="bg-white rounded-xl shadow border border-gray-100 px-8 py-10">
           <h1 className="text-2xl font-bold text-gray-900 mb-8 tracking-tight">Archivierte Kurse</h1>
-          
+
           {/* Show message when no deleted courses exist */}
           {deletedCourses.length === 0 ? (
             <p className="text-gray-500 text-sm">Keine archivierten Kurse gefunden.</p>
@@ -67,7 +79,7 @@ export default async function DeletedCoursesPage() {
                       </span>
                     )}
                   </div>
-                  
+
                   {/* Restore form */}
                   <form action={restoreCourse}>
                     <input type="hidden" name="id" value={course.id} />
@@ -83,17 +95,6 @@ export default async function DeletedCoursesPage() {
               ))}
             </ul>
           )}
-          
-          {/* Navigation back to courses list */}
-          <Link
-            href="/course"
-            className="mt-8 inline-flex items-center text-xs font-medium text-gray-500 hover:text-blue-700 transition-colors"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            Zurück zur Startseite
-          </Link>
         </div>
       </div>
     </div>

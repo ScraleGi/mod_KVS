@@ -1,10 +1,20 @@
 import Link from "next/link"
 import { db } from "@/lib/db"
 import { sanitize } from "@/lib/sanitize"
-import type { SanitizedRegistration, SanitizedCourse, SanitizedInvoiceRecipient } from "@/types/query-models"
+import type { SanitizedRegistration, SanitizedCourse } from "@/types/query-models"
 import { ClientGenerateCourseInvoices } from "./ClientGenerateCourseInvoices"
+import { getAuthorizing } from "@/lib/getAuthorizing"
+import { redirect } from "next/navigation"
 
 export default async function CourseInvoicesPage({ params }: { params: Promise<{ id: string }> }) {
+  // Check user authorization
+    const roles = await getAuthorizing({
+      privilige: ['ADMIN', 'PROGRAMMMANAGER'],
+    })
+  
+    if (roles.length === 0) {
+      redirect('/403')
+    }
   const { id } = await params
 
   const course = await db.course.findUnique({
@@ -77,7 +87,6 @@ export default async function CourseInvoicesPage({ params }: { params: Promise<{
 
         <ClientGenerateCourseInvoices
           registrations={sanitizedRegistrations}
-          recipients={sanitizedRecipients}
           courseId={sanitizedCourse.id}
         />
 

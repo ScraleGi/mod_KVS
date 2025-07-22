@@ -4,6 +4,7 @@ import { db } from '@/lib/db'
 import { sanitize } from '@/lib/sanitize'
 import { Area } from '@/types/models'
 import ClientToasterWrapper from './ClientToasterWrapper'
+import { getAuthorizing } from '@/lib/getAuthorizing';
 
 interface DeletedAreaWithPrograms extends Omit<Area, 'programs'> {
   programs: {
@@ -42,6 +43,13 @@ async function restoreArea(formData: FormData) {
 }
 
 export default async function DeletedAreasPage() {
+  // Check user authorization
+ const roles = await getAuthorizing({
+    privilige: ['ADMIN'],
+  })
+  if (roles.length === 0) {
+    redirect('/403')
+  }
   // Fetch all soft-deleted areas with their associated programs
   const deletedAreas = await db.area.findMany({
     where: { deletedAt: { not: null } },
@@ -64,12 +72,12 @@ export default async function DeletedAreasPage() {
         <nav className="mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
           <Link href="/area" className="hover:underline text-gray-700">Bereiche</Link>
           <span>&gt;</span>
-          <span className="text-gray-700 font-semibold">gelöschte Bereiche</span>
+          <span className="text-gray-700 font-semibold">Archiv</span>
         </nav>
         <div className="bg-white rounded-xl shadow border border-gray-100 px-8 py-10">
-          <h1 className="text-2xl font-bold text-gray-900 mb-8 tracking-tight">Gelöschte Bereiche</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-8 tracking-tight">Archivierte Bereiche</h1>
           {sanitizedAreas.length === 0 ? (
-            <p className="text-gray-500 text-sm">Keine gelöschten Bereiche gefunden.</p>
+            <p className="text-gray-500 text-sm">Keine archivierten Bereiche gefunden.</p>
           ) : (
             <ul className="space-y-4">
               {sanitizedAreas.map(area => (
@@ -98,15 +106,6 @@ export default async function DeletedAreasPage() {
               ))}
             </ul>
           )}
-          <Link
-            href="/area"
-            className="mt-8 inline-flex items-center text-xs font-medium text-gray-500 hover:text-blue-700 transition-colors"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            Bereiche
-          </Link>
         </div>
       </div>
     </div>
