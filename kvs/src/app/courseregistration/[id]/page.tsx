@@ -189,15 +189,22 @@ export default async function ParticipantDetailsPage({
 
           {/* Registration Details Section */}
           <section className="px-8 py-6 border-b border-neutral-200">
-            <h2 className="text-sm font-semibold text-neutral-800 mb-4">
-              Kurs:&nbsp;
-              <Link
-                href={`/course/${sanitizedRegistration.course?.id}`}
-                className="text-blue-700 hover:text-blue-800 font-medium hover:underline"
-              >
-                {sanitizedRegistration.course?.program?.name ?? '-'}
-              </Link>
-            </h2>
+          <h2 className="text-sm font-semibold text-neutral-800 mb-4 flex items-center gap-2">
+            Kurs:&nbsp;
+            <Link
+              href={`/course/${sanitizedRegistration.course?.id}`}
+              className="text-blue-700 hover:text-blue-800 font-medium hover:underline"
+            >
+              {sanitizedRegistration.course?.program?.name ?? '-'}
+            </Link>
+            <span className="flex-1" />
+            <Link
+              href={`/courseregistration/${sanitizedRegistration.id}/registrationStatus/edit`}
+              className="ml-2 px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition"
+            >
+              Status bearbeiten
+            </Link>
+          </h2>
             <div
               className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-[13px] text-neutral-700 border-l-4 border-neutral-200 pl-6 mt-2"
             >
