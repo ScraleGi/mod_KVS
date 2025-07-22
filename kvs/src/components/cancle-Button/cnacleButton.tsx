@@ -1,18 +1,23 @@
 // components/CancelButton.tsx
-import Link from 'next/link';
+"use client";
+import { useRouter } from 'next/navigation';
 
 interface CancelButtonProps {
-  href: string; // Pflichtfeld
   children?: React.ReactNode; // Optionaler Button-Text
 }
 
-export default function CancelButton({ href, children = "Abbrechen" }: CancelButtonProps) {
+
+
+export default function CancelButton({ children = "Abbrechen" }: CancelButtonProps) {
+  const router = useRouter();
+
   return (
-    <Link
-      href={href}
+    <button
+      type="button"
+      onClick={() => router.back()}
       className="px-4 py-2 bg-neutral-200 text-neutral-700 rounded hover:bg-neutral-300 text-xs font-medium transition"
     >
       {children}
-    </Link>
+    </button>
   );
 }
