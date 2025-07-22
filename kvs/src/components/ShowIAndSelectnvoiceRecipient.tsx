@@ -113,7 +113,7 @@ function SelectRecipientWithAutocomplete({
         const selectedId = e.target.value;
         const recipient = recipients.find(r => r.id === selectedId);
         if (recipient) {
-            await addRecipientToCourseRegistration(selectedId, sanitizedRegistration.id); // ✅ SAVE TO DB
+            await addRecipientToCourseRegistration(sanitizedRegistration.id, recipient.id); // ✅ SAVE TO DB
             onSelect(recipient); // ✅ update local UI
         }
     };
