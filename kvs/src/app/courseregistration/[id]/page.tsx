@@ -17,6 +17,8 @@ import {
 } from '@/types/query-models'
 import RemoveButton from '@/components/RemoveButton/RemoveButton'
 import SubsidyToaster from './subsidy/new/SubsidyToaster'
+import { generatePDF } from '@/utils/generatePDF'
+import ejs from 'ejs'
 
 //---------------------------------------------------
 // SERVER ACTIONS
@@ -78,7 +80,7 @@ export default async function ParticipantDetailsPage({
     where: { id: registrationId },
     include: {
       participant: true,
-      course: { include: { program: true, mainTrainer: true } },
+      course: { include: { program: true, mainTrainer: true, courseDays: true } },
       invoices: true,
     }
   })
@@ -137,6 +139,8 @@ export default async function ParticipantDetailsPage({
       </div>
     )
   }
+
+  const danielaMagic = await ejs.renderFile('src/templates/certificate.ejs', sanitizedRegistration)
 
   // RENDER UI
   return (
@@ -601,6 +605,13 @@ export default async function ParticipantDetailsPage({
             </div>
           </section>
         </div>
+      <hr></hr>
+      <div className='mt-10 h-screen w-6xl border-4 border-red-500'>
+        <iframe srcdoc={danielaMagic} width='100%' height='100%'>
+          
+        </iframe>
+      </div>
+
       </div>
     </div>
   )

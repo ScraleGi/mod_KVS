@@ -4,6 +4,7 @@ import { generatePDF } from '@/utils/generatePDF'
 import { savePDF, loadFile } from '@/utils/fileStorage'
 import { db } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
+//Browser-PDF-generation 
 
 /**
  * Load a PDF file from storage by its UUID and filename
@@ -31,6 +32,11 @@ export async function generateAndDownloadPDF(
   if (!uuidString) throw new Error('Missing registration ID for PDF generation')
   if (!type) throw new Error('Missing document type for PDF generation')
   if (!data) throw new Error('Missing data for PDF generation')
+
+    console.log("Data für Daniela:", data)
+    for (let i = 0; i < data.course.courseDays.length && i < 1; ++i){
+      console.log(i, data.course.courseDays[i])
+    }
 
   try {
     const pdfBuffer = await generatePDF(type, data)
