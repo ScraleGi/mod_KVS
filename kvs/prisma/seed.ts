@@ -1,4 +1,4 @@
-import { Prisma } from '../generated/prisma'
+import { Prisma, RecipientType } from '../generated/prisma'
 import { db } from '../src/lib/db'
 
 // -------------------- Area Seeding --------------------
@@ -637,7 +637,7 @@ async function seedRegistrations(
 }
 
 // -------------------- InvoiceRecipient Seeding --------------------
-async function seedInvoiceRecipients(participantMap: Record<string, string>) {
+async function seedInvoiceRecipients() {
   const recipients = [
   // Company recipient (no salutation)
  {
@@ -744,12 +744,6 @@ async function seedInvoiceRecipients(participantMap: Record<string, string>) {
     data: recipients,
     skipDuplicates: true,
   })
-  const allRecipients = await db.invoiceRecipient.findMany()
-  return Object.fromEntries(
-    allRecipients.map(r =>
-      [r.type === RecipientType.COMPANY ? r.companyName : `${r.recipientName} ${r.recipientSurname}`, r.id]
-    )
-  )
 }
 
 // -------------------- Invoice Seeding --------------------
@@ -996,20 +990,9 @@ async function seedDatabase() {
   const courseMap = await seedCourses(programMap, trainerMap)
   const participantMap = await seedParticipants()
   await seedRegistrations(programMap, courseMap, participantMap)
+  await seedInvoiceRecipients();
   await seedHoliday()
-  await seedRoles(); async function seedDatabase() {
-    const areaMap = await seedAreas()
-    const programMap = await seedPrograms(areaMap)
-    const trainerMap = await seedTrainers()
-    const courseMap = await seedCourses(programMap, trainerMap)
-    const participantMap = await seedParticipants()
-    await seedRegistrations(programMap, courseMap, participantMap)
-
-    await seedHoliday()
-    await seedRoles();
-    await seedUsers();
-    await assignRolesToUsers(); // <--- Hier!
-  }
+  await seedRoles();
   await seedUsers();
   await assignRolesToUsers();
 }

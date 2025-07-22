@@ -88,9 +88,6 @@ model CourseRegistration {
   subsidyAmount       Decimal?    @db.Decimal(10, 2)
   discountRemark      String?                                                                             
   discountAmount      Decimal?    @db.Decimal(10, 2)  
-
-  invoiceRecipientId  String?
-  invoiceRecipient    InvoiceRecipient? @relation(fields: [invoiceRecipientId], references: [id])
   
   @@index([deletedAt])
   @@index([courseId])
@@ -183,17 +180,21 @@ enum RecipientType {
 model InvoiceRecipient {
   id                      String       @id @default(uuid())
   type                    RecipientType
-  recipientName           String?         // company name of the full name of the person
-  recipientEmail          String?
+  recipientSalutation     String?          // Optional, only for Person required
+  recipientName           String?         // Optional, only for PERSON required
+  recipientSurname        String?        // Optional, only for PERSON required
+  companyName             String?       // Optional, only for COMPANY required
+  recipientEmail          String
   postalCode              String
   recipientCity           String
   recipientStreet         String
-  recipientCountry        String?
+  recipientCountry        String
   createdAt               DateTime     @default(now())
   deletedAt               DateTime?
   courseRegistrations     CourseRegistration[] // Relation: one InvoiceRecipient can have many CourseRegistrations
   @@index([deletedAt])
 }
+
 
 
 

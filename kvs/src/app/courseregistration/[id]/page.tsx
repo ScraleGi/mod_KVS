@@ -413,6 +413,7 @@ export default async function ParticipantDetailsPage({
                 </tbody>
               </table>
               {/* Create Invoice Button */}
+              {/*}
               <div className="flex justify-end mt-4">
                 {hasActiveInvoice ? (
                   <span
@@ -431,6 +432,7 @@ export default async function ParticipantDetailsPage({
                   </Link>
                 )}
               </div>
+              */}
             </div>
           </section>
 
@@ -525,6 +527,7 @@ export default async function ParticipantDetailsPage({
                   ))}
                 </tbody>
               </table>
+              {/*
               <div className="flex justify-end mt-4">
                 {hasActiveInvoice ? (
                   <span
@@ -543,6 +546,7 @@ export default async function ParticipantDetailsPage({
                   </Link>
                 )}
               </div>
+              */}
             </div>
           </section>
 
