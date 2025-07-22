@@ -4,6 +4,7 @@ import { db } from '@/lib/db'
 import { generateInvoice } from '@/utils/generateInvoice'
 import { getAuthorizing } from '@/lib/getAuthorizing'
 import RecipientSelect from '@/components/RecipientSelect/RecipientSelect' // <-- import client component
+import AutoCompleteSelect from '@/components/AutoCompleteInvoice/AutoCompleteSelect'
 
 //---------------------------------------------------
 // SERVER ACTIONS
