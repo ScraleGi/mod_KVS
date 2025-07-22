@@ -1,10 +1,11 @@
 'use client'
 import { useState } from 'react'
-import { holidayColumns } from '../../app/coursedays/columns'
-import { Holiday } from '../../app/coursedays/types'
-import { createHoliday, updateHoliday, deleteHoliday } from '../../app/coursedays/actions'
+import { holidayColumns } from '../../utils/columns'
+import { Holiday } from '../../types/courseDaysTypes'
+import { createHoliday, updateHoliday, deleteHoliday } from '../../app/actions/courseDaysActions'
 import { TableToolbar } from './TableToolbar'
 
+// SVG icon components for actions (edit, save, delete, cancel, add)
 function IconEdit() {
   return (
     <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
@@ -50,6 +51,7 @@ export function HolidayTable({ holidays }: { holidays: Holiday[] }) {
   const [editId, setEditId] = useState<string | null>(null)
   const [editValues, setEditValues] = useState<{ title: string; date: string }>({ title: '', date: '' })
 
+  // Filter and sort holidays based on search, date, and year
   const filtered = holidays
     .filter(h =>
       (h.title.toLowerCase().includes(query.toLowerCase()) ||
@@ -59,22 +61,26 @@ export function HolidayTable({ holidays }: { holidays: Holiday[] }) {
     )
     .sort((a, b) => b.date.localeCompare(a.date)) // Newer date first
 
+  // Start editing a holiday row
   function handleEdit(id: string, title: string, date: string) {
     setEditId(id)
     setEditValues({ title, date: date.slice(0, 10) })
   }
 
+  // Cancel editing
   function handleCancel() {
     setEditId(null)
     setEditValues({ title: '', date: '' })
   }
 
+  // Handle input changes for editing
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     setEditValues({ ...editValues, [e.target.name]: e.target.value })
   }
 
   return (
     <div className="mt-10 mb-10">
+      {/* Toolbar for search, date, and year filter */}
       <TableToolbar
         onSearch={setQuery}
         dateFilter={dateFilter}
@@ -92,6 +98,7 @@ export function HolidayTable({ holidays }: { holidays: Holiday[] }) {
           </colgroup>
           <thead>
             <tr>
+              {/* Render table headers from holidayColumns */}
               {holidayColumns.map((col, idx) => (
                 <th
                   key={col.key}
@@ -106,7 +113,7 @@ export function HolidayTable({ holidays }: { holidays: Holiday[] }) {
             </tr>
           </thead>
           <tbody>
-            {/* Add new holiday row */}
+            {/* Row for adding a new holiday */}
             <tr className="bg-white">
               <td className="py-1 px-1 align-middle border-r border-gray-100">
                 <input
@@ -139,9 +146,11 @@ export function HolidayTable({ holidays }: { holidays: Holiday[] }) {
                 </form>
               </td>
             </tr>
+            {/* Render each holiday row, editable if in edit mode */}
             {filtered.map(h => (
               <tr key={h.id} className="border-b border-gray-100 hover:bg-gray-50 transition">
                 {editId === h.id ? (
+                  // Edit mode: show input fields and save/cancel/delete actions
                   <>
                     <td className="py-1 px-1 align-middle border-r border-gray-100">
                       <input
@@ -161,6 +170,7 @@ export function HolidayTable({ holidays }: { holidays: Holiday[] }) {
                       />
                     </td>
                     <td className="py-1 px-1 align-middle text-center flex gap-1 justify-center">
+                      {/* Save changes */}
                       <form
                         action={updateHoliday}
                         onSubmit={handleCancel}
@@ -177,6 +187,7 @@ export function HolidayTable({ holidays }: { holidays: Holiday[] }) {
                           <IconSave />
                         </button>
                       </form>
+                      {/* Cancel editing */}
                       <button
                         type="button"
                         className="p-0.5 text-gray-400 hover:text-orange-500 rounded transition"
@@ -185,6 +196,7 @@ export function HolidayTable({ holidays }: { holidays: Holiday[] }) {
                       >
                         <IconCancel />
                       </button>
+                      {/* Delete holiday */}
                       <form action={deleteHoliday} className="inline-flex items-center justify-center gap-0.5">
                         <input type="hidden" name="id" value={h.id} />
                         <button
@@ -198,6 +210,7 @@ export function HolidayTable({ holidays }: { holidays: Holiday[] }) {
                     </td>
                   </>
                 ) : (
+                  // Read-only mode: show values and edit/delete actions
                   <>
                     <td className="py-1 px-1 align-middle border-r border-gray-100">
                       <input
@@ -219,6 +232,7 @@ export function HolidayTable({ holidays }: { holidays: Holiday[] }) {
                       />
                     </td>
                     <td className="py-1 px-1 align-middle text-center flex gap-1 justify-center">
+                      {/* Edit holiday */}
                       <button
                         type="button"
                         className="p-0.5 text-gray-400 hover:text-blue-600 rounded transition"
@@ -227,6 +241,7 @@ export function HolidayTable({ holidays }: { holidays: Holiday[] }) {
                       >
                         <IconEdit />
                       </button>
+                      {/* Delete holiday */}
                       <form action={deleteHoliday} className="inline-flex items-center justify-center gap-0.5">
                         <input type="hidden" name="id" value={h.id} />
                         <button

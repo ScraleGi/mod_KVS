@@ -7,7 +7,7 @@ import { Area } from '@/types/models'
 import { sanitize } from '@/lib/sanitize'
 import { getAuthorizing } from '@/lib/getAuthorizing'
 import EditPencil from '@/components/navigation/EditPencil'
-import { redirect } from 'next/navigation';
+import { redirect } from 'next/navigation'
 
 // Define interface for the area with programs that match the query select
 interface AreaWithPrograms extends Omit<Area, 'programs'> {
@@ -43,10 +43,6 @@ export default async function AreaDetailPage({
     }
   });
 
-
-    
-  
-
   if (!area) return notFound();
 
   // Sanitize data to handle any Decimal values
@@ -77,8 +73,10 @@ export default async function AreaDetailPage({
         <span className="text-gray-700 font-semibold">{sanitizedArea.name}</span>
       </nav>
       <div className="w-full max-w-2xl mx-auto bg-white rounded-2xl shadow-lg px-6 py-8 relative">
-        {/* Edit button */}
-        { editPencilComponent}
+        {/* Edit button with high z-index to ensure it's always clickable */}
+        <div className="absolute top-4 right-4 z-30">
+          {editPencilComponent}
+        </div>
 
         {/* Area title */}
         <h1 className="text-3xl font-bold mb-6 text-center text-gray-900 drop-shadow-sm">{sanitizedArea.name}</h1>
@@ -95,7 +93,6 @@ export default async function AreaDetailPage({
             Bereichsbeschreibung
           </h2>
           <div className="text-gray-700 text-base ml-7">
-
             {sanitizedArea.description || <span className="text-gray-400">Keine Beschreibung.</span>}
           </div>
         </div>
@@ -107,7 +104,6 @@ export default async function AreaDetailPage({
             Programm
           </h2>
           <ul className="space-y-3 ml-2">
-
             {sanitizedArea.programs.length === 0 ? (
               <li className="text-gray-400 italic ml-5 list-none">Keine Programme in diesem Bereich.</li>
             ) : (

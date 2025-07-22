@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { EditLabel } from "../../../components/trainer/EditLabel";
 import Link from 'next/link';
 import { getAuthorizing } from "@/lib/getAuthorizing";
-import CancelButton from '@/components/cancle-Button/cnacleButton';
+import CancelButton from '@/components/cancelButton/cancelButton';
 
 export default async function NewTrainerPage() {
     // Check user authorization

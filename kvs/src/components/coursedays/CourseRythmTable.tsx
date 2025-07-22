@@ -1,9 +1,10 @@
 'use client'
 import React, { useState } from 'react'
-import { CourseRythm } from '../../app/coursedays/types'
-import { createCourseRythm, updateCourseRythm, deleteCourseRythm } from '../../app/coursedays/actions'
+import { CourseRythm } from '../../types/courseDaysTypes'
+import { createCourseRythm, updateCourseRythm, deleteCourseRythm } from '../../app/actions/courseDaysActions'
 import { TableToolbar } from './TableToolbar'
 
+// List of week days for dropdowns and display
 const WEEK_DAYS = [
   { key: 'MONDAY', label: 'Montag' },
   { key: 'TUESDAY', label: 'Dienstag' },
@@ -14,6 +15,7 @@ const WEEK_DAYS = [
   { key: 'SUNDAY', label: 'Sonntag' },
 ]
 
+// SVG icon components for actions (edit, save, delete, cancel, add)
 function IconEdit() {
   return (
     <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
@@ -60,9 +62,12 @@ function isEndTimeAfterStartTime(startTime: string, endTime: string) {
 }
 
 export function CourseRythmTable({ rythms, courseId }: { rythms: CourseRythm[], courseId: string }) {
+  // State for editing an existing row
   const [editId, setEditId] = useState<string | null>(null)
   const [editValues, setEditValues] = useState<{ startTime: string, endTime: string, pauseDuration: string, weekDay: string } | null>(null)
   const [editError, setEditError] = useState<string | null>(null)
+
+  // State for adding a new row
   const [newValues, setNewValues] = useState<{ weekDay: string, startTime: string, endTime: string, pauseDuration: string }>({
     weekDay: '',
     startTime: '',
@@ -71,9 +76,11 @@ export function CourseRythmTable({ rythms, courseId }: { rythms: CourseRythm[], 
   })
   const [addError, setAddError] = useState<string | null>(null)
 
+  // Used and available week days for the dropdown (to prevent duplicates)
   const usedWeekDays = rythms.map(r => r.weekDay)
   const availableWeekDays = WEEK_DAYS.filter(day => !usedWeekDays.includes(day.key))
 
+  // Start editing a row
   function handleEdit(r: CourseRythm) {
     setEditId(r.id)
     setEditValues({
@@ -85,12 +92,14 @@ export function CourseRythmTable({ rythms, courseId }: { rythms: CourseRythm[], 
     setEditError(null)
   }
 
+  // Cancel editing
   function handleCancel() {
     setEditId(null)
     setEditValues(null)
     setEditError(null)
   }
 
+  // Handle input changes in edit mode
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
     if (!editValues) return
     const { name, value } = e.target
@@ -106,6 +115,7 @@ export function CourseRythmTable({ rythms, courseId }: { rythms: CourseRythm[], 
     }
   }
 
+  // Handle input changes in add mode
   function handleNewChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
     const { name, value } = e.target
     const updated = { ...newValues, [name]: value }
@@ -120,6 +130,7 @@ export function CourseRythmTable({ rythms, courseId }: { rythms: CourseRythm[], 
     }
   }
 
+  // Validate and handle add form submit
   function handleAddSubmit(e: React.FormEvent<HTMLFormElement>) {
     if (!newValues.weekDay || !newValues.startTime || !newValues.endTime || !newValues.pauseDuration) {
       e.preventDefault()
@@ -132,11 +143,13 @@ export function CourseRythmTable({ rythms, courseId }: { rythms: CourseRythm[], 
       return
     }
     setAddError(null)
+    // Reset add form after submit
     setTimeout(() => {
       setNewValues({ weekDay: '', startTime: '', endTime: '', pauseDuration: '' })
     }, 0)
   }
 
+  // Validate and handle edit form submit
   function handleEditSubmit(e: React.FormEvent<HTMLFormElement>) {
     if (!editValues || !editValues.startTime || !editValues.endTime || !editValues.pauseDuration) {
       e.preventDefault()
@@ -149,12 +162,14 @@ export function CourseRythmTable({ rythms, courseId }: { rythms: CourseRythm[], 
       return
     }
     setEditError(null)
+    // Reset edit state after submit
     setTimeout(() => {
       setEditId(null)
       setEditValues(null)
     }, 0)
   }
 
+  // Reset state after delete
   function handleDelete() {
     setEditId(null)
     setEditValues(null)
@@ -165,6 +180,7 @@ export function CourseRythmTable({ rythms, courseId }: { rythms: CourseRythm[], 
 
   return (
     <div className="mt-10 mb-10">
+      {/* Toolbar for search and disabling used week days in dropdown */}
       <TableToolbar
         searchPlaceholder="Kurstag suchen…"
         disabledWeekDays={usedWeekDays}
@@ -181,7 +197,7 @@ export function CourseRythmTable({ rythms, courseId }: { rythms: CourseRythm[], 
             </tr>
           </thead>
           <tbody>
-            {/* Add new rythm row */}
+            {/* Row for adding a new rythm */}
             <tr className="bg-white border-b border-gray-300">
               <td className="py-1 px-1 align-middle border-r border-gray-200">
                 <select
@@ -218,7 +234,7 @@ export function CourseRythmTable({ rythms, courseId }: { rythms: CourseRythm[], 
                 </form>
               </td>
             </tr>
-            {/* Existing rythms */}
+            {/* Render each rythm row, editable if in edit mode */}
             {rythms.map(r => {
               const isEditing = editId === r.id && editValues
               const dayLabel = WEEK_DAYS.find(day => day.key === r.weekDay)?.label || r.weekDay
@@ -238,6 +254,7 @@ export function CourseRythmTable({ rythms, courseId }: { rythms: CourseRythm[], 
                         <input name="pauseDuration" type="time" value={editValues!.pauseDuration} onChange={handleChange} className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none cursor-pointer" required />
                       </td>
                       <td className="py-1 px-1 align-middle text-center flex gap-1 justify-center">
+                        {/* Save changes */}
                         <form
                           action={updateCourseRythm}
                           className="inline-flex items-center gap-0.5"
@@ -251,7 +268,9 @@ export function CourseRythmTable({ rythms, courseId }: { rythms: CourseRythm[], 
                           <input type="hidden" name="courseId" value={courseId} />
                           <button type="submit" className="p-0.5 text-gray-400 hover:text-green-600 rounded transition cursor-pointer" title="Speichern" disabled={!!editError}><IconSave /></button>
                         </form>
+                        {/* Cancel editing */}
                         <button type="button" className="p-0.5 text-gray-400 hover:text-orange-500 rounded transition cursor-pointer" title="Abbrechen" onClick={handleCancel}><IconCancel /></button>
+                        {/* Delete rythm */}
                         <form
                           action={deleteCourseRythm}
                           className="inline-flex items-center justify-center gap-0.5"
@@ -264,12 +283,15 @@ export function CourseRythmTable({ rythms, courseId }: { rythms: CourseRythm[], 
                       </td>
                     </>
                   ) : (
+                    // Read-only mode: show values and edit/delete actions
                     <>
                       <td className="py-1 px-1 align-middle border-r border-gray-200">{r.startTime ? r.startTime.slice(11, 16) : '--:--'}</td>
                       <td className="py-1 px-1 align-middle border-r border-gray-200">{r.endTime ? r.endTime.slice(11, 16) : '--:--'}</td>
                       <td className="py-1 px-1 align-middle border-r border-gray-200">{r.pauseDuration ? r.pauseDuration.slice(11, 16) : '--:--'}</td>
                       <td className="py-1 px-1 align-middle text-center flex gap-1 justify-center">
+                        {/* Edit rythm */}
                         <button type="button" className="p-0.5 text-gray-400 hover:text-blue-600 rounded transition cursor-pointer" title="Bearbeiten" onClick={() => handleEdit(r)}><IconEdit /></button>
+                        {/* Delete rythm */}
                         <form
                           action={deleteCourseRythm}
                           className="inline-flex items-center justify-center gap-0.5"

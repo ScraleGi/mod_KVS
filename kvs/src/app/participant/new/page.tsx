@@ -5,7 +5,7 @@ import { db } from '@/lib/db'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { sanitize } from '@/lib/sanitize'
-import CancelButton from '@/components/cancle-Button/cnacleButton'
+import CancelButton from '@/components/cancelButton/cancelButton'
 
 //---------------------------------------------------
 // SERVER ACTIONS

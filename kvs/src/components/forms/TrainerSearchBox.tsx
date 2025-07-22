@@ -23,16 +23,19 @@ export default function TrainerSearchBox({
   const [open, setOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Find the selected trainer for single-select mode
   const selectedTrainer =
     !multi && typeof selected === "string"
       ? trainers.find((t) => t.id === selected)
       : null;
 
+  // Find selected trainers for multi-select mode
   const selectedCoTrainers =
     multi && Array.isArray(selected)
       ? trainers.filter((t) => selected.includes(t.id))
       : [];
 
+  // Update the input value when selection changes or dropdown closes
   useEffect(() => {
     if (!multi && typeof selected === "string" && !open) {
       setQuery(selectedTrainer ? `${selectedTrainer.name} ${selectedTrainer.surname}` : "");
@@ -47,11 +50,13 @@ export default function TrainerSearchBox({
     // eslint-disable-next-line
   }, [selected, open]);
 
+  // Open dropdown and clear query on focus
   const handleFocus = () => {
     setOpen(true);
     setQuery("");
   };
 
+  // Filter trainers based on query and excludeIds
   const filtered = trainers.filter(
     (t) =>
       !excludeIds.includes(t.id) &&
@@ -65,7 +70,7 @@ export default function TrainerSearchBox({
       )
   );
 
-  // Für das Dropdown: Ausgewählte Co-Trainer oben, Rest darunter
+  // For dropdown: show selected trainers at the top in multi-select mode
   let dropdownList: Trainer[] = [];
   if (multi && Array.isArray(selected)) {
     const selectedIds = new Set(selected);
@@ -76,6 +81,7 @@ export default function TrainerSearchBox({
     dropdownList = filtered;
   }
 
+  // Close dropdown with a slight delay to allow click events
   const handleBlur = () => setTimeout(() => setOpen(false), 120);
 
   return (
@@ -117,15 +123,17 @@ export default function TrainerSearchBox({
                     ${isSelected && !multi ? "bg-blue-50 font-semibold text-blue-700" : ""}
                     ${isSelected && multi ? "bg-blue-50 font-semibold text-blue-700" : ""}
                   `}
-                  onMouseDown={e => e.preventDefault()}
+                  onMouseDown={e => e.preventDefault()} // Prevent input blur on click
                   onClick={() => {
                     if (multi) {
+                      // Toggle selection for multi-select
                       if (Array.isArray(selected) && selected.includes(trainer.id)) {
                         onChange((selected as string[]).filter(id => id !== trainer.id));
                       } else {
                         onChange([...(selected as string[]), trainer.id]);
                       }
                     } else {
+                      // Set selection and close dropdown for single-select
                       onChange(trainer.id);
                       setOpen(false);
                     }

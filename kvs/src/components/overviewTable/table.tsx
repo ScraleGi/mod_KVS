@@ -1,17 +1,6 @@
 "use client"
-import { CourseParticipantsDialog } from "../participants/CourseParticipantsDialog"
-import { TrainerCourseDialog } from "../trainer/TrainerCourseDialog"
-import { CoursesDialog } from "../participants/participantCoursesDialog"
-import { DocumentDialog } from "../participants/DocumentDialog"
-import { FilterHeader } from "./FilterHeader"
-import { DoubleFilterHeader } from "./DoubleFilterHeader"
-import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger, } from "@/components/ui/dropdown-menu"
-import { ChevronDown } from "lucide-react"
-import { formatFullName } from "@/lib/utils"
-import { DownloadPDFLink } from "@/components/DownloadButton/DownloadButton";
 
-
-// -------------------- Imports --------------------
+// -------------------- External Imports --------------------
 import Link from "next/link"
 import * as React from "react"
 import {
@@ -26,7 +15,7 @@ import {
   ColumnFiltersState,
   VisibilityState,
 } from "@tanstack/react-table"
-
+import { ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Table,
@@ -36,7 +25,22 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
+// -------------------- Internal Imports --------------------
+import { CourseParticipantsDialog } from "../participants/CourseParticipantsDialog"
+import { TrainerCourseDialog } from "../trainer/TrainerCourseDialog"
+import { CoursesDialog } from "../participants/participantCoursesDialog"
+import { DocumentDialog } from "../participants/DocumentDialog"
+import { FilterHeader } from "./FilterHeader"
+import { DoubleFilterHeader } from "./DoubleFilterHeader"
+import { formatFullName } from "@/lib/utils"
+import { DownloadPDFLink } from "@/components/DownloadButton/DownloadButton"
 
 // -------------------- Types --------------------
 export type Participant = {
@@ -52,9 +56,8 @@ export type ParticipantRow = {
   surname: string
   email: string
   phoneNumber: string
-  courses: { id: string; name: string; startDate?: string | Date }[] // <-- Add startDate here
+  courses: { id: string; name: string; startDate?: string | Date }[]
 }
-
 
 export type CourseRow = {
   id: string
@@ -127,8 +130,13 @@ export type PrivilegesColumns = {
 }
 
 // -------------------- Table Columns Definition --------------------
+// Each columns array defines the columns for a specific table type.
+// Use these with the CourseTable component for different data views.
+
+  /*********************************** */
+  // Course Sorting 
+  /*********************************** */
 export const home: ColumnDef<CourseRow>[] = [
-  // Course column with sorting
   {
     accessorKey: "course",
     size: 220,
@@ -149,7 +157,7 @@ export const home: ColumnDef<CourseRow>[] = [
       </Link>
     ),
   },
-  // Area column
+  // Area Sorting
   {
     accessorKey: "area",
     size: 220,
@@ -282,6 +290,10 @@ export const home: ColumnDef<CourseRow>[] = [
 
 ]
 
+/*********************************** */
+// Participant Sorting 
+/*********************************** */
+
 export const participantColumns: ColumnDef<ParticipantRow>[] = [
   {
     accessorKey: "name",
@@ -362,6 +374,10 @@ cell: ({ row }) => (
     },
   },
 ]
+
+/*********************************** */
+// Area Sorting 
+/*********************************** */
 
 export const areaColumns: ColumnDef<AreaRow>[] = [
   {
@@ -480,6 +496,10 @@ export const areaColumns: ColumnDef<AreaRow>[] = [
     ),
   }
 ]
+
+/*********************************** */
+// Program Sorting 
+/*********************************** */
 
 export const programColumns: ColumnDef<ProgramRow>[] = [
   {
@@ -610,6 +630,10 @@ export const programColumns: ColumnDef<ProgramRow>[] = [
     ),
   },
 ]
+
+/*********************************** */
+// Course Participants Sorting 
+/*********************************** */
 
   export const courseParticipantsColumns: ColumnDef<CourseParticipantRow>[] = [
   {
@@ -804,6 +828,10 @@ export const programColumns: ColumnDef<ProgramRow>[] = [
   ),
 },
 ]
+
+/*********************************** */
+// Trainer Sorting 
+/*********************************** */
 export const trainerColumns: ColumnDef<TrainerRow>[] = [
   {
     accessorKey: "name",
@@ -908,7 +936,9 @@ export const trainerColumns: ColumnDef<TrainerRow>[] = [
     },
   },
 ]
-
+/*********************************** */
+// Privileges Sorting 
+/*********************************** */
 
 export const privilegesColumns: ColumnDef<PrivilegesColumns>[] = [
   {
@@ -934,7 +964,6 @@ export const privilegesColumns: ColumnDef<PrivilegesColumns>[] = [
     cell: ({ row }) => <span className="block pl-2">{row.getValue("roles")}</span>,
   },
 ]
-
 
 
 // -------------------- Main Table Component --------------------

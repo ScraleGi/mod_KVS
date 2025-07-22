@@ -34,6 +34,11 @@ type CalendarProps = {
 
 // ---- Custom Event Rendering ----
 
+/**
+ * Custom rendering for calendar events.
+ * - Course days are clickable and styled differently in week/day views.
+ * - Holidays are styled and link to the holiday settings.
+ */
 function renderEventContent(eventInfo: EventContentArg) {
   const isHoliday = eventInfo.event.id.startsWith('holiday-');
   const isCourseDay = eventInfo.event.id.startsWith('courseDay-');
@@ -129,7 +134,10 @@ const Calendar: React.FC<CalendarProps> = ({ events, holidayDates }) => {
   const [newEventTitle, setNewEventTitle] = useState('');
   const [userEvents, setUserEvents] = useState<EventType[]>([]);
 
-  // Generate background events for morning and evening slots for each visible day
+  /**
+   * Generate background events for morning and evening slots for each visible day.
+   * This visually blocks out early morning and late evening hours in the calendar.
+   */
   const handleDatesSet = useCallback((arg: DatesSetArg) => {
     const start = new Date(arg.start);
     const end = new Date(arg.end);
@@ -251,6 +259,7 @@ const Calendar: React.FC<CalendarProps> = ({ events, holidayDates }) => {
           height={1100}
           eventContent={renderEventContent}
           eventClassNames={arg => {
+            // Add custom classes for holidays and course days for styling/hover
             if (arg.event.id.startsWith('holiday-')) {
               return ['bg-red-200', 'text-white', 'border-none', 'fc-holiday-hoverable'];
             }

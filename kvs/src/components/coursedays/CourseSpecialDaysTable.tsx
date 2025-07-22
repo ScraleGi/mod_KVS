@@ -1,8 +1,8 @@
 'use client'
 import React, { useState, useEffect } from 'react'
-import { courseSpecialDaysColumns } from '../../app/coursedays/columns'
-import { CourseSpecialDays } from '../../app/coursedays/types'
-import { createCourseSpecialDay, updateCourseSpecialDay, deleteCourseSpecialDay } from '../../app/coursedays/actions'
+import { courseSpecialDaysColumns } from '../../utils/columns'
+import { CourseSpecialDays } from '../../types/courseDaysTypes'
+import { createCourseSpecialDay, updateCourseSpecialDay, deleteCourseSpecialDay } from '../../app/actions/courseDaysActions'
 import { TableToolbar } from './TableToolbar'
 
 // Helper for date/time formatting in Europe/Berlin timezone, no seconds
@@ -19,7 +19,7 @@ function formatDateTimeBerlin(dateString: string) {
     minute: '2-digit'
   })
 }
-
+// Helper for formatting pause duration as HH:mm
 function formatPauseBerlin(dateString: string) {
   if (!dateString) return '--:--'
   const date = new Date(dateString)
@@ -27,7 +27,7 @@ function formatPauseBerlin(dateString: string) {
   const minutes = String(date.getUTCMinutes()).padStart(2, '0')
   return `${hours}:${minutes}`
 }
-
+// Convert ISO string to local datetime-local input value
 function toLocalDateTimeInputValue(isoString: string) {
   if (!isoString) return ''
   const localString = isoString.replace('Z', '')
@@ -40,6 +40,7 @@ function toLocalDateTimeInputValue(isoString: string) {
   return `${year}-${month}-${day}T${hours}:${minutes}`
 }
 
+// SVG icon components for actions (edit, save, delete, cancel, add)
 function IconEdit() {
   return (
     <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
@@ -77,6 +78,7 @@ function IconAdd() {
   )
 }
 
+// Helper to combine start date and end time into a datetime string
 function getEndDateTime(startDateTime: string, endTime: string) {
   // startDateTime: "YYYY-MM-DDTHH:mm"
   // endTime: "HH:mm"
@@ -85,6 +87,7 @@ function getEndDateTime(startDateTime: string, endTime: string) {
   return `${datePart}T${endTime}`
 }
 
+// Validate that end time is after start time
 function isEndTimeAfterStartTime(startDateTime: string, endTime: string) {
   if (!startDateTime || !endTime) return false
   const [datePart] = startDateTime.split('T')
@@ -94,6 +97,7 @@ function isEndTimeAfterStartTime(startDateTime: string, endTime: string) {
 }
 
 export function CourseSpecialDaysTable({ specialDays, courseId }: { specialDays: CourseSpecialDays[], courseId: string }) {
+  // State for search/filter, editing, and adding
   const [query, setQuery] = useState('')
   const [dateFilter, setDateFilter] = useState('')
   const [editId, setEditId] = useState<string | null>(null)
@@ -107,7 +111,7 @@ export function CourseSpecialDaysTable({ specialDays, courseId }: { specialDays:
     courseId: string
   } | null>(null)
 
-  // Add row state
+  // State for adding a new row
   const [addValues, setAddValues] = useState({
     title: '',
     startTime: '',
@@ -115,15 +119,17 @@ export function CourseSpecialDaysTable({ specialDays, courseId }: { specialDays:
     pauseDuration: '',
   })
 
-  // Error state for validation
+  // Error states for validation
   const [addError, setAddError] = useState<string | null>(null)
   const [editError, setEditError] = useState<string | null>(null)
 
+  // Load search and filter state from localStorage on mount
   useEffect(() => {
     setQuery(localStorage.getItem('courseSpecialDaysQuery') || '')
     setDateFilter(localStorage.getItem('courseSpecialDaysDateFilter') || '')
   }, [])
 
+  // Persist search and filter state to localStorage
   useEffect(() => {
     localStorage.setItem('courseSpecialDaysQuery', query)
   }, [query])
@@ -132,11 +138,13 @@ export function CourseSpecialDaysTable({ specialDays, courseId }: { specialDays:
     localStorage.setItem('courseSpecialDaysDateFilter', dateFilter)
   }, [dateFilter])
 
+  // Filter special days by search and date
   const filtered = specialDays.filter(d =>
     (dateFilter === '' || d.startTime.slice(0, 10) === dateFilter) &&
     (query === '' || (d.title ?? '').toLowerCase().includes(query.toLowerCase()))
   )
 
+  // Start editing a row
   function handleEdit(d: CourseSpecialDays) {
     const startTimeLocal = toLocalDateTimeInputValue(d.startTime)
     const endTimeLocal = toLocalDateTimeInputValue(d.endTime)
@@ -154,12 +162,14 @@ export function CourseSpecialDaysTable({ specialDays, courseId }: { specialDays:
     setEditError(null)
   }
 
+  // Cancel editing
   function handleCancel() {
     setEditId(null)
     setEditValues(null)
     setEditError(null)
   }
 
+  // Handle input changes in edit mode
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     if (!editValues) return
     const { name, value } = e.target
@@ -195,6 +205,7 @@ export function CourseSpecialDaysTable({ specialDays, courseId }: { specialDays:
     }
   }
 
+  // Handle input changes in add mode
   function handleAddChange(e: React.ChangeEvent<HTMLInputElement>) {
     const { name, value } = e.target
     if (name === 'startTime') {
@@ -224,6 +235,7 @@ export function CourseSpecialDaysTable({ specialDays, courseId }: { specialDays:
     }
   }
 
+  // Validate and handle add form submit
   function handleAddSubmit(e: React.FormEvent<HTMLFormElement>) {
     const endTimeFull = getEndDateTime(addValues.startTime, addValues.endTimeOnly)
     if (!addValues.startTime || !addValues.endTimeOnly || !endTimeFull) {
@@ -241,6 +253,7 @@ export function CourseSpecialDaysTable({ specialDays, courseId }: { specialDays:
     const endTimeInput = (e.currentTarget as HTMLFormElement).querySelector('input[name="endTime"]') as HTMLInputElement
     if (endTimeInput) endTimeInput.value = endTimeFull
 
+    // Reset add form after submit
     setTimeout(() => {
       setAddValues({
         title: '',
@@ -251,6 +264,7 @@ export function CourseSpecialDaysTable({ specialDays, courseId }: { specialDays:
     }, 0)
   }
 
+  // Validate and handle edit form submit
   function handleEditSubmit(e: React.FormEvent<HTMLFormElement>) {
     if (!editValues) {
       e.preventDefault()
@@ -273,6 +287,7 @@ export function CourseSpecialDaysTable({ specialDays, courseId }: { specialDays:
     const endTimeInput = (e.currentTarget as HTMLFormElement).querySelector('input[name="endTime"]') as HTMLInputElement
     if (endTimeInput) endTimeInput.value = endTimeFull
 
+    // Reset edit state after submit
     setTimeout(() => {
       setEditId(null)
       setEditValues(null)
@@ -281,6 +296,7 @@ export function CourseSpecialDaysTable({ specialDays, courseId }: { specialDays:
 
   return (
     <div className="mt-10 mb-10">
+      {/* Toolbar for search and date filter */}
       <TableToolbar
         onSearch={setQuery}
         dateFilter={dateFilter}
@@ -291,6 +307,7 @@ export function CourseSpecialDaysTable({ specialDays, courseId }: { specialDays:
         <table className="min-w-full text-sm border border-gray-300 rounded-lg bg-white shadow-sm">
           <thead>
             <tr>
+              {/* Render table headers from courseSpecialDaysColumns */}
               {courseSpecialDaysColumns.map((col, idx) => (
                 <th
                   key={col.key}
@@ -303,7 +320,7 @@ export function CourseSpecialDaysTable({ specialDays, courseId }: { specialDays:
             </tr>
           </thead>
           <tbody>
-            {/* Add new special day row */}
+            {/* Row for adding a new special day */}
             <tr className="bg-white border-b border-gray-200">
               <td className="py-1 px-1 align-middle border-r border-gray-200">
                 <input name="title" value={addValues.title} onChange={handleAddChange} form="add-course-specialday-form" placeholder="Neuer Sondertag" className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none" />
@@ -327,9 +344,11 @@ export function CourseSpecialDaysTable({ specialDays, courseId }: { specialDays:
                 </form>
               </td>
             </tr>
+            {/* Render each special day row, editable if in edit mode */}
             {filtered.map(d => (
               <tr key={d.id} className="border-b border-gray-200 hover:bg-gray-50 transition">
                 {editId === d.id && editValues ? (
+                  // Edit mode: show input fields and save/cancel/delete actions
                   <>
                     <td className="py-1 px-1 align-middle border-r border-gray-200">
                       <input name="title" value={editValues.title} onChange={handleChange} className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none cursor-pointer" />
@@ -353,6 +372,7 @@ export function CourseSpecialDaysTable({ specialDays, courseId }: { specialDays:
                       <input type="hidden" name="courseId" value={courseId} />
                     </td>
                     <td className="py-1 px-1 align-middle text-center flex gap-1 justify-center">
+                      {/* Save changes */}
                       <form action={updateCourseSpecialDay} onSubmit={handleEditSubmit} className="inline-flex items-center gap-0.5">
                         <input type="hidden" name="id" value={editValues.id} />
                         <input type="hidden" name="title" value={editValues.title} />
@@ -364,7 +384,9 @@ export function CourseSpecialDaysTable({ specialDays, courseId }: { specialDays:
                           <IconSave />
                         </button>
                       </form>
+                      {/* Cancel editing */}
                       <button type="button" className="p-0.5 text-gray-400 hover:text-orange-500 rounded transition cursor-pointer" title="Abbrechen" onClick={handleCancel}><IconCancel /></button>
+                      {/* Delete special day */}
                       <form action={deleteCourseSpecialDay} className="inline-flex items-center justify-center gap-0.5">
                         <input type="hidden" name="id" value={editValues.id} />
                         <input type="hidden" name="courseId" value={courseId} />
@@ -373,6 +395,7 @@ export function CourseSpecialDaysTable({ specialDays, courseId }: { specialDays:
                     </td>
                   </>
                 ) : (
+                  // Read-only mode: show values and edit/delete actions
                   <>
                     <td className="py-1 px-1 align-middle border-r border-gray-200">
                       <input
@@ -389,7 +412,9 @@ export function CourseSpecialDaysTable({ specialDays, courseId }: { specialDays:
                       <input type="hidden" name="courseId" value={courseId} />
                     </td>
                     <td className="py-1 px-1 align-middle text-center flex gap-1 justify-center">
+                      {/* Edit special day */}
                       <button type="button" className="p-0.5 text-gray-400 hover:text-blue-600 rounded transition cursor-pointer" title="Bearbeiten" onClick={() => handleEdit(d)}><IconEdit /></button>
+                      {/* Delete special day */}
                       <form action={deleteCourseSpecialDay} className="inline-flex items-center justify-center gap-0.5">
                         <input type="hidden" name="id" value={d.id} />
                         <input type="hidden" name="courseId" value={courseId} />

@@ -1,7 +1,5 @@
 'use client'
 
-// <RecipientSelect recipients={recipients} /> do this in the PAGE
-
 import React, { useState } from 'react'
 
 type Recipient = {
@@ -18,13 +16,23 @@ type Recipient = {
   recipientCountry?: string | null
 }
 
-
+/**
+ * RecipientSelect is an autocomplete component for selecting previous recipients.
+ * 
+ * - Lets the user search for a recipient by name or company.
+ * - On selection, auto-fills the invoice form fields with the recipient's data.
+ * 
+ * Where is this code used?
+ * - Use this component in invoice or billing pages where you want to let users quickly fill recipient data from previous entries.
+ * - It expects the parent page to provide a `recipients` array and to have a form with id="invoice-form" and matching input/select names.
+ */
 
 export default function RecipientSelect({ recipients }: { recipients: Recipient[] }) {
   const [search, setSearch] = useState('')
   const [filtered, setFiltered] = useState<Recipient[]>([])
   const [showSuggestions, setShowSuggestions] = useState(false)
 
+  // Handle input changes and filter recipients for suggestions
   function handleSearchChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value
     setSearch(value)
@@ -34,6 +42,7 @@ export default function RecipientSelect({ recipients }: { recipients: Recipient[
       return
     }
 
+    // Filter recipients by name or company
     const filteredRecipients = recipients.filter((r) => {
       const name =
         r.type === 'COMPANY'
@@ -42,11 +51,13 @@ export default function RecipientSelect({ recipients }: { recipients: Recipient[
       return name.toLowerCase().includes(value.toLowerCase())
     })
 
+    // Remove duplicates
     const uniqueFiltered = uniqueRecipients(filteredRecipients)
     setFiltered(uniqueFiltered)
     setShowSuggestions(true)
   }
 
+  // When a suggestion is selected, fill the form fields
   function handleSelect(recipient: Recipient) {
     const displayName =
       recipient.type === 'COMPANY'
@@ -56,12 +67,15 @@ export default function RecipientSelect({ recipients }: { recipients: Recipient[
     setSearch(displayName.trim())
     setShowSuggestions(false)
 
+    // Find the invoice form and fill its fields
     const form = document.getElementById('invoice-form') as HTMLFormElement | null
     if (!form) return
 
+    // Set the type select value
     const typeSelect = form.querySelector('select[name="type"]') as HTMLSelectElement | null
     if (typeSelect && recipient.type) typeSelect.value = recipient.type
 
+    // Helper to set input/select values
     const setInput = (name: string, value?: string | null) => {
       const input = form.querySelector<HTMLInputElement | HTMLSelectElement>(`[name="${name}"]`)
       if (input && value !== undefined && value !== null) {
@@ -80,6 +94,7 @@ export default function RecipientSelect({ recipients }: { recipients: Recipient[
     setInput('recipientCountry', recipient.recipientCountry)
   }
 
+  // Helper to filter out duplicate recipients
   function uniqueRecipients(recipients: Recipient[]): Recipient[] {
     const seen = new Set<string>()
     return recipients.filter((r) => {
@@ -110,6 +125,7 @@ export default function RecipientSelect({ recipients }: { recipients: Recipient[
         Vorherigen Empfänger zum automatischen Ausfüllen
       </legend>
 
+      {/* Search input for recipient name or company */}
       <input
         type="text"
         value={search}
@@ -121,6 +137,7 @@ export default function RecipientSelect({ recipients }: { recipients: Recipient[
         onFocus={() => search && setShowSuggestions(true)}
       />
 
+      {/* Suggestions dropdown */}
       {showSuggestions && filtered.length > 0 && (
         <ul className="absolute z-10 bg-white border border-neutral-300 rounded shadow-md max-h-48 overflow-auto w-full mt-1 text-sm">
           {filtered.map((r) => (
@@ -140,6 +157,5 @@ export default function RecipientSelect({ recipients }: { recipients: Recipient[
     </fieldset>
   )
 }
-
 
 

@@ -3,7 +3,7 @@ import { useState } from "react"
 import { CreateCourseFormProps } from "@/types/query-models"
 import { formatDateISO } from "@/lib/utils"
 import { useToaster } from '@/components/ui/toaster';
-import CancelButton from '@/components/cancle-Button/cnacleButton';
+import CancelButton from '@/components/cancelButton/cancelButton';
 import TrainerSearchBox from "../forms/TrainerSearchBox"
 
 export default function CreateCourseForm({
