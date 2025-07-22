@@ -24,20 +24,20 @@ async function seedAreas() {
 async function seedPrograms(areaMap: Record<string, string>) {
   await db.program.createMany({
     data: [
-      { code: 'AIF', name: 'AI Fundamentals', description: 'Introduction to Artificial Intelligence.', teachingUnits: 8, price: new Prisma.Decimal('299.99'), areaId: areaMap['KI Campus'] },
-      { code: 'MLB', name: 'Machine Learning Basics', teachingUnits: 10, price: new Prisma.Decimal('349.99'), areaId: areaMap['KI Campus'] },
-      { code: 'WEBDEV', name: 'Web Development Bootcamp', description: 'Full stack web development.', teachingUnits: 12, price: new Prisma.Decimal('399.99'), areaId: areaMap['It & Coding Campus'] },
-      { code: 'PYB', name: 'Python for Beginners', teachingUnits: 6, price: new Prisma.Decimal('149.99'), areaId: areaMap['It & Coding Campus'] },
-      { code: 'DM101', name: 'Digital Marketing 101', description: 'Basics of digital marketing.', teachingUnits: 7, areaId: areaMap['Digital Markeing Academy'] },
-      { code: 'SIB', name: 'Sustainability in Business', description: 'Green business practices.', teachingUnits: 5, areaId: areaMap['Green Campus'] },
-      { code: 'BS', name: 'Business Strategy', teachingUnits: 9, price: new Prisma.Decimal('299.99'), areaId: areaMap['Business & Management Academy'] },
+      { code: 'AIF', name: 'AI Fundamentals', description: 'Introduction to Artificial Intelligence.', teachingUnits: 80, price: new Prisma.Decimal('299.99'), areaId: areaMap['KI Campus'] },
+      { code: 'MLB', name: 'Machine Learning Basics', teachingUnits: 100, price: new Prisma.Decimal('349.99'), areaId: areaMap['KI Campus'] },
+      { code: 'WEBDEV', name: 'Web Development Bootcamp', description: 'Full stack web development.', teachingUnits: 120, price: new Prisma.Decimal('399.99'), areaId: areaMap['It & Coding Campus'] },
+      { code: 'PYB', name: 'Python for Beginners', teachingUnits: 60, price: new Prisma.Decimal('149.99'), areaId: areaMap['It & Coding Campus'] },
+      { code: 'DM101', name: 'Digital Marketing 101', description: 'Basics of digital marketing.', teachingUnits: 70, areaId: areaMap['Digital Markeing Academy'] },
+      { code: 'SIB', name: 'Sustainability in Business', description: 'Green business practices.', teachingUnits: 50, areaId: areaMap['Green Campus'] },
+      { code: 'BS', name: 'Business Strategy', teachingUnits: 90, price: new Prisma.Decimal('299.99'), areaId: areaMap['Business & Management Academy'] },
       { code: 'ELE', name: 'E-Learning Essentials', description: 'How to create effective e-learning courses.', areaId: areaMap['E-Learning Lehrgänge'] },
-      { code: 'DT', name: 'Digital Transformation', teachingUnits: 8, price: new Prisma.Decimal('199.99'), areaId: areaMap['Digital Studies'] },
-      { code: 'CCB', name: 'Cloud Computing Basics', teachingUnits: 8, price: new Prisma.Decimal('249.99'), areaId: areaMap['It & Coding Campus'] },
-      { code: 'PM', name: 'Project Management', teachingUnits: 10, price: new Prisma.Decimal('299.99'), areaId: areaMap['Business & Management Academy'] },
-      { code: 'DV', name: 'Data Visualization', teachingUnits: 7, price: new Prisma.Decimal('199.99'), areaId: areaMap['Digital Studies'] },
-      { code: 'AGILE', name: 'Agile Methodologies', teachingUnits: 6, price: new Prisma.Decimal('179.99'), areaId: areaMap['Business & Management Academy'] },
-      { code: 'UIUX', name: 'UI/UX Design', teachingUnits: 8, price: new Prisma.Decimal('259.99'), areaId: areaMap['It & Coding Campus'] },
+      { code: 'DT', name: 'Digital Transformation', teachingUnits: 80, price: new Prisma.Decimal('199.99'), areaId: areaMap['Digital Studies'] },
+      { code: 'CCB', name: 'Cloud Computing Basics', teachingUnits: 80, price: new Prisma.Decimal('249.99'), areaId: areaMap['It & Coding Campus'] },
+      { code: 'PM', name: 'Project Management', teachingUnits: 100, price: new Prisma.Decimal('299.99'), areaId: areaMap['Business & Management Academy'] },
+      { code: 'DV', name: 'Data Visualization', teachingUnits: 70, price: new Prisma.Decimal('199.99'), areaId: areaMap['Digital Studies'] },
+      { code: 'AGILE', name: 'Agile Methodologies', teachingUnits: 60, price: new Prisma.Decimal('179.99'), areaId: areaMap['Business & Management Academy'] },
+      { code: 'UIUX', name: 'UI/UX Design', teachingUnits: 80, price: new Prisma.Decimal('259.99'), areaId: areaMap['It & Coding Campus'] },
     ],
     skipDuplicates: true,
   })
@@ -636,39 +636,52 @@ async function seedRegistrations(
   return Object.fromEntries(registrations.map(r => [r.participantId + '_' + r.courseId, r.id]))
 }
 
-//-------------------- Seed (public) Holiday ---------------------------------
+//-------------------- Seed (public) Holiday + Schulferien ---------------------------------
 
 const fixedHolidays = [
   { title: 'Neujahr', month: 1, day: 1 },
   { title: 'Heilige drei Könige', month: 1, day: 6 },
-  { title: 'Statsfeiertag', month: 5, day: 1 },
+  { title: 'Staatsfeiertag', month: 5, day: 1 },
   { title: 'Maria Himmelfahrt', month: 8, day: 15 },
   { title: 'Nationalfeiertag', month: 10, day: 26 },
   { title: 'Allerheiligen', month: 11, day: 1 },
-  { title: 'Maria Empfängniss', month: 12, day: 8 },
-  { title: 'Wheinachtstag', month: 12, day: 25 },
+  { title: 'Maria Empfängnis', month: 12, day: 8 },
+  { title: 'Weihnachtstag', month: 12, day: 25 },
   { title: 'Stefanitag', month: 12, day: 26 },
 ];
 
+// Schulferien für Vorarlberg 2025/26
+const schoolHolidays = [
+  // Kalenderjahr 2025 (bis Sommer)
+  { title: 'Semesterferien', start: new Date(Date.UTC(2025, 1, 10)), end: new Date(Date.UTC(2025, 1, 15)) },
+  { title: 'Josefstag (schulfrei, kein gesetzlicher Feiertag)', start: new Date(Date.UTC(2025, 2, 19)), end: new Date(Date.UTC(2025, 2, 19)) },
+  { title: 'Osterferien', start: new Date(Date.UTC(2025, 3, 12)), end: new Date(Date.UTC(2025, 3, 21)) },
+  { title: 'Pfingstferien', start: new Date(Date.UTC(2025, 5, 7)), end: new Date(Date.UTC(2025, 5, 9)) },
+  //{ title: 'Sommerferien', start: new Date(Date.UTC(2025, 6, 5)), end: new Date(Date.UTC(2025, 8, 7)) },
+  // Schuljahr 2025/26 (ab Herbst)
+  { title: 'Herbstferien', start: new Date(Date.UTC(2025, 9, 27)), end: new Date(Date.UTC(2025, 9, 31)) },
+  { title: 'Weihnachtsferien', start: new Date(Date.UTC(2025, 11, 24)), end: new Date(Date.UTC(2026, 0, 6)) },
+];
+
+// Calculate Easter Sunday (returns a UTC date)
 function calculateEaster(year: number): Date {
-  // Gaußsche Osterformel
   const f = Math.floor,
-    G = year % 19,     // G = Golden-Number 
-    C = f(year / 100), // C = Century 
-    H = (C - f(C / 4) - f((8 * C + 13) / 25) + 19 * G + 15) % 30,   //Mond-Vollmond-Formel
-    I = H - f(H / 28) * (1 - f(29 / (H + 1)) * f((21 - G) / 11)),   // mathematische Korrektur
-    J = (year + f(year / 4) + I + 2 - C + f(C / 4)) % 7,            // Sonntag-Korrektur
-    L = I - J,      // Abstand zum Ostersonntag
+    G = year % 19,
+    C = f(year / 100),
+    H = (C - f(C / 4) - f((8 * C + 13) / 25) + 19 * G + 15) % 30,
+    I = H - f(H / 28) * (1 - f(29 / (H + 1)) * f((21 - G) / 11)),
+    J = (year + f(year / 4) + I + 2 - C + f(C / 4)) % 7,
+    L = I - J,
     month = 3 + f((L + 40) / 44),
     day = L + 28 - 31 * f(month / 4);
 
-  return new Date(year, month - 1, day); // JS months = 0-based
+  // Always return UTC date
+  return new Date(Date.UTC(year, month - 1, day));
 }
 
+// Add days to a UTC date, return new UTC date
 function addDays(date: Date, days: number): Date {
-  const copy = new Date(date);
-  copy.setDate(copy.getDate() + days);
-  return copy;
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate() + days));
 }
 
 async function seedHoliday() {
@@ -676,17 +689,29 @@ async function seedHoliday() {
   const holidays: { title: string; date: Date }[] = [];
 
   for (const year of years) {
-    // Fixe Feiertage
+    // Fixe Feiertage (always UTC midnight)
     fixedHolidays.forEach(({ title, month, day }) => {
-      holidays.push({ title, date: new Date(year, month - 1, day) });
+      holidays.push({ title, date: new Date(Date.UTC(year, month - 1, day)) });
     });
 
-    // Bewegliche Feiertage
+    // Bewegliche Feiertage (always UTC midnight)
     const easter = calculateEaster(year);
     holidays.push({ title: 'Karfreitag', date: addDays(easter, -2) });
     holidays.push({ title: 'Ostermontag', date: addDays(easter, 1) });
     holidays.push({ title: 'Christi Himmelfahrt', date: addDays(easter, 39) });
     holidays.push({ title: 'Pfingstmontag', date: addDays(easter, 50) });
+    holidays.push({ title: 'Fronleichnam', date: addDays(easter, 60) });
+  }
+
+  // Schulferien als eigene Holiday-Einträge (nur für 2025/26, always UTC midnight)
+  for (const ferien of schoolHolidays) {
+    let current = new Date(ferien.start);
+    const end = new Date(ferien.end);
+    while (current <= end) {
+      holidays.push({ title: ferien.title, date: new Date(current) });
+      // Move to next UTC day
+      current = new Date(Date.UTC(current.getUTCFullYear(), current.getUTCMonth(), current.getUTCDate() + 1));
+    }
   }
 
   await db.holiday.createMany({
@@ -694,8 +719,10 @@ async function seedHoliday() {
     skipDuplicates: true,
   });
 
-  console.log(`✅ Feiertage für ${years.length} Jahre gespeichert.`);
+  console.log(`✅ Feiertage und Schulferien für ${years.length} Jahre gespeichert.`);
 }
+
+// -------------------- Role and User Seeding --------------------
 
 async function seedRoles() {
   const roles = [

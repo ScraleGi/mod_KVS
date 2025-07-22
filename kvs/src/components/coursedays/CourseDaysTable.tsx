@@ -7,10 +7,13 @@ export type CourseDay = {
   endTime: string
   pauseDuration: string
   title?: string | null
+  isCourseDay: boolean
 }
 
 type Props = {
   courseDays: CourseDay[]
+  globalHolidayTitles: string[]
+  courseHolidayTitles: string[]
 }
 
 function parseLocalDate(dateString: string) {
@@ -20,7 +23,29 @@ function parseLocalDate(dateString: string) {
   return new Date(localString)
 }
 
-export function CourseDaysTable({ courseDays }: Props) {
+function parsePauseDuration(pauseString: string) {
+  // Assumes pauseString is an ISO string like "1970-01-01T00:30:00.000Z"
+  const pauseDate = new Date(pauseString)
+  return pauseDate.getUTCHours() * 60 + pauseDate.getUTCMinutes()
+}
+
+function calculateCourseDuration(start: Date, end: Date, pauseMinutes: number): number {
+  const durationMs = end.getTime() - start.getTime()
+  const durationMinutes = durationMs / (1000 * 60) - pauseMinutes
+  return Math.max(0, Math.round(durationMinutes))
+}
+
+function formatMinutesToHHMM(minutes: number): string {
+  const h = Math.floor(minutes / 60)
+  const m = minutes % 60
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
+}
+
+export function CourseDaysTable({
+  courseDays,
+  globalHolidayTitles = [],
+  courseHolidayTitles = [],
+}: Props) {
   if (courseDays.length === 0) {
     return <div className="text-gray-400 text-sm">Noch keine Kurstage generiert.</div>
   }
@@ -35,11 +60,27 @@ export function CourseDaysTable({ courseDays }: Props) {
             <th className="px-3 py-2 text-left font-semibold text-gray-100">Start</th>
             <th className="px-3 py-2 text-left font-semibold text-gray-100">Ende</th>
             <th className="px-3 py-2 text-left font-semibold text-gray-100">Pause</th>
+            <th className="px-3 py-2 text-left font-semibold text-gray-100">Dauer (h)</th>
           </tr>
         </thead>
         <tbody>
           {courseDays.map((day, idx) => {
-            const isSpecial = day.title && day.title !== 'Kurstag'
+            let titleClass = "text-gray-500"
+            if (!day.isCourseDay && day.title && globalHolidayTitles.includes(day.title)) {
+              titleClass = "text-red-600 font-semibold"
+            } else if (!day.isCourseDay && day.title && courseHolidayTitles.includes(day.title)) {
+              titleClass = "text-orange-500 font-semibold"
+            } else if (day.isCourseDay && day.title && day.title !== "Kurstag") {
+              titleClass = "text-blue-500 font-semibold"
+            }
+
+            const isHoliday = !day.isCourseDay && day.title && (globalHolidayTitles.includes(day.title) || courseHolidayTitles.includes(day.title))
+
+            const start = parseLocalDate(day.startTime)
+            const end = parseLocalDate(day.endTime)
+            const pauseMinutes = parsePauseDuration(day.pauseDuration)
+            const durationMinutes = calculateCourseDuration(start, end, pauseMinutes)
+
             return (
               <tr
                 key={day.id}
@@ -50,22 +91,25 @@ export function CourseDaysTable({ courseDays }: Props) {
                 }
               >
                 <td className="px-3 py-2 text-gray-900">
-                  {parseLocalDate(day.startTime).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                  {start.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                 </td>
-                <td className={`px-3 py-2 ${isSpecial ? "text-orange-500 font-semibold" : "text-gray-500"}`}>
+                <td className={`px-3 py-2 ${titleClass}`}>
                   {day.title ?? 'Kurstag'}
                 </td>
                 <td className="px-3 py-2 text-gray-500">
-                  {parseLocalDate(day.startTime).toLocaleDateString('de-DE', { weekday: 'long' })}
+                  {start.toLocaleDateString('de-DE', { weekday: 'long' })}
                 </td>
                 <td className="px-3 py-2 text-gray-500">
-                  <span className="font-mono">{parseLocalDate(day.startTime).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}</span> Uhr
+                  {isHoliday ? '-' : <span className="font-mono">{start.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}</span>} {isHoliday ? '' : 'Uhr'}
                 </td>
                 <td className="px-3 py-2 text-gray-500">
-                  <span className="font-mono">{parseLocalDate(day.endTime).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}</span> Uhr
+                  {isHoliday ? '-' : <span className="font-mono">{end.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}</span>} {isHoliday ? '' : 'Uhr'}
                 </td>
                 <td className="px-3 py-2 font-mono text-gray-500">
-                  {new Date(day.pauseDuration).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })}
+                  {isHoliday ? '-' : formatMinutesToHHMM(pauseMinutes)}
+                </td>
+                <td className="px-3 py-2 font-mono text-gray-500">
+                  {isHoliday ? '-' : formatMinutesToHHMM(durationMinutes)}
                 </td>
               </tr>
             )

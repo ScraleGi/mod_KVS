@@ -71,7 +71,7 @@ export default async function CreateInvoicePage({
         {/* Participant and Course Info */}
                   {/* Course Participant Reference Section */}
           <fieldset className="border border-neutral-200 rounded-lg p-5">
-            <legend className="text-base font-semibold text-blue-700 px-2">Course Participant (Reference)</legend>
+            <legend className="text-base font-semibold text-blue-700 px-2">Kurs Teilnehmer (Referenzen)</legend>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 text-xs text-neutral-600">
               <div>
                 <span className="font-semibold">Name:</span> {registration.participant.name} {registration.participant.surname}
@@ -80,7 +80,7 @@ export default async function CreateInvoicePage({
                 <span className="font-semibold">Email:</span> {registration.participant.email}
               </div>
               <div>
-                <span className="font-semibold">Address:</span> {registration.participant.street}, {registration.participant.postalCode} {registration.participant.city}, {registration.participant.country}
+                <span className="font-semibold">Adresse:</span> {registration.participant.street}, {registration.participant.postalCode} {registration.participant.city}, {registration.participant.country}
               </div>
             <div>
               <span className="font-semibold">Kurs:</span> {registration.course?.program?.name}

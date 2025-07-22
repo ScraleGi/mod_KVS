@@ -56,14 +56,14 @@ export default async function TrainerDetailsPage({ params }: { params: Promise<{
     if (!trainer) return notFound();
 
     return (
-        <div className="min-h-screen bg-[#f8fafd] py-14 px-4">
+        <div className="min-h-screen bg-neutral-50 flex flex-col items-center justify-center py-14 px-4">
             <TrainerToaster />
-            <nav className="max-w-xl mx-auto mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
+            <nav className="w-full max-w-2xl mx-auto mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
                 <Link href="/trainer" className="hover:underline text-gray-700">Trainerübersicht</Link>
                 <span>&gt;</span>
                 <span className="text-gray-700 font-semibold">{trainer.name} {trainer.surname}</span>
             </nav>
-            <div className="max-w-xl mx-auto bg-white rounded-2xl shadow-lg pt-8 relative">
+            <div className="w-full max-w-2xl mx-auto bg-white border border-neutral-100 p-0 overflow-hidden rounded-2xl shadow-lg pt-8 relative">
                 <Link
                 href={`/trainer/${trainer.id}/edit`}
                 className="absolute top-6 right-6 z-20 text-gray-400 hover:text-blue-600 transition flex items-center justify-center p-2 rounded-full"
@@ -89,7 +89,7 @@ export default async function TrainerDetailsPage({ params }: { params: Promise<{
                     <div className="text-gray-700 text-base ml-7">
                         Email: {trainer.email || 'N/A'}<br />
                         Tel: {trainer.phoneNumber || 'N/A'}<br />
-                        Addresse: {trainer.street || 'No address provided.'}
+                        Adresse: {trainer.street || 'Keine Adresse angegeben.'}
                         {trainer.postalCode && trainer.city ? (
                             <span>, {trainer.postalCode} {trainer.city}</span>
                         ) : (
@@ -144,8 +144,8 @@ export default async function TrainerDetailsPage({ params }: { params: Promise<{
                         <RemoveButton
                             itemId={trainer.id}
                             onRemove={deleteTrainer}
-                            title="Delete Trainer"
-                            message="Are you sure you want to archive this trainer?"
+                            title="Trainer löschen?"
+                            message="Sind Sie sicher, dass Sie diesen Trainer archivieren wollen?"
                             fieldName="id"
                             customButton={
                                 <button

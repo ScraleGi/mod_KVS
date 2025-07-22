@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { db } from '@/lib/db'
 import { getAuthorizing } from '@/lib/getAuthorizing';
+import CancelButton from '@/components/cancle-Button/cnacleButton';
 
 // Server action to create a new program
 async function createProgram(formData: FormData) {
@@ -57,7 +58,7 @@ export default async function NewProgramPage() {
       <div className="min-h-screen bg-gray-50 py-10 px-4 flex items-center justify-center">
         <div className="w-full max-w-md">
           <nav className="max-w-xl mx-auto mb-6 text-sm  text-gray-500 flex items-center gap-2 pl-2">
-                      <Link href="/program" className="hover:underline text-gray-700">Programm</Link>
+                      <Link href="/program" className="hover:underline text-gray-700">Programme</Link>
                       <span>&gt;</span>
                       <span className="text-gray-700 font-semibold">Programm hinzufügen</span> 
                     </nav>
@@ -153,7 +154,8 @@ export default async function NewProgramPage() {
                     placeholder="Preis eingeben"
                   />
                 </div>
-                <div className="pt-2 flex items-center justify-end">
+                <div className="pt-2 flex items-center justify-between">
+                  <CancelButton>Abbrechen</CancelButton>
                   <button
                     type="submit"
                     className="inline-flex cursor-pointer items-center px-5 py-2 border border-transparent text-xs font-semibold rounded text-white bg-blue-600 hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"

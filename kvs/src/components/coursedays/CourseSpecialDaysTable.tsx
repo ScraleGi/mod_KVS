@@ -79,6 +79,22 @@ function IconAdd() {
   )
 }
 
+function getEndDateTime(startDateTime: string, endTime: string) {
+  // startDateTime: "YYYY-MM-DDTHH:mm"
+  // endTime: "HH:mm"
+  if (!startDateTime || !endTime) return ''
+  const [datePart] = startDateTime.split('T')
+  return `${datePart}T${endTime}`
+}
+
+function isEndTimeAfterStartTime(startDateTime: string, endTime: string) {
+  if (!startDateTime || !endTime) return false
+  const [datePart] = startDateTime.split('T')
+  const start = new Date(startDateTime)
+  const end = new Date(`${datePart}T${endTime}`)
+  return end.getTime() > start.getTime()
+}
+
 export function CourseSpecialDaysTable({ specialDays, courseId }: { specialDays: CourseSpecialDays[], courseId: string }) {
   const [query, setQuery] = useState('')
   const [dateFilter, setDateFilter] = useState('')
@@ -89,10 +105,23 @@ export function CourseSpecialDaysTable({ specialDays, courseId }: { specialDays:
     id: string
     title: string
     startTime: string
-    endTime: string
+    endTime: string // full datetime-local string
+    endTimeOnly: string // only HH:mm
     pauseDuration: string
     courseId: string
   } | null>(null)
+
+  // Add row state
+  const [addValues, setAddValues] = useState({
+    title: '',
+    startTime: '',
+    endTimeOnly: '',
+    pauseDuration: '',
+  })
+
+  // Error state for validation
+  const [addError, setAddError] = useState<string | null>(null)
+  const [editError, setEditError] = useState<string | null>(null)
 
   useEffect(() => {
     setQuery(localStorage.getItem('courseSpecialDaysQuery') || '')
@@ -113,25 +142,145 @@ export function CourseSpecialDaysTable({ specialDays, courseId }: { specialDays:
   )
 
   function handleEdit(d: CourseSpecialDays) {
+    const startTimeLocal = toLocalDateTimeInputValue(d.startTime)
+    const endTimeLocal = toLocalDateTimeInputValue(d.endTime)
+    const endTimeOnly = endTimeLocal.split('T')[1] || ''
     setEditId(d.id)
     setEditValues({
       id: d.id,
       title: d.title ?? '',
-      startTime: toLocalDateTimeInputValue(d.startTime),
-      endTime: toLocalDateTimeInputValue(d.endTime),
+      startTime: startTimeLocal,
+      endTime: endTimeLocal,
+      endTimeOnly,
       pauseDuration: d.pauseDuration.length === 5 ? d.pauseDuration : d.pauseDuration.slice(11, 16),
       courseId: d.courseId
     })
+    setEditError(null)
   }
 
   function handleCancel() {
     setEditId(null)
     setEditValues(null)
+    setEditError(null)
   }
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     if (!editValues) return
-    setEditValues({ ...editValues, [e.target.name]: e.target.value })
+    const { name, value } = e.target
+
+    if (name === 'startTime') {
+      const newEndTime = getEndDateTime(value, editValues.endTimeOnly)
+      setEditValues({
+        ...editValues,
+        startTime: value,
+        endTime: newEndTime,
+      })
+      // Validate endTimeOnly
+      if (editValues.endTimeOnly && !isEndTimeAfterStartTime(value, editValues.endTimeOnly)) {
+        setEditError('Endzeit muss nach Startzeit liegen!')
+      } else {
+        setEditError(null)
+      }
+    } else if (name === 'endTimeOnly') {
+      const newEndTime = getEndDateTime(editValues.startTime, value)
+      setEditValues({
+        ...editValues,
+        endTimeOnly: value,
+        endTime: newEndTime,
+      })
+      // Validate endTimeOnly
+      if (editValues.startTime && !isEndTimeAfterStartTime(editValues.startTime, value)) {
+        setEditError('Endzeit muss nach Startzeit liegen!')
+      } else {
+        setEditError(null)
+      }
+    } else {
+      setEditValues({ ...editValues, [name]: value })
+    }
+  }
+
+  function handleAddChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const { name, value } = e.target
+    if (name === 'startTime') {
+      setAddValues({
+        ...addValues,
+        startTime: value,
+      })
+      // Validate endTimeOnly
+      if (addValues.endTimeOnly && !isEndTimeAfterStartTime(value, addValues.endTimeOnly)) {
+        setAddError('Endzeit muss nach Startzeit liegen!')
+      } else {
+        setAddError(null)
+      }
+    } else if (name === 'endTimeOnly') {
+      setAddValues({
+        ...addValues,
+        endTimeOnly: value,
+      })
+      // Validate endTimeOnly
+      if (addValues.startTime && !isEndTimeAfterStartTime(addValues.startTime, value)) {
+        setAddError('Endzeit muss nach Startzeit liegen!')
+      } else {
+        setAddError(null)
+      }
+    } else {
+      setAddValues({ ...addValues, [name]: value })
+    }
+  }
+
+  function handleAddSubmit(e: React.FormEvent<HTMLFormElement>) {
+    const endTimeFull = getEndDateTime(addValues.startTime, addValues.endTimeOnly)
+    if (!addValues.startTime || !addValues.endTimeOnly || !endTimeFull) {
+      e.preventDefault()
+      setAddError('Bitte Startzeit und Endzeit eingeben.')
+      return
+    }
+    if (!isEndTimeAfterStartTime(addValues.startTime, addValues.endTimeOnly)) {
+      e.preventDefault()
+      setAddError('Endzeit muss nach Startzeit liegen!')
+      return
+    }
+    setAddError(null)
+    // Set hidden endTime input value before submit
+    const endTimeInput = (e.currentTarget as HTMLFormElement).querySelector('input[name="endTime"]') as HTMLInputElement
+    if (endTimeInput) endTimeInput.value = endTimeFull
+
+    setTimeout(() => {
+      setAddValues({
+        title: '',
+        startTime: '',
+        endTimeOnly: '',
+        pauseDuration: '',
+      })
+    }, 0)
+  }
+
+  function handleEditSubmit(e: React.FormEvent<HTMLFormElement>) {
+    if (!editValues) {
+      e.preventDefault()
+      setEditError('Bitte Startzeit und Endzeit eingeben.')
+      return
+    }
+    const endTimeFull = getEndDateTime(editValues.startTime, editValues.endTimeOnly)
+    if (!editValues.startTime || !editValues.endTimeOnly || !endTimeFull) {
+      e.preventDefault()
+      setEditError('Bitte Startzeit und Endzeit eingeben.')
+      return
+    }
+    if (!isEndTimeAfterStartTime(editValues.startTime, editValues.endTimeOnly)) {
+      e.preventDefault()
+      setEditError('Endzeit muss nach Startzeit liegen!')
+      return
+    }
+    setEditError(null)
+    // Set hidden endTime input value before submit
+    const endTimeInput = (e.currentTarget as HTMLFormElement).querySelector('input[name="endTime"]') as HTMLInputElement
+    if (endTimeInput) endTimeInput.value = endTimeFull
+
+    setTimeout(() => {
+      setEditId(null)
+      setEditValues(null)
+    }, 0)
   }
 
   function handleActionSubmit(
@@ -180,21 +329,24 @@ export function CourseSpecialDaysTable({ specialDays, courseId }: { specialDays:
             {/* Add new special day row */}
             <tr className="bg-white border-b border-gray-200">
               <td className="py-1 px-1 align-middle border-r border-gray-200">
-                <input name="title" form="add-course-specialday-form" placeholder="Neuer Sondertag" className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none" />
+                <input name="title" value={addValues.title} onChange={handleAddChange} form="add-course-specialday-form" placeholder="Neuer Sondertag" className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none" />
               </td>
               <td className="py-1 px-1 align-middle border-r border-gray-200">
-                <input name="startTime" form="add-course-specialday-form" type="datetime-local" className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none cursor-pointer" required />
+                <input name="startTime" value={addValues.startTime} onChange={handleAddChange} form="add-course-specialday-form" type="datetime-local" className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none cursor-pointer" required />
               </td>
               <td className="py-1 px-1 align-middle border-r border-gray-200">
-                <input name="endTime" form="add-course-specialday-form" type="datetime-local" className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none cursor-pointer" required />
+                <input name="endTimeOnly" value={addValues.endTimeOnly} onChange={handleAddChange} form="add-course-specialday-form" type="time" className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none cursor-pointer" required />
+                <input type="hidden" name="endTime" value={getEndDateTime(addValues.startTime, addValues.endTimeOnly)} />
+                {addError && <div className="text-red-600 text-xs mt-1">{addError}</div>}
               </td>
               <td className="py-1 px-1 align-middle border-r border-gray-200">
-                <input name="pauseDuration" form="add-course-specialday-form" type="time" className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none cursor-pointer" required />
+                <input name="pauseDuration" value={addValues.pauseDuration} onChange={handleAddChange} form="add-course-specialday-form" type="time" className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none cursor-pointer" required />
                 <input type="hidden" name="courseId" form="add-course-specialday-form" value={courseId} />
               </td>
               <td className="py-1 px-1 align-middle text-center">
-                <form action={createCourseSpecialDay} id="add-course-specialday-form">
-                  <button type="submit" className="mx-auto block p-0.5 text-gray-400 hover:text-green-600 rounded transition cursor-pointer" title="Hinzufügen"><IconAdd /></button>
+                <form action={createCourseSpecialDay} id="add-course-specialday-form" onSubmit={handleAddSubmit}>
+                  <button type="submit" className="mx-auto block p-0.5 text-gray-400 hover:text-green-600 rounded transition cursor-pointer" title="Hinzufügen" disabled={!!addError}><IconAdd /></button>
+                  <input type="hidden" name="endTime" value={getEndDateTime(addValues.startTime, addValues.endTimeOnly)} />
                 </form>
               </td>
             </tr>
@@ -209,7 +361,9 @@ export function CourseSpecialDaysTable({ specialDays, courseId }: { specialDays:
                       <input name="startTime" type="datetime-local" value={editValues.startTime} onChange={handleChange} className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none cursor-pointer" />
                     </td>
                     <td className="py-1 px-1 align-middle border-r border-gray-200">
-                      <input name="endTime" type="datetime-local" value={editValues.endTime} onChange={handleChange} className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none cursor-pointer" />
+                      <input name="endTimeOnly" type="time" value={editValues.endTimeOnly} onChange={handleChange} className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none cursor-pointer" required />
+                      <input type="hidden" name="endTime" value={editValues.endTime} />
+                      {editError && <div className="text-red-600 text-xs mt-1">{editError}</div>}
                     </td>
                     <td className="py-1 px-1 align-middle border-r border-gray-200">
                       <input
@@ -222,14 +376,18 @@ export function CourseSpecialDaysTable({ specialDays, courseId }: { specialDays:
                       <input type="hidden" name="courseId" value={courseId} />
                     </td>
                     <td className="py-1 px-1 align-middle text-center flex gap-1 justify-center">
-                      <form onSubmit={handleActionSubmit(updateCourseSpecialDay)} className="inline-flex items-center gap-0.5">
+
+                      <form action={updateCourseSpecialDay} onSubmit={handleEditSubmit} className="inline-flex items-center gap-0.5">
+
                         <input type="hidden" name="id" value={editValues.id} />
                         <input type="hidden" name="title" value={editValues.title} />
                         <input type="hidden" name="startTime" value={editValues.startTime} />
                         <input type="hidden" name="endTime" value={editValues.endTime} />
                         <input type="hidden" name="pauseDuration" value={editValues.pauseDuration} />
                         <input type="hidden" name="courseId" value={courseId} />
+
                         <button type="submit" className="p-0.5 text-gray-400 hover:text-blue-600 rounded transition cursor-pointer" title="Speichern" disabled={isPending} >
+
                           <IconSave />
                         </button>
                       </form>

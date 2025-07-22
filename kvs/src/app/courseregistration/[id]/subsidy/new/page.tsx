@@ -8,6 +8,7 @@ import { formatDateGerman, formatFullName } from '@/lib/utils'
 import SubsidyClientLogic from './subsidyClientLogic'
 import { getAuthorizing } from '@/lib/getAuthorizing'
 
+
 export default async function SubsidyNewPage({ params }: { params: Promise<{ id: string }> }) {
   // Check user authorization
   const roles = await getAuthorizing({
@@ -45,7 +46,7 @@ export default async function SubsidyNewPage({ params }: { params: Promise<{ id:
   }
 
   const { course } = data
-
+  
   async function createSubsidy(formData: FormData) {
     "use server"
     const amount = formData.get('amount') as string
@@ -59,9 +60,19 @@ export default async function SubsidyNewPage({ params }: { params: Promise<{ id:
       <div className="max-w-[800px] mx-auto">
         {/* Navigation Link */}
         <div className="mb-2">
-          <Link href={`/courseregistration/${id}`} className="text-blue-500 hover:underline text-sm">
-            &larr; Kursregistrierung
+         <nav className="mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
+          <Link href="/participant" className="hover:underline text-gray-700">
+            Teilnehmerübersicht
           </Link>
+          <span>&gt;</span>
+          <Link href={`/courseregistration/${id}`} className="hover:underline text-gray-700">
+            {course?.program?.name ?? 'Kurs'}
+          </Link>
+          <span>&gt;</span>
+          <span className="text-gray-700 font-semibold">
+            Gutschein hinzufügen
+          </span>
+        </nav>
         </div>
         {/* Centered Heading */}
         <div className="mb-8 flex justify-center">

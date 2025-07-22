@@ -53,17 +53,27 @@ function IconAdd() {
   )
 }
 
+// Helper to check if endTime is after startTime (both "HH:mm")
+function isEndTimeAfterStartTime(startTime: string, endTime: string) {
+  if (!startTime || !endTime) return false
+  const [startH, startM] = startTime.split(':').map(Number)
+  const [endH, endM] = endTime.split(':').map(Number)
+  return endH > startH || (endH === startH && endM > startM)
+}
+
 export function CourseRythmTable({ rythms, courseId }: { rythms: CourseRythm[], courseId: string }) {
   const [editId, setEditId] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
   const { showToast } = useToaster()
   const [editValues, setEditValues] = useState<{ startTime: string, endTime: string, pauseDuration: string, weekDay: string } | null>(null)
+  const [editError, setEditError] = useState<string | null>(null)
   const [newValues, setNewValues] = useState<{ weekDay: string, startTime: string, endTime: string, pauseDuration: string }>({
     weekDay: '',
     startTime: '',
     endTime: '',
     pauseDuration: ''
   })
+  const [addError, setAddError] = useState<string | null>(null)
 
   const usedWeekDays = rythms.map(r => r.weekDay)
   const availableWeekDays = WEEK_DAYS.filter(day => !usedWeekDays.includes(day.key))
@@ -76,29 +86,73 @@ export function CourseRythmTable({ rythms, courseId }: { rythms: CourseRythm[], 
       pauseDuration: r.pauseDuration.slice(11, 16),
       weekDay: r.weekDay
     })
+    setEditError(null)
   }
 
   function handleCancel() {
     setEditId(null)
     setEditValues(null)
+    setEditError(null)
   }
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
     if (!editValues) return
-    setEditValues({ ...editValues, [e.target.name]: e.target.value })
+    const { name, value } = e.target
+    const updated = { ...editValues, [name]: value }
+    setEditValues(updated)
+    // Validate endTime
+    if (name === 'startTime' || name === 'endTime') {
+      if (updated.startTime && updated.endTime && !isEndTimeAfterStartTime(updated.startTime, updated.endTime)) {
+        setEditError('Ende darf nicht vor Beginn liegen!')
+      } else {
+        setEditError(null)
+      }
+    }
   }
 
   function handleNewChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
-    setNewValues({ ...newValues, [e.target.name]: e.target.value })
+    const { name, value } = e.target
+    const updated = { ...newValues, [name]: value }
+    setNewValues(updated)
+    // Validate endTime
+    if ((name === 'startTime' || name === 'endTime') && updated.startTime && updated.endTime) {
+      if (!isEndTimeAfterStartTime(updated.startTime, updated.endTime)) {
+        setAddError('Ende darf nicht vor Beginn liegen!')
+      } else {
+        setAddError(null)
+      }
+    }
   }
 
-  function handleAddSubmit() {
+  function handleAddSubmit(e: React.FormEvent<HTMLFormElement>) {
+    if (!newValues.weekDay || !newValues.startTime || !newValues.endTime || !newValues.pauseDuration) {
+      e.preventDefault()
+      setAddError('Bitte alle Felder ausfüllen.')
+      return
+    }
+    if (!isEndTimeAfterStartTime(newValues.startTime, newValues.endTime)) {
+      e.preventDefault()
+      setAddError('Ende darf nicht vor Beginn liegen!')
+      return
+    }
+    setAddError(null)
     setTimeout(() => {
       setNewValues({ weekDay: '', startTime: '', endTime: '', pauseDuration: '' })
     }, 0)
   }
 
-  function handleEditSubmit() {
+  function handleEditSubmit(e: React.FormEvent<HTMLFormElement>) {
+    if (!editValues || !editValues.startTime || !editValues.endTime || !editValues.pauseDuration) {
+      e.preventDefault()
+      setEditError('Bitte alle Felder ausfüllen.')
+      return
+    }
+    if (!isEndTimeAfterStartTime(editValues.startTime, editValues.endTime)) {
+      e.preventDefault()
+      setEditError('Ende darf nicht vor Beginn liegen!')
+      return
+    }
+    setEditError(null)
     setTimeout(() => {
       setEditId(null)
       setEditValues(null)
@@ -171,6 +225,7 @@ export function CourseRythmTable({ rythms, courseId }: { rythms: CourseRythm[], 
               </td>
               <td className="py-1 px-1 align-middle border-r border-gray-200">
                 <input name="endTime" type="time" value={newValues.endTime} onChange={handleNewChange} className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none cursor-pointer" required />
+                {addError && <div className="text-red-600 text-xs mt-1">{addError}</div>}
               </td>
               <td className="py-1 px-1 align-middle border-r border-gray-200">
                 <input name="pauseDuration" type="time" value={newValues.pauseDuration} onChange={handleNewChange} className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none cursor-pointer" required />
@@ -182,7 +237,7 @@ export function CourseRythmTable({ rythms, courseId }: { rythms: CourseRythm[], 
                   <input type="hidden" name="endTime" value={newValues.endTime} />
                   <input type="hidden" name="pauseDuration" value={newValues.pauseDuration} />
                   <input type="hidden" name="courseId" value={courseId} />
-                  <button type="submit" className="mx-auto block p-0.5 text-gray-400 hover:text-green-600 rounded transition cursor-pointer" title="Hinzufügen"><IconAdd /></button>
+                  <button type="submit" className="mx-auto block p-0.5 text-gray-400 hover:text-green-600 rounded transition cursor-pointer" title="Hinzufügen" disabled={!!addError}><IconAdd /></button>
                 </form>
               </td>
             </tr>
@@ -200,6 +255,7 @@ export function CourseRythmTable({ rythms, courseId }: { rythms: CourseRythm[], 
                       </td>
                       <td className="py-1 px-1 align-middle border-r border-gray-200">
                         <input name="endTime" type="time" value={editValues!.endTime} onChange={handleChange} className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none cursor-pointer" required />
+                        {editError && <div className="text-red-600 text-xs mt-1">{editError}</div>}
                       </td>
                       <td className="py-1 px-1 align-middle border-r border-gray-200">
                         <input name="pauseDuration" type="time" value={editValues!.pauseDuration} onChange={handleChange} className="bg-transparent border-none px-0 py-1 text-gray-800 w-full focus:ring-0 focus:outline-none cursor-pointer" required />
