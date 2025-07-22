@@ -35,78 +35,128 @@ export default function RecipientForm(params: { courseregistrationId?: string}) 
   }
 
   return (
-    <div className="w-full px-2 py-2">
-      <div className="w-full max-w-xl bg-white rounded-lg border-neutral-100 p-8">
-        <h1 className="text-2xl font-bold mb-6 text-neutral-900 text-center">
-          Rechnungsempfänger erstellen
-        </h1>
-
-        {/* Display validation error if present */}
-        {error && (
-          <div className="mb-4 text-red-600 text-sm font-semibold text-center">
-            {error}
-          </div>
-        )}
- {/* TODO: Replace the empty array with actual recipients data */}
-
-
-        {/* Main form for creating a new recipient */}
-
         <form
           id="invoice-recipient-form"
           onSubmit={handleSubmit}
-          className="space-y-6"
+          className="space-y-6 w-full"
         >
-          <fieldset className="border border-neutral-200 rounded-lg p-5">
-            <legend className="text-base font-semibold text-blue-700 px-2">
+          {/* <fieldset className="border border-neutral-200 rounded-lg p-5"> */}
+            {/* <legend className="text-base font-semibold text-blue-700 px-2">
               Rechnungsempfänger
-            </legend>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-              <label className="flex flex-col text-xs font-medium text-neutral-700">
-                Empfänger
-                <select name="type" required className="mt-1 border rounded px-2 py-1">
-                  <option value="PERSON">Person</option>
-                  <option value="COMPANY">Firma</option>
-                </select>
-              </label>
-              <label className="flex flex-col text-xs font-medium text-neutral-700">
-                Anrede (Empfänger)
-                <input name="recipientSalutation" className="mt-1 border rounded px-2 py-1" />
-              </label>
-              <label className="flex flex-col text-xs font-medium text-neutral-700">
-                Name (Empfänger)
-                <input name="recipientName" className="mt-1 border rounded px-2 py-1" />
-              </label>
-              <label className="flex flex-col text-xs font-medium text-neutral-700">
-                Nachname (Empfänger)
-                <input name="recipientSurname" className="mt-1 border rounded px-2 py-1" />
-              </label>
-              <label className="flex flex-col text-xs font-medium text-neutral-700">
-                Firmen Name (Empfänger)
-                <input name="companyName" className="mt-1 border rounded px-2 py-1" />
-              </label>
-              <label className="flex flex-col text-xs font-medium text-neutral-700">
-                Email (Empfänger)
-                <input name="recipientEmail" type="email" required className="mt-1 border rounded px-2 py-1" />
-              </label>
-              <label className="flex flex-col text-xs font-medium text-neutral-700 sm:col-span-2">
-                Straße (Empfänger)
-                <input name="recipientStreet" required className="mt-1 border rounded px-2 py-1" />
-              </label>
-              <label className="flex flex-col text-xs font-medium text-neutral-700">
-                PLZ (Empfänger)
-                <input name="postalCode" required className="mt-1 border rounded px-2 py-1" />
-              </label>
-              <label className="flex flex-col text-xs font-medium text-neutral-700">
-                Ort (Empfänger)
-                <input name="recipientCity" required className="mt-1 border rounded px-2 py-1" />
-              </label>
-              <label className="flex flex-col text-xs font-medium text-neutral-700 sm:col-span-2">
-                Land (Empfänger)
-                <input name="recipientCountry" required className="mt-1 border rounded px-2 py-1" />
-              </label>
-            </div>
-          </fieldset>
+            </legend> */}
+<div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+  <div className="space-y-1">
+    <label htmlFor="type" className="block text-xs font-medium text-gray-600">
+      Empfänger
+    </label>
+    <select
+      id="type"
+      name="type"
+      required
+      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+    >
+      <option value="PERSON">Person</option>
+      <option value="COMPANY">Firma</option>
+    </select>
+  </div>
+  <div className="space-y-1">
+    <label htmlFor="recipientSalutation" className="block text-xs font-medium text-gray-600">
+      Anrede (Empfänger)
+    </label>
+    <input
+      id="recipientSalutation"
+      name="recipientSalutation"
+      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+    />
+  </div>
+  <div className="space-y-1">
+    <label htmlFor="recipientName" className="block text-xs font-medium text-gray-600">
+      Name (Empfänger)
+    </label>
+    <input
+      id="recipientName"
+      name="recipientName"
+      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+    />
+  </div>
+  <div className="space-y-1">
+    <label htmlFor="recipientSurname" className="block text-xs font-medium text-gray-600">
+      Nachname (Empfänger)
+    </label>
+    <input
+      id="recipientSurname"
+      name="recipientSurname"
+      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+    />
+  </div>
+  <div className="space-y-1">
+    <label htmlFor="companyName" className="block text-xs font-medium text-gray-600">
+      Firmen Name (Empfänger)
+    </label>
+    <input
+      id="companyName"
+      name="companyName"
+      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+    />
+  </div>
+  <div className="space-y-1">
+    <label htmlFor="recipientEmail" className="block text-xs font-medium text-gray-600">
+      Email (Empfänger)
+    </label>
+    <input
+      id="recipientEmail"
+      name="recipientEmail"
+      type="email"
+      required
+      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+    />
+  </div>
+  <div className="space-y-1 sm:col-span-2">
+    <label htmlFor="recipientStreet" className="block text-xs font-medium text-gray-600">
+      Straße (Empfänger)
+    </label>
+    <input
+      id="recipientStreet"
+      name="recipientStreet"
+      required
+      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+    />
+  </div>
+  <div className="space-y-1">
+    <label htmlFor="postalCode" className="block text-xs font-medium text-gray-600">
+      PLZ (Empfänger)
+    </label>
+    <input
+      id="postalCode"
+      name="postalCode"
+      required
+      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+    />
+  </div>
+  <div className="space-y-1">
+    <label htmlFor="recipientCity" className="block text-xs font-medium text-gray-600">
+      Ort (Empfänger)
+    </label>
+    <input
+      id="recipientCity"
+      name="recipientCity"
+      required
+      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+    />
+  </div>
+  <div className="space-y-1 sm:col-span-2">
+    <label htmlFor="recipientCountry" className="block text-xs font-medium text-gray-600">
+      Land (Empfänger)
+    </label>
+    <input
+      id="recipientCountry"
+      name="recipientCountry"
+      required
+      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+    />
+  </div>
+</div>
+          {/* </fieldset> */}
 
           <div className="flex justify-between mt-6">
             <Link
@@ -124,7 +174,6 @@ export default function RecipientForm(params: { courseregistrationId?: string}) 
             </button>
           </div>
         </form>
-      </div>
-    </div>
-  )
+
+)
 }

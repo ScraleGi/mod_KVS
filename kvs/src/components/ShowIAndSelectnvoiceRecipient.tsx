@@ -152,8 +152,13 @@ function ShowRecipient({
         return (
             <div>
                 <h2>Recipient Details</h2>
-                <p>Name: {recipient.recipientName} {recipient.recipientSurname}</p>
+            {recipient.recipientName?.trim() && (
+            <p>Name: {recipient.recipientName} {recipient.recipientSurname}</p>
+            )}
+             {recipient.companyName?.trim() && (
                 <p>Company: {recipient.companyName}</p>
+            )}   
+                
                 <p>Email: {recipient.recipientEmail}</p>
                 <p>Address: {recipient.recipientStreet}, {recipient.postalCode} {recipient.recipientCity}, {recipient.recipientCountry}</p>
                 {onDelete &&
@@ -176,12 +181,22 @@ function ShowRecipient({
         );
     } else {
         return (
-            <div>
-                <h2>Self Payer Details</h2>
-                <p>Name: {participant.name} {participant.surname}</p>
-                <p>Email: {participant.email}</p>
-                <p>Address: {participant.street}, {participant.postalCode} {participant.city}, {participant.country}</p>
-            </div>
+  
+<fieldset className="border border-neutral-200 rounded-lg p-5">
+  <legend className="text-base font-semibold text-blue-700 px-2">Selbstzahler Infos</legend>
+  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 text-xs text-neutral-600">
+    <div>
+      <span className="font-semibold">Name:</span> {participant?.salutation} {participant.name} {participant.surname}
+    </div>
+    <div>
+      <span className="font-semibold">Email:</span> {participant.email}
+    </div>
+    <div>
+      <span className="font-semibold">Address:</span> {participant.street}, {participant.postalCode} {participant.city}, {participant.country}
+    </div>
+  </div>
+</fieldset>
+
         );
     }
 }

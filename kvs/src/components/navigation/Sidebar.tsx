@@ -30,12 +30,12 @@ const Sidebar = ({ isOpen, roles }: SidebarProps) => {
     { href: '/area', label: 'Bereiche', icon: FaThLarge },
     { href: '/participant', label: 'Teilnehmer', icon: FaUsers },
     { href: '/trainer', label: 'Trainer', icon: FaChalkboardTeacher },
-    { href: '/calendar', label: 'Termine', icon: FaCalendarAlt },
-    { href: '/reports', label: 'Berichte', icon: FaChartBar },
-    { href: '/inbox', label: 'Posteingang', icon: FaRegEnvelope },
-    { href: '/settings', label: 'Einstellungen', icon: FaCog },
     { href: '/invoiceRecipient', label: 'Empfänger', icon: FaRegAddressCard},
     { href: '/invoice', label: 'Rechnungen', icon: FaFileInvoiceDollar},
+    { href: '/calendar', label: 'Termine', icon: FaCalendarAlt },
+   // { href: '/reports', label: 'Berichte', icon: FaChartBar },
+   // { href: '/inbox', label: 'Posteingang', icon: FaRegEnvelope },
+    { href: '/settings', label: 'Einstellungen', icon: FaCog },
   ];
 
   if (!roles || roles.length === 0) {
