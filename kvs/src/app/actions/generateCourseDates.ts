@@ -1,5 +1,6 @@
 import { db } from '@/lib/db'
 import { $Enums } from '../../../generated/prisma'
+import { redirect } from 'next/navigation'
 
 function calculateCourseDuration(start: Date, end: Date, pause: Date): number {
     const msPerMinute = 1000 * 60
@@ -159,5 +160,5 @@ export default async function generateCourseDates(formData: FormData) {
           })
       }
 
-      return
+    redirect(`/course/${courseId}?days_generated=1`)
 }

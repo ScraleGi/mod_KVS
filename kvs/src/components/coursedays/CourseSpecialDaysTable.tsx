@@ -1,9 +1,11 @@
 'use client'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useTransition } from 'react'
 import { courseSpecialDaysColumns } from '../../app/coursedays/columns'
 import { CourseSpecialDays } from '../../app/coursedays/types'
 import { createCourseSpecialDay, updateCourseSpecialDay, deleteCourseSpecialDay } from '../../app/coursedays/actions'
 import { TableToolbar } from './TableToolbar'
+import { useToaster } from '@/components/ui/toaster'
+import type { ActionResult } from './CourseToaster'
 
 // Helper for date/time formatting in Europe/Berlin timezone, no seconds
 function formatDateTimeBerlin(dateString: string) {
@@ -80,6 +82,8 @@ function IconAdd() {
 export function CourseSpecialDaysTable({ specialDays, courseId }: { specialDays: CourseSpecialDays[], courseId: string }) {
   const [query, setQuery] = useState('')
   const [dateFilter, setDateFilter] = useState('')
+  const [isPending, startTransition] = useTransition()
+  const { showToast } = useToaster()
   const [editId, setEditId] = useState<string | null>(null)
   const [editValues, setEditValues] = useState<{
     id: string
@@ -128,6 +132,25 @@ export function CourseSpecialDaysTable({ specialDays, courseId }: { specialDays:
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     if (!editValues) return
     setEditValues({ ...editValues, [e.target.name]: e.target.value })
+  }
+
+  function handleActionSubmit(
+    action: (formData: FormData) => Promise<ActionResult>,
+    onSuccess?: () => void
+  ) {
+    return (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault()
+      const formData = new FormData(e.currentTarget)
+      startTransition(async () => {
+        const result = await action(formData)
+        if (result?.type === 'success') {
+          showToast(result.message, result.type)
+          setEditId(null)
+          setEditValues(null)
+          if (onSuccess) onSuccess()
+        }
+      })
+    }
   }
 
   return (
@@ -199,22 +222,22 @@ export function CourseSpecialDaysTable({ specialDays, courseId }: { specialDays:
                       <input type="hidden" name="courseId" value={courseId} />
                     </td>
                     <td className="py-1 px-1 align-middle text-center flex gap-1 justify-center">
-                      <form action={updateCourseSpecialDay} onSubmit={handleCancel} className="inline-flex items-center gap-0.5">
+                      <form onSubmit={handleActionSubmit(updateCourseSpecialDay)} className="inline-flex items-center gap-0.5">
                         <input type="hidden" name="id" value={editValues.id} />
                         <input type="hidden" name="title" value={editValues.title} />
                         <input type="hidden" name="startTime" value={editValues.startTime} />
                         <input type="hidden" name="endTime" value={editValues.endTime} />
                         <input type="hidden" name="pauseDuration" value={editValues.pauseDuration} />
                         <input type="hidden" name="courseId" value={courseId} />
-                        <button type="submit" className="p-0.5 text-gray-400 hover:text-blue-600 rounded transition cursor-pointer" title="Speichern">
+                        <button type="submit" className="p-0.5 text-gray-400 hover:text-blue-600 rounded transition cursor-pointer" title="Speichern" disabled={isPending} >
                           <IconSave />
                         </button>
                       </form>
-                      <button type="button" className="p-0.5 text-gray-400 hover:text-orange-500 rounded transition cursor-pointer" title="Abbrechen" onClick={handleCancel}><IconCancel /></button>
-                      <form action={deleteCourseSpecialDay} className="inline-flex items-center justify-center gap-0.5">
+                      <button type="button" className="p-0.5 text-gray-400 hover:text-orange-500 rounded transition cursor-pointer" title="Abbrechen" disabled={isPending} onClick={handleCancel}><IconCancel /></button>
+                      <form onSubmit={handleActionSubmit(deleteCourseSpecialDay)} className="inline-flex items-center justify-center gap-0.5">
                         <input type="hidden" name="id" value={editValues.id} />
                         <input type="hidden" name="courseId" value={courseId} />
-                        <button type="submit" className="p-0.5 text-gray-400 hover:text-red-500 rounded transition cursor-pointer" title="Löschen"><IconTrash /></button>
+                        <button type="submit" className="p-0.5 text-gray-400 hover:text-red-500 rounded transition cursor-pointer" title="Löschen" disabled={isPending} ><IconTrash /></button>
                       </form>
                     </td>
                   </>
@@ -235,11 +258,11 @@ export function CourseSpecialDaysTable({ specialDays, courseId }: { specialDays:
                       <input type="hidden" name="courseId" value={courseId} />
                     </td>
                     <td className="py-1 px-1 align-middle text-center flex gap-1 justify-center">
-                      <button type="button" className="p-0.5 text-gray-400 hover:text-blue-600 rounded transition cursor-pointer" title="Bearbeiten" onClick={() => handleEdit(d)}><IconEdit /></button>
-                      <form action={deleteCourseSpecialDay} className="inline-flex items-center justify-center gap-0.5">
+                      <button type="button" className="p-0.5 text-gray-400 hover:text-blue-600 rounded transition cursor-pointer" title="Bearbeiten" disabled={isPending} onClick={() => handleEdit(d)}><IconEdit /></button>
+                      <form onSubmit={handleActionSubmit(deleteCourseSpecialDay)} className="inline-flex items-center justify-center gap-0.5">
                         <input type="hidden" name="id" value={d.id} />
                         <input type="hidden" name="courseId" value={courseId} />
-                        <button type="submit" className="p-0.5 text-gray-400 hover:text-red-500 rounded transition cursor-pointer" title="Löschen"><IconTrash /></button>
+                        <button type="submit" className="p-0.5 text-gray-400 hover:text-red-500 rounded transition cursor-pointer" title="Löschen" disabled={isPending} ><IconTrash /></button>
                       </form>
                     </td>
                   </>

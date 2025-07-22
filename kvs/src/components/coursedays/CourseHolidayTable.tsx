@@ -1,9 +1,13 @@
 'use client'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useTransition } from 'react'
 import { courseHolidayColumns } from '../../app/coursedays/columns'
 import { CourseHoliday } from '../../app/coursedays/types'
 import { createCourseHoliday, updateCourseHoliday, deleteCourseHoliday } from '../../app/coursedays/actions'
 import { TableToolbar } from './TableToolbar'
+import { useToaster } from '@/components/ui/toaster'
+import type { ActionResult } from './CourseToaster'
+import CourseToaster from './CourseToaster'
+
 
 function IconEdit() {
   return (
@@ -47,6 +51,8 @@ export function CourseHolidayTable({ holidays, courseId }: { holidays: CourseHol
   const [dateFilter, setDateFilter] = useState('')
   const [editId, setEditId] = useState<string | null>(null)
   const [editValues, setEditValues] = useState<{ title: string; date: string }>({ title: '', date: '' })
+  const [isPending, startTransition] = useTransition()
+  const { showToast } = useToaster()
 
   useEffect(() => {
     setQuery(localStorage.getItem('courseHolidayQuery') || '')
@@ -82,8 +88,28 @@ export function CourseHolidayTable({ holidays, courseId }: { holidays: CourseHol
     setEditValues({ ...editValues, [e.target.name]: e.target.value })
   }
 
+  function handleActionSubmit(
+  action: (formData: FormData) => Promise<ActionResult>,
+  onSuccess?: () => void
+) {
+  return (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const formData = new FormData(e.currentTarget)
+    startTransition(async () => {
+      const result = await action(formData)
+      if (result?.type === 'success') {
+        showToast(result.message, result.type)
+        setEditId(null)
+        setEditValues({ title: '', date: '' })
+        if (onSuccess) onSuccess()
+      }
+    })
+  }
+}
+
   return (
     <div className="mt-10 mb-10">
+      <CourseToaster />
       <TableToolbar
         onSearch={setQuery}
         dateFilter={dateFilter}
@@ -170,8 +196,7 @@ export function CourseHolidayTable({ holidays, courseId }: { holidays: CourseHol
                     </td>
                     <td className="py-1 px-1 align-middle text-center flex gap-1 justify-center">
                       <form
-                        action={updateCourseHoliday}
-                        onSubmit={handleCancel}
+                        onSubmit={handleActionSubmit(updateCourseHoliday)}
                         className="inline-flex items-center gap-0.5"
                       >
                         <input type="hidden" name="id" value={h.id} />
@@ -182,6 +207,7 @@ export function CourseHolidayTable({ holidays, courseId }: { holidays: CourseHol
                           type="submit"
                           className="p-0.5 text-gray-400 hover:text-blue-600 rounded transition cursor-pointer"
                           title="Speichern"
+                          disabled={isPending}
                         >
                           <IconSave />
                         </button>
@@ -194,13 +220,14 @@ export function CourseHolidayTable({ holidays, courseId }: { holidays: CourseHol
                       >
                         <IconCancel />
                       </button>
-                      <form action={deleteCourseHoliday} className="inline-flex items-center justify-center gap-0.5">
+                      <form onSubmit={handleActionSubmit(deleteCourseHoliday)} className="inline-flex items-center justify-center gap-0.5">
                         <input type="hidden" name="id" value={h.id} />
                         <input type="hidden" name="courseId" value={courseId} />
                         <button
                           type="submit"
                           className="p-0.5 text-gray-400 hover:text-red-500 rounded transition cursor-pointer"
                           title="Löschen"
+                          disabled={isPending}
                         >
                           <IconTrash />
                         </button>
@@ -236,13 +263,14 @@ export function CourseHolidayTable({ holidays, courseId }: { holidays: CourseHol
                       >
                         <IconEdit />
                       </button>
-                      <form action={deleteCourseHoliday} className="inline-flex items-center justify-center gap-0.5">
+                      <form onSubmit={handleActionSubmit(deleteCourseHoliday)} className="inline-flex items-center justify-center gap-0.5">
                         <input type="hidden" name="id" value={h.id} />
                         <input type="hidden" name="courseId" value={courseId} />
                         <button
                           type="submit"
                           className="p-0.5 text-gray-400 hover:text-red-500 rounded transition cursor-pointer"
                           title="Löschen"
+                          disabled={isPending}
                         >
                           <IconTrash />
                         </button>

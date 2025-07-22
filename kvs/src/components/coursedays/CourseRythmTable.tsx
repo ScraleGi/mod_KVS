@@ -1,8 +1,10 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useState, useTransition } from 'react'
 import { CourseRythm } from '../../app/coursedays/types'
 import { createCourseRythm, updateCourseRythm, deleteCourseRythm } from '../../app/coursedays/actions'
 import { TableToolbar } from './TableToolbar'
+import { useToaster } from '@/components/ui/toaster'
+import type { ActionResult } from './CourseToaster'
 
 const WEEK_DAYS = [
   { key: 'MONDAY', label: 'Montag' },
@@ -53,6 +55,8 @@ function IconAdd() {
 
 export function CourseRythmTable({ rythms, courseId }: { rythms: CourseRythm[], courseId: string }) {
   const [editId, setEditId] = useState<string | null>(null)
+  const [isPending, startTransition] = useTransition()
+  const { showToast } = useToaster()
   const [editValues, setEditValues] = useState<{ startTime: string, endTime: string, pauseDuration: string, weekDay: string } | null>(null)
   const [newValues, setNewValues] = useState<{ weekDay: string, startTime: string, endTime: string, pauseDuration: string }>({
     weekDay: '',
@@ -107,6 +111,25 @@ export function CourseRythmTable({ rythms, courseId }: { rythms: CourseRythm[], 
     setTimeout(() => {
       setNewValues({ weekDay: '', startTime: '', endTime: '', pauseDuration: '' })
     }, 0)
+  }
+
+  function handleActionSubmit(
+    action: (formData: FormData) => Promise<ActionResult>,
+    onSuccess?: () => void
+  ) {
+    return (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault()
+      const formData = new FormData(e.currentTarget)
+      startTransition(async () => {
+        const result = await action(formData)
+        if (result?.type === 'success') {
+          showToast(result.message, result.type)
+          setEditId(null)
+          setEditValues(null)
+          if (onSuccess) onSuccess()
+        }
+      })
+    }
   }
 
   return (
@@ -183,9 +206,8 @@ export function CourseRythmTable({ rythms, courseId }: { rythms: CourseRythm[], 
                       </td>
                       <td className="py-1 px-1 align-middle text-center flex gap-1 justify-center">
                         <form
-                          action={updateCourseRythm}
+                          onSubmit={handleActionSubmit(updateCourseRythm, handleEditSubmit)}
                           className="inline-flex items-center gap-0.5"
-                          onSubmit={handleEditSubmit}
                         >
                           <input type="hidden" name="id" value={r.id} />
                           <input type="hidden" name="weekDay" value={editValues!.weekDay} />
@@ -193,17 +215,23 @@ export function CourseRythmTable({ rythms, courseId }: { rythms: CourseRythm[], 
                           <input type="hidden" name="endTime" value={editValues!.endTime} />
                           <input type="hidden" name="pauseDuration" value={editValues!.pauseDuration} />
                           <input type="hidden" name="courseId" value={courseId} />
-                          <button type="submit" className="p-0.5 text-gray-400 hover:text-green-600 rounded transition cursor-pointer" title="Speichern"><IconSave /></button>
+                          <button
+                            type="submit"
+                            className="p-0.5 text-gray-400 hover:text-green-600 rounded transition cursor-pointer"
+                            title="Speichern"
+                            disabled={isPending}
+                          >
+                            <IconSave />
+                          </button>
                         </form>
-                        <button type="button" className="p-0.5 text-gray-400 hover:text-orange-500 rounded transition cursor-pointer" title="Abbrechen" onClick={handleCancel}><IconCancel /></button>
+                        <button type="button" className="p-0.5 text-gray-400 hover:text-orange-500 rounded transition cursor-pointer" title="Abbrechen" disabled={isPending} onClick={handleCancel}><IconCancel /></button>
                         <form
-                          action={deleteCourseRythm}
+                          onSubmit={handleActionSubmit(deleteCourseRythm, handleDelete)}
                           className="inline-flex items-center justify-center gap-0.5"
-                          onSubmit={handleDelete}
                         >
                           <input type="hidden" name="id" value={r.id} />
                           <input type="hidden" name="courseId" value={courseId} />
-                          <button type="submit" className="p-0.5 text-gray-400 hover:text-red-500 rounded transition cursor-pointer" title="Löschen"><IconTrash /></button>
+                          <button type="submit" className="p-0.5 text-gray-400 hover:text-red-500 rounded transition cursor-pointer" title="Löschen" disabled={isPending}><IconTrash /></button>
                         </form>
                       </td>
                     </>
@@ -213,15 +241,14 @@ export function CourseRythmTable({ rythms, courseId }: { rythms: CourseRythm[], 
                       <td className="py-1 px-1 align-middle border-r border-gray-200">{r.endTime ? r.endTime.slice(11, 16) : '--:--'}</td>
                       <td className="py-1 px-1 align-middle border-r border-gray-200">{r.pauseDuration ? r.pauseDuration.slice(11, 16) : '--:--'}</td>
                       <td className="py-1 px-1 align-middle text-center flex gap-1 justify-center">
-                        <button type="button" className="p-0.5 text-gray-400 hover:text-blue-600 rounded transition cursor-pointer" title="Bearbeiten" onClick={() => handleEdit(r)}><IconEdit /></button>
+                        <button type="button" className="p-0.5 text-gray-400 hover:text-blue-600 rounded transition cursor-pointer" title="Bearbeiten" disabled={isPending} onClick={() => handleEdit(r)}><IconEdit /></button>
                         <form
-                          action={deleteCourseRythm}
+                          onSubmit={handleActionSubmit(deleteCourseRythm, handleDelete)}
                           className="inline-flex items-center justify-center gap-0.5"
-                          onSubmit={handleDelete}
                         >
                           <input type="hidden" name="id" value={r.id} />
                           <input type="hidden" name="courseId" value={courseId} />
-                          <button type="submit" className="p-0.5 text-gray-400 hover:text-red-500 rounded transition cursor-pointer" title="Löschen"><IconTrash /></button>
+                          <button type="submit" className="p-0.5 text-gray-400 hover:text-red-500 rounded transition cursor-pointer" title="Löschen" disabled={isPending}><IconTrash /></button>
                         </form>
                       </td>
                     </>
