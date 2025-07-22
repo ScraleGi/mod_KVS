@@ -137,7 +137,7 @@ export default async function RegistrationStatusEditPage({ params }: { params: P
               />
             </div>
             <div>
-              <label className="block text-sm font-medium">Kurs Vorgemerkt am</label>
+              <label className="block text-sm font-medium">Kurs vorgemerkt am</label>
               <input
                 type="date"
                 name="interestedAt"
@@ -147,7 +147,7 @@ export default async function RegistrationStatusEditPage({ params }: { params: P
             </div>
             <div className="flex justify-between mt-6">
               <Link href={`/courseregistration/${id}`} className="px-4 py-2 bg-neutral-200 rounded">Abbrechen</Link>
-              <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded">Speichern</button>
+              <button type="submit" className="cursor-pointer px-4 py-2 bg-blue-600 text-white rounded">Speichern</button>
             </div>
           </form>
         </div>
