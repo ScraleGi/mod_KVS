@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { db } from '@/lib/db'
 import { generateInvoice } from '@/utils/generateInvoice'
 import { getAuthorizing } from '@/lib/getAuthorizing'
-import RecipientSelect from '../../../../components/recipientSelect/RecipientSelect' // <-- import client component
+import RecipientSelect from '@/components/RecipientSelect/RecipientSelect' // <-- import client component
 
 //---------------------------------------------------
 // SERVER ACTIONS
