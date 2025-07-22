@@ -255,32 +255,23 @@ export function CourseSpecialDaysTable({ specialDays, courseId }: { specialDays:
     }, 0)
   }
 
-  function handleEditSubmit(e: React.FormEvent<HTMLFormElement>) {
-    if (!editValues) {
+  function handleEditSubmit(
+      action: (formData: FormData) => Promise<ActionResult>,
+      onSuccess?: () => void  
+  ) {
+    return (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault()
-      setEditError('Bitte Startzeit und Endzeit eingeben.')
-      return
+      const formData = new FormData(e.currentTarget)
+      startTransition(async () => {
+        const result = await action(formData)
+        if (result?.type === 'success') {
+          showToast(result.message, result.type)
+          setEditId(null)
+          setEditValues(null)
+          if (onSuccess) onSuccess()
+        }
+      })
     }
-    const endTimeFull = getEndDateTime(editValues.startTime, editValues.endTimeOnly)
-    if (!editValues.startTime || !editValues.endTimeOnly || !endTimeFull) {
-      e.preventDefault()
-      setEditError('Bitte Startzeit und Endzeit eingeben.')
-      return
-    }
-    if (!isEndTimeAfterStartTime(editValues.startTime, editValues.endTimeOnly)) {
-      e.preventDefault()
-      setEditError('Endzeit muss nach Startzeit liegen!')
-      return
-    }
-    setEditError(null)
-    // Set hidden endTime input value before submit
-    const endTimeInput = (e.currentTarget as HTMLFormElement).querySelector('input[name="endTime"]') as HTMLInputElement
-    if (endTimeInput) endTimeInput.value = endTimeFull
-
-    setTimeout(() => {
-      setEditId(null)
-      setEditValues(null)
-    }, 0)
   }
 
   function handleActionSubmit(
@@ -377,7 +368,7 @@ export function CourseSpecialDaysTable({ specialDays, courseId }: { specialDays:
                     </td>
                     <td className="py-1 px-1 align-middle text-center flex gap-1 justify-center">
 
-                      <form action={updateCourseSpecialDay} onSubmit={handleEditSubmit} className="inline-flex items-center gap-0.5">
+                      <form onSubmit={handleEditSubmit(updateCourseSpecialDay)} className="inline-flex items-center gap-0.5">
 
                         <input type="hidden" name="id" value={editValues.id} />
                         <input type="hidden" name="title" value={editValues.title} />

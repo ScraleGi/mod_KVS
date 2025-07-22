@@ -141,17 +141,7 @@ export function CourseRythmTable({ rythms, courseId }: { rythms: CourseRythm[], 
     }, 0)
   }
 
-  function handleEditSubmit(e: React.FormEvent<HTMLFormElement>) {
-    if (!editValues || !editValues.startTime || !editValues.endTime || !editValues.pauseDuration) {
-      e.preventDefault()
-      setEditError('Bitte alle Felder ausfüllen.')
-      return
-    }
-    if (!isEndTimeAfterStartTime(editValues.startTime, editValues.endTime)) {
-      e.preventDefault()
-      setEditError('Ende darf nicht vor Beginn liegen!')
-      return
-    }
+  function handleEditSubmit() {
     setEditError(null)
     setTimeout(() => {
       setEditId(null)
