@@ -26,23 +26,6 @@ function getCourseColor(courseId: string) {
   return colorPalette[Math.abs(hash) % colorPalette.length];
 }
 
-// ---- Helper Functions ----
-
-// Check if a course day overlaps with any holiday
-function isCourseDayOnHoliday(start: string, end: string, holidayDateSet: Set<string>) {
-  const startDate = new Date(start);
-  const endDate = new Date(end);
-  for (
-    let d = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
-    d <= endDate;
-    d.setDate(d.getDate() + 1)
-  ) {
-    const dateStr = d.toISOString().slice(0, 10);
-    if (holidayDateSet.has(dateStr)) return true;
-  }
-  return false;
-}
-
 // Adjusts a date string for Berlin timezone offset (DST aware)
 function minusBerlinOffset(date: string | Date): string {
   const d = typeof date === 'string' ? new Date(date) : new Date(date.getTime());
@@ -69,8 +52,6 @@ function minusBerlinOffset(date: string | Date): string {
   }
   return d.toISOString();
 }
-
-// ---- Main Page Component ----
 
 export default async function CalendarPage() {
   // 1. Fetch all courses with their code, trainers, and course days
@@ -108,11 +89,7 @@ export default async function CalendarPage() {
   // 5. Map course days to calendar events, skipping those that overlap with holidays
   const courseDayEvents: CalendarEvent[] = sanitizedCourses.flatMap(course =>
     (course.courseDays ?? [])
-      .filter(day => !isCourseDayOnHoliday(
-        minusBerlinOffset(day.startTime),
-        minusBerlinOffset(day.endTime),
-        holidayDateSet
-      ))
+      .filter(day => !holidayDateSet.has(minusBerlinOffset(day.startTime).slice(0, 10)))
       .map(day => ({
         id: `courseDay-${day.id}`,
         title: course.code ?? '',
@@ -141,10 +118,11 @@ export default async function CalendarPage() {
     privilige: ['ADMIN', 'PROGRAMMMANAGER', 'TRAINER', 'RECHNUNGSWESEN', 'MARKETING'],
   });
 
-  // 8. Combine all events and render the calendar
+  // 8. Combine all events and render the calendar, pass holidayDateSet for cell highlighting
   return (
     <Calendar
       events={[...courseDayEvents, ...holidayEvents]}
+      holidayDates={holidayDateSet}
     />
   );
 }
