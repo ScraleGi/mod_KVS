@@ -8,11 +8,14 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import { EventContentArg, DatesSetArg } from '@fullcalendar/core';
 import deLocale from '@fullcalendar/core/locales/de';
 
+// ---- Types ----
+
+// Extended properties for calendar events (add more fields as needed)
 interface ExtendedEventProps {
   courseId?: string;
 }
 
-
+// Main event type for the calendar
 type EventType = {
   id: string;
   title?: string;
@@ -26,6 +29,9 @@ type EventType = {
   extendedProps?: ExtendedEventProps;
 };
 
+// ---- Utility Functions ----
+
+// Returns a set of all holiday dates (YYYY-MM-DD) from the event list
 function getHolidayDates(events: EventType[]): Set<string> {
   return new Set(
     events
@@ -34,7 +40,7 @@ function getHolidayDates(events: EventType[]): Set<string> {
   );
 }
 
-// Helper: get all course holiday dates by courseId
+// Returns a map of courseId -> Set of holiday dates (YYYY-MM-DD) for that course
 function getCourseHolidayDates(events: EventType[]): Map<string, Set<string>> {
   const map = new Map<string, Set<string>>();
   events.forEach(e => {
@@ -48,12 +54,14 @@ function getCourseHolidayDates(events: EventType[]): Map<string, Set<string>> {
   return map;
 }
 
-// Custom rendering: show hour and code vertically for courseDay events in Woche/Tag (timeGrid) views
+// ---- Custom Event Rendering ----
+
+// Custom rendering for events in the calendar
 function renderEventContent(eventInfo: EventContentArg) {
   const isHoliday = eventInfo.event.id.startsWith('holiday-');
   const isCourseDay = eventInfo.event.id.startsWith('courseDay-');
 
-  // Woche/Tag (timeGrid) style: green, no underline, no background
+  // Render for courseDay events in Woche/Tag (timeGrid) views
   if (isCourseDay && eventInfo.view.type.startsWith('timeGrid')) {
     const start = eventInfo.event.start;
     const hour = start
@@ -86,7 +94,7 @@ function renderEventContent(eventInfo: EventContentArg) {
     );
   }
 
-  // Minimalistic style for Monat (month) view and all other views (no underline)
+  // Render for all other events (month view, holidays, etc.)
   return (
     <div
       className={
@@ -134,9 +142,14 @@ function renderEventContent(eventInfo: EventContentArg) {
   );
 }
 
+// ---- Main Calendar Component ----
+
 const Calendar: React.FC<{ events: EventType[] }> = ({ events }) => {
+  // Derived data
   const holidayDates = getHolidayDates(events);
   const courseHolidayDatesByCourse = getCourseHolidayDates(events);
+
+  // State for background events, modal, and user-created events
   const [backgroundEvents, setBackgroundEvents] = useState<EventType[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
@@ -155,6 +168,7 @@ const Calendar: React.FC<{ events: EventType[] }> = ({ events }) => {
     return true;
   });
 
+  // Generate background events for morning and evening slots for each visible day
   const handleDatesSet = useCallback((arg: DatesSetArg) => {
     const start = new Date(arg.start);
     const end = new Date(arg.end);
@@ -183,6 +197,7 @@ const Calendar: React.FC<{ events: EventType[] }> = ({ events }) => {
 
   return (
     <div className="p-4 bg-white rounded-2xl shadow-lg">
+      {/* Custom styles for event hover and background */}
       <style>
         {`
           .fc-course-hoverable {
@@ -211,6 +226,8 @@ const Calendar: React.FC<{ events: EventType[] }> = ({ events }) => {
           }
         `}
       </style>
+
+      {/* Modal for adding a new user event */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-10 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded shadow-lg w-80">
@@ -253,6 +270,7 @@ const Calendar: React.FC<{ events: EventType[] }> = ({ events }) => {
         </div>
       )}
 
+      {/* Main calendar */}
       <div className="p-4 bg-white rounded-2xl shadow-lg">
         <FullCalendar
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
@@ -272,14 +290,13 @@ const Calendar: React.FC<{ events: EventType[] }> = ({ events }) => {
           height={1100}
           eventContent={renderEventContent}
           eventClassNames={arg => {
+            // Assign custom classes for holidays and course days
             if (arg.event.id.startsWith('holiday-')) {
               return ['bg-red-200', 'text-white', 'border-none', 'fc-holiday-hoverable'];
             }
             if (arg.event.id.startsWith('courseDay-')) {
               // Add fc-course-timegrid for Woche/Tag views
-              if (
-                arg.view.type.startsWith('timeGrid')
-              ) {
+              if (arg.view.type.startsWith('timeGrid')) {
                 return ['fc-course-hoverable', 'fc-course-timegrid'];
               }
               return ['fc-course-hoverable'];
@@ -287,7 +304,8 @@ const Calendar: React.FC<{ events: EventType[] }> = ({ events }) => {
             return [];
           }}
           dayCellClassNames={arg => {
-            const dateStr = arg.date.toISOString().slice(0, 10);
+            // Highlight holiday days in the month view
+            const dateStr = arg.date.toLocaleDateString('sv-SE'); // "YYYY-MM-DD"
             if (holidayDates.has(dateStr)) {
               return ['bg-red-100'];
             }

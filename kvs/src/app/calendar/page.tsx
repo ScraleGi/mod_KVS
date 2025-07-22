@@ -6,7 +6,7 @@ import { CalendarEvent } from '@/types/query-models';
 import { formatDateToISO } from '@/lib/dateUtils';
 import { getAuthorizing } from '@/lib/getAuthorizing';
 
-// Color palette for overlapping courses
+// ---- Color Palette for Courses ----
 const colorPalette = [
   'rgba(34,197,94,0.18)',   // green
   'rgba(59,130,246,0.18)',  // blue
@@ -16,6 +16,8 @@ const colorPalette = [
   'rgba(16,185,129,0.18)',  // teal
   'rgba(251,191,36,0.18)',  // amber
 ];
+
+// Assign a color to a course based on its ID (stable hashing)
 function getCourseColor(courseId: string) {
   let hash = 0;
   for (let i = 0; i < courseId.length; i++) {
@@ -24,7 +26,9 @@ function getCourseColor(courseId: string) {
   return colorPalette[Math.abs(hash) % colorPalette.length];
 }
 
-// Helper: check if a date range overlaps any holiday
+// ---- Helper Functions ----
+
+// Check if a course day overlaps with any holiday
 function isCourseDayOnHoliday(start: string, end: string, holidayDateSet: Set<string>) {
   const startDate = new Date(start);
   const endDate = new Date(end);
@@ -39,7 +43,7 @@ function isCourseDayOnHoliday(start: string, end: string, holidayDateSet: Set<st
   return false;
 }
 
-// Helper: subtract 2 hours in summer (CEST), 1 hour in winter (CET) for Berlin timezone
+// Adjusts a date string for Berlin timezone offset (DST aware)
 function minusBerlinOffset(date: string | Date): string {
   const d = typeof date === 'string' ? new Date(date) : new Date(date.getTime());
   const year = d.getFullYear();
@@ -66,8 +70,10 @@ function minusBerlinOffset(date: string | Date): string {
   return d.toISOString();
 }
 
+// ---- Main Page Component ----
+
 export default async function CalendarPage() {
-  // Fetch all courses with code, name, and related course days
+  // 1. Fetch all courses with their code, trainers, and course days
   const courses = await db.course.findMany({
     where: { deletedAt: null },
     select: {
@@ -77,7 +83,7 @@ export default async function CalendarPage() {
       mainTrainer: { select: { name: true } },
       trainers: { select: { name: true } },
       courseDays: {
-        where: { deletedAt: null },
+        where: { deletedAt: null, isCourseDay: true },
         select: {
           id: true,
           startTime: true,
@@ -87,19 +93,19 @@ export default async function CalendarPage() {
     }
   });
 
-  // Fetch holidays
+  // 2. Fetch all holidays
   const holidays = await db.holiday.findMany();
 
-  // Sanitize data
+  // 3. Sanitize data for safety
   const sanitizedCourses = sanitize<typeof courses, typeof courses>(courses);
   const sanitizedHolidays = sanitize<typeof holidays, Holiday[]>(holidays);
 
-  // Build a set of holiday date strings (YYYY-MM-DD)
+  // 4. Build a set of holiday date strings (YYYY-MM-DD)
   const holidayDateSet = new Set(
     sanitizedHolidays.map(h => formatDateToISO(h.date).slice(0, 10))
   );
 
-  // Map course days to timed calendar events (not allDay), but skip if on any holiday
+  // 5. Map course days to calendar events, skipping those that overlap with holidays
   const courseDayEvents: CalendarEvent[] = sanitizedCourses.flatMap(course =>
     (course.courseDays ?? [])
       .filter(day => !isCourseDayOnHoliday(
@@ -120,22 +126,22 @@ export default async function CalendarPage() {
       }))
   );
 
-  // Map holidays to all-day events (no hour shift for holidays)
+  // 6. Map holidays to all-day calendar events
   const holidayEvents: CalendarEvent[] = sanitizedHolidays.map(holiday => ({
     id: `holiday-${holiday.id}`,
     title: `${holiday.title} (Feiertag)`,
-    start: formatDateToISO(holiday.date),
+    start: new Date(holiday.date).toISOString().slice(0, 10), // "YYYY-MM-DD"
     allDay: true,
     mainTrainer: '',
     coTrainers: []
   }));
 
-  // Check user authorization
+  // 7. Check user authorization for calendar access
   await getAuthorizing({
     privilige: ['ADMIN', 'PROGRAMMMANAGER', 'TRAINER', 'RECHNUNGSWESEN', 'MARKETING'],
   });
 
-  // Combine all events and render the calendar
+  // 8. Combine all events and render the calendar
   return (
     <Calendar
       events={[...courseDayEvents, ...holidayEvents]}
