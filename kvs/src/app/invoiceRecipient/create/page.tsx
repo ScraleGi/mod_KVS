@@ -8,12 +8,10 @@ export default function CreateInvoiceRecipientPage() {
   <div className="w-full max-w-xl">
     <nav className="max-w-xl mx-auto mb-6 text-sm text-gray-500 flex items-center gap-2 pl-2">
       <Link href="/invoiceRecipient" className="hover:underline text-gray-700">Empfänger</Link>
-      <span>&gt;</span>
+         <span>&gt;</span>
+        <span className="text-gray-700 font-semibold">Empfänger hinzufügen</span> 
     </nav>
     <div className="w-full max-w-xl bg-white rounded-lg border-neutral-100 p-8">
-      <h1 className="text-2xl font-bold mb-6 text-neutral-900 text-center">
-        Rechnungsempfänger erstellen
-      </h1>
       <div className="w-full border border-neutral-200 rounded-lg p-10">
         <RecipientForm />
       </div>
