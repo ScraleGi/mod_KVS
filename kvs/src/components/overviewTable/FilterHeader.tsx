@@ -5,13 +5,15 @@ import type { Column } from "@tanstack/react-table"
 type FilterHeaderProps<TData extends Record<string, unknown>, TValue> = {
   column: Column<TData, TValue>
   label: string
-  placeholder?: string
+  placeholder?: string,
+  alignRight?: boolean,
 }
 
 export function FilterHeader<TData extends Record<string, unknown>, TValue>({
   column,
   label,
   placeholder = "Filter...",
+  alignRight = false
 }: FilterHeaderProps<TData, TValue>) {
   const [showFilter, setShowFilter] = React.useState(false)
   const filterRef = React.useRef<HTMLSpanElement>(null)
@@ -39,9 +41,10 @@ export function FilterHeader<TData extends Record<string, unknown>, TValue>({
   const colId = column.id
 
   return (
+    <div className={ `w-56 min-w-[12rem] flex ${alignRight ? ' justify-end ': ''}`}>
     <span
       ref={filterRef}
-      className="flex flex-col w-56 min-w-[12rem] pl-2 relative"
+      className="flex flex-col  pl-2 relative"
     >
       <span className="flex items-center gap-1 select-none">
         <span
@@ -99,5 +102,6 @@ export function FilterHeader<TData extends Record<string, unknown>, TValue>({
         />
       )}
     </span>
+    </div>
   )
 }
