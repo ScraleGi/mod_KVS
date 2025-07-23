@@ -1,9 +1,11 @@
 'use client'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useTransition } from 'react'
 import { courseSpecialDaysColumns } from '../../utils/columns'
 import { CourseSpecialDays } from '../../types/courseDaysTypes'
 import { createCourseSpecialDay, updateCourseSpecialDay, deleteCourseSpecialDay } from '../../app/actions/courseDaysActions'
 import { TableToolbar } from './TableToolbar'
+import { useToaster } from '@/components/ui/toaster'
+import type { ActionResult } from './CourseToaster'
 
 // Helper for date/time formatting in Europe/Berlin timezone, no seconds
 function formatDateTimeBerlin(dateString: string) {
@@ -100,6 +102,8 @@ export function CourseSpecialDaysTable({ specialDays, courseId }: { specialDays:
   // State for search/filter, editing, and adding
   const [query, setQuery] = useState('')
   const [dateFilter, setDateFilter] = useState('')
+  const [isPending, startTransition] = useTransition()
+  const { showToast } = useToaster()
   const [editId, setEditId] = useState<string | null>(null)
   const [editValues, setEditValues] = useState<{
     id: string
@@ -264,34 +268,42 @@ export function CourseSpecialDaysTable({ specialDays, courseId }: { specialDays:
     }, 0)
   }
 
-  // Validate and handle edit form submit
-  function handleEditSubmit(e: React.FormEvent<HTMLFormElement>) {
-    if (!editValues) {
+  function handleEditSubmit(
+      action: (formData: FormData) => Promise<ActionResult>,
+      onSuccess?: () => void  
+  ) {
+    return (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault()
-      setEditError('Bitte Startzeit und Endzeit eingeben.')
-      return
+      const formData = new FormData(e.currentTarget)
+      startTransition(async () => {
+        const result = await action(formData)
+        if (result?.type === 'success') {
+          showToast(result.message, result.type)
+          setEditId(null)
+          setEditValues(null)
+          if (onSuccess) onSuccess()
+        }
+      })
     }
-    const endTimeFull = getEndDateTime(editValues.startTime, editValues.endTimeOnly)
-    if (!editValues.startTime || !editValues.endTimeOnly || !endTimeFull) {
-      e.preventDefault()
-      setEditError('Bitte Startzeit und Endzeit eingeben.')
-      return
-    }
-    if (!isEndTimeAfterStartTime(editValues.startTime, editValues.endTimeOnly)) {
-      e.preventDefault()
-      setEditError('Endzeit muss nach Startzeit liegen!')
-      return
-    }
-    setEditError(null)
-    // Set hidden endTime input value before submit
-    const endTimeInput = (e.currentTarget as HTMLFormElement).querySelector('input[name="endTime"]') as HTMLInputElement
-    if (endTimeInput) endTimeInput.value = endTimeFull
+  }
 
-    // Reset edit state after submit
-    setTimeout(() => {
-      setEditId(null)
-      setEditValues(null)
-    }, 0)
+  function handleActionSubmit(
+    action: (formData: FormData) => Promise<ActionResult>,
+    onSuccess?: () => void
+  ) {
+    return (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault()
+      const formData = new FormData(e.currentTarget)
+      startTransition(async () => {
+        const result = await action(formData)
+        if (result?.type === 'success') {
+          showToast(result.message, result.type)
+          setEditId(null)
+          setEditValues(null)
+          if (onSuccess) onSuccess()
+        }
+      })
+    }
   }
 
   return (
@@ -372,25 +384,26 @@ export function CourseSpecialDaysTable({ specialDays, courseId }: { specialDays:
                       <input type="hidden" name="courseId" value={courseId} />
                     </td>
                     <td className="py-1 px-1 align-middle text-center flex gap-1 justify-center">
-                      {/* Save changes */}
-                      <form action={updateCourseSpecialDay} onSubmit={handleEditSubmit} className="inline-flex items-center gap-0.5">
+
+                      <form onSubmit={handleEditSubmit(updateCourseSpecialDay)} className="inline-flex items-center gap-0.5">
+
                         <input type="hidden" name="id" value={editValues.id} />
                         <input type="hidden" name="title" value={editValues.title} />
                         <input type="hidden" name="startTime" value={editValues.startTime} />
                         <input type="hidden" name="endTime" value={editValues.endTime} />
                         <input type="hidden" name="pauseDuration" value={editValues.pauseDuration} />
                         <input type="hidden" name="courseId" value={courseId} />
-                        <button type="submit" className="p-0.5 text-gray-400 hover:text-blue-600 rounded transition cursor-pointer" title="Speichern" disabled={!!editError}>
+
+                        <button type="submit" className="p-0.5 text-gray-400 hover:text-blue-600 rounded transition cursor-pointer" title="Speichern" disabled={isPending} >
+
                           <IconSave />
                         </button>
                       </form>
-                      {/* Cancel editing */}
-                      <button type="button" className="p-0.5 text-gray-400 hover:text-orange-500 rounded transition cursor-pointer" title="Abbrechen" onClick={handleCancel}><IconCancel /></button>
-                      {/* Delete special day */}
-                      <form action={deleteCourseSpecialDay} className="inline-flex items-center justify-center gap-0.5">
+                      <button type="button" className="p-0.5 text-gray-400 hover:text-orange-500 rounded transition cursor-pointer" title="Abbrechen" disabled={isPending} onClick={handleCancel}><IconCancel /></button>
+                      <form onSubmit={handleActionSubmit(deleteCourseSpecialDay)} className="inline-flex items-center justify-center gap-0.5">
                         <input type="hidden" name="id" value={editValues.id} />
                         <input type="hidden" name="courseId" value={courseId} />
-                        <button type="submit" className="p-0.5 text-gray-400 hover:text-red-500 rounded transition cursor-pointer" title="Löschen"><IconTrash /></button>
+                        <button type="submit" className="p-0.5 text-gray-400 hover:text-red-500 rounded transition cursor-pointer" title="Löschen" disabled={isPending} ><IconTrash /></button>
                       </form>
                     </td>
                   </>
@@ -412,13 +425,11 @@ export function CourseSpecialDaysTable({ specialDays, courseId }: { specialDays:
                       <input type="hidden" name="courseId" value={courseId} />
                     </td>
                     <td className="py-1 px-1 align-middle text-center flex gap-1 justify-center">
-                      {/* Edit special day */}
-                      <button type="button" className="p-0.5 text-gray-400 hover:text-blue-600 rounded transition cursor-pointer" title="Bearbeiten" onClick={() => handleEdit(d)}><IconEdit /></button>
-                      {/* Delete special day */}
-                      <form action={deleteCourseSpecialDay} className="inline-flex items-center justify-center gap-0.5">
+                      <button type="button" className="p-0.5 text-gray-400 hover:text-blue-600 rounded transition cursor-pointer" title="Bearbeiten" disabled={isPending} onClick={() => handleEdit(d)}><IconEdit /></button>
+                      <form onSubmit={handleActionSubmit(deleteCourseSpecialDay)} className="inline-flex items-center justify-center gap-0.5">
                         <input type="hidden" name="id" value={d.id} />
                         <input type="hidden" name="courseId" value={courseId} />
-                        <button type="submit" className="p-0.5 text-gray-400 hover:text-red-500 rounded transition cursor-pointer" title="Löschen"><IconTrash /></button>
+                        <button type="submit" className="p-0.5 text-gray-400 hover:text-red-500 rounded transition cursor-pointer" title="Löschen" disabled={isPending} ><IconTrash /></button>
                       </form>
                     </td>
                   </>

@@ -3,7 +3,6 @@ import { redirect } from 'next/navigation'
 import { db } from '@/lib/db'
 import { generateInvoice } from '@/utils/generateInvoice'
 import { getAuthorizing } from '@/lib/getAuthorizing'
-import RecipientSelect from '../../../../components/recipientSelect/RecipientSelect' // <-- import client component
 
 //---------------------------------------------------
 // SERVER ACTIONS
@@ -57,11 +56,12 @@ export default async function CreateInvoicePage({
   }
 
   // NEW: Fetch saved recipients to pass to client component
+  /*
   const recipients = await db.invoiceRecipient.findMany({
     where: { deletedAt: null },
     orderBy: { createdAt: 'desc' },
   })
-
+  */
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-neutral-50 px-2 py-8">
@@ -96,72 +96,25 @@ export default async function CreateInvoicePage({
         >
           <input type="hidden" name="registrationId" value={registration.id} />
 
-          {/*autofill component */}
-          
-         <RecipientSelect recipients={recipients} /> 
-         
+          {/*autofill component 
+          <RecipientSelect
+            recipients={recipients.map(r => ({
+              ...r,
+              recipientSalutation: r.recipientSalutation ?? undefined,
+              recipientName: r.recipientName ?? undefined,
+              recipientSurname: r.recipientSurname ?? undefined,
+              companyName: r.companyName ?? undefined,
+              recipientEmail: r.recipientEmail ?? undefined,
+              postalCode: r.postalCode ?? undefined,
+              recipientStreet: r.recipientStreet ?? undefined,
+              recipientCity: r.recipientCity ?? undefined,
+              recipientCountry: r.recipientCountry ?? undefined,
+              participantId: r.participantId ?? undefined,
+            }))}
+          />
+          */}
 
-          {/* Invoice Recipient Section (UNCHANGED) */}
-          <fieldset className="border border-neutral-200 rounded-lg p-5">
-            <legend className="text-base font-semibold text-blue-700 px-2">Rechnungsempfänger</legend>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-              <label className="flex flex-col text-xs font-medium text-neutral-700">
-                Empfänger
-                <select name="type" required className="mt-1 border rounded px-2 py-1">
-                  <option value="PERSON">Person</option>
-                  <option value="COMPANY">Firma</option>
-                </select>
-              </label>
-              <label className="flex flex-col text-xs font-medium text-neutral-700">
-                Anrede (Empfänger)
-                <input name="recipientSalutation" className="mt-1 border rounded px-2 py-1" />
-              </label>
-              <label className="flex flex-col text-xs font-medium text-neutral-700">
-                Name (Empfänger)
-                <input name="recipientName" className="mt-1 border rounded px-2 py-1" />
-              </label>
-              <label className="flex flex-col text-xs font-medium text-neutral-700">
-                Nachname (Empfänger)
-                <input name="recipientSurname" className="mt-1 border rounded px-2 py-1" />
-              </label>
-              <label className="flex flex-col text-xs font-medium text-neutral-700">
-                Firmen Name (Empfänger)
-                <input name="companyName" className="mt-1 border rounded px-2 py-1" />
-              </label>
-              <label className="flex flex-col text-xs font-medium text-neutral-700">
-                Email (Empfänger)
-                <input name="recipientEmail" type="email" required className="mt-1 border rounded px-2 py-1" />
-              </label>
-              <label className="flex flex-col text-xs font-medium text-neutral-700 sm:col-span-2">
-                Straße (Empfänger)
-                <input name="recipientStreet" required className="mt-1 border rounded px-2 py-1" />
-              </label>
-              <label className="flex flex-col text-xs font-medium text-neutral-700">
-                PLZ (Empfänger)
-                <input name="postalCode" required className="mt-1 border rounded px-2 py-1" />
-              </label>
-              <label className="flex flex-col text-xs font-medium text-neutral-700">
-                Ort (Empfänger)
-                <input name="recipientCity" required className="mt-1 border rounded px-2 py-1" />
-              </label>
-              <label className="flex flex-col text-xs font-medium text-neutral-700 sm:col-span-2">
-                Land (Empfänger)
-                <input name="recipientCountry" required className="mt-1 border rounded px-2 py-1" />
-              </label>
-              <label className="flex flex-col text-xs font-medium text-neutral-700 sm:col-span-2">
-                Fälligkeitsdatum
-                <input
-                  name="dueDate"
-                  type="date"
-                  required
-                  className="mt-1 border rounded px-2 py-1"
-                  defaultValue={new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
-                />
-              </label>
-            </div>
-          </fieldset>
-          
-          
+
           {/* Action Buttons */}
           <div className="flex justify-between mt-6">
             <Link

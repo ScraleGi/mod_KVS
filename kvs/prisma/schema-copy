@@ -41,24 +41,37 @@ model Program {
 }
 
 model Course { 
-  id                                        String        @id @default(uuid())
-  code                                      String        @unique
-  programId                                 String
-  program                                   Program       @relation(fields: [programId], references: [id])
-  startDate                                 DateTime
-  endDate                                   DateTime
-  createdAt                                 DateTime      @default(now())
-  deletedAt                                 DateTime?
-  mainTrainerId                             String
-  mainTrainer                               Trainer       @relation("MainTrainer", fields: [mainTrainerId], references: [id])
-  trainers                                  Trainer[]     @relation("CourseTrainers")
-  registrations                             CourseRegistration[]
-  courseHolidays                            CourseHoliday[] // Relation: one Course has many KursHolidays
-  courseRythms                              CourseRythm[] // Relation: one Course has many KursRythmus
-  courseSpecialDays                         CourseSpecialDays[] // Relation: one Course has many KursSpecialDays
-  courseDays                                CourseDays[] // Relation: one Course has many KursDays
+  id            String    @id @default(uuid())
+  code          String    @unique
+  programId     String
+  program       Program   @relation(fields: [programId], references: [id])
+  startDate     DateTime
+  endDate       DateTime
+  createdAt     DateTime  @default(now())
+  deletedAt     DateTime?
+  mainTrainerId String
+  mainTrainer   Trainer   @relation("MainTrainer", fields: [mainTrainerId], references: [id])
+  trainers      Trainer[] @relation("CourseTrainers")
+  registrations CourseRegistration[]
   @@index([deletedAt])
 }
+
+
+model Company {
+  id             String       @id @default(uuid())
+  name           String       @unique
+  email          String
+  phoneNumber    String?
+  street         String
+  postalCode     String
+  city           String
+  country        String?
+  createdAt      DateTime     @default(now())
+  deletedAt      DateTime?    // Soft delete: null = not deleted, date = deleted
+
+  CourseRegistration CourseRegistration[]
+}
+
 
 model CourseRegistration {
   id                  String      @id @default(uuid())
@@ -66,10 +79,6 @@ model CourseRegistration {
   course              Course      @relation(fields: [courseId], references: [id])
   participantId       String
   participant         Participant @relation(fields: [participantId], references: [id])
-
-  invoiceRecipientId String?
-  invoiceRecipient   InvoiceRecipient? @relation(fields: [invoiceRecipientId], references: [id])
-
   createdAt           DateTime    @default(now())
   deletedAt           DateTime?
   invoices            Invoice[]
@@ -87,12 +96,18 @@ model CourseRegistration {
   subsidyRemark       String?
   subsidyAmount       Decimal?    @db.Decimal(10, 2)
   discountRemark      String?                                                                             
-  discountAmount      Decimal?    @db.Decimal(10, 2)  
-  
+  discountAmount      Decimal?    @db.Decimal(10, 2)                                                      //!!!!!!!CHECK 
+
+  // Company information for invoice
+  companyId           String?
+  company             Company?    @relation(fields: [companyId], references: [id])  
+
+
   @@index([deletedAt])
   @@index([courseId])
   @@index([participantId])
 }
+
 
 model Trainer {
   id                String     @id @default(uuid())
@@ -132,10 +147,9 @@ model Participant {
   createdAt             DateTime    @default(now())
   deletedAt             DateTime?
   registrations         CourseRegistration[]
+  invoiceRecipients     InvoiceRecipient[]   
   @@index([deletedAt])
 }
-
-
 
 model Invoice {
   id                    String   @id @default(uuid())
@@ -144,42 +158,20 @@ model Invoice {
   courseRegistrationId  String?
   courseRegistration    CourseRegistration? @relation(fields: [courseRegistrationId], references: [id])
 
-  // snapshot fields (now optional)
-  courseCode            String?
-  programName           String?
-  programPrice          Decimal? @db.Decimal(10, 2)
-  discountAmount        Decimal? @db.Decimal(10, 2)
-  discountRemark        String?
-  subsidyAmount         Decimal? @db.Decimal(10, 2)
-  subsidyRemark         String?
-  amount                Decimal? @db.Decimal(10, 2)
-  finalAmount           Decimal? @db.Decimal(10, 2) // already optional
+  // snapshot fields (denormalized)
+  courseCode            String
+  programName           String
+  programPrice          Decimal @db.Decimal(10, 2)
+  discountAmount        Decimal @db.Decimal(10, 2)
+  discountRemark        String
+  subsidyAmount         Decimal @db.Decimal(10, 2)
+  subsidyRemark         String
+  finalAmount           Decimal @db.Decimal(10, 2)
 
   isCancelled           Boolean  @default(false)
   dueDate               DateTime
   transactionNumber     String?  @unique
-  createdAt             DateTime   @default(now())
-  deletedAt             DateTime?
 
-  recipientSalutation   String?
-  recipientName         String?
-  recipientSurname      String?
-  companyName           String?
-  recipientEmail        String?
-  postalCode            String?
-  recipientCity         String?
-  recipientStreet       String?
-  recipientCountry      String?
-}
-
-enum RecipientType {
-  PERSON
-  COMPANY
-}
-
-model InvoiceRecipient {
-  id                      String       @id @default(uuid())
-  type                    RecipientType
   recipientSalutation     String?          // Optional, only for Person required
   recipientName           String?         // Optional, only for PERSON required
   recipientSurname        String?        // Optional, only for PERSON required
@@ -189,14 +181,31 @@ model InvoiceRecipient {
   recipientCity           String
   recipientStreet         String
   recipientCountry        String
-  createdAt               DateTime     @default(now())
-  deletedAt               DateTime?
-  courseRegistrations     CourseRegistration[] // Relation: one InvoiceRecipient can have many CourseRegistrations
-  @@index([deletedAt])
 }
 
 
+model InvoiceRecipient {
+  id                      String       @id @default(uuid())
+  type                    RecipientType
+  recipientName           String?         // company name of the full name of the person
+  recipientEmail          String?
+  postalCode              String
+  recipientCity           String
+  recipientStreet         String
+  recipientCountry        String?
+  createdAt               DateTime     @default(now())
+  deletedAt               DateTime?
 
+  // courseRegistrations     CourseRegistration[] // Relation: one InvoiceRecipient can have many CourseRegistrations
+  
+
+  @@index([deletedAt])
+}
+
+enum RecipientType {
+  PERSON
+  COMPANY
+}
 
 model Document {
   id                    String               @id @default(uuid())
@@ -204,8 +213,8 @@ model Document {
   file                  String               // URL to the file
   courseRegistrationId  String
   courseRegistration    CourseRegistration   @relation(fields: [courseRegistrationId], references: [id])
-  createdAt             DateTime  @default(now())
-  deletedAt             DateTime? // Soft delete: null = not deleted, date = deleted 
+  createdAt        DateTime  @default(now())
+  deletedAt        DateTime? // Soft delete: null = not deleted, date = deleted 
 }
 
 model Room {
@@ -233,83 +242,11 @@ model RoomReservation {
 }
 
 model Holiday {
-  id        String @id @default(uuid())
+  id        String @id @default(cuid())
   title     String 
   date      DateTime
-  createdAt DateTime @default(now())
-  deletedAt DateTime? // Soft delete: null = not deleted, date = deleted
-}
-
-model CourseHoliday {
-  id        String   @id @default(uuid())
-  title     String
-  date      DateTime
-  createdAt DateTime @default(now())
-  deletedAt DateTime?
-  courseId  String
-  course    Course   @relation(fields: [courseId], references: [id])
-  @@unique([courseId, date]) // Prevents duplicate holidays per course
-}
-
-model CourseSpecialDays {
-  id              String   @id @default(uuid())
-  title           String? // Optional title for the special day
-  startTime       DateTime   
-  endTime         DateTime   
-  pauseDuration   DateTime    
-  createdAt       DateTime @default(now())
-  deletedAt       DateTime?
-  courseId        String
-  course          Course   @relation(fields: [courseId], references: [id])
-  @@unique([courseId, startTime]) // Prevents duplicate holidays per course
+  
+    @@unique([title, date]) // verhindert doppelte Feiertage pro Jahr
 }
 
 
-model CourseRythm {
-  id            String     @id @default(uuid())
-  weekDay       WeekDay
-  startTime     DateTime   @db.Time
-  endTime       DateTime   @db.Time 
-  pauseDuration DateTime   @db.Time
-  createdAt     DateTime   @default(now())
-  deletedAt     DateTime?
-  courseId      String
-  course        Course     @relation(fields: [courseId], references: [id])
-  @@unique([courseId, weekDay]) // Prevents duplicate rhythms per course
-}
-
-enum WeekDay {
-  MONDAY
-  TUESDAY
-  WEDNESDAY
-  THURSDAY
-  FRIDAY
-  SATURDAY
-  SUNDAY
-}
-
-model CourseDays {
-  id            String     @id @default(uuid())
-  courseId      String
-  course        Course     @relation(fields: [courseId], references: [id])
-  startTime     DateTime   
-  endTime       DateTime   
-  pauseDuration DateTime   
-  title         String?
-  isCourseDay  Boolean    @default(true) // Indicates if this is a regular course day
-  createdAt     DateTime   @default(now())
-  deletedAt     DateTime? // Soft delete: null = not deleted, date = deleted 
-  @@unique([courseId, startTime]) // Prevents duplicate course days per course
-}
-
-model Role {
-  id    String  @id @default(uuid())
-  name  String  @unique
-  users User[]  @relation("UserRoles")
-}
-
-model User {
-  id    String  @id @default(uuid())
-  email String  @unique
-  roles Role[]  @relation("UserRoles")
-}
