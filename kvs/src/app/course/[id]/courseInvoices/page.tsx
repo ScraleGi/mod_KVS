@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { db } from "@/lib/db"
 import { sanitize } from "@/lib/sanitize"
-import type { SanitizedRegistration, SanitizedCourse } from "@/types/query-models"
+import type { SanitizedRegistration, SanitizedCourse, SanitizedInvoiceRecipient } from "@/types/query-models"
 import { ClientGenerateCourseInvoices } from "./ClientGenerateCourseInvoices"
 import { getAuthorizing } from "@/lib/getAuthorizing"
 import { redirect } from "next/navigation"

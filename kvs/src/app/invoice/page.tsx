@@ -3,7 +3,7 @@ import { ArrowLeft } from 'lucide-react'
 import { db } from '@/lib/db'
 import { format } from 'date-fns'
 import { DownloadPDFLink } from '@/components/DownloadButton/DownloadButton'
-import RemoveButton from '@/components/RemoveButton/RemoveButton'
+
 
 // Server Actions
 async function toggleInvoiceCancelled(formData: FormData) {
@@ -17,15 +17,7 @@ async function toggleInvoiceCancelled(formData: FormData) {
   })
 }
 
-async function deleteInvoice(formData: FormData) {
-  'use server'
-  const invoiceId = formData.get('id') as string
-  if (!invoiceId) return
-  await db.invoice.update({
-    where: { id: invoiceId },
-    data: { deletedAt: new Date() },
-  })
-}
+
 
 // Data Fetching
 async function getInvoices() {
