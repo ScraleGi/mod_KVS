@@ -1,4 +1,4 @@
-import { FaHome, FaCalendarAlt, FaCog, FaRegEnvelope, FaChartBar, FaThLarge, FaLayerGroup, FaUsers, FaChalkboardTeacher, FaUserShield, FaRegAddressCard, FaFileInvoiceDollar} from 'react-icons/fa';
+import { FaHome, FaCalendarAlt, FaCog, FaThLarge, FaLayerGroup, FaUsers, FaChalkboardTeacher, FaUserShield, FaRegAddressCard, FaFileInvoiceDollar} from 'react-icons/fa';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -32,12 +32,12 @@ const Sidebar = ({ isOpen, roles }: SidebarProps) => {
     { href: '/area', label: 'Bereiche', icon: FaThLarge },
     { href: '/participant', label: 'Teilnehmer', icon: FaUsers },
     { href: '/trainer', label: 'Trainer', icon: FaChalkboardTeacher },
-    { href: '/calendar', label: 'Termine', icon: FaCalendarAlt },
-    { href: '/reports', label: 'Berichte', icon: FaChartBar },
-    { href: '/inbox', label: 'Posteingang', icon: FaRegEnvelope },
-    { href: '/settings', label: 'Einstellungen', icon: FaCog },
     { href: '/invoiceRecipient', label: 'Empfänger', icon: FaRegAddressCard},
     { href: '/invoice', label: 'Rechnungen', icon: FaFileInvoiceDollar},
+    { href: '/calendar', label: 'Termine', icon: FaCalendarAlt },
+   // { href: '/reports', label: 'Berichte', icon: FaChartBar },
+   // { href: '/inbox', label: 'Posteingang', icon: FaRegEnvelope },
+    { href: '/settings', label: 'Einstellungen', icon: FaCog },
   ];
 
   // Hide sidebar if no roles or not authorized

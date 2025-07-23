@@ -87,53 +87,101 @@ function SelectOrNewInvoiceRecipient({
 
 // Recipient autocomplete/select
 function SelectRecipientWithAutocomplete({
-    onSelect,
-    sanitizedRegistration
+   onSelect,
+  sanitizedRegistration
 }: {
-    onSelect: (recipient: SanitizedInvoiceRecipient) => void,
-    sanitizedRegistration: SanitizedRegistration
+  onSelect: (recipient: SanitizedInvoiceRecipient) => void;
+  sanitizedRegistration: SanitizedRegistration;
 }) {
-    const [recipients, setRecipients] = useState<SanitizedInvoiceRecipient[]>([]);
-    const [loading, setLoading] = useState(true);
+  const [recipients, setRecipients] = useState<SanitizedInvoiceRecipient[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [query, setQuery] = useState('');
+  const [filtered, setFiltered] = useState<SanitizedInvoiceRecipient[]>([]);
+  const [showDropdown, setShowDropdown] = useState(false);
 
-    useEffect(() => {
-        getInvoiceRecipients().then(fetchedRecipients => {
-            setRecipients(
-                fetchedRecipients.map(r => ({
-                    ...r,
-                    type: r.type as import('@/types/models').RecipientType
-                }))
-            );
-            setLoading(false);
-        });
-    }, []);
+  useEffect(() => {
+    getInvoiceRecipients().then(fetchedRecipients => {
+      const typed = fetchedRecipients.map(r => ({
+        ...r,
+        type: r.type as import('@/types/models').RecipientType
+      }));
+      setRecipients(typed);
+      setFiltered(typed);
+      setLoading(false);
+    });
+  }, []);
 
-    const handleSelect = async (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const selectedId = e.target.value;
-        const recipient = recipients.find(r => r.id === selectedId);
-        if (recipient) {
-            await addRecipientToCourseRegistration(sanitizedRegistration.id, recipient.id); // ✅ SAVE TO DB
-            onSelect(recipient); // ✅ update local UI
-        }
-    };
+  useEffect(() => {
+    if (query.trim() === '') {
+      setFiltered(recipients.slice(0, 10));
+    } else {
+      setFiltered(
+        recipients.filter(r =>
+          `${r.recipientName} ${r.recipientSurname} ${r.companyName} ${r.recipientStreet} ${r.recipientCity} ${r.postalCode} ${r.recipientCountry}`
+            .toLowerCase()
+            .includes(query.toLowerCase())
+        )
+      );
+    }
+  }, [query, recipients]);
 
-    if (loading) return <div>Loading recipients...</div>;
-    if (recipients.length === 0) return <div>No recipients found. Please add a new recipient.</div>;
+  const handleSelect = async (recipient: SanitizedInvoiceRecipient) => {
+    await addRecipientToCourseRegistration(sanitizedRegistration.id, recipient.id);
+    onSelect(recipient);
+    setQuery('');
+    setShowDropdown(false);
+  };
 
-    return (
-        <div>
-            <h2 className="text-lg font-semibold mb-4">Select Invoice Recipient</h2>
-            <select className="w-full p-2 border border-gray-300 rounded" onChange={handleSelect} defaultValue="">
-                <option value="">Select a recipient</option>
-                {recipients.map(recipient => (
-                    <option key={recipient.id} value={recipient.id}>
+  if (loading) return <div>Loading recipients...</div>;
+  if (recipients.length === 0) return <div>No recipients found. Please add a new recipient.</div>;
+
+  const topMatches = filtered.slice(0, 10);
+
+  // === STYLE APPLIED HERE ===
+  return (
+    <fieldset className="border border-neutral-200 rounded-lg p-5">
+      <legend className="text-base font-semibold text-blue-700 px-2">Empfänger auswählen</legend>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 text-xs text-neutral-600">
+        <div className="sm:col-span-2">
+          <input
+            type="text"
+            placeholder="Type to search..."
+            value={query}
+            onFocus={() => setShowDropdown(true)}
+            onBlur={() => setTimeout(() => setShowDropdown(false), 100)}
+            onChange={e => setQuery(e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded mb-2"
+          />
+          {showDropdown && (
+            <ul className="border border-gray-200 rounded max-h-60 overflow-y-auto bg-white shadow z-10">
+              {topMatches.length > 0 ? (
+                topMatches.map(recipient => (
+                  <li
+                    key={recipient.id}
+                    onClick={() => handleSelect(recipient)}
+                    className="p-2 cursor-pointer hover:bg-gray-100"
+                  >
+                    <div>
+                      <div className="font-semibold">
                         {recipient.recipientName} {recipient.recipientSurname} - {recipient.companyName}
-                    </option>
-                ))}
-            </select>
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {recipient.recipientStreet || ''}, {recipient.postalCode || ''} {recipient.recipientCity || ''}, {recipient.recipientCountry || ''}
+                      </div>
+                    </div>
+                  </li>
+                ))
+              ) : (
+                <li className="p-2 text-gray-500">No matching recipients</li>
+              )}
+            </ul>
+          )}
         </div>
-    );
+      </div>
+    </fieldset>
+  );
 }
+
 
 // Show Recipient or Self-Payer details
 function ShowRecipient({
@@ -147,38 +195,64 @@ function ShowRecipient({
 }) {
     if (recipient) {
         return (
-            <div>
-                <h2>Recipient Details</h2>
-                <p>Name: {recipient.recipientName} {recipient.recipientSurname}</p>
-                <p>Company: {recipient.companyName}</p>
-                <p>Email: {recipient.recipientEmail}</p>
-                <p>Address: {recipient.recipientStreet}, {recipient.postalCode} {recipient.recipientCity}, {recipient.recipientCountry}</p>
-                {onDelete &&
-                    <form
-                        method="post"
-                        onSubmit={async e => {
-                            e.preventDefault();
-                            await onDelete();
-                        }}
-                    >
-                        <button
-                            type="submit"
-                            className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-                        >
-                            Delete Recipient
-                        </button>
-                    </form>
-                }
-            </div>
+<fieldset className="border border-neutral-200 rounded-lg p-5">
+  <legend className="text-base font-semibold text-blue-700 px-2">Empfänger Details</legend>
+  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 text-xs text-neutral-600">
+    {recipient.recipientName?.trim() && (
+      <div>
+        <span className="font-semibold">Name:</span> {recipient.recipientName} {recipient.recipientSurname}
+      </div>
+    )}
+    {recipient.companyName?.trim() && (
+      <div>
+        <span className="font-semibold">Firma:</span> {recipient.companyName}
+      </div>
+    )}
+    <div>
+      <span className="font-semibold">Email:</span> {recipient.recipientEmail}
+    </div>
+    <div className="sm:col-span-2">
+      <span className="font-semibold">Adresse:</span> {recipient.recipientStreet}, {recipient.postalCode} {recipient.recipientCity}, {recipient.recipientCountry}
+    </div>
+    {onDelete && (
+      <div className="sm:col-span-2 flex">
+        <form
+          method="post"
+          onSubmit={async e => {
+            e.preventDefault();
+            await onDelete();
+          }}
+        >
+          <button
+            type="submit"
+            className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+          >
+            Empfänger löschen
+          </button>
+        </form>
+      </div>
+    )}
+  </div>
+</fieldset>
         );
     } else {
         return (
-            <div>
-                <h2>Self Payer Details</h2>
-                <p>Name: {participant.name} {participant.surname}</p>
-                <p>Email: {participant.email}</p>
-                <p>Address: {participant.street}, {participant.postalCode} {participant.city}, {participant.country}</p>
-            </div>
+  
+<fieldset className="border border-neutral-200 rounded-lg p-5">
+  <legend className="text-base font-semibold text-blue-700 px-2">Selbstzahler Infos</legend>
+  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 text-xs text-neutral-600">
+    <div>
+      <span className="font-semibold">Name:</span> {participant?.salutation} {participant.name} {participant.surname}
+    </div>
+    <div>
+      <span className="font-semibold">Email:</span> {participant.email}
+    </div>
+    <div>
+      <span className="font-semibold">Address:</span> {participant.street}, {participant.postalCode} {participant.city}, {participant.country}
+    </div>
+  </div>
+</fieldset>
+
         );
     }
 }
