@@ -88,7 +88,7 @@ function SelectOrNewInvoiceRecipient({
 
 // Recipient autocomplete/select
 function SelectRecipientWithAutocomplete({
-  onSelect,
+   onSelect,
   sanitizedRegistration
 }: {
   onSelect: (recipient: SanitizedInvoiceRecipient) => void;
@@ -112,19 +112,19 @@ function SelectRecipientWithAutocomplete({
     });
   }, []);
 
-useEffect(() => {
-  if (query.trim() === '') {
-    setFiltered(recipients.slice(0, 10)); // oder: setFiltered([])
-  } else {
-    setFiltered(
-      recipients.filter(r =>
-        `${r.recipientName} ${r.recipientSurname} ${r.companyName} ${r.recipientStreet} ${r.recipientCity} ${r.postalCode} ${r.recipientCountry}`
-          .toLowerCase()
-          .includes(query.toLowerCase())
-      )
-    );
-  }
-}, [query, recipients]);
+  useEffect(() => {
+    if (query.trim() === '') {
+      setFiltered(recipients.slice(0, 10));
+    } else {
+      setFiltered(
+        recipients.filter(r =>
+          `${r.recipientName} ${r.recipientSurname} ${r.companyName} ${r.recipientStreet} ${r.recipientCity} ${r.postalCode} ${r.recipientCountry}`
+            .toLowerCase()
+            .includes(query.toLowerCase())
+        )
+      );
+    }
+  }, [query, recipients]);
 
   const handleSelect = async (recipient: SanitizedInvoiceRecipient) => {
     await addRecipientToCourseRegistration(sanitizedRegistration.id, recipient.id);
@@ -138,45 +138,51 @@ useEffect(() => {
 
   const topMatches = filtered.slice(0, 10);
 
+  // === STYLE APPLIED HERE ===
   return (
-    <div>
-      <h2 className="text-lg font-semibold mb-4">Select Invoice Recipient</h2>
-      <input
-        type="text"
-        placeholder="Type to search..."
-        value={query}
-        onFocus={() => setShowDropdown(true)}
-        onBlur={() => setTimeout(() => setShowDropdown(false), 100)}
-        onChange={e => setQuery(e.target.value)}
-        className="w-full p-2 border border-gray-300 rounded mb-2"
-      />
-      {showDropdown && (
-        <ul className="border border-gray-200 rounded max-h-60 overflow-y-auto">
-          {topMatches.length > 0 ? (
-            topMatches.map(recipient => (
-              <li
-                key={recipient.id}
-                onClick={() => handleSelect(recipient)}
-                className="p-2 cursor-pointer hover:bg-gray-100"
-              >
-                <div>
-                  <div>
-                    {recipient.recipientName} {recipient.recipientSurname} - {recipient.companyName}
-                  </div>
-                  <div className="text-sm text-gray-500">
-                    {recipient.recipientStreet || ''}, {recipient.postalCode || ''} {recipient.recipientCity || ''}, {recipient.recipientCountry || ''}
-                  </div>
-                </div>
-              </li>
-            ))
-          ) : (
-            <li className="p-2 text-gray-500">No matching recipients</li>
+    <fieldset className="border border-neutral-200 rounded-lg p-5">
+      <legend className="text-base font-semibold text-blue-700 px-2">Empfänger auswählen</legend>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 text-xs text-neutral-600">
+        <div className="sm:col-span-2">
+          <input
+            type="text"
+            placeholder="Type to search..."
+            value={query}
+            onFocus={() => setShowDropdown(true)}
+            onBlur={() => setTimeout(() => setShowDropdown(false), 100)}
+            onChange={e => setQuery(e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded mb-2"
+          />
+          {showDropdown && (
+            <ul className="border border-gray-200 rounded max-h-60 overflow-y-auto bg-white shadow z-10">
+              {topMatches.length > 0 ? (
+                topMatches.map(recipient => (
+                  <li
+                    key={recipient.id}
+                    onClick={() => handleSelect(recipient)}
+                    className="p-2 cursor-pointer hover:bg-gray-100"
+                  >
+                    <div>
+                      <div className="font-semibold">
+                        {recipient.recipientName} {recipient.recipientSurname} - {recipient.companyName}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {recipient.recipientStreet || ''}, {recipient.postalCode || ''} {recipient.recipientCity || ''}, {recipient.recipientCountry || ''}
+                      </div>
+                    </div>
+                  </li>
+                ))
+              ) : (
+                <li className="p-2 text-gray-500">No matching recipients</li>
+              )}
+            </ul>
           )}
-        </ul>
-      )}
-    </div>
+        </div>
+      </div>
+    </fieldset>
   );
 }
+
 
 // Show Recipient or Self-Payer details
 function ShowRecipient({

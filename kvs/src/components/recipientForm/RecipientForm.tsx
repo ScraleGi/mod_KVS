@@ -2,7 +2,6 @@
 import React, { useRef, useState, useTransition } from "react"
 import Link from "next/link"
 import { addRecipientToCourseRegistration, createRecipientAction } from "@/app/actions/createRecipientAction"
-import { Receipt } from "lucide-react"
 
 /**
  * Form UI for creating a new InvoiceRecipient.
@@ -19,7 +18,7 @@ export default function RecipientForm(params: { courseregistrationId?: string })
     setError(null)
     const formData = new FormData(event.currentTarget)
     startTransition(async () => {
-      const result = await createRecipientAction(formData)
+      const result = await createRecipientAction(formData, params.courseregistrationId)
       if (result && result.error) {
         setError(result.error)
       } else if (result && result.redirect) {
@@ -191,3 +190,6 @@ export default function RecipientForm(params: { courseregistrationId?: string })
     </form>
   )
 }
+
+
+
