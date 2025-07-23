@@ -1,15 +1,4 @@
 "use client"
-import { CourseParticipantsDialog } from "../participants/CourseParticipantsDialog"
-import { TrainerCourseDialog } from "../trainer/TrainerCourseDialog"
-import { CoursesDialog } from "../participants/participantCoursesDialog"
-import { DocumentDialog } from "../participants/DocumentDialog"
-import { FilterHeader } from "./FilterHeader"
-import { DoubleFilterHeader } from "./DoubleFilterHeader"
-import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger, } from "@/components/ui/dropdown-menu"
-import { ChevronDown } from "lucide-react"
-import { formatFullName } from "@/lib/utils"
-import { DownloadPDFLink } from "@/components/DownloadButton/DownloadButton";
-
 
 // -------------------- Imports --------------------
 import Link from "next/link"
