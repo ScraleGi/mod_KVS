@@ -3,30 +3,51 @@ import React, { useRef, useState, useTransition } from "react"
 import Link from "next/link"
 import { addRecipientToCourseRegistration, createRecipientAction } from "@/app/actions/createRecipientAction"
 
-/**
- * Form UI for creating a new InvoiceRecipient.
- * - Displays validation errors from server action.
- * - Shows loading state while submitting.
- */
 export default function RecipientForm(params: { courseregistrationId?: string }) {
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
   const formRef = useRef<HTMLFormElement>(null)
 
+  const [fieldErrors, setFieldErrors] = useState({
+    recipientName: false,
+    recipientSurname: false,
+    recipientSalutation: false,
+  })
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setError(null)
+    setFieldErrors({ recipientName: false, recipientSurname: false, recipientSalutation: false })
+
     const formData = new FormData(event.currentTarget)
+    const type = formData.get("type")
+
+    if (type === "PERSON") {
+      const name = formData.get("recipientName")?.toString().trim()
+      const surname = formData.get("recipientSurname")?.toString().trim()
+      const salutation = formData.get("recipientSalutation")?.toString().trim()
+
+      const newErrors = {
+        recipientName: !name,
+        recipientSurname: !surname,
+        recipientSalutation: !salutation,
+      }
+
+      if (newErrors.recipientName || newErrors.recipientSurname || newErrors.recipientSalutation) {
+        setFieldErrors(newErrors)
+        setError("Bitte fülle alle Pflichtfelder für 'Person' aus.")
+        return
+      }
+    }
+
     startTransition(async () => {
       const result = await createRecipientAction(formData, params.courseregistrationId)
       if (result && result.error) {
         setError(result.error)
       } else if (result && result.redirect) {
         if (params.courseregistrationId) {
-          // Redirect to course registration page if provided
           await addRecipientToCourseRegistration(params.courseregistrationId, result.recipientId)
         }
-        // Reset the form after successful creation!
         formRef.current?.reset()
       }
     })
@@ -39,14 +60,14 @@ export default function RecipientForm(params: { courseregistrationId?: string })
       onSubmit={handleSubmit}
       className="space-y-6 w-full"
     >
-      {/* <fieldset className="border border-neutral-200 rounded-lg p-5"> */}
-      {/* <legend className="text-base font-semibold text-blue-700 px-2">
-        Rechnungsempfänger
-      </legend> */}
       <div className="mt-4">
         <h1 className="text-2xl font-bold mb-6 text-neutral-900 text-center">
           Rechnungsempfänger erstellen
         </h1>
+
+        {error && (
+          <div className="bg-red-100 text-red-700 p-2 rounded text-sm text-center">{error}</div>
+        )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1">
@@ -71,8 +92,13 @@ export default function RecipientForm(params: { courseregistrationId?: string })
             <input
               id="recipientSalutation"
               name="recipientSalutation"
-              className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+              className={`w-full px-3 py-2 bg-gray-50 border ${
+                fieldErrors.recipientSalutation ? "border-red-400" : "border-gray-200"
+              } rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm`}
             />
+            {fieldErrors.recipientSalutation && (
+              <p className="text-xs text-red-500 mt-1">Fülle mich auf</p>
+            )}
           </div>
 
           <div className="space-y-1">
@@ -82,8 +108,13 @@ export default function RecipientForm(params: { courseregistrationId?: string })
             <input
               id="recipientName"
               name="recipientName"
-              className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+              className={`w-full px-3 py-2 bg-gray-50 border ${
+                fieldErrors.recipientName ? "border-red-400" : "border-gray-200"
+              } rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm`}
             />
+            {fieldErrors.recipientName && (
+              <p className="text-xs text-red-500 mt-1">Fülle mich auf</p>
+            )}
           </div>
 
           <div className="space-y-1">
@@ -93,8 +124,13 @@ export default function RecipientForm(params: { courseregistrationId?: string })
             <input
               id="recipientSurname"
               name="recipientSurname"
-              className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+              className={`w-full px-3 py-2 bg-gray-50 border ${
+                fieldErrors.recipientSurname ? "border-red-400" : "border-gray-200"
+              } rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm`}
             />
+            {fieldErrors.recipientSurname && (
+              <p className="text-xs text-red-500 mt-1">Fülle mich auf</p>
+            )}
           </div>
 
           <div className="space-y-1">
@@ -170,7 +206,6 @@ export default function RecipientForm(params: { courseregistrationId?: string })
           </div>
         </div>
       </div>
-      {/* </fieldset> */}
 
       <div className="flex justify-between mt-6">
         <Link
@@ -190,6 +225,3 @@ export default function RecipientForm(params: { courseregistrationId?: string })
     </form>
   )
 }
-
-
-
