@@ -3,7 +3,12 @@ import React, { useRef, useState, useTransition } from "react"
 import Link from "next/link"
 import { addRecipientToCourseRegistration, createRecipientAction } from "@/app/actions/createRecipientAction"
 
-export default function RecipientForm(params: { courseregistrationId?: string }) {
+type Props = {
+  courseregistrationId?: string;
+  onRecipientCreated?: (recipientId: string) => void;  // <--- Add this line
+};
+
+export default function RecipientForm(params: Props) { // <--- changed here: use Props type instead of { courseregistrationId?: string }
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
   const formRef = useRef<HTMLFormElement>(null)
@@ -49,6 +54,11 @@ export default function RecipientForm(params: { courseregistrationId?: string })
           await addRecipientToCourseRegistration(params.courseregistrationId, result.recipientId)
         }
         formRef.current?.reset()
+
+        // <--- HERE: call onRecipientCreated callback if provided
+        if (params.onRecipientCreated && result.recipientId) {
+          params.onRecipientCreated(result.recipientId)
+        }
       }
     })
   }
@@ -60,6 +70,7 @@ export default function RecipientForm(params: { courseregistrationId?: string })
       onSubmit={handleSubmit}
       className="space-y-6 w-full"
     >
+      {/* ...the rest of your form unchanged... */}
       <div className="mt-4">
         <h1 className="text-2xl font-bold mb-6 text-neutral-900 text-center">
           Rechnungsempfänger erstellen

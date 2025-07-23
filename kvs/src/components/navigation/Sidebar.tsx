@@ -35,8 +35,6 @@ const Sidebar = ({ isOpen, roles }: SidebarProps) => {
     { href: '/invoiceRecipient', label: 'Empfänger', icon: FaRegAddressCard},
     { href: '/invoice', label: 'Rechnungen', icon: FaFileInvoiceDollar},
     { href: '/calendar', label: 'Termine', icon: FaCalendarAlt },
-   // { href: '/reports', label: 'Berichte', icon: FaChartBar },
-   // { href: '/inbox', label: 'Posteingang', icon: FaRegEnvelope },
     { href: '/settings', label: 'Einstellungen', icon: FaCog },
   ];
 

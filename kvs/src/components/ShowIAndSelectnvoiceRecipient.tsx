@@ -80,9 +80,26 @@ function SelectOrNewInvoiceRecipient({
                 onSelect={onRecipientSelected}
                 sanitizedRegistration={sanitizedRegistration}
             />
-            <RecipientForm courseregistrationId={sanitizedRegistration.id} />
-        </>
-    );
+             <RecipientForm
+              courseregistrationId={sanitizedRegistration.id}
+              onRecipientCreated={async (newRecipientId) => {
+          // Refetch recipients to get the new one
+              const allRecipients = await getInvoiceRecipients();
+              const created = allRecipients.find(r => r.id === newRecipientId);
+            if (created) {
+              // Attach new recipient to the registration
+              await addRecipientToCourseRegistration(sanitizedRegistration.id, newRecipientId);
+              // Set new recipient selected
+              onRecipientSelected({
+              ...created,
+              type: created.type as import('@/types/models').RecipientType
+            });
+          }
+        }}
+        
+      />
+    </>
+  );
 }
 
 // Recipient autocomplete/select
