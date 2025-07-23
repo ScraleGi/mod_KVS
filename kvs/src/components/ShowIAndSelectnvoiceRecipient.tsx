@@ -165,7 +165,7 @@ function SelectRecipientWithAutocomplete({
             placeholder="Type to search..."
             value={query}
             onFocus={() => setShowDropdown(true)}
-            onBlur={() => setTimeout(() => setShowDropdown(false), 100)}
+            onBlur={() => setTimeout(() => setShowDropdown(false), 500)}
             onChange={e => setQuery(e.target.value)}
             className="w-full p-2 border border-gray-300 rounded mb-2"
           />
