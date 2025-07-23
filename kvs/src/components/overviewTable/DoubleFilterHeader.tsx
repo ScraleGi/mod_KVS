@@ -11,6 +11,14 @@ type DoubleFilterHeaderProps<TData extends Record<string, unknown>, TValue> = {
   alignRight?: boolean
 }
 
+/**
+ * DoubleFilterHeader
+ * 
+ * - Renders a table header with a label, sorting controls, and a double input filter (from/to).
+ * - Clicking the label toggles the filter input visibility.
+ * - Clicking the sort icon toggles sorting for the column.
+ * - Used in tables with @tanstack/react-table for advanced filtering and sorting.
+ */
 export function DoubleFilterHeader<TData extends Record<string, unknown>, TValue>({
   column,
   label,
@@ -24,7 +32,7 @@ export function DoubleFilterHeader<TData extends Record<string, unknown>, TValue
   const inputFromRef = React.useRef<HTMLInputElement>(null)
   const inputToRef = React.useRef<HTMLInputElement>(null)
 
-  // Click-away handler
+  // Handles closing the filter popover when clicking outside
   const handleClick = React.useCallback((event: MouseEvent) => {
     if (
       filterRef.current &&
@@ -34,27 +42,30 @@ export function DoubleFilterHeader<TData extends Record<string, unknown>, TValue
     }
   }, [])
 
+  // Attach/detach click-away listener when filter is open
   React.useEffect(() => {
     if (!showFilter) return
     document.addEventListener("mousedown", handleClick)
     return () => document.removeEventListener("mousedown", handleClick)
   }, [showFilter, handleClick])
 
-  // Focus first input when filter opens
+  // Focus the "from" input when filter opens
   React.useEffect(() => {
     if (showFilter && inputFromRef.current) {
       inputFromRef.current.focus()
     }
   }, [showFilter])
 
+  // Toggle filter input visibility
   const toggleFilter = React.useCallback(() => {
     setShowFilter(v => !v)
   }, [])
 
+  // Get current filter values ([from, to])
   const filterValue = (column.getFilterValue() as [string, string]) ?? ["", ""]
   const colId = column.id
 
-  // Handle Escape key on each input
+  // Close filter on Escape key
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Escape") {
       setShowFilter(false)
@@ -67,7 +78,9 @@ export function DoubleFilterHeader<TData extends Record<string, unknown>, TValue
       ref={filterRef}
       className="flex flex-col  pl-2 relative"
     >
+      {/* Header label and sort icon */}
       <span className="flex items-center gap-1 select-none">
+        {/* Clickable label to toggle filter */}
         <span
           className="cursor-pointer"
           onClick={toggleFilter}
@@ -81,6 +94,7 @@ export function DoubleFilterHeader<TData extends Record<string, unknown>, TValue
         >
           {label}
         </span>
+        {/* Sort icon, toggles sorting on click */}
         <span
           className="ml-1 h-4 w-4 cursor-pointer flex"
           onClick={() => column.toggleSorting()}
@@ -107,28 +121,29 @@ export function DoubleFilterHeader<TData extends Record<string, unknown>, TValue
           )}
         </span>
       </span>
+      {/* Filter inputs (from/to) shown when filter is open */}
       {showFilter && (
         <div className="flex justify-center gap-2 w-full mt-1">
-<input
-  ref={inputFromRef}
-  type={typeDefinition}
-  value={filterValue[0]}
-  onChange={e => column.setFilterValue([e.target.value, filterValue[1]])}
-  className="rounded border px-2 py-1 text-xs bg-white shadow text-black w-32"
-  placeholder={placeholderFrom}
-  aria-label={`Filter ${label} von`}
-  onKeyDown={handleInputKeyDown}
-/>
-<input
-  ref={inputToRef}
-  type={typeDefinition}
-  value={filterValue[1]}
-  onChange={e => column.setFilterValue([filterValue[0], e.target.value])}
-  className="rounded border px-2 py-1 text-xs bg-white shadow text-black w-32"
-  placeholder={placeholderTo}
-  aria-label={`Filter ${label} bis`}
-  onKeyDown={handleInputKeyDown}
-/>
+          <input
+            ref={inputFromRef}
+            type={typeDefinition}
+            value={filterValue[0]}
+            onChange={e => column.setFilterValue([e.target.value, filterValue[1]])}
+            className="rounded border px-2 py-1 text-xs bg-white shadow text-black w-32"
+            placeholder={placeholderFrom}
+            aria-label={`Filter ${label} von`}
+            onKeyDown={handleInputKeyDown}
+          />
+          <input
+            ref={inputToRef}
+            type={typeDefinition}
+            value={filterValue[1]}
+            onChange={e => column.setFilterValue([filterValue[0], e.target.value])}
+            className="rounded border px-2 py-1 text-xs bg-white shadow text-black w-32"
+            placeholder={placeholderTo}
+            aria-label={`Filter ${label} bis`}
+            onKeyDown={handleInputKeyDown}
+          />
         </div>
       )}
     </span>

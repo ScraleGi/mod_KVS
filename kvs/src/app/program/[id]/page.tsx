@@ -91,7 +91,9 @@ export default async function ProgramPage({
             <div><b>Bereich:</b> {program.area?.name ?? 'Unknown'}</div>
             <div><b>Einheiten:</b> {program.teachingUnits ?? 'N/A'}</div>
             <div><b>Preis:</b> {program.price ? `€${program.price}` : 'N/A'}</div>
-            <div><b>Erstellt:</b> {new Date(program.createdAt).toLocaleDateString()}</div>
+            <div>
+              <b>Erstellt:</b> {new Date(program.createdAt).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+            </div>
           </div>
 
           <hr className="my-6 border-gray-200" />
@@ -126,9 +128,9 @@ export default async function ProgramPage({
                       {course.code || program.name}
                     </Link>
                     <div className="text-sm text-gray-500 space-y-2">
-                      <div>
-                        Start Datum: {course.startDate ? new Date(course.startDate).toLocaleDateString() : "N/A"}
-                      </div>
+                        <div>
+                          Start Datum: {course.startDate ? new Date(course.startDate).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) : "N/A"}
+                        </div>
                       <div>
                         Trainer: {course.mainTrainer ? `${course.mainTrainer.name} ${course.mainTrainer.surname}` : "N/A"}
                       </div>

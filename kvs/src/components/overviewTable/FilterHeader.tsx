@@ -8,7 +8,14 @@ type FilterHeaderProps<TData extends Record<string, unknown>, TValue> = {
   placeholder?: string,
   alignRight?: boolean,
 }
-
+/**
+ * FilterHeader
+ * 
+ * - Renders a table header with a label, sorting controls, and a single input filter.
+ * - Clicking the label toggles the filter input visibility.
+ * - Clicking the sort icon toggles sorting for the column.
+ * - Used in tables with @tanstack/react-table for filtering and sorting.
+ */
 export function FilterHeader<TData extends Record<string, unknown>, TValue>({
   column,
   label,
@@ -18,7 +25,7 @@ export function FilterHeader<TData extends Record<string, unknown>, TValue>({
   const [showFilter, setShowFilter] = React.useState(false)
   const filterRef = React.useRef<HTMLSpanElement>(null)
 
-  // Click-away handler
+  // Handles closing the filter popover when clicking outside
   const handleClick = React.useCallback((event: MouseEvent) => {
     if (
       filterRef.current &&
@@ -28,12 +35,14 @@ export function FilterHeader<TData extends Record<string, unknown>, TValue>({
     }
   }, [])
 
+  // Attach/detach click-away listener when filter is open
   React.useEffect(() => {
     if (!showFilter) return
     document.addEventListener("mousedown", handleClick)
     return () => document.removeEventListener("mousedown", handleClick)
   }, [showFilter, handleClick])
 
+  // Toggle filter input visibility
   const toggleFilter = React.useCallback(() => {
     setShowFilter(v => !v)
   }, [])
@@ -46,7 +55,9 @@ export function FilterHeader<TData extends Record<string, unknown>, TValue>({
       ref={filterRef}
       className="flex flex-col  pl-2 relative"
     >
+      {/* Header label and sort icon */}
       <span className="flex items-center gap-1 select-none">
+        {/* Clickable label to toggle filter */}
         <span
           className="cursor-pointer truncate"
           onClick={toggleFilter}
@@ -60,6 +71,7 @@ export function FilterHeader<TData extends Record<string, unknown>, TValue>({
         >
           {label}
         </span>
+        {/* Sort icon, toggles sorting on click */}
         <span
           className="ml-1 h-4 w-4 cursor-pointer flex"
           onClick={() => column.toggleSorting()}
@@ -86,6 +98,7 @@ export function FilterHeader<TData extends Record<string, unknown>, TValue>({
           )}
         </span>
       </span>
+      {/* Filter input shown when filter is open */}
       {showFilter && (
         <input
           id={`filter-${colId}`}
