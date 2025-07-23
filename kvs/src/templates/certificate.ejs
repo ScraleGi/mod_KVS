@@ -10,7 +10,7 @@
       font-family: Arial, sans-serif;
       padding: 40px;
       color: #000;
-      text-align: center;
+
       line-height: 1.5;
       display: flex;
       flex-direction: column;
@@ -20,11 +20,12 @@
     }
 
     h1 {
-      font-size: 5em;
+      font-size: 5.5em;
       /* kleiner gemacht */
       letter-spacing: 2px;
       margin-bottom: 0.5em;
       font-weight: 800;
+      text-align: center;
     }
 
     h2 {
@@ -33,46 +34,63 @@
       /* kleiner gemacht */
       margin-bottom: 3em;
       letter-spacing: 3px;
+      text-align: center;
     }
 
-    h3{
+    h3 {
       font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
       font-size: 2em;
       letter-spacing: 3px;
+      text-align: center;
+    }
+
+    h4 {
+      font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+      font-size: 2em;
+      letter-spacing: 3px;
+      text-align: left;
+      text-transform: uppercase;
     }
 
     p {
       margin: 8px 0;
       font-size: 12px;
+      text-align: center;
       /* kleiner gemacht */
     }
 
     ul {
+      display: inline-block;
       list-style-type: none;
       padding: 0;
       margin: 20px auto;
       text-align: left;
       display: inline-block;
+      text-align: center;
     }
 
     li {
       margin-bottom: 8px;
-      font-size: 1em;
+      font-size: 1.2em;
       /* kleiner gemacht */
     }
 
     li span.label {
+      display: inline-block;
+      min-width: 100px;
       font-weight: bold;
+      text-transform: uppercase;
+      margin-right: 10px;
     }
 
-    .spacer {
-      flex-grow: 1;
-    }
+
 
     .signature-section {
       display: flex;
+      position: relative;
+      top: 25em;
       justify-content: space-between;
-      margin-top: 60px;
+
       text-align: center;
       align-items: flex-start;
       /* Wichtig: obenbündig für Linie */
@@ -90,22 +108,57 @@
     .signature-line {
       border-top: 1px solid #000;
       width: 80%;
-      margin-bottom: 8px;
       margin-top: 0;
     }
 
     .page-break {
+      
       page-break-after: always;
     }
 
-    .container{
-      position: relative;
-      top: 14em;
-      left: 20em;
+    .first_paragraph {
+      font-size: 1.5em;
     }
 
-    .first_paragraph{
-      font-size: 1.5em;
+    .todays_Date {
+      position: relative;
+      top: 17em;
+    }
+
+    .impressum {
+      position: relative;
+      top: 220px
+    }
+
+    .details-grid {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      position: relative;
+      top: 9em;
+      left: 5em;
+      column-gap: 20px;
+      row-gap: 10px;
+      text-align: left;
+      font-size: 1.2em;
+      margin: 20px auto;
+      max-width: 600px;
+    }
+
+    .details-grid .label {
+      font-weight: bold;
+      text-transform: uppercase;
+      min-width: 120px;
+    }
+
+    .course_description {
+      margin-bottom: 40em;
+    }
+
+    .full-line {
+      border: none;
+      border-top: 0.5px solid #000;
+      width: 100%;
+     
     }
   </style>
 </head>
@@ -128,36 +181,43 @@
     timeZone: 'Europe/Berlin' }; const formattedDate=kursStartDate.toLocaleDateString('de-DE', options); %>
 
 
-    <div class="container">
-      <ul>
-        <li><span class="label">AUSBILDUNG:</span>
-          <%= formattedDate %> bis course.endDate
-        </li>
-        <li><span class="label">DAUER:</span>
-          <%= course.program.teachingUnits %> Trainingseinheiten
-        </li>
-        <li><span class="label">KURSORT:</span> kursort prisma</li>
+    <div class="details-grid">
+      <div class="label">AUSBILDUNG:</div>
+      <div class="value">
+        <%= new Date(course.startDate).toLocaleDateString("de-DE") %> –
+          <%= new Date(course.endDate).toLocaleDateString("de-DE") %>
+      </div>
 
-        <% if (course.mainTrainer) { %>
-          <li><span class="label">TRAINER:</span>
-            <%= course.mainTrainer.name %>
-          </li>
-          <% } %>
+      <div class="label">DAUER:</div>
+      <div class="value">
+        <%= course.program.teachingUnits %> Trainingseinheiten
+      </div>
 
-      </ul>
+      <div class="label">KURSORT:</div>
+      <div class="value">
+        <%= participant.city %>
+      </div>
+
+      <% if (course.mainTrainer) { %>
+        <div class="label">TRAINER:</div>
+        <div class="value">
+          <%= course.mainTrainer.name %>
+        </div>
+        <% } %>
     </div>
 
-    <div class="spacer"></div>
 
-    <p>Kursort: kursort prisma, <%= formattedDate%>
+
+    <p class="todays_Date">
+      Feldkirch, <%= new Date(course.endDate).toLocaleDateString("de-DE") %>
     </p>
 
     <div class="signature-section">
       <div class="signature">
         <div class="signature-line"></div>
         <div>
-          <p>Thomas Berchtold<br>Titel: MSc MBA</p>
-          <p>Geschäftsführer Digital Campus Vorarlberg</p>
+          <p>Thomas Berchtold, MSc MBA <br>
+          Geschäftsführer Digital Campus Vorarlberg</p>
         </div>
       </div>
 
@@ -165,28 +225,43 @@
         <div class="signature-line"></div>
         <div>
           <p>
-            <%= course.mainTrainer.name %>
-          </p>
-          <p>Kursleiter der Digital Campus !!!</p>
+            <%= course.mainTrainer.name %> <br>
+          Kursleiter der Digital Campus</p>
         </div>
       </div>
     </div>
+    
+    <!-- Seitenumbruch für Rückseite falls für PDF -->
+    <div class="page-break"></div>
 
-    <%- include('_footer') %>
-      <!-- Hinweise für Datenmodell -->
-      <!-- course.endDate needed in Prisma Schema -->
-      <!-- !!! Hier auch Prisma-Schema: Wer ist wer bei den Trainern -->
+    <!-- Rückseite: Kursinhalte -->
+    <h4>Kursinhalte</h4>
 
-      <!-- Seitenumbruch für Rückseite falls für PDF -->
-      <div class="page-break"></div>
+    <div class="course_description">
 
-      <!-- Rückseite: Kursinhalte -->
-      <h4>Kursinhalte</h4>
+      <div class="underline">
+        <%= course.program.name %>
+      </div>
 
-      <ul>
-        <p>course.program.contents.forEachfunction(content) </p>
-        <li>content </li>
-      </ul>
+      <hr class="full-line" />
+
+      <div class="underline">
+        <%= course.program.name %>
+      </div>
+      <hr class="full-line" />
+      <div class="underline">
+        <%= course.program.name %>
+      </div>
+      <hr class="full-line" />
+      <div class="underline">
+        <%= course.program.name %>
+      </div>
+      <hr class="full-line" />
+      <div class="underline">
+        <%= course.program.name %>
+      </div>
+    </div>
+
 
 
 </body>
