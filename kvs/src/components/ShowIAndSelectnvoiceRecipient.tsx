@@ -188,7 +188,7 @@ function SelectRecipientWithAutocomplete({
 function ShowRecipient({
     recipient,
     participant,
-    registrationId,
+
     onDelete,
 }: {
     recipient?: SanitizedInvoiceRecipient,
