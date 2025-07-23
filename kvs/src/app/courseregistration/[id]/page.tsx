@@ -288,7 +288,7 @@ export default async function ParticipantDetailsPage({
             <div className="flex justify-end mt-4">
       {hasActiveInvoice ? (
         <span
-          className="px-3 py-1 rounded text-xs font-medium bg-neutral-200 text-neutral-400 cursor-not-allowed select-none"
+          className=" cursor-pointer px-3 py-1 rounded text-xs font-medium bg-neutral-200 text-neutral-400 select-none"
           tabIndex={-1}
           aria-disabled="true"
         >
