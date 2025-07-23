@@ -8,6 +8,7 @@ type DoubleFilterHeaderProps<TData extends Record<string, unknown>, TValue> = {
   placeholderFrom?: string
   placeholderTo?: string
   typeDefinition: "date" | "datetime-local" | "time" | "month" | "week" | "number" | "text"
+  alignRight?: boolean
 }
 
 /**
@@ -23,7 +24,8 @@ export function DoubleFilterHeader<TData extends Record<string, unknown>, TValue
   label,
   placeholderFrom,
   placeholderTo,
-  typeDefinition
+  typeDefinition,
+  alignRight = false
 }: DoubleFilterHeaderProps<TData, TValue>) {
   const [showFilter, setShowFilter] = React.useState(false)
   const filterRef = React.useRef<HTMLSpanElement>(null)
@@ -71,9 +73,10 @@ export function DoubleFilterHeader<TData extends Record<string, unknown>, TValue
   }
 
   return (
+    <div className={ `w-56 min-w-[12rem] flex ${alignRight ? ' justify-end ': ''}`}>
     <span
       ref={filterRef}
-      className="flex flex-col w-40 min-w-[10rem] relative"
+      className="flex flex-col  pl-2 relative"
     >
       {/* Header label and sort icon */}
       <span className="flex items-center gap-1 select-none">
@@ -144,5 +147,6 @@ export function DoubleFilterHeader<TData extends Record<string, unknown>, TValue
         </div>
       )}
     </span>
+    </div>
   )
 }
