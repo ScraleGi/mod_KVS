@@ -2,28 +2,10 @@
 
 import React, { useState, useTransition, useEffect } from "react"
 import Link from "next/link"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import type { SanitizedRegistration, SanitizedInvoice } from "@/types/query-models"
 import { generateInvoice } from "@/utils/generateInvoice"
 
-// Utility to map recipient values to the InvoiceRecipient schema
-function getInvoiceRecipientSchemaValues(rec: SanitizedInvoiceRecipient) {
-  return {
-    id: rec.id,
-    type: rec.type,
-    recipientSalutation: rec.recipientSalutation ?? "",
-    recipientName: rec.recipientName ?? "",
-    recipientSurname: rec.recipientSurname ?? "",
-    companyName: rec.companyName ?? "",
-    recipientEmail: rec.recipientEmail ?? "",
-    postalCode: rec.postalCode ?? "",
-    recipientCity: rec.recipientCity ?? "",
-    recipientStreet: rec.recipientStreet ?? "",
-    recipientCountry: rec.recipientCountry ?? "",
-    // createdAt & deletedAt are not used in form submission
-    // courseRegistrations is ignored for client logic
-  }
-}
 
 interface Props {
   registrations: SanitizedRegistration[]
@@ -31,7 +13,6 @@ interface Props {
 }
 
 export function ClientGenerateCourseInvoices({ registrations, courseId }: Props) {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const [recipientType, setRecipientType] = useState<"default" | "custom">("default")
   const [customRecipientId, setCustomRecipientId] = useState<string>("")

@@ -2,6 +2,13 @@
 
 import { useState, ReactNode } from 'react'
 
+/**
+ * RemoveButton: Reusable delete button with confirmation modal.
+ * 
+ * - Use in any table or list to provide a safe "delete" action (e.g. HolidayTable, CourseHolidayTable, etc.).
+ * - Typically placed in the "actions" column of a table row.
+ */
+
 interface RemoveButtonProps {
   itemId: string
   onRemove: (formData: FormData) => Promise<void>
@@ -11,27 +18,29 @@ interface RemoveButtonProps {
   confirmButtonText?: string
   cancelButtonText?: string
   fieldName?: string
-  customButton?: ReactNode  // Add this prop for custom button
+  customButton?: ReactNode  // Optionally render a custom button instead of the default
 }
 
 export default function RemoveButton({ 
   itemId, 
   onRemove,
-  // Default values
+  // Default values for modal and button text
   title = "Remove Item",
   message = "Sind Sie sicher, dass Sie diesen Artikel entfernen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
   confirmButtonText = "Entfernen",
   cancelButtonText = "Abbrechen",
   fieldName = "itemId",
-  customButton  // Support custom button
+  customButton
 }: RemoveButtonProps) {
   const [showConfirmation, setShowConfirmation] = useState(false)
   
+  // Show confirmation modal on submit
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setShowConfirmation(true)
   }
   
+  // Call onRemove callback with FormData when confirmed
   const handleConfirm = () => {
     const formData = new FormData()
     formData.append(fieldName, itemId)
@@ -39,6 +48,7 @@ export default function RemoveButton({
     setShowConfirmation(false)
   }
   
+  // Close modal without removing
   const handleCancel = () => {
     setShowConfirmation(false)
   }
@@ -46,6 +56,7 @@ export default function RemoveButton({
   return (
     <div className="relative">
       <form className="h-full flex items-center" onSubmit={handleSubmit}>
+        {/* Render custom button if provided, otherwise default button */}
         {customButton ? (
           customButton
         ) : (
@@ -54,6 +65,7 @@ export default function RemoveButton({
             className="cursor-pointer flex items-center justify-center w-7 h-7 rounded-full bg-neutral-100 text-neutral-400 hover:text-red-500 hover:bg-red-50 border border-transparent hover:border-red-200 transition"
             title={title}
           >
+            {/* Default trash/delete icon */}
             <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 12h12" />
             </svg>
@@ -64,16 +76,17 @@ export default function RemoveButton({
       {/* Confirmation Modal */}
       {showConfirmation && (
         <>
-          {/* Backdrop */}
+          {/* Backdrop to darken the background and close modal on click */}
           <div 
             className="fixed inset-0 bg-black/30 z-40"
             onClick={handleCancel}
           ></div>
           
-          {/* Modal */}
+          {/* Modal dialog for confirmation */}
           <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-lg p-6 z-50 w-80">
             <div className="text-center mb-5">
               <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-red-100 text-red-500 mb-4">
+                {/* Warning icon */}
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>

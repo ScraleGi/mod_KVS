@@ -1,4 +1,4 @@
-import { getHolidays } from '../../coursedays/actions'
+import { getHolidays } from '../../actions/courseDaysActions'
 import { HolidayTable } from '../../../components/coursedays/HolidayTable'
 import { formatDateISO } from '../../../lib/utils'
 
