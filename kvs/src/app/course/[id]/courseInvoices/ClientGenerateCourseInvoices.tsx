@@ -2,28 +2,10 @@
 
 import React, { useState, useTransition, useEffect } from "react"
 import Link from "next/link"
-import { useRouter, useSearchParams } from "next/navigation"
-import type { SanitizedRegistration, SanitizedInvoice, SanitizedInvoiceRecipient } from "@/types/query-models"
+import { useSearchParams } from "next/navigation"
+import type { SanitizedRegistration, SanitizedInvoice } from "@/types/query-models"
 import { generateInvoice } from "@/utils/generateInvoice"
 
-// Utility to map recipient values to the InvoiceRecipient schema
-function getInvoiceRecipientSchemaValues(rec: SanitizedInvoiceRecipient) {
-  return {
-    id: rec.id,
-    type: rec.type,
-    recipientSalutation: rec.recipientSalutation ?? "",
-    recipientName: rec.recipientName ?? "",
-    recipientSurname: rec.recipientSurname ?? "",
-    companyName: rec.companyName ?? "",
-    recipientEmail: rec.recipientEmail ?? "",
-    postalCode: rec.postalCode ?? "",
-    recipientCity: rec.recipientCity ?? "",
-    recipientStreet: rec.recipientStreet ?? "",
-    recipientCountry: rec.recipientCountry ?? "",
-    // createdAt & deletedAt are not used in form submission
-    // courseRegistrations is ignored for client logic
-  }
-}
 
 interface Props {
   registrations: SanitizedRegistration[]
@@ -31,7 +13,6 @@ interface Props {
 }
 
 export function ClientGenerateCourseInvoices({ registrations, courseId }: Props) {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const [recipientType, setRecipientType] = useState<"default" | "custom">("default")
   const [customRecipientId, setCustomRecipientId] = useState<string>("")
@@ -93,7 +74,43 @@ export function ClientGenerateCourseInvoices({ registrations, courseId }: Props)
       for (const regId of selectedRegs) {
         const formData = new FormData()
         formData.set("registrationId", regId)
-
+/*
+        if (recipientType === "default") {
+          const reg = registrations.find(r => r.id === regId)
+          if (!reg) continue
+          formData.set("type", "PERSON")
+          formData.set("recipientSalutation", reg.participant.salutation ?? "")
+          formData.set("recipientName", reg.participant.name ?? "")
+          formData.set("recipientSurname", reg.participant.surname ?? "")
+          formData.set("recipientEmail", reg.participant.email ?? "")
+          formData.set("recipientStreet", reg.participant.street ?? "")
+          formData.set("postalCode", reg.participant.postalCode ?? "")
+          formData.set("recipientCity", reg.participant.city ?? "")
+          formData.set("recipientCountry", reg.participant.country ?? "")
+        } else {
+          const rec = recipients.find(r => r.id === customRecipientId)
+          if (!rec) continue
+          // Use the optimized schema value mapping
+          const values = getInvoiceRecipientSchemaValues(rec)
+          Object.entries(values).forEach(([key, value]) => {
+            // Only set relevant fields for form submission
+            if (
+              key === "type" ||
+              key === "recipientSalutation" ||
+              key === "recipientName" ||
+              key === "recipientSurname" ||
+              key === "companyName" ||
+              key === "recipientEmail" ||
+              key === "recipientStreet" ||
+              key === "postalCode" ||
+              key === "recipientCity" ||
+              key === "recipientCountry"
+            ) {
+              formData.set(key, value)
+            }
+          })
+        }
+        */
 
         const result = await generateInvoice(formData)
         if (!result.success) {
