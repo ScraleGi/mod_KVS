@@ -24,20 +24,20 @@ async function seedAreas() {
 async function seedPrograms(areaMap: Record<string, string>) {
   await db.program.createMany({
     data: [
-      { code: 'AIF', name: 'AI Fundamentals', description: 'Introduction to Artificial Intelligence.', teachingUnits: 8, price: new Prisma.Decimal('299.99'), areaId: areaMap['KI Campus'] },
-      { code: 'MLB', name: 'Machine Learning Basics', teachingUnits: 10, price: new Prisma.Decimal('349.99'), areaId: areaMap['KI Campus'] },
-      { code: 'WEBDEV', name: 'Web Development Bootcamp', description: 'Full stack web development.', teachingUnits: 12, price: new Prisma.Decimal('399.99'), areaId: areaMap['It & Coding Campus'] },
-      { code: 'PYB', name: 'Python for Beginners', teachingUnits: 6, price: new Prisma.Decimal('149.99'), areaId: areaMap['It & Coding Campus'] },
-      { code: 'DM101', name: 'Digital Marketing 101',price: new Prisma.Decimal('400.00'), description: 'Basics of digital marketing.', teachingUnits: 7, areaId: areaMap['Digital Markeing Academy'] },
-      { code: 'SIB', name: 'Sustainability in Business', description: 'Green business practices.', teachingUnits: 5, areaId: areaMap['Green Campus'] },
-      { code: 'BS', name: 'Business Strategy', teachingUnits: 9, price: new Prisma.Decimal('299.99'), areaId: areaMap['Business & Management Academy'] },
+      { code: 'AIF', name: 'AI Fundamentals', description: 'Introduction to Artificial Intelligence.', teachingUnits: 80, price: new Prisma.Decimal('299.99'), areaId: areaMap['KI Campus'] },
+      { code: 'MLB', name: 'Machine Learning Basics', teachingUnits: 100, price: new Prisma.Decimal('349.99'), areaId: areaMap['KI Campus'] },
+      { code: 'WEBDEV', name: 'Web Development Bootcamp', description: 'Full stack web development.', teachingUnits: 120, price: new Prisma.Decimal('399.99'), areaId: areaMap['It & Coding Campus'] },
+      { code: 'PYB', name: 'Python for Beginners', teachingUnits: 60, price: new Prisma.Decimal('149.99'), areaId: areaMap['It & Coding Campus'] },
+      { code: 'DM101', name: 'Digital Marketing 101', description: 'Basics of digital marketing.', teachingUnits: 70, areaId: areaMap['Digital Markeing Academy'] },
+      { code: 'SIB', name: 'Sustainability in Business', description: 'Green business practices.', teachingUnits: 50, areaId: areaMap['Green Campus'] },
+      { code: 'BS', name: 'Business Strategy', teachingUnits: 90, price: new Prisma.Decimal('299.99'), areaId: areaMap['Business & Management Academy'] },
       { code: 'ELE', name: 'E-Learning Essentials', description: 'How to create effective e-learning courses.', areaId: areaMap['E-Learning Lehrgänge'] },
-      { code: 'DT', name: 'Digital Transformation', teachingUnits: 8, price: new Prisma.Decimal('199.99'), areaId: areaMap['Digital Studies'] },
-      { code: 'CCB', name: 'Cloud Computing Basics', teachingUnits: 8, price: new Prisma.Decimal('249.99'), areaId: areaMap['It & Coding Campus'] },
-      { code: 'PM', name: 'Project Management', teachingUnits: 10, price: new Prisma.Decimal('299.99'), areaId: areaMap['Business & Management Academy'] },
-      { code: 'DV', name: 'Data Visualization', teachingUnits: 7, price: new Prisma.Decimal('199.99'), areaId: areaMap['Digital Studies'] },
-      { code: 'AGILE', name: 'Agile Methodologies', teachingUnits: 6, price: new Prisma.Decimal('179.99'), areaId: areaMap['Business & Management Academy'] },
-      { code: 'UIUX', name: 'UI/UX Design', teachingUnits: 8, price: new Prisma.Decimal('259.99'), areaId: areaMap['It & Coding Campus'] },
+      { code: 'DT', name: 'Digital Transformation', teachingUnits: 80, price: new Prisma.Decimal('199.99'), areaId: areaMap['Digital Studies'] },
+      { code: 'CCB', name: 'Cloud Computing Basics', teachingUnits: 80, price: new Prisma.Decimal('249.99'), areaId: areaMap['It & Coding Campus'] },
+      { code: 'PM', name: 'Project Management', teachingUnits: 100, price: new Prisma.Decimal('299.99'), areaId: areaMap['Business & Management Academy'] },
+      { code: 'DV', name: 'Data Visualization', teachingUnits: 70, price: new Prisma.Decimal('199.99'), areaId: areaMap['Digital Studies'] },
+      { code: 'AGILE', name: 'Agile Methodologies', teachingUnits: 60, price: new Prisma.Decimal('179.99'), areaId: areaMap['Business & Management Academy'] },
+      { code: 'UIUX', name: 'UI/UX Design', teachingUnits: 80, price: new Prisma.Decimal('259.99'), areaId: areaMap['It & Coding Campus'] },
     ],
     skipDuplicates: true,
   })
@@ -746,105 +746,6 @@ async function seedInvoiceRecipients() {
   })
 }
 
-// -------------------- Invoice Seeding --------------------
-/*
-async function seedInvoices(
-  programMap: Record<string, string>,
-  courseMap: Record<string, string>,
-  participantMap: Record<string, string>,
-  registrationMap: Record<string, string>,
-  recipientMap: Record<string, string>
-) {
-  await db.invoice.createMany({
-    data: [
-      {
-        invoiceNumber: '2024-001',
-        amount: new Prisma.Decimal('299.99'),
-        courseRegistrationId: registrationMap[participantMap['Charlie Brown'] + '_' + courseMap[programMap['AI Fundamentals']]],
-        isCancelled: false,
-        dueDate: new Date('2024-09-15'),
-        transactionNumber: 'INV-2024-001', // Paid
-        recipientId: recipientMap['Charlie Brown'],
-      },
-      {
-        invoiceNumber: '2024-002',
-        amount: new Prisma.Decimal('149.99'),
-        courseRegistrationId: registrationMap[participantMap['Dana White'] + '_' + courseMap[programMap['Web Development Bootcamp']]],
-        isCancelled: false,
-        dueDate: new Date('2024-10-15'),
-        transactionNumber: null, // Not paid yet
-        recipientId: recipientMap["Joe's Firma"],
-      },
-      {
-        invoiceNumber: '2024-003',
-        amount: new Prisma.Decimal('299.99'),
-        courseRegistrationId: registrationMap[participantMap['Grace Lee'] + '_' + courseMap[programMap['AI Fundamentals']]],
-        isCancelled: false,
-        dueDate: new Date('2024-09-16'),
-        transactionNumber: 'INV-2024-003', // Paid
-        recipientId: recipientMap['Grace Lee'],
-      },
-      {
-        invoiceNumber: '2024-004',
-        amount: new Prisma.Decimal('399.99'),
-        courseRegistrationId: registrationMap[participantMap['Henry Ford'] + '_' + courseMap[programMap['Web Development Bootcamp']]],
-        isCancelled: false,
-        dueDate: new Date('2024-10-22'),
-        transactionNumber: null, // Not paid yet
-        recipientId: recipientMap['Henry Ford'],
-      },
-      {
-        invoiceNumber: '2024-005',
-        amount: new Prisma.Decimal('149.99'),
-        courseRegistrationId: registrationMap[participantMap['Eve Adams'] + '_' + courseMap[programMap['Python for Beginners']]],
-        isCancelled: false,
-        dueDate: new Date('2024-11-11'),
-        transactionNumber: 'INV-2024-005', // Paid
-        recipientId: recipientMap['Eve Adams'],
-      },
-      {
-        invoiceNumber: '2024-006',
-        amount: new Prisma.Decimal('149.99'),
-        courseRegistrationId: registrationMap[participantMap['Karen Green'] + '_' + courseMap[programMap['Python for Beginners']]],
-        isCancelled: false,
-        dueDate: new Date('2024-11-12'),
-        transactionNumber: null, // Not paid yet
-        recipientId: recipientMap['Karen Green'],
-      },
-      // Add more invoices as needed for other participants/courses
-    ],
-    skipDuplicates: true,
-  })
-}
-*/
-
-/*
-// -------------------- Document Seeding --------------------
-async function seedDocuments(
-  programMap: Record<string, string>,
-  courseMap: Record<string, string>,
-  registrationMap: Record<string, string>,
-  participantMap: Record<string, string>
-) {
-  await db.document.createMany({
-    data: [
-      {
-        role: 'Syllabus',
-        file: 'https://example.com/files/syllabus_ai.pdf',
-        courseRegistrationId: registrationMap[participantMap['Charlie Brown'] + '_' + courseMap[programMap['AI Fundamentals']]],
-      },
-      {
-        role: 'Certificate',
-        file: 'https://example.com/files/certificate_ai.pdf',
-        courseRegistrationId: registrationMap[participantMap['Grace Lee'] + '_' + courseMap[programMap['AI Fundamentals']]],
-      },
-      // ...add more documents as needed...
-    ],
-    skipDuplicates: true,
-  })
-}
-*/
-
 //-------------------- Seed (public) Holiday ---------------------------------
 
 const fixedHolidays = [
@@ -862,18 +763,18 @@ const fixedHolidays = [
 // Schulferien für Vorarlberg 2025/26
 const schoolHolidays = [
   // Kalenderjahr 2025 (bis Sommer)
-  { title: 'Semesterferien', start: new Date('2025-02-10'), end: new Date('2025-02-15') },
-  { title: 'Josefstag (schulfrei, kein gesetzlicher Feiertag)', start: new Date('2025-03-19'), end: new Date('2025-03-19') },
-  { title: 'Osterferien', start: new Date('2025-04-12'), end: new Date('2025-04-21') },
-  { title: 'Pfingstferien', start: new Date('2025-06-07'), end: new Date('2025-06-09') },
-  { title: 'Sommerferien', start: new Date('2025-07-05'), end: new Date('2025-09-07') },
+  { title: 'Semesterferien', start: new Date(Date.UTC(2025, 1, 10)), end: new Date(Date.UTC(2025, 1, 15)) },
+  { title: 'Josefstag (schulfrei, kein gesetzlicher Feiertag)', start: new Date(Date.UTC(2025, 2, 19)), end: new Date(Date.UTC(2025, 2, 19)) },
+  { title: 'Osterferien', start: new Date(Date.UTC(2025, 3, 12)), end: new Date(Date.UTC(2025, 3, 21)) },
+  { title: 'Pfingstferien', start: new Date(Date.UTC(2025, 5, 7)), end: new Date(Date.UTC(2025, 5, 9)) },
+  //{ title: 'Sommerferien', start: new Date(Date.UTC(2025, 6, 5)), end: new Date(Date.UTC(2025, 8, 7)) },
   // Schuljahr 2025/26 (ab Herbst)
-  { title: 'Herbstferien', start: new Date('2025-10-27'), end: new Date('2025-10-31') },
-  { title: 'Weihnachtsferien', start: new Date('2025-12-24'), end: new Date('2026-01-06') },
+  { title: 'Herbstferien', start: new Date(Date.UTC(2025, 9, 27)), end: new Date(Date.UTC(2025, 9, 31)) },
+  { title: 'Weihnachtsferien', start: new Date(Date.UTC(2025, 11, 24)), end: new Date(Date.UTC(2026, 0, 6)) },
 ];
 
+// Calculate Easter Sunday (returns a UTC date)
 function calculateEaster(year: number): Date {
-  // Gaußsche Osterformel
   const f = Math.floor,
     G = year % 19,
     C = f(year / 100),
@@ -884,13 +785,13 @@ function calculateEaster(year: number): Date {
     month = 3 + f((L + 40) / 44),
     day = L + 28 - 31 * f(month / 4);
 
-  return new Date(year, month - 1, day);
+  // Always return UTC date
+  return new Date(Date.UTC(year, month - 1, day));
 }
 
+// Add days to a UTC date, return new UTC date
 function addDays(date: Date, days: number): Date {
-  const copy = new Date(date);
-  copy.setDate(copy.getDate() + days);
-  return copy;
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate() + days));
 }
 
 async function seedHoliday() {
@@ -898,28 +799,28 @@ async function seedHoliday() {
   const holidays: { title: string; date: Date }[] = [];
 
   for (const year of years) {
-    // Fixe Feiertage
+    // Fixe Feiertage (always UTC midnight)
     fixedHolidays.forEach(({ title, month, day }) => {
-      holidays.push({ title, date: new Date(year, month - 1, day) });
+      holidays.push({ title, date: new Date(Date.UTC(year, month - 1, day)) });
     });
 
-    // Bewegliche Feiertage
+    // Bewegliche Feiertage (always UTC midnight)
     const easter = calculateEaster(year);
     holidays.push({ title: 'Karfreitag', date: addDays(easter, -2) });
     holidays.push({ title: 'Ostermontag', date: addDays(easter, 1) });
     holidays.push({ title: 'Christi Himmelfahrt', date: addDays(easter, 39) });
     holidays.push({ title: 'Pfingstmontag', date: addDays(easter, 50) });
-
-    // Fronleichnam (60 Tage nach Ostersonntag)
     holidays.push({ title: 'Fronleichnam', date: addDays(easter, 60) });
   }
 
-  // Schulferien als eigene Holiday-Einträge (nur für 2025/26)
+  // Schulferien als eigene Holiday-Einträge (nur für 2025/26, always UTC midnight)
   for (const ferien of schoolHolidays) {
     let current = new Date(ferien.start);
-    while (current <= ferien.end) {
+    const end = new Date(ferien.end);
+    while (current <= end) {
       holidays.push({ title: ferien.title, date: new Date(current) });
-      current.setDate(current.getDate() + 1);
+      // Move to next UTC day
+      current = new Date(Date.UTC(current.getUTCFullYear(), current.getUTCMonth(), current.getUTCDate() + 1));
     }
   }
 
