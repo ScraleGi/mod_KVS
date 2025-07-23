@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { db } from "@/lib/db"
 import { sanitize } from "@/lib/sanitize"
-import type { SanitizedRegistration, SanitizedCourse, SanitizedInvoiceRecipient } from "@/types/query-models"
+import type { SanitizedRegistration, SanitizedCourse } from "@/types/query-models"
 import { ClientGenerateCourseInvoices } from "./ClientGenerateCourseInvoices"
 import { getAuthorizing } from "@/lib/getAuthorizing"
 import { redirect } from "next/navigation"
@@ -44,39 +44,8 @@ export default async function CourseInvoicesPage({ params }: { params: Promise<{
     )
   }
 
-  const participants = course.registrations.map(r => r.participant)
-
-  const customRecipients = await db.invoiceRecipient.findMany({
-    where: {
-      OR: [
-        { type: "COMPANY" },
-        {
-          AND: [
-            { type: "PERSON" },
-            {
-              NOT: {
-                OR: participants.map(p => ({
-                  recipientName: p.name,
-                  recipientSurname: p.surname,
-                  recipientEmail: p.email,
-                })),
-              },
-            },
-          ],
-        },
-      ],
-    },
-    orderBy: [
-      { type: "asc" },
-      { companyName: "asc" },
-      { recipientSurname: "asc" },
-      { recipientName: "asc" },
-    ],
-  })
-
   const sanitizedCourse = sanitize(course) as unknown as SanitizedCourse
   const sanitizedRegistrations = sanitize(course.registrations) as unknown as SanitizedRegistration[]
-  const sanitizedRecipients = sanitize(customRecipients) as unknown as SanitizedInvoiceRecipient[]
 
   return (
     <div className="min-h-screen bg-neutral-50 py-10 px-4">
