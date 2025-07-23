@@ -1,6 +1,11 @@
 import Link from "next/link";
 import { UserPlus } from "lucide-react";
 
+/**
+ * AddParticipantButton
+ * - Renders a styled button that links to the "add new participant" page.
+ * - Intended for use in participant lists or toolbars to add new participants.
+ */
 export const AddParticipantButton = () => {
   return (
     <Link
@@ -9,6 +14,7 @@ export const AddParticipantButton = () => {
       title="Teilnehmer hinzufügen"
       aria-label="Add Participant"
     >
+      {/* Plus icon for "add" action */}
       <UserPlus size={20} />
     </Link>
   );

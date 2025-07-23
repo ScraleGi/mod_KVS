@@ -26,37 +26,36 @@ interface CourseWithRelations extends Omit<Course, 'program' | 'mainTrainer' | '
 }
 
 export default async function CourseListPage() {
-// Fetch courses with related data
-const courses = await db.course.findMany({
-  where: { deletedAt: null },
-  orderBy: { createdAt: 'desc' }, // This should be at the top level
-  include: {
-    program: { include: { area: true } },
-    mainTrainer: true,
-    trainers: true,
-    registrations: {
-      where: { 
-        deletedAt: null, // Only include active registrations
-        participant: {
-        deletedAt: null // Also filter out registrations of soft-deleted participants
-        }
-      }, 
-      orderBy: { registeredAt: 'desc' }, 
+  // Fetch courses with related data, filter out deleted, order by creation date
+  const courses = await db.course.findMany({
+    where: { deletedAt: null },
+    orderBy: { createdAt: 'desc' },
+    include: {
+      program: { include: { area: true } },
+      mainTrainer: true,
+      trainers: true,
+      registrations: {
+        where: { 
+          deletedAt: null,
+          participant: { deletedAt: null }
+        }, 
+        orderBy: { registeredAt: 'desc' }, 
+      },
     },
-  },
-})
+  })
 
-  // Sanitize data to handle any Decimal values
+  // Sanitize data to handle Prisma Decimal and ensure serializability
   const sanitizedCourses = sanitize<typeof courses, CourseWithRelations[]>(courses);
 
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4">
       <CourseToaster />
       <div className="max-w-[1600px] mx-auto">
-        {/* Dashboard Header */}
+        {/* Header with actions */}
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Kurse</h1>
           <div className="flex gap-2">
+            {/* Add new course */}
             <Link
               href="/course/new"
               className="p-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition"
@@ -67,6 +66,7 @@ const courses = await db.course.findMany({
                 <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
               </svg>
             </Link>
+            {/* Go to homepage */}
             <Link
               href="/"
               className="p-2 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300 transition"
@@ -77,6 +77,7 @@ const courses = await db.course.findMany({
                 <path fillRule="evenodd" d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z" clipRule="evenodd" />
               </svg>
             </Link>
+            {/* Show deleted courses */}
             <Link
               href="/course/deleted"
               className="p-2 rounded-md bg-red-100 text-gray-700 hover:bg-red-200 transition"
@@ -89,9 +90,10 @@ const courses = await db.course.findMany({
             </Link>
           </div>
         </div>
-        {/* Courses Table Style List */}
+        {/* Courses Table */}
         <div className="bg-white rounded-sm shadow border border-gray-100">
           <div className="divide-y divide-gray-100">
+            {/* Table header (hidden on mobile) */}
             <div className="hidden md:grid grid-cols-[2.2fr_2.5fr_1fr_1fr_1.5fr_1fr_0.7fr] gap-3 px-4 py-3 text-[11px] font-semibold text-gray-100 uppercase tracking-wider bg-gray-600 rounded-t-sm w-full border-b border-gray-200">
               <div>Kurs</div>
               <div>Bereich</div>
@@ -102,9 +104,11 @@ const courses = await db.course.findMany({
               <div className="text-right">Bearbeiten</div>
             </div>
 
+            {/* Show message if no courses */}
             {sanitizedCourses.length === 0 && (
               <div className="px-4 py-12 text-center text-gray-400 text-sm">Keine Kurse gefunden.</div>
             )}
+            {/* Render each course row */}
             {sanitizedCourses.map(course => (
               <div
                 key={course.id}
@@ -136,13 +140,13 @@ const courses = await db.course.findMany({
                     ? course.trainers.map(t => formatFullName(t)).join(', ')
                     : <span className="text-gray-400">—</span>}
                 </div>
-                {/* Registrations */}
+                {/* Registrations count */}
                 <div>
                   <span className="inline-block px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-semibold">
                     {course.registrations.length}
                   </span>
                 </div>
-                {/* Actions */}
+                {/* Edit action */}
                 <div className="flex justify-end gap-1">
                   <Link
                     href={`/course/${course.id}/edit`}

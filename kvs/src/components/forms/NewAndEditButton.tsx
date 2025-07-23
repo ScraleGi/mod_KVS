@@ -1,5 +1,11 @@
-import CancelButton from '@/components/cancle-Button/cnacleButton';
+import CancelButton from '@/components/cancelButton/cancelButton';
 
+/**
+ * NewAndEditButton
+ * 
+ * Renders a button row with a cancel button and a customizable submit button.
+ * - buttonText: The label for the submit button (e.g., "Speichern", "Erstellen").
+ */
 export function NewAndEditButton(
     {
         buttonText,
@@ -8,6 +14,7 @@ export function NewAndEditButton(
     }
 ) {
     return (
+        // Button row: Cancel (left) and Submit (right)
         <div className="pt-2 flex items-center justify-between">
             <CancelButton>Abbrechen</CancelButton>
             <button
@@ -16,7 +23,6 @@ export function NewAndEditButton(
             >
                 {buttonText}
             </button>
-
         </div>
     );
 }

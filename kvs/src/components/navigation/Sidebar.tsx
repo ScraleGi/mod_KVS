@@ -2,12 +2,12 @@ import { FaHome, FaCalendarAlt, FaCog, FaRegEnvelope, FaChartBar, FaThLarge, FaL
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-
 type SidebarProps = {
   isOpen: boolean;
   roles?: { role: string }[];
 }
 
+// Tooltip for collapsed sidebar
 const Tooltip = ({ children }: { children: React.ReactNode }) => (
   <span className="
     pointer-events-none
@@ -24,6 +24,8 @@ const Tooltip = ({ children }: { children: React.ReactNode }) => (
 
 const Sidebar = ({ isOpen, roles }: SidebarProps) => {
   const pathname = usePathname();
+
+  // Navigation items for sidebar
   const navItems = [
     { href: '/', label: 'Startseite', icon: FaHome },
     { href: '/program', label: 'Programme', icon: FaLayerGroup },
@@ -38,6 +40,7 @@ const Sidebar = ({ isOpen, roles }: SidebarProps) => {
     { href: '/invoice', label: 'Rechnungen', icon: FaFileInvoiceDollar},
   ];
 
+  // Hide sidebar if no roles or not authorized
   if (!roles || roles.length === 0) {
     return null;
   }
@@ -45,6 +48,7 @@ const Sidebar = ({ isOpen, roles }: SidebarProps) => {
     return null;
   }
 
+  // Add admin link if user is admin
   if (roles.some(role => role.role === 'ADMIN')) {
     navItems.push({ href: '/user', label: 'Admin', icon: FaUserShield });
   }
@@ -52,12 +56,11 @@ const Sidebar = ({ isOpen, roles }: SidebarProps) => {
   return (
     <nav
       aria-label='site-navigation'
-      className="{ isOpen ? 'w-64': 'w-16'}
+      className={`${isOpen ? 'w-64' : 'w-16'}
       bg-gray-800 min-h-full 
       px-2 py-2 flex flex-col
-      transition-all duration-200
-    ">
-
+      transition-all duration-200`}
+    >
       <ul className="flex-1 space-y-2 font-bold text-white">
         {navItems.map(({ href, label, icon: Icon }) => {
           const isActive = pathname === href;
@@ -70,6 +73,7 @@ const Sidebar = ({ isOpen, roles }: SidebarProps) => {
                 <Icon className="w-6 h-6 mr-2" />
                 {isOpen && <span>{label}</span>}
               </Link>
+              {/* Show tooltip if sidebar is collapsed */}
               {!isOpen && <Tooltip>{label}</Tooltip>}
             </li>
           );
@@ -80,4 +84,3 @@ const Sidebar = ({ isOpen, roles }: SidebarProps) => {
 };
 
 export default Sidebar;
-

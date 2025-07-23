@@ -31,7 +31,6 @@ export default function ShowIAndSelectInvoiceRecipient({ sanitizedRegistration }
                 <ShowRecipient
                     recipient={selectedRecipient}
                     participant={sanitizedRegistration.participant}
-                    registrationId={sanitizedRegistration.id}
                     onDelete={handleDeleteRecipient}
                 />
             ) : (
@@ -140,12 +139,10 @@ function SelectRecipientWithAutocomplete({
 function ShowRecipient({
     recipient,
     participant,
-    registrationId,
     onDelete,
 }: {
     recipient?: SanitizedInvoiceRecipient,
     participant: SanitizedParticipant,
-    registrationId?: string,
     onDelete?: () => void
 }) {
     if (recipient) {

@@ -3,7 +3,37 @@ import { ArrowLeft } from 'lucide-react'
 import { db } from '@/lib/db'
 import { format } from 'date-fns'
 import { DownloadPDFLink } from '@/components/DownloadButton/DownloadButton'
-import RemoveButton from '@/components/RemoveButton/RemoveButton'
+import { sanitize } from '@/lib/sanitize'
+
+
+type SanitizedRegistration = {
+  id: string
+  createdAt: Date
+  deletedAt: Date | null
+  courseId: string
+  participantId: string
+  invoiceRecipientId: string | null
+  infoSessionAt: Date | null
+  registeredAt: Date | null
+  unregisteredAt: Date | null
+}
+
+type InvoiceType = {
+  sanitizedRegistration: SanitizedRegistration | null
+  id: string
+  invoiceNumber: string
+  recipientSalutation?: string
+  recipientName?: string
+  recipientSurname?: string
+  companyName?: string
+  recipientEmail?: string
+  finalAmount: number
+  dueDate?: string | Date | null
+  isCancelled: boolean
+  transactionNumber?: string | null
+  courseRegistrationId?: string
+  recipientCountry?: string | null
+}
 
 // Server Actions
 async function toggleInvoiceCancelled(formData: FormData) {
@@ -14,16 +44,6 @@ async function toggleInvoiceCancelled(formData: FormData) {
   await db.invoice.update({
     where: { id: invoiceId },
     data: { isCancelled },
-  })
-}
-
-async function deleteInvoice(formData: FormData) {
-  'use server'
-  const invoiceId = formData.get('id') as string
-  if (!invoiceId) return
-  await db.invoice.update({
-    where: { id: invoiceId },
-    data: { deletedAt: new Date() },
   })
 }
 
@@ -47,7 +67,8 @@ export default async function InvoicePage() {
     .filter(inv => inv.courseRegistration)
     .map(inv => ({
       ...inv,
-      sanitizedRegistration: inv.courseRegistration,
+      sanitizedRegistration: inv.courseRegistration ? sanitize(inv.courseRegistration) : null,
+      finalAmount: inv.finalAmount ? Number(inv.finalAmount) : 0, // Convert Decimal to number
     }))
 
   return (
@@ -63,7 +84,10 @@ export default async function InvoicePage() {
             <div className="divide-y divide-gray-100">
               <TableHeader />
               {invoices.map(inv => (
-                <InvoiceRow key={inv.id} invoice={inv} />
+              <InvoiceRow
+                key={inv.id}
+                invoice={inv as InvoiceType}  // Cast to InvoiceType for type safety
+              />
               ))}
             </div>
           )}
@@ -113,7 +137,7 @@ function TableHeader() {
   )
 }
 
-function InvoiceRow({ invoice }: { invoice: any }) {
+function InvoiceRow({ invoice }: { invoice: InvoiceType }) {
   const {
     id,
     invoiceNumber,

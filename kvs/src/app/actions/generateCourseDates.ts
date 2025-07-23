@@ -159,7 +159,8 @@ export default async function generateCourseDates(formData: FormData) {
     })
 
     // 8. Prepare date arrays for checks
-    const testDay = new Date(course.startDate)
+    // eslint-disable-next-line prefer-const
+    let testDay = new Date(course.startDate)
     const courseSpecialDays = course.courseSpecialDays.map(day => new Date(day.startTime))
     const holidays = globalHolidays.map(holiday => new Date(holiday.date))
     const courseHolidays = course.courseHolidays.map(holiday => new Date(holiday.date))

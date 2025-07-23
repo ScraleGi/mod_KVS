@@ -4,7 +4,7 @@ import { EditCourseFormProps } from "@/types/query-models"
 import { formatDateISO } from "@/lib/utils"
 import { useToaster } from '@/components/ui/toaster';
 import TrainerSearchBox from "../forms/TrainerSearchBox"
-import CancelButton from '@/components/cancle-Button/cnacleButton';
+import CancelButton from '@/components/cancelButton/cancelButton';
 
 
 export default function EditCourseForm({

@@ -2,7 +2,6 @@
 import { useState, useTransition } from "react"
 import Link from "next/link"
 import { addRecipientToCourseRegistration, createRecipientAction } from "@/app/actions/createRecipientAction"
-import { Receipt } from "lucide-react"
 
 /**
  * Form UI for creating a new InvoiceRecipient.
