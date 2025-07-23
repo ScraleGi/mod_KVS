@@ -1,3 +1,4 @@
+// Used in HolidayTable.tsx for displaying and managing global holidays
 export type Holiday = {
   id: string
   title: string
@@ -6,6 +7,7 @@ export type Holiday = {
   deletedAt: string | null
 }
 
+// Used in CourseHolidayTable.tsx and CourseTablesClient.tsx for course-specific holidays
 export type CourseHoliday = {
   id: string
   title: string
@@ -15,6 +17,7 @@ export type CourseHoliday = {
   courseId: string
 }
 
+// Used in CourseSpecialDaysTable.tsx and CourseTablesClient.tsx for special course days
 export type CourseSpecialDays = {
   id: string
   title: string
@@ -26,6 +29,7 @@ export type CourseSpecialDays = {
   courseId: string
 }
 
+// Used in CourseRythmTable.tsx and CourseTablesClient.tsx for recurring course rhythm entries
 export type CourseRythm = {
   id: string
   weekDay: string

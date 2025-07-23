@@ -4,7 +4,7 @@ import { EditCourseFormProps } from "@/types/query-models"
 import { formatDateISO } from "@/lib/utils"
 import { useToaster } from '@/components/ui/toaster';
 import TrainerSearchBox from "../forms/TrainerSearchBox"
-import CancelButton from '@/components/cancle-Button/cnacleButton';
+import CancelButton from '@/components/cancelButton/cancelButton';
 
 
 export default function EditCourseForm({
@@ -117,7 +117,7 @@ export default function EditCourseForm({
         <input key={id} type="hidden" name="trainerIds" value={id} />
       ))}
       <div className="pt-2 flex items-center justify-between">
-           <CancelButton href="/">Abbrechen</CancelButton>
+           <CancelButton>Abbrechen</CancelButton>
         <button
 
           type="submit"

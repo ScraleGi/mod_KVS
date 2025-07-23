@@ -1,7 +1,7 @@
 'use client'
 import React, { useRef } from 'react'
 import { formatDate } from '@/lib/utils'
-import CancelButton from '../cancle-Button/cnacleButton';
+import CancelButton from '../cancelButton/cancelButton';
 
 // Interface for available courses in the dropdown
 interface AvailableCourse {
@@ -27,10 +27,12 @@ export default function AddCourseModal({
 }: AddCourseModalProps) {
   const dialogRef = useRef<HTMLDivElement>(null)
 
+  // Close modal if backdrop is clicked
   function handleBackdropClick(e: React.MouseEvent) {
     if (e.target === dialogRef.current) onClose()
   }
 
+  // Do not render modal if not open
   if (!open) return null
 
   return (
@@ -40,6 +42,7 @@ export default function AddCourseModal({
       onClick={handleBackdropClick}
     >
       <div className="bg-white rounded-sm shadow border border-gray-100 p-8 w-full max-w-md relative">
+        {/* Close button in top-right corner */}
         <button
           onClick={onClose}
           className="absolute top-3 right-3 text-gray-400 hover:text-gray-700 transition"
@@ -57,6 +60,7 @@ export default function AddCourseModal({
           }}
           className="space-y-6"
         >
+          {/* Course selection dropdown */}
           <div className="space-y-1">
             <label className="block text-xs font-medium text-gray-600 text-left" htmlFor="courseId">
               Kurs
@@ -76,8 +80,9 @@ export default function AddCourseModal({
               ))}
             </select>
           </div>
+          {/* Action buttons: Cancel and Submit */}
           <div className="pt-2 flex items-center justify-between">
-            <CancelButton href="/participant">Abbrechen</CancelButton>
+            <CancelButton>Abbrechen</CancelButton>
             <button
               type="submit"
               className="inline-flex items-center px-5 py-2 border border-transparent text-xs font-semibold rounded text-white bg-blue-600 hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"

@@ -1,5 +1,14 @@
 import React from 'react';
 
+/**
+ * EditLabel is a flexible form field component that renders a labeled input,
+ * select, or textarea based on the provided props.
+ *
+ * - Renders a <select> if type="select" and options are provided.
+ * - Renders a <textarea> if type="textarea".
+ * - Otherwise, renders a standard <input> of the given type.
+ * - Accepts both string and ReactNode as labelName for flexible labeling.
+ */
 export function EditLabel({
     labelName,
     name,
@@ -19,13 +28,16 @@ export function EditLabel({
     options?: { value: string; label: string }[];
     rows?: number;
 }) {
+    // Ensure labelName is a string or a valid React element
     if (typeof labelName !== 'string' && !React.isValidElement(labelName)) {
         throw new Error("labelName must be a string or a valid React element");
     }
+    // Ensure value is a string or undefined (for form compatibility)
     if (typeof value !== 'string' && typeof value !== 'undefined') {
         throw new Error("value must be a string or undefined");
     }
 
+    // Render a select dropdown if type is "select" and options are provided
     if (type === "select" && options.length > 0) {
         return (
             <div className="space-y-1">
@@ -48,6 +60,7 @@ export function EditLabel({
             </div>
         );
     } else if (type === "textarea") {
+        // Render a textarea if type is "textarea"
         return (
             <div className="space-y-1">
                 <label className="block text-xs font-medium text-gray-600">
@@ -65,6 +78,7 @@ export function EditLabel({
         )
     }
 
+    // Default: render a standard input field
     return (
         <div className="space-y-1">
             <label className="block text-xs font-medium text-gray-600">
