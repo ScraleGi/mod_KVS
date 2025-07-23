@@ -11,7 +11,7 @@ import { redirect } from 'next/navigation'
 import { FaInfoCircle, FaUsers, FaCalendarAlt } from 'react-icons/fa'
 
 // --- Add imports for course tables ---
-import { getCourseHolidays, getCourseSpecialDays, getCourseRythms } from '../../coursedays/actions'
+import { getCourseHolidays, getCourseSpecialDays, getCourseRythms } from '../../actions/courseDaysActions'
 import { CourseTablesClient } from '../../../components/coursedays/CourseTablesClient'
 import generateCourseDates from '@/app/actions/generateCourseDates'
 

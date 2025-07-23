@@ -16,6 +16,10 @@ import {
   SanitizedDocument,
 } from '@/types/query-models'
 import RemoveButton from '@/components/RemoveButton/RemoveButton'
+import { generateInvoice } from '@/utils/generateInvoice'
+import ShowIAndSelectnvoiceRecipient from '@/components/ShowIAndSelectnvoiceRecipient'
+
+
 import SubsidyToaster from './subsidy/new/SubsidyToaster'
 
 //---------------------------------------------------
@@ -80,6 +84,7 @@ export default async function ParticipantDetailsPage({
       participant: true,
       course: { include: { program: true, mainTrainer: true } },
       invoices: true,
+      invoiceRecipient: true,
     }
   })
 
@@ -138,6 +143,12 @@ export default async function ParticipantDetailsPage({
     )
   }
 
+    async function createInvoiceAction(formData: FormData) {
+  'use server'
+  await generateInvoice(formData)
+}
+
+
   // RENDER UI
   return (
     <div className="min-h-screen bg-neutral-50 flex items-center justify-center px-2 py-8">
@@ -189,15 +200,22 @@ export default async function ParticipantDetailsPage({
 
           {/* Registration Details Section */}
           <section className="px-8 py-6 border-b border-neutral-200">
-            <h2 className="text-sm font-semibold text-neutral-800 mb-4">
-              Kurs:&nbsp;
-              <Link
-                href={`/course/${sanitizedRegistration.course?.id}`}
-                className="text-blue-700 hover:text-blue-800 font-medium hover:underline"
-              >
-                {sanitizedRegistration.course?.program?.name ?? '-'}
-              </Link>
-            </h2>
+          <h2 className="text-sm font-semibold text-neutral-800 mb-4 flex items-center gap-2">
+            Kurs:&nbsp;
+            <Link
+              href={`/course/${sanitizedRegistration.course?.id}`}
+              className="text-blue-700 hover:text-blue-800 font-medium hover:underline"
+            >
+              {sanitizedRegistration.course?.program?.name ?? '-'}
+            </Link>
+            <span className="flex-1" />
+            <Link
+              href={`/courseregistration/${sanitizedRegistration.id}/registrationStatus/edit`}
+              className="ml-2 px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition"
+            >
+              Status bearbeiten
+            </Link>
+          </h2>
             <div
               className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-[13px] text-neutral-700 border-l-4 border-neutral-200 pl-6 mt-2"
             >
@@ -270,6 +288,43 @@ export default async function ParticipantDetailsPage({
               </div>
             </div>
             
+          {/* Invoice Recipient Form Section */}
+          <hr className="my-6 border-t border-neutral-200" />
+          
+        <ShowIAndSelectnvoiceRecipient sanitizedRegistration={sanitizedRegistration}  />
+            <div className="flex justify-end mt-4">
+      {hasActiveInvoice ? (
+        <span
+          className="px-3 py-1 rounded text-xs font-medium bg-neutral-200 text-neutral-400 cursor-not-allowed select-none"
+          tabIndex={-1}
+          aria-disabled="true"
+        >
+          Rechnung generieren
+        </span>
+      ) : (
+    <form action={createInvoiceAction}>
+      <input type="hidden" name="registrationId" value={registrationId} />
+      <button
+        type="submit"
+        className="px-3 py-1 rounded text-xs font-medium bg-blue-600 text-white hover:bg-blue-700 transition"
+      >
+        Rechnung generieren
+      </button>
+    </form>
+      )}
+    </div>
+
+{/* 
+<SelfPayer />
+             <div>
+              invoice Recipient 
+              </div>       
+                    
+          <div className="mt-4">
+            <RecipientForm courseregistrationId={sanitizedRegistration.id} />
+          </div>
+*/}
+
             {/* Remark Form Section */}
             <hr className="my-6 border-t border-neutral-200" />
             <div className="mt-6">
@@ -365,6 +420,7 @@ export default async function ParticipantDetailsPage({
                 </tbody>
               </table>
               {/* Create Invoice Button */}
+              {/*}
               <div className="flex justify-end mt-4">
                 {hasActiveInvoice ? (
                   <span
@@ -383,6 +439,7 @@ export default async function ParticipantDetailsPage({
                   </Link>
                 )}
               </div>
+              */}
             </div>
           </section>
 
@@ -477,6 +534,7 @@ export default async function ParticipantDetailsPage({
                   ))}
                 </tbody>
               </table>
+              {/*
               <div className="flex justify-end mt-4">
                 {hasActiveInvoice ? (
                   <span
@@ -495,6 +553,7 @@ export default async function ParticipantDetailsPage({
                   </Link>
                 )}
               </div>
+              */}
             </div>
           </section>
 

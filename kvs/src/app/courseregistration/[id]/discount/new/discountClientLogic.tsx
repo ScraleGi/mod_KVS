@@ -1,5 +1,5 @@
 'use client'
-import CancelButton from '@/components/cancle-Button/cnacleButton'
+import CancelButton from '@/components/cancelButton/cancelButton'
 import React, { useState } from 'react'
 
 export default function DiscountClientLogic({

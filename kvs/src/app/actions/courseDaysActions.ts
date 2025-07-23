@@ -4,6 +4,9 @@ import { db } from '@/src/../lib/db'
 import { revalidatePath } from 'next/cache'
 import { WeekDay } from '../../../generated/prisma'
 import { formatDateISO } from '@/lib/utils'
+import { redirect } from 'next/navigation'
+import type { ActionResult } from '@/components/coursedays/CourseToaster'
+
 
 // ===================
 // Holiday Management
@@ -70,11 +73,11 @@ export async function createCourseHoliday(formData: FormData) {
       courseId,
     },
   })
-  revalidatePath(`/coursedays/${courseId}`)
+  revalidatePath(`/course/${courseId}`)
+  redirect(`/course/${courseId}?holiday_created=1`)
 }
 
-// Update a course-specific holiday
-export async function updateCourseHoliday(formData: FormData) {
+export async function updateCourseHoliday(formData: FormData): Promise<ActionResult> {
   const id = formData.get('id') as string
   const title = formData.get('title') as string
   const date = formData.get('date') as string
@@ -90,15 +93,15 @@ export async function updateCourseHoliday(formData: FormData) {
       date: isoDateTime,
     },
   })
-  revalidatePath(`/coursedays/${courseId}`)
+  revalidatePath(`/course/${courseId}`)
+  return { message: 'Kursfeiertag erfolgreich bearbeitet!', type: 'success'}
 }
-
-// Delete a course-specific holiday
-export async function deleteCourseHoliday(formData: FormData) {
+export async function deleteCourseHoliday(formData: FormData): Promise<ActionResult> {
   await db.courseHoliday.delete({
     where: { id: formData.get('id') as string },
   })
-  revalidatePath(`/coursedays/${formData.get('courseId')}`)
+  revalidatePath(`/course/${formData.get('courseId')}`)
+  return { message: 'Kursfeiertag erfolgreich gelöscht!', type: 'success'}
 }
 
 // ========================
@@ -148,10 +151,11 @@ export async function createCourseSpecialDay(formData: FormData) {
     },
   })
   revalidatePath(`/coursedays/${courseId}`)
+  redirect(`/course/${courseId}?special_created=1`)
 }
 
-// Update a special day for a course
-export async function updateCourseSpecialDay(formData: FormData) {
+
+export async function updateCourseSpecialDay(formData: FormData): Promise<ActionResult> {
   const id = formData.get('id') as string
   const title = formData.get('title') as string
   const startTimeRaw = formData.get('startTime') as string
@@ -174,14 +178,15 @@ export async function updateCourseSpecialDay(formData: FormData) {
     },
   })
   revalidatePath(`/coursedays/${courseId}`)
+  return { message: 'Besondere Kurstag erfolgreich bearbeitet!', type: 'success' }
 }
 
-// Delete a special day for a course
-export async function deleteCourseSpecialDay(formData: FormData) {
+export async function deleteCourseSpecialDay(formData: FormData): Promise<ActionResult> {
   await db.courseSpecialDays.delete({
     where: { id: formData.get('id') as string },
   })
   revalidatePath(`/coursedays/${formData.get('courseId')}`)
+  return { message: 'Besondere Kurstag erfolgreich gelöscht!', type: 'success' }
 }
 
 // ========================
@@ -239,10 +244,11 @@ export async function createCourseRythm(formData: FormData) {
     })
   }
   revalidatePath(`/coursedays/${courseId}`)
+  redirect(`/course/${courseId}?rhythmus_created=1`)
 }
 
-// Update a rhythm for a course
-export async function updateCourseRythm(formData: FormData) {
+
+export async function updateCourseRythm(formData: FormData): Promise<ActionResult> {
   const id = formData.get('id') as string
   const weekDay = formData.get('weekDay') as WeekDay
   const startTimeRaw = formData.get('startTime') as string
@@ -275,13 +281,15 @@ export async function updateCourseRythm(formData: FormData) {
     },
   })
   revalidatePath(`/coursedays/${courseId}`)
+  return { message: 'Kurs-Rhythmus erfolgreich bearbeitet!', type: 'success'}
 }
-
-// Delete a rhythm for a course
-export async function deleteCourseRythm(formData: FormData) {
+export async function deleteCourseRythm(formData: FormData): Promise<ActionResult> {
   await db.courseRythm.delete({
     where: { id: formData.get('id') as string },
   })
   console.log('Deleted course rythm:', formData.get('id'))
-  // Optionally revalidate or redirect here if needed
+  revalidatePath(`/coursedays/${formData.get('courseId')}`)
+  return { message: 'Kurs-Rhythmus erfolgreich gelöscht!', type: 'success'}
+  //redirect(`/coursedays/${formData.get('courseId')}`)
+
 }

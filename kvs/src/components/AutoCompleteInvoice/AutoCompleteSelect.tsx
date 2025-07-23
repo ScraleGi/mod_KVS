@@ -2,7 +2,6 @@
 
 // <AutoCompleteSelect recipients={recipients} participants={participants} /> 
 
-
 import React, { useState } from 'react'
 
 type BaseItem = {
@@ -42,6 +41,7 @@ export default function AutoCompleteSelect({ recipients, participants }: Props) 
   const [filtered, setFiltered] = useState<MergedItem[]>([])
   const [showSuggestions, setShowSuggestions] = useState(false)
 
+  // Handle input change in search field
   function handleSearchChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value
     setSearch(value)
@@ -52,9 +52,11 @@ export default function AutoCompleteSelect({ recipients, participants }: Props) 
       return
     }
 
+    // Normalize recipients and participants for unified search
     const normalizedRecipients: Recipient[] = recipients.map((r) => ({ ...r, isRecipient: true }))
     const normalizedParticipants: Participant[] = participants.map((p) => ({ ...p, isRecipient: false }))
 
+    // Filter by name/company
     const results = [...normalizedRecipients, ...normalizedParticipants].filter((item) => {
       const name = item.isRecipient
         ? item.type === 'COMPANY'
@@ -68,6 +70,7 @@ export default function AutoCompleteSelect({ recipients, participants }: Props) 
     setShowSuggestions(true)
   }
 
+  // Handle selection from suggestions: autofill form fields
   function handleSelect(item: MergedItem) {
     const form = document.getElementById('invoice-form') as HTMLFormElement | null
     if (!form) return
@@ -82,6 +85,7 @@ export default function AutoCompleteSelect({ recipients, participants }: Props) 
 
       setSearch(displayName.trim())
 
+      // Helper to set form input values
       const setInput = (name: string, value?: string | null) => {
         const input = form.querySelector<HTMLInputElement | HTMLSelectElement>(`[name="${name}"]`)
         if (input && value !== undefined && value !== null) {
@@ -99,6 +103,7 @@ export default function AutoCompleteSelect({ recipients, participants }: Props) 
       setInput('recipientCity', r.city)
       setInput('recipientCountry', r.country)
 
+      // Set type select if present
       const typeSelect = form.querySelector('select[name="type"]') as HTMLSelectElement | null
       if (typeSelect && r.type) typeSelect.value = r.type
     } else {
@@ -107,6 +112,7 @@ export default function AutoCompleteSelect({ recipients, participants }: Props) 
       const displayName = `${p.salutation} ${p.name} ${p.surname}`.trim()
       setSearch(displayName)
 
+      // Helper to set form input values
       const setInput = (name: string, value?: string) => {
         const input = form.querySelector<HTMLInputElement | HTMLSelectElement>(`[name="${name}"]`)
         if (input && value !== undefined) {
@@ -123,6 +129,7 @@ export default function AutoCompleteSelect({ recipients, participants }: Props) 
       setInput('recipientCity', p.city ?? undefined)
       setInput('recipientCountry', p.country ?? undefined)
 
+      // Set type select to PERSON for participants
       const typeSelect = form.querySelector('select[name="type"]') as HTMLSelectElement | null
       if (typeSelect) typeSelect.value = 'PERSON'
     }
@@ -143,17 +150,18 @@ export default function AutoCompleteSelect({ recipients, participants }: Props) 
         placeholder="Start typing name or company..."
         className="w-full border border-neutral-300 rounded px-2 py-1 text-sm"
         autoComplete="off"
-        onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+        onBlur={() => setTimeout(() => setShowSuggestions(false), 150)} // Delay to allow click
         onFocus={() => search && setShowSuggestions(true)}
       />
 
+      {/* Suggestions dropdown */}
       {showSuggestions && filtered.length > 0 && (
         <ul className="absolute z-10 bg-white border border-neutral-300 rounded shadow-md max-h-48 overflow-auto w-full mt-1 text-sm">
           {filtered.map((item) => (
             <li
               key={item.id}
               className="px-3 py-2 hover:bg-blue-100 cursor-pointer"
-              onMouseDown={() => handleSelect(item)}
+              onMouseDown={() => handleSelect(item)} // Use onMouseDown to avoid blur before click
             >
               {item.isRecipient ? (
                 <>

@@ -1,5 +1,6 @@
 import { db } from '@/lib/db'
 import { $Enums } from '../../../generated/prisma'
+import { redirect } from 'next/navigation'
 
 // ---- Utility Functions ----
 
@@ -249,5 +250,5 @@ export default async function generateCourseDates(formData: FormData) {
         })
     }
 
-    return
+    redirect(`/course/${courseId}?days_generated=1`)
 }

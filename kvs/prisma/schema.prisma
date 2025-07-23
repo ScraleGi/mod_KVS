@@ -87,8 +87,8 @@ model CourseRegistration {
   subsidyRemark       String?
   subsidyAmount       Decimal?    @db.Decimal(10, 2)
   discountRemark      String?                                                                             
-  discountAmount      Decimal?    @db.Decimal(10, 2)                                                      //!!!!!!!CHECK 
-
+  discountAmount      Decimal?    @db.Decimal(10, 2)  
+  
   @@index([deletedAt])
   @@index([courseId])
   @@index([participantId])
@@ -135,33 +135,41 @@ model Participant {
   @@index([deletedAt])
 }
 
+
+
 model Invoice {
-  id                    String               @id @default(uuid())
-  invoiceNumber         String               @unique
-  amount                Decimal              @db.Decimal(10, 2)
-  finalAmount           Decimal?             @db.Decimal(10, 2) // make it optional // if participant has a Coupon this will be the End Amount that he pays else it is amount //!!!!!!!CHECK 
-  courseRegistrationId  String
-  courseRegistration    CourseRegistration   @relation(fields: [courseRegistrationId], references: [id])
-  isCancelled           Boolean              @default(false)
+  id                    String   @id @default(uuid())
+  invoiceNumber         String   @unique
+
+  courseRegistrationId  String?
+  courseRegistration    CourseRegistration? @relation(fields: [courseRegistrationId], references: [id])
+
+  // snapshot fields (now optional)
+  courseCode            String?
+  programName           String?
+  programPrice          Decimal? @db.Decimal(10, 2)
+  discountAmount        Decimal? @db.Decimal(10, 2)
+  discountRemark        String?
+  subsidyAmount         Decimal? @db.Decimal(10, 2)
+  subsidyRemark         String?
+  amount                Decimal? @db.Decimal(10, 2)
+  finalAmount           Decimal? @db.Decimal(10, 2) // already optional
+
+  isCancelled           Boolean  @default(false)
   dueDate               DateTime
-  transactionNumber     String?              @unique // <-- nullable
-}
+  transactionNumber     String?  @unique
+  createdAt             DateTime   @default(now())
+  deletedAt             DateTime?
 
-model InvoiceRecipient {
-  id                      String       @id @default(uuid())
-  type                    RecipientType
-  recipientName           String?         // company name of the full name of the person
-  recipientEmail          String?
-  postalCode              String
-  recipientCity           String
-  recipientStreet         String
-  recipientCountry        String?
-  createdAt               DateTime     @default(now())
-  deletedAt               DateTime?
-  courseRegistrations     CourseRegistration[] // Relation: one InvoiceRecipient can have many CourseRegistrations
-  
-
-  @@index([deletedAt])
+  recipientSalutation   String?
+  recipientName         String?
+  recipientSurname      String?
+  companyName           String?
+  recipientEmail        String?
+  postalCode            String?
+  recipientCity         String?
+  recipientStreet       String?
+  recipientCountry      String?
 }
 
 enum RecipientType {
@@ -169,14 +177,35 @@ enum RecipientType {
   COMPANY
 }
 
+model InvoiceRecipient {
+  id                      String       @id @default(uuid())
+  type                    RecipientType
+  recipientSalutation     String?          // Optional, only for Person required
+  recipientName           String?         // Optional, only for PERSON required
+  recipientSurname        String?        // Optional, only for PERSON required
+  companyName             String?       // Optional, only for COMPANY required
+  recipientEmail          String
+  postalCode              String
+  recipientCity           String
+  recipientStreet         String
+  recipientCountry        String
+  createdAt               DateTime     @default(now())
+  deletedAt               DateTime?
+  courseRegistrations     CourseRegistration[] // Relation: one InvoiceRecipient can have many CourseRegistrations
+  @@index([deletedAt])
+}
+
+
+
+
 model Document {
   id                    String               @id @default(uuid())
   role                  String
   file                  String               // URL to the file
   courseRegistrationId  String
   courseRegistration    CourseRegistration   @relation(fields: [courseRegistrationId], references: [id])
-  createdAt        DateTime  @default(now())
-  deletedAt        DateTime? // Soft delete: null = not deleted, date = deleted 
+  createdAt             DateTime  @default(now())
+  deletedAt             DateTime? // Soft delete: null = not deleted, date = deleted 
 }
 
 model Room {

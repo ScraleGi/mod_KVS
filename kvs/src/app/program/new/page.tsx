@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { db } from '@/lib/db'
 import { getAuthorizing } from '@/lib/getAuthorizing';
-import CancelButton from '@/components/cancle-Button/cnacleButton';
+import CancelButton from '@/components/cancelButton/cancelButton';
 
 // Server action to create a new program
 async function createProgram(formData: FormData) {

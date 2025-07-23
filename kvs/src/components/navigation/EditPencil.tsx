@@ -1,12 +1,19 @@
 import Link from 'next/link'
 import { Pencil } from 'lucide-react'
 
-
+/**
+ * EditPencil
+ * 
+ * Renders a pencil icon as a link for editing.
+ * - If `auth` is true, shows a disabled/greyed-out icon (no navigation).
+ * - Otherwise, shows an active edit link to the provided `goTo` path.
+ */
 export default function EditPencil({ goTo, auth }: {
     goTo: string,
     auth?: boolean
 }) {
     if (auth === true) {
+        // Disabled/greyed-out edit icon (no link destination)
         return (
             <Link
                 href={``}
@@ -17,6 +24,7 @@ export default function EditPencil({ goTo, auth }: {
             </Link>
         )
     } else {
+        // Active edit icon with navigation
         return (
             <Link
                 href={goTo}

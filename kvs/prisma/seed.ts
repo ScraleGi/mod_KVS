@@ -1,4 +1,4 @@
-import { Prisma } from '../generated/prisma'
+import { Prisma, RecipientType } from '../generated/prisma'
 import { db } from '../src/lib/db'
 
 // -------------------- Area Seeding --------------------
@@ -284,9 +284,7 @@ async function seedRegistrations(
   const allRegs = await db.courseRegistration.findMany();
   return Object.fromEntries(allRegs.map(r => [r.participantId + '_' + r.courseId, r.id]));
 }
-
-//-------------------- Seed (public) Holiday + Schulferien ---------------------------------
-
+//-------------------- Seed (public) Holiday ---------------------------------
 const fixedHolidays = [
   { title: 'Neujahr', month: 1, day: 1 },
   { title: 'Heilige drei Könige', month: 1, day: 6 },
