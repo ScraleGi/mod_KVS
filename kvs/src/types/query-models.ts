@@ -282,6 +282,7 @@ export interface SanitizedRegistration {
   participant: SanitizedParticipant;
   course?: SanitizedCourse;
   invoices: SanitizedInvoice[];
+  invoiceRecipient?: SanitizedInvoiceRecipient | null;
 }
 
 /**

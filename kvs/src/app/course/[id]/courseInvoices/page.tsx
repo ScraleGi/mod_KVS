@@ -17,23 +17,21 @@ export default async function CourseInvoicesPage({ params }: { params: Promise<{
     }
   const { id } = await params
 
-  // Fetch course, registrations, invoices, and all possible custom recipients for this course
   const course = await db.course.findUnique({
     where: { id },
     include: {
       program: true,
+      mainTrainer: true,
       registrations: {
         where: { deletedAt: null },
         include: {
           participant: true,
           invoices: true,
+          invoiceRecipient: true,
         },
       },
-      mainTrainer: true,
     },
   })
-
-
 
   if (!course) {
     return (
@@ -46,8 +44,39 @@ export default async function CourseInvoicesPage({ params }: { params: Promise<{
     )
   }
 
-  const sanitizedRegistrations = sanitize(course.registrations) as unknown as SanitizedRegistration[]
+  const participants = course.registrations.map(r => r.participant)
+
+  const customRecipients = await db.invoiceRecipient.findMany({
+    where: {
+      OR: [
+        { type: "COMPANY" },
+        {
+          AND: [
+            { type: "PERSON" },
+            {
+              NOT: {
+                OR: participants.map(p => ({
+                  recipientName: p.name,
+                  recipientSurname: p.surname,
+                  recipientEmail: p.email,
+                })),
+              },
+            },
+          ],
+        },
+      ],
+    },
+    orderBy: [
+      { type: "asc" },
+      { companyName: "asc" },
+      { recipientSurname: "asc" },
+      { recipientName: "asc" },
+    ],
+  })
+
   const sanitizedCourse = sanitize(course) as unknown as SanitizedCourse
+  const sanitizedRegistrations = sanitize(course.registrations) as unknown as SanitizedRegistration[]
+  const sanitizedRecipients = sanitize(customRecipients) as unknown as SanitizedInvoiceRecipient[]
 
   return (
     <div className="min-h-screen bg-neutral-50 py-10 px-4">
@@ -55,10 +84,12 @@ export default async function CourseInvoicesPage({ params }: { params: Promise<{
         <h1 className="text-2xl font-bold mb-6">
           Rechnungen generieren für {sanitizedCourse.program?.name || sanitizedCourse.code || ""}
         </h1>
+
         <ClientGenerateCourseInvoices
           registrations={sanitizedRegistrations}
           courseId={sanitizedCourse.id}
         />
+
         <div className="mt-8">
           <Link href={`/course/${course.id}`} className="text-blue-500 hover:underline text-sm">
             &larr; Zurück zum Kurs

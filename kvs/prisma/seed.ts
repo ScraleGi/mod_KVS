@@ -1,4 +1,4 @@
-import { Prisma } from '../generated/prisma'
+import { Prisma, RecipientType } from '../generated/prisma'
 import { db } from '../src/lib/db'
 
 // -------------------- Area Seeding --------------------
@@ -636,7 +636,117 @@ async function seedRegistrations(
   return Object.fromEntries(registrations.map(r => [r.participantId + '_' + r.courseId, r.id]))
 }
 
-//-------------------- Seed (public) Holiday + Schulferien ---------------------------------
+// -------------------- InvoiceRecipient Seeding --------------------
+async function seedInvoiceRecipients() {
+  const recipients = [
+  // Company recipient (no salutation)
+ {
+      type: RecipientType.COMPANY,
+      companyName: "Joe's Firma",
+      recipientEmail: 'info@joesfirma.com',
+      postalCode: '12345',
+      recipientCity: 'City',
+      recipientStreet: 'Business Street 1',
+      recipientCountry: 'DE',
+    },
+    // Person recipients
+    {
+      type: RecipientType.PERSON,
+      recipientSalutation: "Herr",
+      recipientName: 'Charlie',
+      recipientSurname: 'Brown',
+      recipientEmail: 'charlie.brown@example.com',
+      postalCode: '10115',
+      recipientCity: 'Berlin',
+      recipientStreet: 'Musterstraße 1',
+      recipientCountry: 'DE',
+    },
+    {
+      type: RecipientType.PERSON,
+      recipientSalutation: "Frau",
+      recipientName: 'Grace',
+      recipientSurname: 'Lee',
+      recipientEmail: 'grace.lee@example.com',
+      postalCode: '70173',
+      recipientCity: 'Stuttgart',
+      recipientStreet: 'Nebenstraße 5',
+      recipientCountry: 'DE',
+    },
+    {
+      type: RecipientType.PERSON,
+      recipientSalutation: "Frau",
+      recipientName: 'Dana',
+      recipientSurname: 'White',
+      recipientEmail: 'dana.white@example.com',
+      postalCode: '20095',
+      recipientCity: 'Hamburg',
+      recipientStreet: 'Beispielweg 2',
+      recipientCountry: 'DE',
+    },
+    {
+      type: RecipientType.PERSON,
+      recipientSalutation: "Herr",
+      recipientName: 'Henry',
+      recipientSurname: 'Ford',
+      recipientEmail: 'henry.ford@example.com',
+      postalCode: '80331',
+      recipientCity: 'München',
+      recipientStreet: 'Ringstraße 6',
+      recipientCountry: 'DE',
+    },
+    {
+      type: RecipientType.PERSON,
+      recipientSalutation: "Frau",
+      recipientName: 'Eve',
+      recipientSurname: 'Adams',
+      recipientEmail: 'eve.adams@example.com',
+      postalCode: '50667',
+      recipientCity: 'Köln',
+      recipientStreet: 'Teststraße 3',
+      recipientCountry: 'DE',
+    },
+    {
+      type: RecipientType.PERSON,
+      recipientSalutation: "Frau",
+      recipientName: 'Karen',
+      recipientSurname: 'Green',
+      recipientEmail: 'karen.green@example.com',
+      postalCode: '04109',
+      recipientCity: 'Leipzig',
+      recipientStreet: 'Gartenstraße 9',
+      recipientCountry: 'DE',
+    },
+    {
+      type: RecipientType.PERSON,
+      recipientSalutation: "Herr",
+      recipientName: 'Frank',
+      recipientSurname: 'Miller',
+      recipientEmail: 'frank.miller@example.com',
+      postalCode: '60311',
+      recipientCity: 'Frankfurt',
+      recipientStreet: 'Hauptstraße 4',
+      recipientCountry: 'DE',
+    },
+    {
+      type: RecipientType.PERSON,
+      recipientSalutation: "Frau",
+      recipientName: 'Mona',
+      recipientSurname: 'Patel',
+      recipientEmail: 'mona.patel@example.com',
+      postalCode: '39104',
+      recipientCity: 'Magdeburg',
+      recipientStreet: 'Blumenstraße 11',
+      recipientCountry: 'DE',
+    },
+  ]
+  // Create invoice recipients
+  await db.invoiceRecipient.createMany({
+    data: recipients,
+    skipDuplicates: true,
+  })
+}
+
+//-------------------- Seed (public) Holiday ---------------------------------
 
 const fixedHolidays = [
   { title: 'Neujahr', month: 1, day: 1 },
@@ -781,20 +891,9 @@ async function seedDatabase() {
   const courseMap = await seedCourses(programMap, trainerMap)
   const participantMap = await seedParticipants()
   await seedRegistrations(programMap, courseMap, participantMap)
+  await seedInvoiceRecipients();
   await seedHoliday()
-  await seedRoles(); async function seedDatabase() {
-    const areaMap = await seedAreas()
-    const programMap = await seedPrograms(areaMap)
-    const trainerMap = await seedTrainers()
-    const courseMap = await seedCourses(programMap, trainerMap)
-    const participantMap = await seedParticipants()
-    await seedRegistrations(programMap, courseMap, participantMap)
-
-    await seedHoliday()
-    await seedRoles();
-    await seedUsers();
-    await assignRolesToUsers(); // <--- Hier!
-  }
+  await seedRoles();
   await seedUsers();
   await assignRolesToUsers();
 }

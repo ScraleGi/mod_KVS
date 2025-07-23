@@ -104,15 +104,15 @@
 <header>
   <div class="recipient-info">
     <ul>
-      <% if (invoice.companyName) { %>
-        <li><strong>Firma:</strong> <%= invoice.companyName %></li>
+      <% if (recipient.type === 'COMPANY') { %>
+        <li><strong>Firma:</strong> <%= recipient.companyName %></li>
       <% } else { %>
-        <li><%= invoice.recipientSalutation %></li>
-        <li><%= invoice.recipientName %> <%= invoice.recipientSurname %></li>
+        <li><%= recipient?.recipientSalutation %></li>
+        <li><%= recipient.recipientName %> <%= recipient.recipientSurname %></li>
       <% } %>
-      <li><%= invoice.recipientStreet %></li>
-      <li><%= invoice.postalCode %> <%= invoice.recipientCity %>, <%= invoice.recipientCountry %></li>
-      <li><%= invoice.recipientEmail %></li>
+      <li><%= recipient.recipientStreet %></li>
+      <li><%= recipient.postalCode %> <%= recipient.recipientCity %>, <%= recipient.recipientCountry %></li>
+      <li><%= recipient.recipientEmail %></li>
     </ul>
   </div>
 </header>
@@ -136,7 +136,7 @@
   </thead>
   <tbody>
     <tr>
-      <td><%= invoice.programName || 'Kurs' %></td>
+      <td><%= program?.name || 'Kurs' %></td>
       <td class="text-right"><%= amountNumber %></td>
       <td class="text-right"><%= (baseAmount / amountNumber).toFixed(2) %></td>
       <td class="text-right">0%</td>
@@ -145,7 +145,7 @@
 
     <% if (discountAmount > 0) { %>
       <tr>
-        <td><%= invoice.discountRemark || 'Rabatt' %></td>
+        <td><%= registration.discountRemark || 'Rabatt' %></td>
         <td class="text-right"><%= amountNumber %></td>
         <td class="text-right">-<%= (discountAmount / amountNumber).toFixed(2) %></td>
         <td class="text-right">0%</td>
@@ -177,7 +177,6 @@ Sparkasse Feldkirch, IBAN: AT23 2060 40310231 4238, BIC: SPFKAT2BXXX<br/>
 Es gelten unsere Allgemeinen Geschäftsbedingungen.</p>
 
 <%- include("_footer") %>
-
 
 </body>
 </html>

@@ -1,4 +1,4 @@
-import { FaHome, FaCalendarAlt, FaCog, FaRegEnvelope, FaChartBar, FaThLarge, FaLayerGroup, FaUsers, FaChalkboardTeacher, FaUserShield,} from 'react-icons/fa';
+import { FaHome, FaCalendarAlt, FaCog, FaRegEnvelope, FaChartBar, FaThLarge, FaLayerGroup, FaUsers, FaChalkboardTeacher, FaUserShield, FaRegAddressCard, FaFileInvoiceDollar} from 'react-icons/fa';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -34,6 +34,8 @@ const Sidebar = ({ isOpen, roles }: SidebarProps) => {
     { href: '/reports', label: 'Berichte', icon: FaChartBar },
     { href: '/inbox', label: 'Posteingang', icon: FaRegEnvelope },
     { href: '/settings', label: 'Einstellungen', icon: FaCog },
+    { href: '/invoiceRecipient', label: 'Empfänger', icon: FaRegAddressCard},
+    { href: '/invoice', label: 'Rechnungen', icon: FaFileInvoiceDollar},
   ];
 
   if (!roles || roles.length === 0) {

@@ -16,6 +16,10 @@ import {
   SanitizedDocument,
 } from '@/types/query-models'
 import RemoveButton from '@/components/RemoveButton/RemoveButton'
+import { generateInvoice } from '@/utils/generateInvoice'
+import ShowIAndSelectnvoiceRecipient from '@/components/ShowIAndSelectnvoiceRecipient'
+
+
 import SubsidyToaster from './subsidy/new/SubsidyToaster'
 
 //---------------------------------------------------
@@ -80,6 +84,7 @@ export default async function ParticipantDetailsPage({
       participant: true,
       course: { include: { program: true, mainTrainer: true } },
       invoices: true,
+      invoiceRecipient: true,
     }
   })
 
@@ -137,6 +142,12 @@ export default async function ParticipantDetailsPage({
       </div>
     )
   }
+
+    async function createInvoiceAction(formData: FormData) {
+  'use server'
+  await generateInvoice(formData)
+}
+
 
   // RENDER UI
   return (
@@ -277,6 +288,43 @@ export default async function ParticipantDetailsPage({
               </div>
             </div>
             
+          {/* Invoice Recipient Form Section */}
+          <hr className="my-6 border-t border-neutral-200" />
+          
+        <ShowIAndSelectnvoiceRecipient sanitizedRegistration={sanitizedRegistration}  />
+            <div className="flex justify-end mt-4">
+      {hasActiveInvoice ? (
+        <span
+          className="px-3 py-1 rounded text-xs font-medium bg-neutral-200 text-neutral-400 cursor-not-allowed select-none"
+          tabIndex={-1}
+          aria-disabled="true"
+        >
+          Rechnung generieren
+        </span>
+      ) : (
+    <form action={createInvoiceAction}>
+      <input type="hidden" name="registrationId" value={registrationId} />
+      <button
+        type="submit"
+        className="px-3 py-1 rounded text-xs font-medium bg-blue-600 text-white hover:bg-blue-700 transition"
+      >
+        Rechnung generieren
+      </button>
+    </form>
+      )}
+    </div>
+
+{/* 
+<SelfPayer />
+             <div>
+              invoice Recipient 
+              </div>       
+                    
+          <div className="mt-4">
+            <RecipientForm courseregistrationId={sanitizedRegistration.id} />
+          </div>
+*/}
+
             {/* Remark Form Section */}
             <hr className="my-6 border-t border-neutral-200" />
             <div className="mt-6">
@@ -372,6 +420,7 @@ export default async function ParticipantDetailsPage({
                 </tbody>
               </table>
               {/* Create Invoice Button */}
+              {/*}
               <div className="flex justify-end mt-4">
                 {hasActiveInvoice ? (
                   <span
@@ -390,6 +439,7 @@ export default async function ParticipantDetailsPage({
                   </Link>
                 )}
               </div>
+              */}
             </div>
           </section>
 
@@ -484,6 +534,7 @@ export default async function ParticipantDetailsPage({
                   ))}
                 </tbody>
               </table>
+              {/*
               <div className="flex justify-end mt-4">
                 {hasActiveInvoice ? (
                   <span
@@ -502,6 +553,7 @@ export default async function ParticipantDetailsPage({
                   </Link>
                 )}
               </div>
+              */}
             </div>
           </section>
 
