@@ -1,4 +1,4 @@
-import { FaHome, FaCalendarAlt, FaCog, FaRegEnvelope, FaChartBar, FaThLarge, FaLayerGroup, FaUsers, FaChalkboardTeacher, FaUserShield, FaRegAddressCard, FaFileInvoiceDollar} from 'react-icons/fa';
+import { FaHome, FaCalendarAlt, FaCog, FaThLarge, FaLayerGroup, FaUsers, FaChalkboardTeacher, FaUserShield, FaRegAddressCard, FaFileInvoiceDollar} from 'react-icons/fa';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
