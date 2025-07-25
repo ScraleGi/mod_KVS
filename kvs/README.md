@@ -1,3 +1,20 @@
+# mod_KVS 
+
+This is a personal fork of [gylhrvth/KVS](https://github.com/gylhrvth/KVS), originally developed by:
+
+- Daniela Pittner 
+- Leonie Ertl 
+- Görkem Cinar 
+- Carlos Artiaga Morales
+- Alparslan Sahin 
+- Mehmet Kesken 
+
+This fork is intended for private learning and experimentation.
+
+MIT Licensed.
+
+
+
 # KVS – Kursverwaltungssystem
 
 Dies ist ein [Next.js](https://nextjs.org) Projekt mit TypeScript, Prisma und MySQL als Datenbank.  
