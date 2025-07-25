@@ -17,7 +17,7 @@ import {
 } from '@/types/query-models'
 import RemoveButton from '@/components/RemoveButton/RemoveButton'
 import { generateInvoice } from '@/utils/generateInvoice'
-import ShowIAndSelectnvoiceRecipient from '@/components/ShowIAndSelectnvoiceRecipient'
+import ShowIAndSelectnvoiceRecipient from '@/components/invoices/ShowIAndSelectnvoiceRecipient'
 
 
 import SubsidyToaster from './subsidy/new/SubsidyToaster'

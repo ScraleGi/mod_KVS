@@ -26,7 +26,7 @@ export function CoursesDialog({
           {courses.length}
         </button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="bg-white">
         <DialogTitle className="text-lg font-bold mb-2">Registrierte Kurse</DialogTitle>
         <DialogDescription>
           Hier sehen Sie alle Kurse, für die dieser Teilnehmer registriert ist.

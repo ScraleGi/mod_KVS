@@ -29,7 +29,7 @@ export function CourseParticipantsDialog({
           {children}
         </button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="bg-white">
         <DialogTitle className="text-lg font-bold mb-2">Teilnehmer</DialogTitle>
         <DialogDescription>
           Hier sehen Sie alle Teilnehmer dieses Kurses.
