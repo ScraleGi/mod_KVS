@@ -80,7 +80,7 @@ function SelectOrNewInvoiceRecipient({
                 onSelect={onRecipientSelected}
                 sanitizedRegistration={sanitizedRegistration}
             />
-             <RecipientForm
+            <RecipientForm
               courseregistrationId={sanitizedRegistration.id}
               onRecipientCreated={async (newRecipientId) => {
           // Refetch recipients to get the new one
