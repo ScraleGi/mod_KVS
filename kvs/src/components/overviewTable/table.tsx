@@ -1,15 +1,4 @@
 "use client"
-import { CourseParticipantsDialog } from "../participants/CourseParticipantsDialog"
-import { TrainerCourseDialog } from "../trainer/TrainerCourseDialog"
-import { CoursesDialog } from "../participants/participantCoursesDialog"
-import { DocumentDialog } from "../participants/DocumentDialog"
-import { FilterHeader } from "./FilterHeader"
-import { DoubleFilterHeader } from "./DoubleFilterHeader"
-import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger, } from "@/components/ui/dropdown-menu"
-import { ChevronDown } from "lucide-react"
-import { formatFullName } from "@/lib/utils"
-import { DownloadPDFLink } from "@/components/DownloadButton/DownloadButton";
-
 
 // -------------------- Imports --------------------
 import Link from "next/link"
@@ -26,7 +15,7 @@ import {
   ColumnFiltersState,
   VisibilityState,
 } from "@tanstack/react-table"
-
+import { ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Table,
@@ -36,7 +25,22 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
+// -------------------- Internal Imports --------------------
+import { CourseParticipantsDialog } from "../participants/CourseParticipantsDialog"
+import { TrainerCourseDialog } from "../trainer/TrainerCourseDialog"
+import { CoursesDialog } from "../participants/participantCoursesDialog"
+import { DocumentDialog } from "../participants/DocumentDialog"
+import { FilterHeader } from "./FilterHeader"
+import { DoubleFilterHeader } from "./DoubleFilterHeader"
+import { formatFullName } from "@/lib/utils"
+import { DownloadPDFLink } from "@/components/DownloadButton/DownloadButton"
 
 // -------------------- Types --------------------
 export type Participant = {
@@ -52,9 +56,8 @@ export type ParticipantRow = {
   surname: string
   email: string
   phoneNumber: string
-  courses: { id: string; name: string; startDate?: string | Date }[] // <-- Add startDate here
+  courses: { id: string; name: string; startDate?: string | Date }[]
 }
-
 
 export type CourseRow = {
   id: string
@@ -126,9 +129,92 @@ export type PrivilegesColumns = {
   roles: string
 }
 
-// -------------------- Table Columns Definition --------------------
+
+// InvoiceRecipientRow type definition
+export type InvoiceRecipientRow = {
+  id: string
+  type: 'PERSON' | 'COMPANY'
+  recipientSalutation?: string | null
+  recipientName?: string | null
+  recipientSurname?: string | null
+  companyName?: string | null
+  recipientEmail: string
+  recipientStreet: string
+  postalCode: string
+  recipientCity: string
+  recipientCountry: string
+}
+
+// --- Columns definition ---
+export const invoiceRecipientColumns: ColumnDef<InvoiceRecipientRow>[] = [
+  {
+    accessorKey: "type",
+    header: "Typ",
+    cell: ({ row }) => <span className="font-medium">{row.getValue("type")}</span>,
+  },
+  {
+    accessorKey: "recipientSalutation",
+    header: "Anrede",
+    cell: ({ row }) => <span>{row.getValue("recipientSalutation") || "-"}</span>,
+  },
+  {
+    accessorKey: "recipientName",
+    header: "Vorname",
+    cell: ({ row }) => <span>{row.getValue("recipientName") || "-"}</span>,
+  },
+  {
+    accessorKey: "recipientSurname",
+    header: "Nachname",
+    cell: ({ row }) => <span>{row.getValue("recipientSurname") || "-"}</span>,
+  },
+  {
+    accessorKey: "companyName",
+    header: "Firma",
+    cell: ({ row }) => <span>{row.getValue("companyName") || "-"}</span>,
+  },
+  {
+    accessorKey: "recipientEmail",
+    header: "E-Mail",
+    cell: ({ row }) => (
+      <a
+        href={`mailto:${row.getValue("recipientEmail")}`}
+        className="text-blue-600 underline decoration-dotted hover:text-blue-800 truncate"
+      >
+        {row.getValue("recipientEmail")}
+      </a>
+    ),
+  },
+  {
+    accessorKey: "postalCode",
+    header: "PLZ",
+    cell: ({ row }) => <span>{row.getValue("postalCode") || "-"}</span>,
+  },
+  {
+    accessorKey: "recipientCity",
+    header: "Ort",
+    cell: ({ row }) => <span>{row.getValue("recipientCity") || "-"}</span>,
+  },
+  {
+    accessorKey: "recipientCountry",
+    header: "Land",
+    cell: ({ row }) => <span>{row.getValue("recipientCountry") || "-"}</span>,
+  },
+  {
+    id: "actions",
+    header: "Aktionen",
+    cell: ({ row }) => (
+      <a
+        href={`/invoiceRecipient/${row.original.id}/edit`}
+        className="text-blue-600 hover:text-blue-800"
+        title="Rechnungsempfänger bearbeiten"
+      >
+        Edit
+      </a>
+    ),
+  },
+]
+
 export const home: ColumnDef<CourseRow>[] = [
-  // Course column with sorting
   {
     accessorKey: "course",
     size: 220,
@@ -142,14 +228,14 @@ export const home: ColumnDef<CourseRow>[] = [
     cell: ({ row }) => (
       <Link
         href={`/course/${row.original.id}`}
-        className="relative text-blue-600 hover:text-blue-800 pl-8 inline-block after:content-[''] after:absolute after:left-8 after:bottom-0 after:w-0 hover:after:w-[calc(100%-2rem)] after:h-[2px] after:bg-blue-600 after:transition-all after:duration-300"
+        className="relative text-blue-600 hover:text-blue-800 pl-2 inline-block after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-0 hover:after:w-full after:h-[2px] after:bg-blue-600 after:transition-all after:duration-300"
         style={{ whiteSpace: "nowrap", overflowWrap: "normal" }}
       >
         {row.getValue("course")}
       </Link>
     ),
   },
-  // Area column
+  // Area Sorting
   {
     accessorKey: "area",
     size: 220,
@@ -180,11 +266,13 @@ export const home: ColumnDef<CourseRow>[] = [
         placeholderFrom="Filter von..."
         placeholderTo="Filter bis..."
         typeDefinition="date"
+      
       />
     ),
     cell: ({ row }) => {
       const date = new Date(row.getValue("startDate") as string)
       return (
+        <div className="w-56 min-w-[12rem] pl-12">
         <span className="block pr-2">
           {date.toLocaleDateString("de-DE", {
             year: "numeric",
@@ -192,6 +280,7 @@ export const home: ColumnDef<CourseRow>[] = [
             day: "2-digit",
           })}
         </span>
+        </div>
       )
     },
     // Filterfunktion für Zeitraum
@@ -231,13 +320,15 @@ export const home: ColumnDef<CourseRow>[] = [
       />
     ),
     cell: ({ row }) => (
-      <span
-        className="block w-56 min-w-[12rem] pl-2"
-        style={{ whiteSpace: "nowrap", overflowWrap: "normal" }}
+      <div className="w-56 min-w-[12rem] pl-2">
+        <span
+          className="block pr-2"
+          style={{ whiteSpace: "nowrap", overflowWrap: "normal" }}
       >
-        {row.getValue("trainer")}
-      </span>
-    ),
+          {row.getValue("trainer")}
+        </span>
+      </div>
+),
   },
   // Registrations column with sorting
   {
@@ -250,14 +341,17 @@ export const home: ColumnDef<CourseRow>[] = [
         placeholderFrom="Filter von..."
         placeholderTo="Filter bis..."
         typeDefinition="number"
+        alignRight={true}
       />
     ),
     cell: ({ row }) => (
-      <span className="block text-right w-8 min-w-[2rem] pr-2">
-        <CourseParticipantsDialog participants={row.original.participants ?? []}>
-          {row.getValue("registrations")}
-        </CourseParticipantsDialog>
-      </span>
+      <div className="w-56 min-w-[12rem] flex justify-end">
+        <span className="pr-2">
+          <CourseParticipantsDialog participants={row.original.participants ?? []}>
+            {row.getValue("registrations")}
+          </CourseParticipantsDialog>
+        </span>
+      </div>
     ),
   },
     {
@@ -265,7 +359,7 @@ export const home: ColumnDef<CourseRow>[] = [
         size: 80,
         header: "Aktionen",
         cell: ({ row }) => (
-        <div className="flex justify-center gap-1">
+        <div className="flex justify-start pl-4 gap-1">
             <Link
             href={`/course/${row.original.id}/edit`}
             className="p-2 rounded hover:bg-blue-100 text-blue-600 transition"
@@ -282,6 +376,10 @@ export const home: ColumnDef<CourseRow>[] = [
 
 ]
 
+/*********************************** */
+// Participant Sorting 
+/*********************************** */
+
 export const participantColumns: ColumnDef<ParticipantRow>[] = [
   {
     accessorKey: "name",
@@ -295,7 +393,7 @@ export const participantColumns: ColumnDef<ParticipantRow>[] = [
 cell: ({ row }) => (
   <Link
     href={`/participant/${row.original.id}`}
-    className="relative text-blue-600 hover:text-blue-800 inline-block after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-0 hover:after:w-full after:h-[2px] after:bg-blue-600 after:transition-all after:duration-300"
+    className="relative text-blue-600 hover:text-blue-800 pl-2 inline-block after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-0 hover:after:w-full after:h-[2px] after:bg-blue-600 after:transition-all after:duration-300"
     style={{ whiteSpace: "nowrap" }}
   >
     {row.original.name} {row.original.surname}
@@ -334,12 +432,15 @@ cell: ({ row }) => (
         column={column}
         label="Kurse"
         placeholder="Filter Anzahl Kurse..."
+        alignRight={true}
       />
     ),
     cell: ({ row }) => (
-      <span className="block pl-2">
-        <CoursesDialog courses={row.original.courses ?? []} />
-      </span>
+      <div className="w-56 min-w-[12rem] flex justify-end">
+        <span className="block pr-2">
+          <CoursesDialog courses={row.original.courses ?? []} />
+        </span>
+      </div>
     ),
     // Filter: nach Anzahl der Kurse (als Zahl oder String im Input)
     filterFn: (row, columnId, filterValue) => {
@@ -363,6 +464,10 @@ cell: ({ row }) => (
   },
 ]
 
+/*********************************** */
+// Area Sorting 
+/*********************************** */
+
 export const areaColumns: ColumnDef<AreaRow>[] = [
   {
     accessorKey: "area",
@@ -376,7 +481,7 @@ export const areaColumns: ColumnDef<AreaRow>[] = [
     cell: ({ row }) => (
       <Link
         href={`/area/${row.original.id}`}
-        className="relative text-blue-600 hover:text-blue-800 inline-block after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-0 hover:after:w-full after:h-[2px] after:bg-blue-600 after:transition-all after:duration-300"
+        className="pl-2 relative text-blue-600 hover:text-blue-800 inline-block after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-0 hover:after:w-full after:h-[2px] after:bg-blue-600 after:transition-all after:duration-300"
       >
         {row.original.area}
       </Link>
@@ -389,12 +494,15 @@ export const areaColumns: ColumnDef<AreaRow>[] = [
         column={column}
         label="Programme"
         placeholder="Filter Programme..."
+        alignRight={true}
       />
     ),
     cell: ({ row }) => (
-      <span className="block pl-2">
+      <div className="w-56 min-w-[12rem] flex justify-end">
+        <span className="block pr-2">
         {row.original.programs?.length ?? 0}
       </span>
+      </div>
     ),
     filterFn: (row, columnId, filterValue) => {
       const value = row.getValue(columnId)
@@ -416,12 +524,15 @@ export const areaColumns: ColumnDef<AreaRow>[] = [
         column={column}
         label="Kurse"
         placeholder="Filter Kurse..."
+        alignRight={true}
       />
     ),
     cell: ({ row }) => (
-      <span className="block pl-2">
+      <div className="w-56 min-w-[12rem] flex justify-end">
+        <span className="block pr-2">
         {row.getValue("courseCount")}
       </span>
+      </div>
     ),
     filterFn: (row, columnId, filterValue) => {
       const value = row.getValue(columnId)
@@ -442,12 +553,15 @@ export const areaColumns: ColumnDef<AreaRow>[] = [
         column={column}
         label="Teilnehmer"
         placeholder="Filter Teilnehmer..."
+        alignRight={true}
       />
     ),
     cell: ({ row }) => (
-      <span className="block pl-2">
-        {row.getValue("participantCount")}
-      </span>
+      <div className="w-56 min-w-[12rem] flex justify-end">
+        <span className="block pr-2">
+          {row.getValue("participantCount")}
+        </span>
+      </div>
     ),
     filterFn: (row, columnId, filterValue) => {
       const value = row.getValue(columnId)
@@ -465,7 +579,7 @@ export const areaColumns: ColumnDef<AreaRow>[] = [
     id: "actions",
     header: "Aktionen",
     cell: ({ row }) => (
-      <div className="flex justify-center gap-1">
+      <div className="flex items-center pl-4 gap-1">
         <Link
           href={`/area/${row.original.id}/edit`}
           className="p-2 rounded hover:bg-blue-100 text-blue-600 transition"
@@ -481,6 +595,10 @@ export const areaColumns: ColumnDef<AreaRow>[] = [
   }
 ]
 
+/*********************************** */
+// Program Sorting 
+/*********************************** */
+
 export const programColumns: ColumnDef<ProgramRow>[] = [
   {
     accessorKey: "program",
@@ -494,7 +612,7 @@ export const programColumns: ColumnDef<ProgramRow>[] = [
     cell: ({ row }) => (
       <Link
         href={`/program/${row.original.id}`}
-        className="relative text-blue-600 hover:text-blue-800 inline-block after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-0 hover:after:w-full after:h-[2px] after:bg-blue-600 after:transition-all after:duration-300"
+        className="pl-2 relative text-blue-600 hover:text-blue-800 inline-block after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-0 hover:after:w-full after:h-[2px] after:bg-blue-600 after:transition-all after:duration-300"
       >
         {row.original.program}
       </Link>
@@ -520,12 +638,15 @@ export const programColumns: ColumnDef<ProgramRow>[] = [
         column={column}
         label="Kurse"
         placeholder="Filter Kurse..."
+        alignRight={true}
       />
     ),
     cell: ({ row }) => (
-      <span className="block pl-2">
-        {row.original.courses ?? "N/A"}
-      </span>
+      <div className="w-56 min-w-[12rem] flex justify-end">
+        <span className="block pr-2">
+          {row.original.courses ?? "N/A"}
+        </span>
+      </div>
     ),
     filterFn: (row, columnId, filterValue) => {
       const value = row.getValue(columnId)
@@ -546,12 +667,15 @@ export const programColumns: ColumnDef<ProgramRow>[] = [
         column={column}
         label="Einheit"
         placeholder="Filter Einheit..."
+        alignRight={true}
       />
     ),
     cell: ({ row }) => (
-      <span className="block pl-2">
-        {row.original.teachingUnits ?? "N/A"}
-      </span>
+      <div className="w-56 min-w-[12rem] flex justify-end">
+        <span className="block pr-2">
+          {row.original.teachingUnits ?? "N/A"}
+        </span>
+      </div>
     ),
     filterFn: (row, columnId, filterValue) => {
       const value = row.getValue(columnId)
@@ -572,12 +696,15 @@ export const programColumns: ColumnDef<ProgramRow>[] = [
         column={column}
         label="Preis"
         placeholder="Filter Preis..."
+        alignRight={true}
       />
     ),
     cell: ({ row }) => (
-      <span className="block pl-2">
-        {row.original.price != null ? `€${row.original.price.toFixed(2)}` : "N/A"}
-      </span>
+      <div className="w-56 min-w-[12rem] flex justify-end">
+        <span className="block pr-2">
+          {row.original.price != null ? `€${row.original.price.toFixed(2)}` : "N/A"}
+        </span>
+      </div>
     ),
     filterFn: (row, columnId, filterValue) => {
       const value = row.getValue(columnId)
@@ -595,7 +722,7 @@ export const programColumns: ColumnDef<ProgramRow>[] = [
     id: "actions",
     header: "Aktionen",
     cell: ({ row }) => (
-      <div className="flex justify-center gap-1">
+      <div className="flex justify-center gap-1 pr-4">
         <Link
           href={`/program/${row.original.id}/edit`}
           className="p-2 rounded hover:bg-blue-100 text-blue-600 transition"
@@ -611,6 +738,10 @@ export const programColumns: ColumnDef<ProgramRow>[] = [
   },
 ]
 
+/*********************************** */
+// Course Participants Sorting 
+/*********************************** */
+
   export const courseParticipantsColumns: ColumnDef<CourseParticipantRow>[] = [
   {
     accessorKey: "participant",
@@ -622,7 +753,7 @@ export const programColumns: ColumnDef<ProgramRow>[] = [
       return p ? (
         <Link
           href={`/courseregistration/${row.original.id}`}
-          className="relative text-blue-600 hover:text-blue-800 inline-block after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-0 hover:after:w-full after:h-[2px] after:bg-blue-600 after:transition-all after:duration-300"
+          className="inline-block relative text-blue-600 hover:text-blue-800 after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-0 hover:after:w-full after:h-[2px] after:bg-blue-600 after:transition-all after:duration-300"
         >
           {formatFullName(p)}
         </Link>
@@ -804,6 +935,10 @@ export const programColumns: ColumnDef<ProgramRow>[] = [
   ),
 },
 ]
+
+/*********************************** */
+// Trainer Sorting 
+/*********************************** */
 export const trainerColumns: ColumnDef<TrainerRow>[] = [
   {
     accessorKey: "name",
@@ -817,7 +952,7 @@ export const trainerColumns: ColumnDef<TrainerRow>[] = [
     cell: ({ row }) => (
       <Link
         href={`/trainer/${row.original.id}`}
-        className="relative text-blue-600 hover:text-blue-800 pl-8 inline-block after:content-[''] after:absolute after:left-8 after:bottom-0 after:w-0 hover:after:w-[calc(100%-2rem)] after:h-[2px] after:bg-blue-600 after:transition-all after:duration-300"
+        className="relative text-blue-600 hover:text-blue-800 pl-2 inline-block after:content-[''] after:absolute after:left-8 after:bottom-0 after:w-0 hover:after:w-[calc(100%-2rem)] after:h-[2px] after:bg-blue-600 after:transition-all after:duration-300"
       >
         {row.original.name} {row.original.surname}
       </Link>
@@ -856,14 +991,17 @@ export const trainerColumns: ColumnDef<TrainerRow>[] = [
         column={column}
         label="Hauptkurse"
         placeholder="Filter Hauptkurse..."
+        alignRight={true}
       />
     ),
     cell: ({ row }) => (
-      <span className="block pl-2">
-        <TrainerCourseDialog courses={row.original.mainCourses ?? []}>
-          {row.original.mainCourses?.length ?? 0}
-        </TrainerCourseDialog>
-      </span>
+      <div className="w-56 min-w-[12rem] flex justify-end">
+        <span className="block pr-2">
+          <TrainerCourseDialog courses={row.original.mainCourses ?? []}>
+            {row.original.mainCourses?.length ?? 0}
+          </TrainerCourseDialog>
+        </span>
+      </div>
     ),
     filterFn: (row, columnId, filterValue) => {
       const value = row.getValue(columnId)
@@ -883,16 +1021,19 @@ export const trainerColumns: ColumnDef<TrainerRow>[] = [
     header: ({ column }) => (
       <FilterHeader
         column={column}
-        label="Kurse"
+        label="Co-Kurse"
         placeholder="Filter Kurse..."
+        alignRight={true}
       />
     ),
     cell: ({ row }) => (
-     <span className="block pl-2">
-      <TrainerCourseDialog courses={row.original.courses ?? []}>
-        {row.original.courses?.length ?? 0}
-      </TrainerCourseDialog>
-      </span>
+      <div className="w-56 min-w-[12rem] flex justify-end">
+        <span className="block pr-2">
+          <TrainerCourseDialog courses={row.original.courses ?? []}>
+            {row.original.courses?.length ?? 0}
+          </TrainerCourseDialog>
+        </span>
+      </div>
     ),
     filterFn: (row, columnId, filterValue) => {
       const value = row.getValue(columnId)
@@ -908,7 +1049,9 @@ export const trainerColumns: ColumnDef<TrainerRow>[] = [
     },
   },
 ]
-
+/*********************************** */
+// Privileges Sorting 
+/*********************************** */
 
 export const privilegesColumns: ColumnDef<PrivilegesColumns>[] = [
   {
@@ -936,7 +1079,6 @@ export const privilegesColumns: ColumnDef<PrivilegesColumns>[] = [
 ]
 
 
-
 // -------------------- Main Table Component --------------------
 /**
  * Renders the main courses table with filtering, sorting, pagination, and actions.
@@ -962,7 +1104,7 @@ export function CourseTable<T>({
   const table = useReactTable({
     data,
     columns,
-    initialState: { pagination: { pageSize: 10 } },
+    initialState: { pagination: { pageSize: 15 } },
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),

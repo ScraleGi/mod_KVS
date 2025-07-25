@@ -17,6 +17,7 @@ const Navbar = ({ isOpen, setOpen, user }: NavbarProps) => {
   const [results, setResults] = useState<SearchResult[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
 
+  // Handles live search input and dropdown display
   const handleSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchValue(value);
@@ -31,11 +32,11 @@ const Navbar = ({ isOpen, setOpen, user }: NavbarProps) => {
 
     setResults(data);
     setShowDropdown(true);
-
   };
 
   return (
     <div className='bg-gray-800 px-4 py-2 flex justify-between items-center'>
+      {/* Left: Sidebar toggle and logo */}
       <div className='flex items-center text-lg space-x-15'>
         <FaBars
           onClick={() => setOpen(!isOpen)}
@@ -54,19 +55,20 @@ const Navbar = ({ isOpen, setOpen, user }: NavbarProps) => {
         </div>
       </div>
 
+      {/* Center/Right: Search, user, profile, notifications */}
       <div className='flex items-center gap-x-5'>
-        {/* Suchfeld mit Dropdown im Input, beide exakt gleich groß */}
+        {/* Search input with dropdown results */}
         <div className="relative w-80 group">
           <div className="relative flex items-center w-full z-100">
             <div className="relative flex-1">
-              <span className='absolute inset-y-0 left-0 flex items-center pl-3 ml-8'>
+              <span className='absolute inset-y-0 left-0 flex items-center pl-3 ml-10'>
                 <FaSearch className='text-gray-400' />
               </span>
               <input
                 type='text'
                 value={searchValue}
                 onChange={handleSearch}
-                className='w-68 ml-8 transition-all duration-200 bg-white text-gray-900 rounded-xl px-3 py-1 pl-10 h-10 outline-none'
+                className='w-68 ml-10 transition-all duration-200 bg-white text-gray-900 rounded-xl px-3 py-1 pl-10 h-10 outline-none'
                 placeholder='Suche Kursteilnehmer...'
                 aria-label='Suche'
                 onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
@@ -74,28 +76,30 @@ const Navbar = ({ isOpen, setOpen, user }: NavbarProps) => {
                 style={{ marginTop: '0px' }}
               />
 
+              {/* Dropdown with search results */}
               {showDropdown && results.length > 0 && (
                 <ul className="absolute bg-white border w-full mt-1 rounded shadow overflow-auto z-50">
-                  {
-                    results.map((searchResult: SearchResult) => (
-                        <li key={searchResult.id} className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                          <Link href={`/courseregistration/${searchResult.id}`} onClick={() => setShowDropdown(false)}>
-                            {searchResult.participant.name} {searchResult.participant.surname}
-                            <br/>
-                            <span className="text-sm text-gray-400"> 
-                            {searchResult.course.code} - {searchResult.course.program.name}
-                          </span></Link>
-                        </li>
-                      ))
-                  }
+                  {results.map((searchResult: SearchResult) => (
+                    <li key={searchResult.id} className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                      <Link href={`/courseregistration/${searchResult.id}`} onClick={() => setShowDropdown(false)}>
+                        {searchResult.participant.name} {searchResult.participant.surname}
+                        <br />
+                        <span className="text-sm text-gray-400">
+                          {searchResult.course.code} - {searchResult.course.program.name}
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
                 </ul>
               )}
             </div>
           </div>
         </div>
 
+        {/* Display logged-in user */}
         <div className='text-white italic skew-x-1'>{user}</div>
 
+        {/* User profile dropdown */}
         <div className='relative'>
           <button className='text-white group focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-white'>
             <FaUserCircle className='w-6 h-6 mt-1 cursor-pointer transition-transform duration-150 group-hover:scale-110 group-focus:scale-110' />
@@ -117,6 +121,7 @@ const Navbar = ({ isOpen, setOpen, user }: NavbarProps) => {
           </button>
         </div>
 
+        {/* Notifications bell */}
         <div className='text-white'>
           <FaBell
             className='w-6 h-6 cursor-pointer transition-transform duration-150 hover:scale-110 focus:scale-110'

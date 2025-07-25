@@ -10,12 +10,10 @@ import deLocale from '@fullcalendar/core/locales/de';
 
 // ---- Types ----
 
-// Extended properties for calendar events (add more fields as needed)
 interface ExtendedEventProps {
   courseId?: string;
 }
 
-// Main event type for the calendar
 type EventType = {
   id: string;
   title?: string;
@@ -29,34 +27,18 @@ type EventType = {
   extendedProps?: ExtendedEventProps;
 };
 
-// ---- Utility Functions ----
-
-// Returns a set of all holiday dates (YYYY-MM-DD) from the event list
-function getHolidayDates(events: EventType[]): Set<string> {
-  return new Set(
-    events
-      .filter(e => e.id.startsWith('holiday-'))
-      .map(e => e.start.slice(0, 10))
-  );
-}
-
-// Returns a map of courseId -> Set of holiday dates (YYYY-MM-DD) for that course
-function getCourseHolidayDates(events: EventType[]): Map<string, Set<string>> {
-  const map = new Map<string, Set<string>>();
-  events.forEach(e => {
-    if (e.id.startsWith('courseHoliday-') && e.extendedProps?.courseId) {
-      const date = e.start.slice(0, 10);
-      const courseId = e.extendedProps.courseId;
-      if (!map.has(courseId)) map.set(courseId, new Set());
-      map.get(courseId)!.add(date);
-    }
-  });
-  return map;
-}
+type CalendarProps = {
+  events: EventType[];
+  holidayDates: Set<string>;
+};
 
 // ---- Custom Event Rendering ----
 
-// Custom rendering for events in the calendar
+/**
+ * Custom rendering for calendar events.
+ * - Course days are clickable and styled differently in week/day views.
+ * - Holidays are styled and link to the holiday settings.
+ */
 function renderEventContent(eventInfo: EventContentArg) {
   const isHoliday = eventInfo.event.id.startsWith('holiday-');
   const isCourseDay = eventInfo.event.id.startsWith('courseDay-');
@@ -144,11 +126,7 @@ function renderEventContent(eventInfo: EventContentArg) {
 
 // ---- Main Calendar Component ----
 
-const Calendar: React.FC<{ events: EventType[] }> = ({ events }) => {
-  // Derived data
-  const holidayDates = getHolidayDates(events);
-  const courseHolidayDatesByCourse = getCourseHolidayDates(events);
-
+const Calendar: React.FC<CalendarProps> = ({ events, holidayDates }) => {
   // State for background events, modal, and user-created events
   const [backgroundEvents, setBackgroundEvents] = useState<EventType[]>([]);
   const [showModal, setShowModal] = useState(false);
@@ -156,19 +134,10 @@ const Calendar: React.FC<{ events: EventType[] }> = ({ events }) => {
   const [newEventTitle, setNewEventTitle] = useState('');
   const [userEvents, setUserEvents] = useState<EventType[]>([]);
 
-  // Filter out courseDay events that fall on a courseHoliday for that course
-  const filteredEvents = events.filter(event => {
-    if (event.id.startsWith('courseDay-') && event.extendedProps?.courseId) {
-      const courseId = event.extendedProps.courseId;
-      const courseHolidayDates = courseHolidayDatesByCourse.get(courseId);
-      if (courseHolidayDates && courseHolidayDates.has(event.start.slice(0, 10))) {
-        return false;
-      }
-    }
-    return true;
-  });
-
-  // Generate background events for morning and evening slots for each visible day
+  /**
+   * Generate background events for morning and evening slots for each visible day.
+   * This visually blocks out early morning and late evening hours in the calendar.
+   */
   const handleDatesSet = useCallback((arg: DatesSetArg) => {
     const start = new Date(arg.start);
     const end = new Date(arg.end);
@@ -284,18 +253,17 @@ const Calendar: React.FC<{ events: EventType[] }> = ({ events }) => {
           slotMinTime='06:00:00'
           slotMaxTime='24:00:00'
           locale={deLocale}
-          events={[...filteredEvents, ...userEvents, ...backgroundEvents]}
+          events={[...events, ...userEvents, ...backgroundEvents]}
           selectable
           editable
           height={1100}
           eventContent={renderEventContent}
           eventClassNames={arg => {
-            // Assign custom classes for holidays and course days
+            // Add custom classes for holidays and course days for styling/hover
             if (arg.event.id.startsWith('holiday-')) {
               return ['bg-red-200', 'text-white', 'border-none', 'fc-holiday-hoverable'];
             }
             if (arg.event.id.startsWith('courseDay-')) {
-              // Add fc-course-timegrid for Woche/Tag views
               if (arg.view.type.startsWith('timeGrid')) {
                 return ['fc-course-hoverable', 'fc-course-timegrid'];
               }
