@@ -1,140 +1,269 @@
 <!DOCTYPE html>
 <html lang="de">
+
 <head>
   <meta charset="UTF-8" />
-  <title>Zertifikat - <%= participant.name %></title>
+  <title>Zertifikat - <%= participant.name %>
+  </title>
   <style>
     body {
       font-family: Arial, sans-serif;
       padding: 40px;
       color: #000;
-      text-align: center;
+
       line-height: 1.5;
       display: flex;
       flex-direction: column;
       height: 100vh;
-      font-size: 12px; /* kleiner gemacht */
+      font-size: 12px;
+      /* kleiner gemacht */
     }
+
     h1 {
-      font-size: 24px; /* kleiner gemacht */
-      margin-bottom: 20px;
+      font-size: 5.5em;
+      /* kleiner gemacht */
+      letter-spacing: 2px;
+      margin-bottom: 0.5em;
+      font-weight: 800;
+      text-align: center;
     }
+
     h2 {
-      font-size: 16px; /* kleiner gemacht */
-      margin-bottom: 15px;
+      font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+      font-size: 2em;
+      /* kleiner gemacht */
+      margin-bottom: 3em;
+      letter-spacing: 3px;
+      text-align: center;
     }
+
+    h3 {
+      font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+      font-size: 2em;
+      letter-spacing: 3px;
+      text-align: center;
+    }
+
+    h4 {
+      font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+      font-size: 2em;
+      letter-spacing: 3px;
+      text-align: left;
+      text-transform: uppercase;
+    }
+
     p {
       margin: 8px 0;
-      font-size: 12px; /* kleiner gemacht */
+      font-size: 12px;
+      text-align: center;
+      /* kleiner gemacht */
     }
+
     ul {
+      display: inline-block;
       list-style-type: none;
       padding: 0;
       margin: 20px auto;
       text-align: left;
       display: inline-block;
+      text-align: center;
     }
+
     li {
       margin-bottom: 8px;
-      font-size: 12px; /* kleiner gemacht */
+      font-size: 1.2em;
+      /* kleiner gemacht */
     }
+
     li span.label {
+      display: inline-block;
+      min-width: 100px;
       font-weight: bold;
+      text-transform: uppercase;
+      margin-right: 10px;
     }
-    .spacer {
-      flex-grow: 1;
-    }
+
+
+
     .signature-section {
       display: flex;
+      position: relative;
+      top: 25em;
       justify-content: space-between;
-      margin-top: 60px;
+
       text-align: center;
-      align-items: flex-start; /* Wichtig: obenbündig für Linie */
+      align-items: flex-start;
+      /* Wichtig: obenbündig für Linie */
     }
+
     .signature {
       width: 45%;
       display: flex;
       flex-direction: column;
       align-items: center;
-      font-size: 11px; /* kleiner gemacht */
+      font-size: 11px;
+      /* kleiner gemacht */
     }
+
     .signature-line {
       border-top: 1px solid #000;
       width: 80%;
-      margin-bottom: 8px;
       margin-top: 0;
     }
+
     .page-break {
+      
       page-break-after: always;
+    }
+
+    .first_paragraph {
+      font-size: 1.5em;
+    }
+
+    .todays_Date {
+      position: relative;
+      top: 17em;
+    }
+
+    .impressum {
+      position: relative;
+      top: 220px
+    }
+
+    .details-grid {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      position: relative;
+      top: 9em;
+      left: 5em;
+      column-gap: 20px;
+      row-gap: 10px;
+      text-align: left;
+      font-size: 1.2em;
+      margin: 20px auto;
+      max-width: 600px;
+    }
+
+    .details-grid .label {
+      font-weight: bold;
+      text-transform: uppercase;
+      min-width: 120px;
+    }
+
+    .course_description {
+      margin-bottom: 40em;
+    }
+
+    .full-line {
+      border: none;
+      border-top: 0.5px solid #000;
+      width: 100%;
+     
     }
   </style>
 </head>
+
 <body>
 
   <!-- Vorderseite: Zertifikat -->
   <h1>ZERTIFIKAT</h1>
-  <h1><%= course.program.name %></h1>
+  <h2>
+    <%= course.program.name.toUpperCase() %>
+  </h2>
 
-  <h2><%= participant.name %> <%= participant.surename %></h2>
-  <p>hat den <%= course.program.name %> erfolgreich abgeschlossen.</p>
+  <h3>
+    <%= participant.name.toUpperCase() %>
+      <%= participant.surname.toUpperCase() %>
+  </h3>
+  <p class="first_paragraph">hat den Praxislehrgang <%= course.program.name %> erfolgreich abgeschlossen.</p>
 
-  <%
-  const kursStartDate = new Date(course.startDate); 
-  const options = { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/Berlin' };
-  const formattedDate = kursStartDate.toLocaleDateString('de-DE', options);
-%>
+  <% const kursStartDate=new Date(course.startDate); const options={ day: 'numeric' , month: 'long' , year: 'numeric' ,
+    timeZone: 'Europe/Berlin' }; const formattedDate=kursStartDate.toLocaleDateString('de-DE', options); %>
 
-  
 
-  <ul>
-    <li><span class="label">Ausbildung:</span> <%= formattedDate %> bis course.endDate</li>
-    <li><span class="label">Dauer:</span> <%= course.program.teachingUnits %> Trainingseinheiten</li>
-    <li><span class="label">Kursort:</span> kursort prisma</li>
-  
-    <% if (course.mainTrainer) { %>
-      <li><span class="label">Trainer:</span> <%= course.mainTrainer.name %></li>
-    <% } %>
+    <div class="details-grid">
+      <div class="label">AUSBILDUNG:</div>
+      <div class="value">
+        <%= new Date(course.startDate).toLocaleDateString("de-DE") %> –
+          <%= new Date(course.endDate).toLocaleDateString("de-DE") %>
+      </div>
+
+      <div class="label">DAUER:</div>
+      <div class="value">
+        <%= course.program.teachingUnits %> Trainingseinheiten
+      </div>
+
+      <div class="label">KURSORT:</div>
+      <div class="value">
+        <%= participant.city %>
+      </div>
+
+      <% if (course.mainTrainer) { %>
+        <div class="label">TRAINER:</div>
+        <div class="value">
+          <%= course.mainTrainer.name %>
+        </div>
+        <% } %>
+    </div>
+
+
+
+    <p class="todays_Date">
+      Feldkirch, <%= new Date(course.endDate).toLocaleDateString("de-DE") %>
+    </p>
+
+    <div class="signature-section">
+      <div class="signature">
+        <div class="signature-line"></div>
+        <div>
+          <p>Thomas Berchtold, MSc MBA <br>
+          Geschäftsführer Digital Campus Vorarlberg</p>
+        </div>
+      </div>
+
+      <div class="signature">
+        <div class="signature-line"></div>
+        <div>
+          <p>
+            <%= course.mainTrainer.name %> <br>
+          Kursleiter der Digital Campus</p>
+        </div>
+      </div>
+    </div>
     
-  </ul>
+    <!-- Seitenumbruch für Rückseite falls für PDF -->
+    <div class="page-break"></div>
 
-  <div class="spacer"></div>
+    <!-- Rückseite: Kursinhalte -->
+    <h4>Kursinhalte</h4>
 
-  <p>Kursort: kursort prisma, <%= formattedDate%></p>
+    <div class="course_description">
 
-  <div class="signature-section">
-    <div class="signature">
-      <div class="signature-line"></div>
-      <div>
-        <p>Thomas Berchtold<br>Titel: MSc MBA</p>
-        <p>Geschäftsführer Digital Campus Vorarlberg</p>
+      <div class="underline">
+        <%= course.program.name %>
+      </div>
+
+      <hr class="full-line" />
+
+      <div class="underline">
+        <%= course.program.name %>
+      </div>
+      <hr class="full-line" />
+      <div class="underline">
+        <%= course.program.name %>
+      </div>
+      <hr class="full-line" />
+      <div class="underline">
+        <%= course.program.name %>
+      </div>
+      <hr class="full-line" />
+      <div class="underline">
+        <%= course.program.name %>
       </div>
     </div>
 
-    <div class="signature">
-      <div class="signature-line"></div>
-      <div>
-        <p><%= course.mainTrainer.name %></p>
-        <p>Kursleiter der Digital Campus !!!</p>
-      </div>
-    </div>
-  </div>
 
-  <%- include('_footer') %>
-  <!-- Hinweise für Datenmodell -->
-  <!-- course.endDate needed in Prisma Schema -->
-  <!-- !!! Hier auch Prisma-Schema: Wer ist wer bei den Trainern -->
 
-  <!-- Seitenumbruch für Rückseite falls für PDF -->
-  <div class="page-break"></div>
-
-  <!-- Rückseite: Kursinhalte -->
-  <h1>Kursinhalte</h1>
-
-  <ul>
-    <p>course.program.contents.forEachfunction(content) </p> 
-    <li>content </li>
-  </ul>
-
-  
 </body>
+
 </html>

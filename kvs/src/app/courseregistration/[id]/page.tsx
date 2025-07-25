@@ -22,6 +22,7 @@ import ShowIAndSelectnvoiceRecipient from '@/components/invoices/ShowIAndSelectn
 
 import SubsidyToaster from './subsidy/new/SubsidyToaster'
 
+
 //---------------------------------------------------
 // SERVER ACTIONS
 //---------------------------------------------------
@@ -82,7 +83,7 @@ export default async function ParticipantDetailsPage({
     where: { id: registrationId },
     include: {
       participant: true,
-      course: { include: { program: true, mainTrainer: true } },
+      course: { include: { program: true, mainTrainer: true, courseDays: true } },
       invoices: true,
       invoiceRecipient: true,
     }
