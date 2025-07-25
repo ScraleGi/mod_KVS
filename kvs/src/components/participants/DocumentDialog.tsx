@@ -29,7 +29,7 @@ export function DocumentDialog({
       <DialogTrigger asChild>
         {trigger}
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="bg-white">
         <DialogHeader>
           <DialogTitle>
             Dokumente für {participantName}
