@@ -2,7 +2,7 @@
 
 import { SanitizedInvoiceRecipient, SanitizedParticipant, SanitizedRegistration } from "@/types/query-models"
 import { useState, useEffect } from "react"
-import RecipientForm from "./recipientForm/RecipientForm"
+import RecipientForm from "../recipientForm/RecipientForm"
 import { deleteRecipientFromRegistration, addRecipientToCourseRegistration } from "@/app/actions/createRecipientAction"
 import { getInvoiceRecipients } from "@/utils/recipientFind"
 
